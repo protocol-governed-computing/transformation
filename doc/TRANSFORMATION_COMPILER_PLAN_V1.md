@@ -148,7 +148,7 @@ importing `compiler.*`, the boundary was drawn correctly.
 2. **Stand up `transformation_compiler`** with the dossier register model, the structural oracle
    and the two gates. No worker yet — drive it from hand-authored seeds and registers, so the
    deterministic core is proven before anything non-deterministic is attached.
-3. **CR-1 (`NEW_SUBDOMAIN`)** — the library domain, validated stage by stage against the release-3
+3. **CR-1 (`NEW_SUBDOMAIN`)** — the book_library domain, validated stage by stage against the release-3
    snapshot, then through `protocol_compiler` S1–S9, assembly, composition conformance and runtime.
 4. **CR-2, CR-3, CR-4** — EXTEND, MODIFY, DEPRECATE, each against the composition the previous CR
    produced. This is where semantic preservation and roundtrip equivalence acquire meaning.
@@ -164,7 +164,7 @@ correctness first, scalability second, never both at once.
 
 ```
 examples/
-  01_library/
+  01_book_library/
     seed.md                       the frozen elicitation
     cr_01_new_subdomain/
       stage_1..7_expected/        register rows + oracle verdict (NOT prose)
