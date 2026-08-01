@@ -136,10 +136,24 @@ CASES = [
          "GAP_WITHOUT_OWNER",
          "SCOPE_GAP_UNDECLARED",
      ], 67, 2),
+    # P5 is the first rung up the purity ladder, and its two rules pull opposite ways: a
+    # provisional code must NOT be namespaced, while a borrowed capability MUST be — one names
+    # what this change creates, the other what it leans on.
+    ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
+     "18_p5_admissible_catalog_register.json", "ADMISSIBLE", [], 53, 4),
+    ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
+     "19_p5_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         "BINDING_LEAKED_INTO_INTENT",
+         "CROSS_SUBDOMAIN_REF_UNRESOLVED",
+         "PROVISIONAL_CODE_ALREADY_BOUND",
+         "PROVISIONAL_CODE_MALFORMED",
+         "PROVISIONAL_FAMILY_MISMATCH",
+         "PROVISIONAL_FAMILY_MISMATCH",
+     ], 53, 3),
 ]
 
 
-PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4"}
+PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4", "P5": "p5"}
 
 
 def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:

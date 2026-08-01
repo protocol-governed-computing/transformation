@@ -23,6 +23,7 @@ from transformation.phases.p1_change_request import rules as p1_rules
 from transformation.phases.p2_domain_model import rules as p2_rules
 from transformation.phases.p3_analysis_loop import rules as p3_rules
 from transformation.phases.p4_business_model import rules as p4_rules
+from transformation.phases.p5_business_intent import rules as p5_rules
 from transformation.phases import catalog
 from transformation.phases.template_reader import load as load_template
 
@@ -34,6 +35,7 @@ RULE_SETS = {
     "p2": p2_rules,
     "p3": p3_rules,
     "p4": p4_rules,
+    "p5": p5_rules,
 }
 
 

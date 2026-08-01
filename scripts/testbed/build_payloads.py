@@ -84,6 +84,16 @@ PAYLOADS = {
     "17_p4_inadmissible_catalog_register.json": (
         "scripts/testbed/corpus_p4/inadmissible_p4_broken_consolidation.md"
     ),
+    # P5 is the first step up the purity ladder. The inadmissible case places a provisional code,
+    # files a code under the wrong family, borrows a capability that is not there, and leaks a
+    # binding expression into intent.
+    "18_p5_admissible_catalog_register.json": (
+        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "p5_business_intent_book_library_mgmt_catalog_v0.md"
+    ),
+    "19_p5_inadmissible_catalog_register.json": (
+        "scripts/testbed/corpus_p5/inadmissible_p5_binding_leak.md"
+    ),
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -99,6 +109,8 @@ PAYLOAD_KEY = {
     "15_p3_inadmissible_catalog_register.json": "register_text",
     "16_p4_admissible_catalog_register.json": "register_text",
     "17_p4_inadmissible_catalog_register.json": "register_text",
+    "18_p5_admissible_catalog_register.json": "register_text",
+    "19_p5_inadmissible_catalog_register.json": "register_text",
 }
 
 

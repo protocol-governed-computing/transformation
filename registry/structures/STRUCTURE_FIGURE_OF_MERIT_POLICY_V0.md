@@ -94,6 +94,12 @@ core:
         - NOT_SATISFIED
         Result:
         - INSUFFICIENT_EVIDENCE
+        Identity Field:
+        - UNRESOLVED
+        Uniqueness Rule:
+        - UNRESOLVED
+        Source:
+        - UNRESOLVED
 ```
 
 ---
