@@ -15,7 +15,16 @@ from transformation.baseline import Baseline, BaselineMismatch, observe, verify
 from transformation.phases.checks import kinds as check_kinds
 from transformation.phases.oracle import judge_path
 from transformation.phases.p0 import rules as p0_rules
-from transformation.phases.p0.template import CR_TYPES, SECTIONS
+from transformation.phases.p0 import template as p0_template
+from transformation.phases.p1 import rules as p1_rules
+from transformation.phases.p1 import template as p1_template
+
+# Every phase is a template plus a rule set; the mechanisms are shared. Adding a phase is an entry
+# here, not a new command — the CLI generalizes exactly as the artifacts do.
+PHASES = {
+    "p0": ("the seed phase", p0_rules, p0_template),
+    "p1": ("the change request register", p1_rules, p1_template),
+}
 
 
 @click.group()
@@ -25,24 +34,35 @@ def main() -> None:
 
 
 @main.group()
-def seed() -> None:
-    """P0 — the seed phase."""
+def phase() -> None:
+    """The dossier phases — judge a document against a phase's declared rule set."""
 
 
-@seed.command("check")
-@click.argument("seed_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+_PHASE_OPTION = click.option(
+    "--phase",
+    "phase_key",
+    type=click.Choice(sorted(PHASES)),
+    required=True,
+    help="Which phase's template and rule set to apply.",
+)
+
+
+@phase.command("check")
+@click.argument("doc_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@_PHASE_OPTION
 @click.option("--json", "as_json", is_flag=True, help="Emit the verdict as JSON.")
-def seed_check(seed_path: Path, as_json: bool) -> None:
-    """Judge a seed against the P0 structural oracle.
+def phase_check(doc_path: Path, phase_key: str, as_json: bool) -> None:
+    """Judge a phase document against that phase's structural oracle.
 
     Exit 0 if ADMISSIBLE, 1 if INADMISSIBLE.
     """
-    verdict = judge_path(seed_path, p0_rules.rule_set())
+    _, rules_mod, _ = PHASES[phase_key]
+    verdict = judge_path(doc_path, rules_mod.rule_set())
 
     if as_json:
         click.echo(json.dumps(verdict.as_dict(), indent=2))
     else:
-        click.echo(f"{verdict.verdict}  {seed_path}")
+        click.echo(f"{verdict.verdict}  [{phase_key}]  {doc_path}")
         for finding in verdict.findings:
             click.echo(f"  {finding}")
         click.echo(
@@ -52,14 +72,16 @@ def seed_check(seed_path: Path, as_json: bool) -> None:
     sys.exit(0 if verdict.admissible else 1)
 
 
-@seed.command("rules")
+@phase.command("rules")
+@_PHASE_OPTION
 @click.option("--json", "as_json", is_flag=True, help="Emit the rule set as JSON.")
-def seed_rules(as_json: bool) -> None:
-    """Print the declared admissibility rule set.
+def phase_rules(phase_key: str, as_json: bool) -> None:
+    """Print a phase's declared admissibility rule set.
 
-    The rules are data, not code: this is the whole of what governs a seed.
+    The rules are data, not code: this is the whole of what governs that phase's document.
     """
-    declared = p0_rules.rule_set()
+    _, rules_mod, _ = PHASES[phase_key]
+    declared = rules_mod.rule_set()
 
     if as_json:
         click.echo(
@@ -87,15 +109,29 @@ def seed_rules(as_json: bool) -> None:
     click.echo(f"\n  {len(declared)} rules over {len(check_kinds())} check kinds")
 
 
-@seed.command("template")
-def seed_template() -> None:
-    """Print the required seed section structure."""
-    click.echo(f"CR types: {', '.join(CR_TYPES)}\n")
-    for spec in SECTIONS:
-        label = f"{spec.number}. " if spec.number is not None else "   "
+@phase.command("template")
+@_PHASE_OPTION
+def phase_template(phase_key: str) -> None:
+    """Print a phase's required section structure."""
+    label, _, template_mod = PHASES[phase_key]
+    click.echo(f"{phase_key} — {label}\n")
+    for spec in template_mod.SECTIONS:
+        num = f"{spec.number}. " if spec.number is not None else "   "
         shape = "prose" if spec.prose else f"table[{', '.join(spec.table_columns)}]"
         optional = "  (may be empty)" if spec.may_be_empty else ""
-        click.echo(f"  {label}{spec.title} — {shape}{optional}")
+        click.echo(f"  {num}{spec.title} — {shape}{optional}")
+
+
+@phase.command("list")
+def phase_list() -> None:
+    """Print the phases this build governs."""
+    for key in sorted(PHASES):
+        label, rules_mod, template_mod = PHASES[key]
+        click.echo(
+            f"  {key}  {label:<32} "
+            f"{len(template_mod.SECTIONS):>2} registers  "
+            f"{len(rules_mod.rule_set()):>3} rules"
+        )
 
 
 @main.group()

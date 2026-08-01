@@ -26,8 +26,11 @@ snapshot; this tool runs *before* a snapshot exists, its output is authored arti
 gates, and its only reader is the person driving the change.
 
 ```bash
-tc seed check <seed.md>              # P0 structural oracle — ADMISSIBLE / INADMISSIBLE
-tc seed template                     # the required section structure
+tc phase list                              # phases this build governs
+tc phase check --phase p0 <seed.md>        # structural oracle — ADMISSIBLE / INADMISSIBLE
+tc phase check --phase p1 <register.md>
+tc phase template --phase p1               # the required section structure
+tc phase rules --phase p1                  # the declared rule set
 tc baseline verify <pin.json> --snapshot <root>
 ```
 
@@ -66,6 +69,7 @@ re-pin the id, re-approve the affected registers.
 
 ## Documents
 
+- `doc/RUNBOOK.md` — clean-slate build and check, end to end.
 - `doc/TRANSFORMATION_COMPILER_PLAN_V1.md` — the rehost plan: what is being rehosted, the
   phase-by-phase validation methodology, and the settled rulings.
 - `doc/TRANSFORMATION_COMPILER_PLAN_V1_ADDENDUM_A.md` — the release-4 subject: the

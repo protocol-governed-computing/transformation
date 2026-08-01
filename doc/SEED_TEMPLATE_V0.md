@@ -90,9 +90,11 @@ built" from "was never intended."
 ## The oracle
 
 ```bash
-tc seed check path/to/0_seed_business_problem_statement.md
-tc seed check path/to/seed.md --json
-tc seed template
+tc phase check --phase p0 path/to/0_seed_business_problem_statement.md
+tc phase check --phase p0 path/to/seed.md --json
+tc phase template --phase p0
+tc phase rules --phase p0
+tc phase list
 ```
 
 Verdict is `ADMISSIBLE` or `INADMISSIBLE` — there is no warning tier. A seed a human must think
@@ -120,7 +122,7 @@ beliefs and questions in their proper registers and invents no design.
 
 ## Extending the template
 
-The template is data, in `transformation/seed/template.py`. Adding a section or a controlled
+The template is data, in `transformation/phases/p0/template.py` (P1's is `p1/template.py`). Adding a section or a controlled
 vocabulary term is an edit to that file and nowhere else — including future CR types
 (`MERGE_SUBDOMAIN`, `SPLIT_SUBDOMAIN`), which must remain a vocabulary extension rather than a
 redesign.
