@@ -104,13 +104,16 @@ core:
     - VIOLATION
     on_input_failure: VIOLATION
   pipeline:
+  # Declares no outputs: registers are an intermediate, not a result of judging a document.
+  # Every step's outputs mapping accumulates into the CC surface, so declaring them here would
+  # publish the entire parsed document as an observable output of the phase. Step two reads the
+  # raw result directly instead, which the dispatcher addresses as
+  # $.results.<step_id>.capability_result.<field>.
   - step: parse_registers
     transform: transformation::CT_PURE_PARSE_REGISTERS_V0
     inputs:
       document_text: $.inputs.document_text
-    outputs:
-      header: $.capability_result.header
-      sections: $.capability_result.sections
+    outputs: {}
     result_surface:
     - SUCCESS
     - VIOLATION
@@ -121,8 +124,8 @@ core:
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:
-      header: $.results.parse_registers.header
-      sections: $.results.parse_registers.sections
+      header: $.results.parse_registers.capability_result.header
+      sections: $.results.parse_registers.capability_result.sections
       document_text: $.inputs.document_text
       rule_set: $.inputs.rule_set
     outputs:
