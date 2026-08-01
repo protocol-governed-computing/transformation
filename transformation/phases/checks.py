@@ -593,18 +593,24 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
     Absence of the cell is not this rule's business; a blank is `CELL_NOT_EMPTY`'s finding, and
     reporting it twice would make one defect look like two.
     """
-    target = rule.params["target_register"]
+    # One target register, or several: a code may legitimately be declared new here OR carried over
+    # from the existing inventory, and a rule naming only one of those would reject the other.
+    targets = rule.params.get("target_registers") or [rule.params["target_register"]]
     target_column = rule.params["target_column"]
+    target_columns = rule.params.get("target_columns") or [target_column] * len(targets)
 
-    block = doc.register(target)
     known: set[str] = set()
-    if block is not None and block.table is not None:
+    for register, column in zip(targets, target_columns):
+        block = doc.register(register)
+        if block is None or block.table is None:
+            continue
         for row in block.table.rows:
             if _is_sentinel(row):
                 continue
-            value = _cell(row, target_column)
+            value = _cell(row, column)
             if value:
                 known.add(value.strip())
+    target = " or ".join(targets)
 
     only_when_column = rule.params.get("only_when_column")
     only_when_value = rule.params.get("only_when_value")
@@ -620,10 +626,12 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
             continue
         for part in (p.strip() for p in value.split(";")):
             if part and part not in known:
+                detail = rule.params.get(
+                    "detail", "a document may only point at what it declared"
+                )
                 out.append((
                     f"{_where(rule)} row {i}",
-                    f"{part!r} names no row in {target}.{target_column} — "
-                    f"a consolidation may only point at what it consolidated",
+                    f"{part!r} names no row in {target}.{target_column} — {detail}",
                 ))
     return out
 
@@ -652,4 +660,40 @@ def _cell_prefixed_by_column(doc: ParsedDocument, rule) -> list[tuple[str, str]]
                 f"{value!r} does not agree with {prefix_column} {prefix!r} — "
                 f"the row classifies itself two ways",
             ))
+    return out
+
+
+@check("CITED_ARTIFACTS_ABSENT")
+def _cited_artifacts_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An identity claimed as NEW must not already be in the composition.
+
+    The inverse of `CITED_ARTIFACTS_RESOLVE`, and the only rule in the pipeline that reads a
+    successful resolution as the defect. Every phase before this one cites what exists; the design
+    phase assigns identities that will exist, and an assignment that collides with something
+    already there is not a new artifact — it is a silent redefinition of an old one.
+
+    Reported per identity, because a designer needs to know which name to change, not that one of
+    them was taken.
+    """
+    observation = rule.params["observation"]
+    pattern = re.compile(rule.params["pattern"])
+    observed = _observed_identities(doc, observation)
+
+    if not observed:
+        return [(
+            _where(rule),
+            "no composition was observed — a collision check that cannot see the baseline would "
+            "admit every colliding name",
+        )]
+
+    out = []
+    for i, row in _rows(doc, rule):
+        value = _cell(row, rule.params["column"])
+        for identity in pattern.findall(value):
+            if identity in observed:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"{identity!r} already exists in the composition — assigning it here would "
+                    f"redefine an artifact rather than create one",
+                ))
     return out

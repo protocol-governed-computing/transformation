@@ -162,10 +162,22 @@ CASES = [
          "PROVISIONAL_CODE_IN_PLACEMENT",
          "SATISFIED_WITHOUT_EXISTING_ARTIFACT",
      ], 43, 4),
+    # P7 assigns binding identity, and one of its rules runs backwards: every other grounded phase
+    # is wrong when a citation fails to resolve, this one is wrong when a NEW code *does*. A
+    # collision is not a new artifact but a silent redefinition of an old one.
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 52, 5),
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         "NEW_CODE_ALREADY_EXISTS",
+         "NEW_CODE_MALFORMED",
+         "STORE_WITHOUT_PROPOSED_PATH",
+         "TOPOLOGY_NODE_UNDECLARED",
+     ], 52, 4),
 ]
 
 
-PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4", "P5": "p5", "P6": "p6"}
+PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4", "P5": "p5", "P6": "p6", "P7": "p7"}
 
 
 def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:

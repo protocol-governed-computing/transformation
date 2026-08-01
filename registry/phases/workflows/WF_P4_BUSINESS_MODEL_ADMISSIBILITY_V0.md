@@ -626,6 +626,7 @@ core:
             target_column: Gap Code
             only_when_column: Status
             only_when_value: CRITICAL
+            detail: a consolidation may only point at what it consolidated
           intent: a capability points only at a gap the document itself declares
         - id: GAP_WITHOUT_OWNER
           check: CELL_NOT_EMPTY
@@ -648,6 +649,7 @@ core:
             column: Gap Register Ref
             target_register: gap_register
             target_column: Gap Code
+            detail: a consolidation may only point at what it consolidated
           intent: scope points only at a gap the document itself declares
         - id: DEPENDENCY_IDENTITY_UNRESOLVED
           check: CITED_ARTIFACTS_RESOLVE

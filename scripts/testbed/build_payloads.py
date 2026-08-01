@@ -104,6 +104,16 @@ PAYLOADS = {
     "21_p6_inadmissible_catalog_register.json": (
         "scripts/testbed/corpus_p6/inadmissible_p6_unplaced.md"
     ),
+    # P7 assigns binding identity. The inadmissible case collides with an artifact that already
+    # exists, omits a namespace, references a spelling variant nobody declared, and leaves a store
+    # with nowhere to live.
+    "22_p7_admissible_catalog_register.json": (
+        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "p7_design_intent_book_library_mgmt_catalog_v0.md"
+    ),
+    "23_p7_inadmissible_catalog_register.json": (
+        "scripts/testbed/corpus_p7/inadmissible_p7_collision.md"
+    ),
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -123,6 +133,8 @@ PAYLOAD_KEY = {
     "19_p5_inadmissible_catalog_register.json": "register_text",
     "20_p6_admissible_catalog_register.json": "register_text",
     "21_p6_inadmissible_catalog_register.json": "register_text",
+    "22_p7_admissible_catalog_register.json": "register_text",
+    "23_p7_inadmissible_catalog_register.json": "register_text",
 }
 
 

@@ -1,0 +1,168 @@
+"""The P7 rule set — what makes a Design Intent register admissible.
+
+Eight registers, their columns, their vocabularies and their traceability come from
+`templates/p7_design_intent_template_v0.md`. Declared here is what the template cannot express.
+
+P7 answers **HOW**, and it is where identity becomes binding. P5 assigned provisional codes, P6
+placed capabilities in subdomains; P7 turns those into domain-qualified FQDNs that later phases,
+the compiler and the runtime will all use verbatim. **Gate 1 closes here** — the dossier is
+reviewed as a body before any mandate may be drafted.
+
+One rule inverts everything the pipeline has done so far. Every earlier phase cites artifacts that
+exist and is wrong when a citation does not resolve. P7 assigns identities that *will* exist, and
+is wrong when one **does**: a code colliding with something already in the composition is not a new
+artifact but a silent redefinition of an old one. `CITED_ARTIFACTS_ABSENT` is the only rule here
+that reads a successful resolution as the defect, and it is the reason this phase must ground.
+
+The rest is immutability discipline. A binding FQDN is assigned once and reused as the exact same
+string everywhere, because a spelling variant of the same concept does not read as a synonym — it
+creates a second, permanently misnamed artifact. So every code referenced in the topology, in a
+runtime binding, or in a composition must be declared: as new here, or as an existing artifact
+carried over. A reference to neither is a name nobody owns.
+"""
+
+from __future__ import annotations
+
+from transformation.phases.derive import derived_rules
+from transformation.phases.rules import Rule, dossier_header_rules
+from transformation.phases.template_reader import load
+
+TEMPLATE = load("p7")
+
+OBSERVATION_OPERATION = "si.artifact.list"
+
+# operation → the key its result carries rows under.
+OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
+
+ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
+
+# A binding FQDN: domain-qualified, family-prefixed, explicitly versioned.
+BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|STRUCTURE)_[A-Z0-9_]+_V\d+$"
+
+
+BINDING_RULES: list[Rule] = [
+    Rule(
+        id="NEW_CODE_ALREADY_EXISTS",
+        check="CITED_ARTIFACTS_ABSENT",
+        register="new_artifacts",
+        params={
+            "column": "Code",
+            "pattern": ARTIFACT_REFERENCE_PATTERN,
+            "observation": OBSERVATION_OPERATION,
+        },
+        intent="an identity assigned as new must not already name something else",
+    ),
+    Rule(
+        id="NEW_CODE_MALFORMED",
+        check="CELL_MATCHES",
+        register="new_artifacts",
+        params={
+            "column": "Code",
+            "pattern": BINDING_FQDN_PATTERN,
+            "detail": "binding code {value!r} must be domain::FAMILY_NAME_V<n>",
+        },
+        intent="a binding identity is domain-qualified, family-prefixed and versioned",
+    ),
+    Rule(
+        id="EXISTING_INVENTORY_UNRESOLVED",
+        check="CITED_ARTIFACTS_RESOLVE",
+        register="existing_inventory",
+        params={
+            "column": "FQDN",
+            "pattern": ARTIFACT_REFERENCE_PATTERN,
+            "observation": OBSERVATION_OPERATION,
+        },
+        intent="an artifact carried over from the composition must really be in it",
+    ),
+    Rule(
+        id="TOPOLOGY_WORKFLOW_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="execution_topology",
+        params={
+            "column": "Workflow",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+        },
+        intent="a workflow in the topology is one this design declared or carried over",
+    ),
+    Rule(
+        id="TOPOLOGY_NODE_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="execution_topology",
+        params={
+            "column": "Node",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": (
+                "a binding identity is immutable, so a spelling variant is a second artifact "
+                "rather than a synonym"
+            ),
+        },
+        intent="every node in the topology is an identity this design actually assigned",
+    ),
+    Rule(
+        id="RB_BINDS_UNDECLARED_WORKFLOW",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="rb_declarations",
+        params={
+            "column": "Binds WF",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+        },
+        intent="a runtime binding binds a workflow that exists in this design",
+    ),
+    Rule(
+        id="RB_CODE_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="rb_declarations",
+        params={
+            "column": "RB Code",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+        },
+        intent="a runtime binding is itself a declared artifact, never implicit",
+    ),
+    Rule(
+        id="COMPOSITION_CC_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="cc_composition",
+        params={
+            "column": "CC Code",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+        },
+        intent="a composition belongs to a capability contract this design declared",
+    ),
+    Rule(
+        id="COMPOSITION_STEP_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="cc_composition",
+        params={
+            "column": "Capability",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+        },
+        intent="a step invokes a capability that is declared new or carried over, never invented inline",
+    ),
+    Rule(
+        id="STORE_WITHOUT_PROPOSED_PATH",
+        check="CELL_NOT_EMPTY",
+        register="structure_stores",
+        params={
+            "column": "Proposed Path",
+            "detail": "store declares no proposed path — a store nobody can locate is not designed",
+        },
+        intent="a declared store says where it will live",
+    ),
+]
+
+
+def rule_set() -> list[Rule]:
+    """The complete declared P7 rule set: derived, then binding discipline, then the header."""
+    return derived_rules(TEMPLATE) + BINDING_RULES + dossier_header_rules()
