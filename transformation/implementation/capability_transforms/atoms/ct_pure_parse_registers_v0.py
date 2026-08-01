@@ -20,7 +20,7 @@ from typing import Any, Dict
 
 from runtime.ct_executor import CTExecutionError
 
-from transformation.seed.read import parse_text
+from transformation.phases.read import parse_text
 
 
 def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:

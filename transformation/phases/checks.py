@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from typing import Callable
 
-from transformation.seed.evaluate import Block, ParsedDocument
+from transformation.phases.evaluate import Block, ParsedDocument
 
 CheckFn = Callable[[ParsedDocument, "object"], list[tuple[str, str]]]
 
@@ -241,3 +241,20 @@ def _token_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         ("document", rule.params["detail"].format(token=token))
         for token in sorted(set(pattern.findall(doc.raw)))
     ]
+
+
+@check("CELL_MATCHES")
+def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every non-empty cell in a column must match a declared pattern.
+
+    Emptiness is CELL_NOT_EMPTY's concern — a rule that checked both would report two findings for
+    one defect and make the cause ambiguous.
+    """
+    out = []
+    column = rule.params["column"]
+    pattern = re.compile(rule.params["pattern"])
+    for i, row in _rows(doc, rule):
+        value = _cell(row, column)
+        if value and not pattern.match(value):
+            out.append((f"{rule.section_title} row {i}", rule.params["detail"].format(value=value)))
+    return out

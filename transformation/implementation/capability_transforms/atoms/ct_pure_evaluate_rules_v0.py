@@ -22,8 +22,8 @@ from typing import Any, Dict, List
 
 from runtime.ct_executor import CTExecutionError
 
-from transformation.seed.checks import dispatch, kinds
-from transformation.seed.evaluate import DeclaredRule, ParsedDocument
+from transformation.phases.checks import dispatch, kinds
+from transformation.phases.evaluate import DeclaredRule, ParsedDocument
 
 ADMISSIBLE = "ADMISSIBLE"
 INADMISSIBLE = "INADMISSIBLE"

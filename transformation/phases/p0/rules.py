@@ -15,10 +15,9 @@ than restated, so the template stays the single declaration of the seed's shape.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from transformation.phases.rules import Rule, structural_rules
 
-from transformation.seed.template import (
+from transformation.phases.p0.template import (
     ARTIFACT_KIND_PREFIXES,
     CERTAINTY,
     CR_TYPES,
@@ -27,21 +26,6 @@ from transformation.seed.template import (
     SECTIONS,
     section,
 )
-
-
-@dataclass(frozen=True)
-class Rule:
-    """One declared admissibility rule.
-
-    `id` is the finding code the oracle emits. `section_title` names the register the rule
-    governs, or None for whole-document rules. `check` names a kind in `checks.py`.
-    """
-
-    id: str
-    check: str
-    section_title: str | None = None
-    params: dict[str, Any] = field(default_factory=dict)
-    intent: str = ""
 
 
 # A belief written with the grammar of an assertion. P0's cardinal sin is promoting a System Belief
@@ -58,65 +42,6 @@ ASSERTIVE_OPENERS = (
 DESIGN_TOKEN_PATTERN = (
     r"\b(?:" + "|".join(ARTIFACT_KIND_PREFIXES) + r")_[A-Z0-9_]+_V\d+\b"
 )
-
-
-def _structural_rules() -> list[Rule]:
-    """Derive presence / numbering / table rules from the template declaration."""
-    out: list[Rule] = []
-    for spec in SECTIONS:
-        out.append(
-            Rule(
-                id="SECTION_MISSING",
-                check="SECTION_PRESENT",
-                section_title=spec.title,
-                intent="every declared register must be present",
-            )
-        )
-        if spec.number is not None:
-            out.append(
-                Rule(
-                    id="SECTION_MISNUMBERED",
-                    check="SECTION_NUMBERED",
-                    section_title=spec.title,
-                    params={"number": spec.number},
-                    intent="registers are referenced by number downstream",
-                )
-            )
-        if spec.table_columns:
-            out.append(
-                Rule(
-                    id="TABLE_MISSING",
-                    check="TABLE_PRESENT",
-                    section_title=spec.title,
-                    intent="a register must be readable as rows, not prose",
-                )
-            )
-            out.append(
-                Rule(
-                    id="TABLE_COLUMN_MISSING",
-                    check="TABLE_HAS_COLUMNS",
-                    section_title=spec.title,
-                    params={"columns": list(spec.table_columns)},
-                    intent="downstream phases read these columns by name",
-                )
-            )
-            if not spec.may_be_empty:
-                out.append(
-                    Rule(
-                        id="TABLE_EMPTY",
-                        check="TABLE_HAS_ROWS",
-                        section_title=spec.title,
-                        intent="an empty required register asserts nothing",
-                    )
-                )
-    out.append(
-        Rule(
-            id="SECTION_OUT_OF_ORDER",
-            check="SECTIONS_ASCENDING",
-            intent="section order is part of the template contract",
-        )
-    )
-    return out
 
 
 SEMANTIC_RULES: list[Rule] = [
@@ -232,4 +157,4 @@ SEMANTIC_RULES: list[Rule] = [
 
 def rule_set() -> list[Rule]:
     """The complete declared rule set, structural first."""
-    return _structural_rules() + SEMANTIC_RULES
+    return structural_rules(SECTIONS) + SEMANTIC_RULES

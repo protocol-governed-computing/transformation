@@ -17,10 +17,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from transformation.seed.checks import dispatch
-from transformation.seed.evaluate import ParsedDocument
-from transformation.seed.read import read_seed
-from transformation.seed.rules import Rule, rule_set
+from transformation.phases.checks import dispatch
+from transformation.phases.evaluate import ParsedDocument
+from transformation.phases.read import read_seed
+from transformation.phases.rules import Rule
 
 ADMISSIBLE = "ADMISSIBLE"
 INADMISSIBLE = "INADMISSIBLE"
@@ -65,13 +65,17 @@ class Verdict:
         }
 
 
-def evaluate(doc: ParsedDocument, rules: list[Rule] | None = None) -> Verdict:
-    """Apply every declared rule to an already-read seed.
+def evaluate(doc: ParsedDocument, rules: list[Rule]) -> Verdict:
+    """Apply a phase's declared rule set to an already-read document.
 
-    Every rule is evaluated — there is no short-circuit on first failure. A seed author needs the
-    whole finding set, and a rule that never runs is a rule that cannot be trusted.
+    The rule set is always supplied — the oracle is generic across phases and has no default. A
+    default would silently judge a P1 register against P0's rules and report a confident verdict
+    about the wrong thing.
+
+    Every rule is evaluated; there is no short-circuit on first failure. An author needs the whole
+    finding set, and a rule that never runs is a rule that cannot be trusted.
     """
-    declared = rule_set() if rules is None else rules
+    declared = rules
     findings: list[Finding] = []
 
     for rule in declared:
@@ -90,5 +94,5 @@ def evaluate(doc: ParsedDocument, rules: list[Rule] | None = None) -> Verdict:
     )
 
 
-def judge_path(path: Path) -> Verdict:
-    return evaluate(read_seed(path))
+def judge_path(path: Path, rules: list[Rule]) -> Verdict:
+    return evaluate(read_seed(path), rules)

@@ -12,10 +12,10 @@ from pathlib import Path
 import click
 
 from transformation.baseline import Baseline, BaselineMismatch, observe, verify
-from transformation.seed.checks import kinds as check_kinds
-from transformation.seed.oracle import judge_path
-from transformation.seed.rules import rule_set
-from transformation.seed.template import CR_TYPES, SECTIONS
+from transformation.phases.checks import kinds as check_kinds
+from transformation.phases.oracle import judge_path
+from transformation.phases.p0 import rules as p0_rules
+from transformation.phases.p0.template import CR_TYPES, SECTIONS
 
 
 @click.group()
@@ -37,7 +37,7 @@ def seed_check(seed_path: Path, as_json: bool) -> None:
 
     Exit 0 if ADMISSIBLE, 1 if INADMISSIBLE.
     """
-    verdict = judge_path(seed_path)
+    verdict = judge_path(seed_path, p0_rules.rule_set())
 
     if as_json:
         click.echo(json.dumps(verdict.as_dict(), indent=2))
@@ -59,7 +59,7 @@ def seed_rules(as_json: bool) -> None:
 
     The rules are data, not code: this is the whole of what governs a seed.
     """
-    declared = rule_set()
+    declared = p0_rules.rule_set()
 
     if as_json:
         click.echo(

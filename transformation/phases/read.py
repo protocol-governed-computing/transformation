@@ -16,7 +16,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from transformation.seed.evaluate import ParsedDocument
+from transformation.phases.evaluate import ParsedDocument
 
 HEADING = re.compile(r"^##\s+(?:(\d+)\.\s+)?(.+?)\s*$")
 BULLET_FIELD = re.compile(r"^-\s+\*\*(?P<name>[^:*]+):\*\*\s*(?P<value>.*?)\s*$")
