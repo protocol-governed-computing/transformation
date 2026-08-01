@@ -165,30 +165,21 @@ CASES = [
     # P7 assigns binding identity, and one of its rules runs backwards: every other grounded phase
     # is wrong when a citation fails to resolve, this one is wrong when a NEW code *does*. A
     # collision is not a new artifact but a silent redefinition of an old one.
-    # BOTH P7 cases are INADMISSIBLE, and the reason is a defect in how this suite is baselined
-    # rather than in either document. CR-1's design was validated against the composition it was
-    # designed against; the artifacts it mandated have since been built, so the collision check now
-    # reports all 23 assigned identities as already existing — correctly. A design cannot be
-    # re-validated against its own output. Restoring the design-time baseline is the fix; until
-    # then these expectations record what is true rather than what we would like.
+    # Judged against the design-time baseline — the composition CR-1 was designed against, not the
+    # one containing its own output. Getting this wrong makes every assigned identity collide.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "22_p7_admissible_catalog_register.json", "INADMISSIBLE",
-     ["NEW_CODE_ALREADY_EXISTS"] * 23, 55, 4),
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 55, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE",
-     ["NEW_CODE_ALREADY_EXISTS"] * 23 + [
+     "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "NEW_CODE_MALFORMED",
          "STORE_WITHOUT_PROPOSED_PATH",
          "TOPOLOGY_NODE_UNDECLARED",
-     ], 55, 4),
+     ], 55, 4, "design"),
     # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
     # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
     # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
-    # Same baselining defect as P7: the mandate orders artifacts that have since been built, so
-    # every code it schedules now collides. The mandate is unchanged and correct.
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
-     "24_p8_admissible_catalog_mandate.json", "INADMISSIBLE",
-     ["BUILD_CODE_ALREADY_EXISTS"] * 23, 30, 4),
+     "24_p8_admissible_catalog_mandate.json", "ADMISSIBLE", [], 30, 5, "design"),
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
      "25_p8_inadmissible_catalog_mandate.json", "INADMISSIBLE", [
          "BUILD_STEPS_NOT_CONTIGUOUS",
@@ -228,6 +219,38 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
     return rate(verdict, doc, policy)
 
 
+# A CR's dossier is judged against the composition it was DESIGNED against, never against one that
+# already contains its own output. CR-1's design assigns 23 identities; once those are built, every
+# one of them collides — correctly, and fatally for any attempt to re-validate the design.
+#
+# The baseline does not need archiving. Snapshots are dispensable and reassembled at will, so the
+# design-time composition is *reproduced* on demand from the same compiled domains minus the one
+# the CR authored. That is cheaper than storing it and cannot go stale.
+DESIGN_BASELINE = Path("/tmp/pgc_cr01_design_baseline")
+
+DESIGN_BASELINE_ROOTS = [
+    WORKSPACE / "software_governance",
+    WORKSPACE / "conformance_workloads" / "workloads" / "collatz",
+    WORKSPACE / "business_domains" / "ai_governance",
+    WORKSPACE / "snapshot_inspector",
+    REPO,
+]
+
+
+def design_baseline() -> str:
+    """The composition CR-1 was designed against, reproduced if absent."""
+    if not (DESIGN_BASELINE / "manifest.json").is_file():
+        import os
+        import subprocess
+        roots = ":".join(str(r / "snapshot" / "compiled") for r in DESIGN_BASELINE_ROOTS)
+        env = {**os.environ,
+               "PGC_SOURCE_ROOTS": roots,
+               "PGC_SNAPSHOT_OUT": str(DESIGN_BASELINE)}
+        subprocess.run([str(WORKSPACE / "snapshot_assembler" / "assemble.sh")],
+                       env=env, capture_output=True, check=True)
+    return str(DESIGN_BASELINE)
+
+
 def main() -> int:
     snapshot_root = sys.argv[1] if len(sys.argv) > 1 else str(REPO.parent / "snapshot")
     data_root = str(REPO.parent / "data" / "transformation")
@@ -239,7 +262,10 @@ def main() -> int:
     print(f"  snapshot {snapshot_root}\n")
 
     failures = 0
-    for phase, wf, payload_file, want_verdict, want_rule_ids, want_rules, want_rating in CASES:
+    for case in CASES:
+        phase, wf, payload_file, want_verdict, want_rule_ids, want_rules, want_rating = case[:7]
+        # A case may name the composition it is judged against; most use the live snapshot.
+        case_snapshot = design_baseline() if len(case) > 7 and case[7] == "design" else snapshot_root
         path = PAYLOADS / payload_file
         if not path.is_file():
             print(f"  MISSING  {phase}  {payload_file} — run scripts/testbed/build_payloads.py")
@@ -248,7 +274,7 @@ def main() -> int:
 
         payload = json.loads(path.read_text(encoding="utf-8"))
         result = api.run_workflow(
-            wf_fqdn=wf, payload=payload, snapshot_root=snapshot_root, data_root=data_root
+            wf_fqdn=wf, payload=payload, snapshot_root=case_snapshot, data_root=data_root
         )
 
         verdict = result.surface.get("verdict")

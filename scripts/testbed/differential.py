@@ -41,6 +41,11 @@ WORKSPACE = REPO.parent
 # A business CR's dossier lives with the domain it changes, not with the pipeline that judges it.
 CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog"
 
+# A CR's dossier grounds against the composition it was designed against. Reproduced on demand by
+# `e2e_phases.design_baseline()`; if it is absent the live snapshot is used and the P7/P8 documents
+# report collisions with their own output — true, and uninformative about the two paths.
+DESIGN_BASELINE = Path("/tmp/pgc_cr01_design_baseline")
+
 # Each phase: its workflow, its declared rule set, and the corpus it judges. A phase added here
 # without a corpus would report "identical rule sets" and prove nothing about behaviour, so the
 # corpus is part of the declaration rather than discovered.
@@ -210,7 +215,11 @@ def main() -> int:
     total = 0
 
     for phase, spec in PHASES.items():
-        sealed = sealed_rule_set(spec["wf"], snapshot_root)
+        # P7 and P8 judge assigned identities against a baseline; the rest are baseline-agnostic.
+        root = (str(DESIGN_BASELINE)
+                if phase in ("P7", "P8") and (DESIGN_BASELINE / "manifest.json").is_file()
+                else snapshot_root)
+        sealed = sealed_rule_set(spec["wf"], root)
         declared = spec["rules"]()
 
         print(f"{phase}  rule sets   sealed={len(sealed)}  declared={len(declared)}")
@@ -220,7 +229,7 @@ def main() -> int:
             continue
         print("  identical")
 
-        observed = observation(spec.get("observes"), snapshot_root)
+        observed = observation(spec.get("observes"), root)
         corpus = [p for p in spec["corpus"] if p.is_file()]
         if not corpus:
             print(f"  NO DOCUMENTS — a differential over an empty corpus is not evidence")
