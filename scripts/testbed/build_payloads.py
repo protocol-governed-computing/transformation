@@ -74,6 +74,16 @@ PAYLOADS = {
     "15_p3_inadmissible_catalog_register.json": (
         "scripts/testbed/corpus_p3/inadmissible_p3_ineligible_reuse.md"
     ),
+    # P4 consolidates, so its defects are between registers rather than inside one. The
+    # inadmissible case points a capability and a scope entry at gaps nobody declared, leaves a
+    # gap unowned, and depends on an artifact in the wrong namespace.
+    "16_p4_admissible_catalog_register.json": (
+        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "p4_business_model_book_library_mgmt_catalog_v0.md"
+    ),
+    "17_p4_inadmissible_catalog_register.json": (
+        "scripts/testbed/corpus_p4/inadmissible_p4_broken_consolidation.md"
+    ),
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -87,6 +97,8 @@ PAYLOAD_KEY = {
     "13_p2_inadmissible_catalog_register.json": "register_text",
     "14_p3_admissible_catalog_register.json": "register_text",
     "15_p3_inadmissible_catalog_register.json": "register_text",
+    "16_p4_admissible_catalog_register.json": "register_text",
+    "17_p4_inadmissible_catalog_register.json": "register_text",
 }
 
 

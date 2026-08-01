@@ -123,10 +123,23 @@ CASES = [
          "REUSE_CANDIDATE_NOT_ELIGIBLE",
          "REUSE_CANDIDATE_NOT_ELIGIBLE",
      ], 46, 3),
+    # P4 consolidates: its defects live between registers, where every register is individually
+    # well formed and the document as a whole asserts something untrue. The admissible case is the
+    # corpus's only 5/5 — a consolidation carries no open questions of its own, because P3
+    # resolved them.
+    ("P4", "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
+     "16_p4_admissible_catalog_register.json", "ADMISSIBLE", [], 67, 5),
+    ("P4", "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
+     "17_p4_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         "DEPENDENCY_IDENTITY_UNRESOLVED",
+         "GAP_ENTRY_UNDECLARED",
+         "GAP_WITHOUT_OWNER",
+         "SCOPE_GAP_UNDECLARED",
+     ], 67, 2),
 ]
 
 
-PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3"}
+PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4"}
 
 
 def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:

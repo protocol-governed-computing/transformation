@@ -270,9 +270,22 @@ def _cell_in_vocabulary(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 @check("CELL_NOT_EMPTY")
 def _cell_not_empty(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A column that must carry a value — optionally only for rows in a given state.
+
+    `only_when_column` / `only_when_value` narrow the rule to the rows it is really about, the same
+    gating `CITED_ARTIFACTS_RESOLVE` uses. Without it a requirement that applies to one status
+    would report against every row, and a register would have to be split to say something true
+    about part of itself.
+    """
     out = []
     column = rule.params["column"]
+    only_when_column = rule.params.get("only_when_column")
+    only_when_value = rule.params.get("only_when_value")
     for i, row in _rows(doc, rule):
+        if only_when_column:
+            gate = _cell(row, only_when_column)
+            if gate.strip().upper() != str(only_when_value).upper():
+                continue
         if not _cell(row, column):
             out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
     return out
@@ -566,3 +579,50 @@ def _owning_domain(doc: ParsedDocument, rule, identity: str) -> str | None:
         if isinstance(entry, dict) and entry.get("artifact") == identity:
             return entry.get("domain")
     return None
+
+
+@check("CELL_RESOLVES_IN_REGISTER")
+def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A value in one register must name a row that really exists in another.
+
+    The first check that reads two registers at once. Earlier phases judge each register on its own
+    terms, because discovery has nothing to be consistent *with* yet. A consolidation phase is
+    different: its whole job is that the registers agree, so an entry pointing at a gap nobody
+    declared is exactly the defect it exists to catch — and one no single-register rule can see.
+
+    Absence of the cell is not this rule's business; a blank is `CELL_NOT_EMPTY`'s finding, and
+    reporting it twice would make one defect look like two.
+    """
+    target = rule.params["target_register"]
+    target_column = rule.params["target_column"]
+
+    block = doc.register(target)
+    known: set[str] = set()
+    if block is not None and block.table is not None:
+        for row in block.table.rows:
+            if _is_sentinel(row):
+                continue
+            value = _cell(row, target_column)
+            if value:
+                known.add(value.strip())
+
+    only_when_column = rule.params.get("only_when_column")
+    only_when_value = rule.params.get("only_when_value")
+
+    out = []
+    for i, row in _rows(doc, rule):
+        if only_when_column:
+            gate = _cell(row, only_when_column)
+            if gate.strip().upper() != str(only_when_value).upper():
+                continue
+        value = _cell(row, rule.params["column"])
+        if not value:
+            continue
+        for part in (p.strip() for p in value.split(";")):
+            if part and part not in known:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"{part!r} names no row in {target}.{target_column} — "
+                    f"a consolidation may only point at what it consolidated",
+                ))
+    return out

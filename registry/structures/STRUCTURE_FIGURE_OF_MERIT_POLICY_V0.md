@@ -66,6 +66,7 @@ core:
     - BASELINE_IDENTITY_UNRESOLVED
     - VERIFIED_BELIEF_IDENTITY_UNRESOLVED
     - CITED_ALTERNATIVE_UNRESOLVED
+    - DEPENDENCY_IDENTITY_UNRESOLVED
   - id: register_incomplete
     label: Register incomplete
     weight: 1
