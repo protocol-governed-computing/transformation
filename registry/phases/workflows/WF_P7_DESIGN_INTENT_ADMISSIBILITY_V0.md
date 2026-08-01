@@ -395,6 +395,8 @@ core:
             - Operation
             - Consumes
             - Produces
+            - Interpreted By
+            - Semantic Status
             - Interface
           intent: downstream phases read these columns by name
         - id: CELL_NOT_IN_VOCABULARY
@@ -581,6 +583,40 @@ core:
             - Code
             - FQDN
           intent: a step invokes a capability that is declared new or carried over, never invented inline
+        - id: OBSERVATION_WITHOUT_INTERPRETATION
+          check: CELL_NOT_EMPTY
+          register: cc_composition
+          params:
+            column: Interpreted By
+            only_when_column: Kind
+            only_when_value: CS
+            detail: a step that reads external state names no interpreting transform — a raw observation cannot
+              drive business routing, because the status it carries says the store answered, not what it found
+          intent: every read of external state declares how its output becomes a decision
+        - id: OBSERVATION_WITHOUT_SEMANTIC_STATUS
+          check: CELL_NOT_EMPTY
+          register: cc_composition
+          params:
+            column: Semantic Status
+            only_when_column: Kind
+            only_when_value: CS
+            detail: a step that reads external state names no semantic status — the workflow branch it feeds has
+              nothing declared to route on
+          intent: an interpretation names the outcome it yields, closing the route
+        - id: INTERPRETATION_TRANSFORM_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: cc_composition
+          params:
+            column: Interpreted By
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+            detail: an interpreting transform is an artifact like any other, declared or carried over
+          intent: the transform that turns an observation into a decision is itself governed
         - id: STORE_WITHOUT_PROPOSED_PATH
           check: CELL_NOT_EMPTY
           register: structure_stores

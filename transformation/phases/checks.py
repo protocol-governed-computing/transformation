@@ -614,6 +614,9 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
 
     only_when_column = rule.params.get("only_when_column")
     only_when_value = rule.params.get("only_when_value")
+    # A declared "nothing here" is an answer, not a dangling reference — the same distinction
+    # `DEPENDENCY_PRECEDES` draws for a step that depends on nothing.
+    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", "N/A"])}
 
     out = []
     for i, row in _rows(doc, rule):
@@ -622,10 +625,10 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
             if gate.strip().upper() != str(only_when_value).upper():
                 continue
         value = _cell(row, rule.params["column"])
-        if not value:
+        if not value or value.strip() in none_markers:
             continue
         for part in (p.strip() for p in value.split(";")):
-            if part and part not in known:
+            if part and part not in none_markers and part not in known:
                 detail = rule.params.get(
                     "detail", "a document may only point at what it declared"
                 )

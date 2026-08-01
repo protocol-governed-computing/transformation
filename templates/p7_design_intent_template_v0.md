@@ -47,6 +47,30 @@ code mechanically.
   (the oracle collision-checks via grounding). Existing artifacts go in `existing_inventory`.
 - **Reconciled:** the NEW counts in `artifact_summary` MUST equal the rows of `new_artifacts`.
 
+### Data-to-decision closure (the oracle enforces these)
+
+P7 does not merely assign artifacts. It assigns the **behavioural interpretation path** from a
+capability's output, through a decision, to a workflow transition. A design that names every
+artifact correctly and leaves that path unstated is admissible and still cannot work.
+
+- **No implicit truthiness.** `exists`, `matched`, `authorized` and every other boolean a capability
+  returns is an **observation**, never a decision. A step that reads external state cannot drive
+  business routing directly.
+- **Every read declares its interpretation.** A `CS` step whose operation reads state MUST name the
+  transform that interprets its output (`Interpreted By`) and the status that interpretation yields
+  (`Semantic Status`). A read with neither is an observation pretending to be a decision.
+- **Routing closure.** Every workflow branch is backed by the whole chain:
+
+```
+CS result  →  CT interpretation  →  semantic outcome  →  WF transition
+```
+
+> **Raw capability observations never determine workflow behaviour directly.**
+
+An interpretation transform expresses its decision the only way the execution contract allows: a
+`CT` step yields `SUCCESS` when it returns and `VIOLATION` when it raises. A transform that returns
+a boolean for both answers has interpreted nothing, however it is named.
+
 ### Capability Composition discipline (the oracle enforces these)
 
 `cc_composition` declares the second half of Design Intent: WHAT each new CC is composed of. Workflow
@@ -162,8 +186,8 @@ the CC keeps its business vocabulary. Syntax: `in: <ct_formal>=<cc_local>, …; 
 (e.g. `in: left=predecessor_hash, right=current_head; out: is_equal=is_match`). CS steps leave it blank.*
 
 <!-- register:cc_composition optional -->
-| CC Code | Step | Capability | Kind (CT, CS) | Operation | Consumes | Produces | Interface |
-|---------|------|------------|---------------|-----------|----------|----------|-----------|
+| CC Code | Step | Capability | Kind (CT, CS) | Operation | Consumes | Produces | Interpreted By | Semantic Status | Interface |
+|---------|------|------------|---------------|-----------|----------|----------|----------------|-----------------|-----------|
 
 ---
 

@@ -14,6 +14,16 @@ is wrong when one **does**: a code colliding with something already in the compo
 artifact but a silent redefinition of an old one. `CITED_ARTIFACTS_ABSENT` is the only rule here
 that reads a successful resolution as the defect, and it is the reason this phase must ground.
 
+**Data-to-decision closure** is the second thing P7 owns, and CR-1 proved it the hard way: a
+composition can be fully admissible, materialize, compile, and still let an unauthorized caller
+through — because a `CS` read reports whether the *lookup* succeeded, not what it *found*. Routing a
+workflow on that status is routing on "the store answered", which is always true.
+
+So a step that reads external state must declare the transform that interprets its output and the
+status that interpretation yields. Raw observations never determine workflow behaviour directly. The
+missing transform was not an implementation bug; it was a missing design element, and this is where
+design elements are assigned.
+
 The rest is immutability discipline. A binding FQDN is assigned once and reused as the exact same
 string everywhere, because a spelling variant of the same concept does not read as a synonym — it
 creates a second, permanently misnamed artifact. So every code referenced in the topology, in a
@@ -149,6 +159,50 @@ BINDING_RULES: list[Rule] = [
             "target_columns": ["Code", "FQDN"],
         },
         intent="a step invokes a capability that is declared new or carried over, never invented inline",
+    ),
+    Rule(
+        id="OBSERVATION_WITHOUT_INTERPRETATION",
+        check="CELL_NOT_EMPTY",
+        register="cc_composition",
+        params={
+            "column": "Interpreted By",
+            "only_when_column": "Kind",
+            "only_when_value": "CS",
+            "detail": (
+                "a step that reads external state names no interpreting transform — a raw "
+                "observation cannot drive business routing, because the status it carries says "
+                "the store answered, not what it found"
+            ),
+        },
+        intent="every read of external state declares how its output becomes a decision",
+    ),
+    Rule(
+        id="OBSERVATION_WITHOUT_SEMANTIC_STATUS",
+        check="CELL_NOT_EMPTY",
+        register="cc_composition",
+        params={
+            "column": "Semantic Status",
+            "only_when_column": "Kind",
+            "only_when_value": "CS",
+            "detail": (
+                "a step that reads external state names no semantic status — the workflow branch "
+                "it feeds has nothing declared to route on"
+            ),
+        },
+        intent="an interpretation names the outcome it yields, closing the route",
+    ),
+    Rule(
+        id="INTERPRETATION_TRANSFORM_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="cc_composition",
+        params={
+            "column": "Interpreted By",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": "an interpreting transform is an artifact like any other, declared or carried over",
+        },
+        intent="the transform that turns an observation into a decision is itself governed",
     ),
     Rule(
         id="STORE_WITHOUT_PROPOSED_PATH",
