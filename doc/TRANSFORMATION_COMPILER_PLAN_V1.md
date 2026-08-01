@@ -216,8 +216,8 @@ evidence, not artifacts" exists to prevent. Transport stays reserved for `si.*` 
 runtime execution.
 
 **Where do dossiers live?** Outside the snapshot, always. They are evidence *about* a composition,
-never part of one. Generated dossiers are gitignored; only the `examples/` fixture dossiers are
-tracked.
+never part of one. Generated dossiers are gitignored; authored dossiers live in `cr_dossiers/`
+in the repo of the domain they change, and are tracked there.
 
 ### The baseline is pinned
 
@@ -287,23 +287,23 @@ correctness first, scalability second, never both at once.
 ## 8. Fixtures
 
 ```
-examples/
-  01_book_library_mgmt/
+<domain repo>/cr_dossiers/
+  cr_NN_<subject>/
     baseline.json                             pinned snapshot_id — checked before any phase runs
-    cr_01_new_subdomain_catalog/
-      0_business_problem_statement.md         human-authored prose — the P0 input
-      0_seed_business_problem_statement.md    the frozen seed — P0 output, P1 input
-      p0_expected/                            seed oracle verdict + faithfulness trace
-      p1..p7_expected/                        register rows + oracle verdict (NOT prose)
-      mandate_expected.md
-      authored_artifacts/
-      compiled_expected/                      S1–S9 evidence
-      trace_expected/
-    cr_02_extend_subdomain_catalog/
-    cr_03_new_subdomain_circulation/
-    cr_04_modify/
-    cr_05_deprecate/
-    cr_06_refused/                            the rejection and its recorded cause
+    p0_business_problem_statement.md          human-authored prose — the P0 input
+    p0_seed_<domain>_<subdomain>_v0.md        the frozen seed — P0 output, P1 input
+    p1..p7_<domain>_<subdomain>_v0.md         the register documents each phase emits
+    p0_expected/                              seed oracle verdict + faithfulness trace
+    p1..p7_expected/                          register rows + oracle verdict (NOT prose)
+    mandate_expected.md
+    authored_artifacts/
+    compiled_expected/                        S1–S9 evidence
+    trace_expected/
+  cr_02_extend_subdomain_catalog/
+  cr_03_new_subdomain_circulation/
+  cr_04_modify/
+  cr_05_deprecate/
+  cr_06_refused/                              the rejection and its recorded cause
 ```
 
 Each CR carries its own problem statement and seed: a CR sequence is a sequence of *changes*, and

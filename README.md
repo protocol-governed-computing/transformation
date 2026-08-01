@@ -75,4 +75,8 @@ re-pin the id, re-approve the affected registers.
   phase-by-phase validation methodology, and the settled rulings.
 - `doc/TRANSFORMATION_COMPILER_PLAN_V1_ADDENDUM_A.md` — the release-4 subject: the
   `book_library_mgmt` domain, its decomposition, and the change request sequence.
-- `doc/SEED_TEMPLATE_V0.md` — the P0 seed template and the rules its structural oracle enforces.
+- `doc/TRANSFORMATION_COMPILER_PLAN_V1_ADDENDUM_B.md` — self-hosting: why the pipeline's first
+  governed change is itself, and what that settles.
+- `templates/` — the phase templates. **These are the authority**: registers, columns, controlled
+  vocabularies and optionality are read from them, and rule sets are derived. A shape declared
+  anywhere else is not a template.

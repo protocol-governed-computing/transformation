@@ -30,6 +30,10 @@ from transformation.phases.p1_change_request.rules import rule_set as p1_rule_se
 from transformation.phases.p2_domain_model.rules import rule_set as p2_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
+WORKSPACE = REPO.parent
+
+# A business CR's dossier lives with the domain it changes, not with the pipeline that judges it.
+CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog"
 
 # Each phase: its workflow, its declared rule set, and the corpus it judges. A phase added here
 # without a corpus would report "identical rule sets" and prove nothing about behaviour, so the
@@ -39,7 +43,8 @@ PHASES = {
         "wf": "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
         "rules": p0_rule_set,
         "corpus": [
-            REPO / "examples/transformation/phases/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md",
+            REPO / "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md",
+            CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus").glob("*.md")),
         ],
     },
@@ -47,7 +52,8 @@ PHASES = {
         "wf": "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
         "rules": p1_rule_set,
         "corpus": [
-            REPO / "examples/transformation/phases/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md",
+            REPO / "cr_dossiers/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md",
+            CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p1").glob("*.md")),
         ],
     },
@@ -59,7 +65,8 @@ PHASES = {
         # perfectly while exercising none of the grounding.
         "observes": "si.artifact.list",
         "corpus": [
-            REPO / "examples/transformation/phases/cr_00_new_subdomain/p2_domain_model_transformation_phases_v0.md",
+            REPO / "cr_dossiers/cr_00_new_subdomain/p2_domain_model_transformation_phases_v0.md",
+            CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p2").glob("*.md")),
         ],
     },

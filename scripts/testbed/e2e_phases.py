@@ -86,6 +86,25 @@ CASES = [
          "BASELINE_IDENTITY_UNRESOLVED",
          "BASELINE_IDENTITY_UNRESOLVED",
      ], 62),
+    # CR-1 — the same three phases over a business subject. CR-0 is the pipeline authoring its own
+    # domain, so it grounds every claim against artifacts this repo also wrote; the catalog CR
+    # grounds against a composition it contributed nothing to, which is the harder case.
+    ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
+     "10_p0_admissible_catalog_seed.json", "ADMISSIBLE", [], 68),
+    ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
+     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 94),
+    ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
+     "12_p2_admissible_catalog_register.json", "ADMISSIBLE", [], 62),
+    # The rules must bite on business content, not only on documents about the pipeline. A
+    # misspelled identity and a right-code/wrong-namespace one are defects; design leaking into a
+    # business-language cell is a third. An identity merely absent from the baseline stays
+    # unflagged — that is proposed-new, which is what a CR is for.
+    ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
+     "13_p2_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         "BASELINE_IDENTITY_UNRESOLVED",
+         "BASELINE_IDENTITY_UNRESOLVED",
+         "DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE",
+     ], 62),
 ]
 
 
@@ -135,7 +154,7 @@ def main() -> int:
 
         mark = "OK   " if not problems else "FAIL "
         print(
-            f"  {mark}  {phase}  {payload_file:<38} "
+            f"  {mark}  {phase}  {payload_file:<40} "
             f"{str(verdict):<13} {len(fired):>2} finding(s)  {rules} rules"
         )
         if problems:
