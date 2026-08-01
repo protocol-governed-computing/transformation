@@ -43,7 +43,7 @@ The following registers MUST NOT contain protocol artifact names or FQDNs:
 
 Capabilities are expressed in **business language only**. Naming solution artifacts here is a
 design-leakage defect — protocol FQDNs are introduced at Stage 5 (provisional codes) and
-Stage 6b (binding FQDNs), never in the Business Model.
+Stage 7 (binding FQDNs), never in the Business Model.
 
 VALID:
 - Commit a validated block to the canonical chain

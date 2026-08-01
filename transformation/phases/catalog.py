@@ -14,7 +14,7 @@ and so a rule set can key on the rung rather than restating it.
     p1–p4    business language only — nothing new gets a code
     p5       + provisional capability names (IN/WF/CC vocabulary, unbound)
     p6       + placement (WHERE) — still no new codes
-    p6b      + binding FQDNs, topology, schemas, stores
+    p7      + binding FQDNs, topology, schemas, stores
     p7       + build order
 
 With one exception at every rung: **an artifact already in the baseline may be cited by exact FQDN
@@ -117,21 +117,21 @@ PHASES: tuple[Phase, ...] = (
         template="p6_governance_intent_template_v0.md",
     ),
     Phase(
-        id="p6b",
+        id="p7",
         purpose="design intent",
         question="HOW — FQDNs, topology, schemas, stores, module paths, runtime bindings",
         key_rule="The full dossier is reviewed as a body",
         rung="binding_fqdns",
-        template="p6b_design_intent_template_v0.md",
+        template="p7_design_intent_template_v0.md",
         gate="Gate 1 — Design Approval",
     ),
     Phase(
-        id="p7",
+        id="p8",
         purpose="authoring mandate",
         question="IN WHAT ORDER — topologically sorted build waves",
-        key_rule="Mechanical derivation; must reconcile with p6b exactly",
+        key_rule="Mechanical derivation; must reconcile with p7 exactly",
         rung="build_order",
-        template="p7_authoring_mandate_template_v0.md",
+        template="p8_authoring_mandate_template_v0.md",
         gate="Gate 2 — Mandate Approval; the dossier is locked",
     ),
 )

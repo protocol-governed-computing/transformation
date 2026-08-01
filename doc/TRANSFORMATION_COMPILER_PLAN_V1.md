@@ -36,8 +36,8 @@ DOSSIER TIER
   P4    Business Model        canonical hub, consolidating P1–P3
   P5    Business Intent       WHAT — scope, invariants, actions, provisional codes
   P6    Governance Intent     WHERE — ownership, storage, cross-subdomain dependencies
-  P6b   Design Intent         HOW — binding FQDNs assigned to every new artifact
-  P7    Authoring Mandate     the build sequence (topological sort of the design)
+  P7    Design Intent        HOW — binding FQDNs assigned to every new artifact
+  P8    Authoring Mandate    the build sequence (topological sort of the design)
         ══ Gate 2 ══
 AUTHORING TIER
   author .md artifacts → compiler governs admissibility → runtime tests → manifest → closure
@@ -45,7 +45,7 @@ AUTHORING TIER
 
 **Phases, not stages.** The legacy pipeline numbered these S1–S7, colliding with the protocol
 compiler's own S1–S9 — two different axes wearing the same labels, which makes every piece of
-evidence ambiguous about which pipeline produced it. This rehost renames them **phases (P0–P7)**
+evidence ambiguous about which pipeline produced it. This rehost renames them **phases (P0–P8)**
 and leaves **stages (S1–S9)** to `protocol_compiler`. The rule is mechanical: a dossier is measured
 in phases, a compilation is measured in stages, and no document uses one word for the other.
 
@@ -102,7 +102,7 @@ the release's governing method rather than a testing afterthought. Two refinemen
 remains is to keep the *evidence* separate. The full chain is:
 
 ```
-problem statement → P0 → Gate 0 → seed → dossier P1..P7 → Gate 2
+problem statement → P0 → Gate 0 → seed → dossier P1..P8 → Gate 2
      → authored artifacts → protocol_compiler S1..S9
      → snapshot_assembler → composition conformance → runtime → trace
 ```
@@ -132,7 +132,7 @@ structural rather than a matter of taste. Read the pipeline's own phase definiti
 | P2 — Domain Model | *"confirm the semantic model **against the snapshot**"* |
 | P3 — Analysis Loop | **REUSE / EXTEND** / AUTHOR_NEW, *by evidence* |
 | P6 — Governance Intent | ownership, storage, **cross-subdomain dependencies** |
-| P7 — Authoring Mandate | topological sort **over the composed graph** |
+| P8 — Authoring Mandate | topological sort **over the composed graph** |
 
 Against a blank slate every P3 decision is `AUTHOR_NEW`; the REUSE and EXTEND branches never
 execute. Of the four declared CR types — `NEW_SUBDOMAIN`, `EXTEND_SUBDOMAIN`, `MODIFY`,
@@ -154,7 +154,7 @@ composition**, each one taking as its baseline the composition the previous CR p
 |---|---|---|
 | CR-1 | `NEW_SUBDOMAIN` | placement and ownership against 249 existing artifacts; P3 **REUSE** of platform capabilities (`CS_MUTABLE_JSON_V0`, `CT_PURE_LOOKUP_V0`, …) rather than authoring new ones |
 | CR-2 | `EXTEND_SUBDOMAIN` | P3 **EXTEND vs AUTHOR_NEW**; semantic preservation and roundtrip equivalence now have a real baseline — CR-1's own output |
-| CR-3 | `NEW_SUBDOMAIN` | REUSE of **business entities across subdomains**, not just platform capabilities; P6's first real cross-subdomain dependency; a P7 sort spanning subdomains |
+| CR-3 | `NEW_SUBDOMAIN` | REUSE of **business entities across subdomains**, not just platform capabilities; P6's first real cross-subdomain dependency; a P8 sort spanning subdomains |
 | CR-4 | `MODIFY` | changing declared behaviour: the immutable-version rule (`_V0 → _V1`) becomes load-bearing |
 | CR-5 | `DEPRECATE` | retirement, supersession, and consumer migration — against consumers an earlier CR actually built |
 | CR-6 | *refused* | the gates bite; the rejection and its cause recorded as evidence |

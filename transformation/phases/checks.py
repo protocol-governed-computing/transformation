@@ -378,7 +378,7 @@ def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     this check did exactly that — it would have rejected a correct dossier for proposing new work.
 
     D and E are not separable from the document alone; telling them apart needs the CR's declared
-    new artifacts, which arrive at P6b. Until then both are left unflagged rather than guessed,
+    new artifacts, which arrive at P7. Until then both are left unflagged rather than guessed,
     because guessing here reintroduces the over-flagging the taxonomy exists to prevent.
     """
     known = _observed_identities(doc, rule.params["observation"])

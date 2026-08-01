@@ -24,7 +24,7 @@ VALID OUTPUT:
 
 INVALID OUTPUT:
 - Narrative essays replacing the registers
-- Implementation bindings, JSONPath, op codes, module paths, or content hashes (those are Stage 6b)
+- Implementation bindings, JSONPath, op codes, module paths, or content hashes (those are Stage 7)
 
 A required register with no rows renders as `| NONE IDENTIFIED |`.
 
@@ -33,7 +33,7 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 ### Provisional codes
 
 This is the first stage that assigns **provisional** artifact codes (`provisional_codes`). They are
-provisional — Stage 6b assigns the binding domain-qualified FQDNs. Each carries a `_V0` suffix.
+provisional — Stage 7 assigns the binding domain-qualified FQDNs. Each carries a `_V0` suffix.
 Workflow nodes are IN / CC / EXIT only; a sub-workflow call is a gateway CC, never a nested WF. EV
 artifacts record facts, never trigger execution.
 
@@ -116,7 +116,7 @@ declare it `UNRESOLVED` (a governed hole a human will resolve) rather than guess
 
 ## 7. Provisional Artifact Codes
 
-*Provisional AC / IN / WF / CC codes (Stage 6b assigns binding FQDNs). Each carries `_V0`. `summary` is business language. Family ∈ AC | IN | WF | CC.*
+*Provisional AC / IN / WF / CC codes (Stage 7 assigns binding FQDNs). Each carries `_V0`. `summary` is business language. Family ∈ AC | IN | WF | CC.*
 
 <!-- register:provisional_codes business_language=summary -->
 | Provisional Code | Family (AC, IN, WF, CC) | Summary | Source Finding |

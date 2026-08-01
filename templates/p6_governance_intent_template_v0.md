@@ -34,7 +34,7 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
   named in **business language** (e.g. "create the genesis block at bootstrap"); ownership names the
   owning **subdomain** namespace, never an invented artifact code like `CC_CREATE_GENESIS_BLOCK_V0`.
   Existing artifacts are still cited by their real FQDN (in `evidence` / `existing_artifact` / `fqdn`
-  columns). Provisional codes were assigned at Stage 5; binding FQDNs are assigned at Stage 6b.
+  columns). Provisional codes were assigned at Stage 5; binding FQDNs are assigned at Stage 7.
 - **Cross-subdomain writes are forbidden — no exceptions.** A store is written only by CCs of its
   owning subdomain. If this CR's process requires writing a peer's store, the writing CC is owned by
   that peer (a dependency gap declared in `cross_subdomain_deps`, Status = GAP).
@@ -79,7 +79,7 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 
 ## 2. Storage Governance Requirements
 
-*What persistent storage the subdomain requires, as a governance requirement — NOT store names or paths (those are Stage 6b). Business language only.*
+*What persistent storage the subdomain requires, as a governance requirement — NOT store names or paths (those are Stage 7). Business language only.*
 
 <!-- register:storage_governance business_language=storage_need,purpose -->
 | Storage Need | Purpose | Subdomain | Source Finding |
@@ -119,7 +119,7 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 
 ## 6. Governance Outcome
 
-*Capabilities requiring protocol realization (Stage 6b assigns the artifact family + binding FQDN). Business language; organized by owning subdomain.*
+*Capabilities requiring protocol realization (Stage 7 assigns the artifact family + binding FQDN). Business language; organized by owning subdomain.*
 
 <!-- register:governance_outcome optional business_language=capability -->
 | Capability | Owner Subdomain | Source Finding |
@@ -134,15 +134,15 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 | Stage 4 — Business Model | business_model_[subdomain]_v0.md | COMPLETE |
 | Stage 5 — Business Intent | business_intent_[subdomain]_v0.md | COMPLETE |
 | Stage 6 — Governance Intent | This document | COMPLETE |
-| Stage 6b — Design Intent | Pending | — |
+| Stage 7 — Design Intent | Pending | — |
 
 ---
 
-## gov_projection — Governed Handoff to Stage 6b
+## gov_projection — Governed Handoff to Stage 7
 
 *The bounded inputs and emit keys mirror the engine's gov_projection schema exactly
 (`contracts/gov_projection.py`). Domain Placement, Boundary Rules (§5), and Governance Outcome (§6)
-are this stage's record; the four emit registers cross to Stage 6b. Emit keys match the register ids
+are this stage's record; the four emit registers cross to Stage 7. Emit keys match the register ids
 above exactly.*
 
 | Direction | Fields |
@@ -150,4 +150,4 @@ above exactly.*
 | **Consumes** ← Stage 1 | out_of_scope · governance_scope |
 | **Consumes** ← Stage 4 | events · constraint_register · dependency_graph · authoring_scope |
 | **Consumes** ← Stage 5 | scope_boundary · invariants · cross_subdomain_refs |
-| **Emits** → Stage 6b | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |
+| **Emits** → Stage 7 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |

@@ -150,10 +150,22 @@ CASES = [
          "PROVISIONAL_FAMILY_MISMATCH",
          "PROVISIONAL_FAMILY_MISMATCH",
      ], 53, 3),
+    # P6 draws lines, and the ladder does not simply accumulate: P5 requires provisional codes,
+    # P6 forbids them. Each rung admits its own vocabulary rather than everything below it.
+    ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
+     "20_p6_admissible_catalog_register.json", "ADMISSIBLE", [], 43, 5),
+    ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
+     "21_p6_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         "DEPENDENCY_DIRECTION_MALFORMED",
+         "OUTCOME_CAPABILITY_UNPLACED",
+         "OUTCOME_CAPABILITY_UNPLACED",
+         "PROVISIONAL_CODE_IN_PLACEMENT",
+         "SATISFIED_WITHOUT_EXISTING_ARTIFACT",
+     ], 43, 4),
 ]
 
 
-PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4", "P5": "p5"}
+PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4", "P5": "p5", "P6": "p6"}
 
 
 def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:

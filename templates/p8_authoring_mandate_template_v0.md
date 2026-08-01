@@ -3,7 +3,7 @@
 **Subdomain:** [subdomain]  
 **Version:** V0  
 **Status:** DRAFT  
-**Pipeline Stage:** Stage 7 — Authoring Mandate  
+**Pipeline Stage:** Stage 8 — Authoring Mandate  
 **Produced by:** v0.5.0 SDLC authoring pipeline  
 
 ---
@@ -11,31 +11,31 @@
 ## Document Contract
 
 **This artifact is a structured register document — not a narrative.** S7 is mechanical: it
-re-orders the artifacts Stage 6b already assigned into a build sequence. The worker emits register
+re-orders the artifacts Stage 7 already assigned into a build sequence. The worker emits register
 ROWS; a deterministic renderer owns the document; a cross-stage oracle checks the codes against the
-Stage 6b registers.
+Stage 7 registers.
 
 VALID OUTPUT:
 - Populated register tables (every required register below)
-- Every `code` cell a binding FQDN copied VERBATIM from a Stage 6b register
+- Every `code` cell a binding FQDN copied VERBATIM from a Stage 7 register
 
 INVALID OUTPUT:
 - Narrative summaries replacing registers
-- A code not present in the Stage 6b `new_artifacts` / `existing_inventory` registers
+- A code not present in the Stage 7 `new_artifacts` / `existing_inventory` registers
 - A non-contiguous `step` sequence (a gap means a silently dropped artifact)
 
 ---
 
 ### Mandate discipline (the oracle enforces these)
 
-- **No design here.** S7 adds nothing and drops nothing — it ORDERS what Stage 6b assigned. No new
+- **No design here.** S7 adds nothing and drops nothing — it ORDERS what Stage 7 assigned. No new
   codes, no new actions.
-- **Copy every code VERBATIM from the Stage 6b registers** — never re-type, re-spell, or introduce
+- **Copy every code VERBATIM from the Stage 7 registers** — never re-type, re-spell, or introduce
   a code. A binding FQDN is immutable; re-typing one (even a transposed letter) mints a second,
-  permanently-misnamed artifact. Every code in this mandate MUST appear in a Stage 6b register
+  permanently-misnamed artifact. Every code in this mandate MUST appear in a Stage 7 register
   (`new_artifacts` for NEW, `existing_inventory` for REPLACE/EXTEND).
 - **Reconcile:** the NEW / REPLACE / EXTEND counts in `mandate_artifact_summary` MUST equal Stage
-  6b's `artifact_summary`. `step` numbering is contiguous from 1.
+  P7's `artifact_summary`. `step` numbering is contiguous from 1.
 
 ---
 
@@ -50,11 +50,11 @@ INVALID OUTPUT:
 
 ## 1. Build Dependency Order
 
-*Topological sort of Stage 6b's `new_artifacts` over the dependencies in `execution_topology` /
+*Topological sort of Stage 7's `new_artifacts` over the dependencies in `execution_topology` /
 `rb_declarations`. ONE row per artifact to AUTHOR — `action` ∈ NEW / REPLACE / EXTEND only. A
 REUSE / existing dependency is NOT authored: reference it in `depends_on`, never as its own row.
 `step` is the GLOBAL execution order, contiguous from 1 across all waves; `wave` groups parallel
-work. `code` is copied verbatim from a Stage 6b register; `depends_on` lists prerequisite codes (or `—`).*
+work. `code` is copied verbatim from a Stage 7 register; `depends_on` lists prerequisite codes (or `—`).*
 
 <!-- register:build_order -->
 | Wave | Step | Code | Action (REPLACE, EXTEND, NEW) | Subdomain | Depends On |
@@ -75,7 +75,7 @@ critical path.*
 
 ## 3. Artifact Summary
 
-*Authoring action counts, for Stage 8 input. Reconciles against Stage 6b `artifact_summary`.*
+*Authoring action counts, for Stage 8 input. Reconciles against Stage 7 `artifact_summary`.*
 
 <!-- register:mandate_artifact_summary -->
 | Action (REPLACE, EXTEND, NEW) | Count | Description |
@@ -85,7 +85,7 @@ critical path.*
 
 ## 4. Subdomain Field Declarations
 
-*The `subdomain` field for every WF / CC / EV / RB artifact — governs trace routing and data-store path resolution. `code` is copied verbatim from a Stage 6b register.*
+*The `subdomain` field for every WF / CC / EV / RB artifact — governs trace routing and data-store path resolution. `code` is copied verbatim from a Stage 7 register.*
 
 <!-- register:field_declarations -->
 | Code | Subdomain Field |
@@ -95,7 +95,7 @@ critical path.*
 
 ## 5. New Capabilities
 
-*New CT/capability declarations — **business intent only**. `Code` is a binding FQDN from a Stage 6b `new_artifacts` row; `Purpose` is business language; `Inputs`/`Outputs` are typed fields written `name:type` (comma-separated, e.g. `block:object`). The Construction Compiler realizes these into candidate CT contracts — it derives ALL protocol realization (purity, governing constitution, machine/implementation binding). You declare only intent. Nothing new → leave empty.*
+*New CT/capability declarations — **business intent only**. `Code` is a binding FQDN from a Stage 7 `new_artifacts` row; `Purpose` is business language; `Inputs`/`Outputs` are typed fields written `name:type` (comma-separated, e.g. `block:object`). The Construction Compiler realizes these into candidate CT contracts — it derives ALL protocol realization (purity, governing constitution, machine/implementation binding). You declare only intent. Nothing new → leave empty.*
 
 <!-- register:new_capabilities optional -->
 | Code | Purpose | Inputs | Outputs |
@@ -127,8 +127,8 @@ critical path.*
 
 | Stage | Output | Status |
 |-------|--------|--------|
-| Stage 6b — Design Intent | design_intent_[subdomain]_v0.md | GATE 1 APPROVED |
-| Stage 7 — Authoring Mandate | This document | PENDING GATE 2 APPROVAL |
+| Stage 7 — Design Intent | design_intent_[subdomain]_v0.md | GATE 1 APPROVED |
+| Stage 8 — Authoring Mandate | This document | PENDING GATE 2 APPROVAL |
 | Artifact Authoring (authoring tier) | per build_order | PENDING |
 | Stage 8 — Authoring Manifest | post-authoring | PENDING |
 
@@ -137,10 +137,10 @@ critical path.*
 ## gov_projection — Governed Handoff to Artifact Authoring
 
 *The bounded inputs and emit keys mirror the engine's gov_projection schema exactly
-(`contracts/gov_projection.py`). S7 consumes all five Stage 6b registers and emits the four the
+(`contracts/gov_projection.py`). S7 consumes all five Stage 7 registers and emits the four the
 authoring step builds from. Emit keys match the register ids above exactly.*
 
 | Direction | Fields |
 |-----------|--------|
-| **Consumes** ← Stage 6b | new_artifacts · existing_inventory · rb_declarations · execution_topology · artifact_summary |
+| **Consumes** ← Stage 7 | new_artifacts · existing_inventory · rb_declarations · execution_topology · artifact_summary |
 | **Emits** → artifact authoring | build_order · critical_path · mandate_artifact_summary · field_declarations |

@@ -7,7 +7,7 @@
 
 > P5 states the irreducible WHAT. It is the first phase to name what this change will build, using
 > provisional codes — what to build, never where it will live. Placement is Stage 6's decision and
-> binding identity is Stage 6b's.
+> binding identity is Stage 7's.
 
 ---
 

@@ -3,7 +3,7 @@
 **Subdomain:** [subdomain]  
 **Version:** V0  
 **Status:** DRAFT  
-**Pipeline Stage:** Stage 6b — Design Intent (HOW)  
+**Pipeline Stage:** Stage 7 — Design Intent (HOW)  
 **Produced by:** v0.5.0 SDLC authoring pipeline  
 **Purity:** HOW only — business facts (Business Model) and placement decisions (Governance Intent) not repeated  
 
@@ -11,7 +11,7 @@
 
 ## Document Contract
 
-**This artifact is a structured register document — not a narrative.** 6b assigns the **binding
+**This artifact is a structured register document — not a narrative.** P7 assigns the **binding
 FQDNs** the rest of the build depends on. The worker emits register ROWS; a deterministic renderer
 owns the document and a structural oracle validates the codes BEFORE a human reviews.
 
@@ -189,8 +189,8 @@ the CC keeps its business vocabulary. Syntax: `in: <ct_formal>=<cc_local>, …; 
 
 ## Gate 1 — Design Approval
 
-**Gate 1 closes here.** The full dossier (Stages 0–6b) is presented for review as a body. Any
-prior-stage artifact amended during the Stage 6–6b session is included. This is a unified review of
+**Gate 1 closes here.** The full dossier (Stages 0–7) is presented for review as a body. Any
+prior-stage artifact amended during the Stage 6–7 session is included. This is a unified review of
 the complete design, not a per-stage approval. Gate 1 approval authorizes Stage 7 — Authoring
 Mandate. Gate 2 (after Stage 7) locks the full dossier before artifact authoring begins.
 
@@ -206,8 +206,8 @@ Mandate. Gate 2 (after Stage 7) locks the full dossier before artifact authoring
 | Stage 4 — Business Model | business_model_[subdomain]_v0.md | COMPLETE |
 | Stage 5 — Business Intent | business_intent_[subdomain]_v0.md | COMPLETE |
 | Stage 6 — Governance Intent | governance_intent_[subdomain]_v0.md | COMPLETE — APPROVED |
-| Stage 6b — Design Intent | This document | PENDING GATE 1 APPROVAL |
-| Stage 7 — Authoring Mandate | Pending | — |
+| Stage 7 — Design Intent | This document | PENDING GATE 1 APPROVAL |
+| Stage 8 — Authoring Mandate | Pending | — |
 | Stage 8 — Authoring Manifest | Pending | — |
 
 ---
@@ -215,7 +215,7 @@ Mandate. Gate 2 (after Stage 7) locks the full dossier before artifact authoring
 ## gov_projection — Governed Handoff to Stage 7
 
 *The bounded inputs and emit keys mirror the engine's gov_projection schema exactly
-(`contracts/gov_projection.py`). 6b is the binding stage — it consumes the full design context
+(`contracts/gov_projection.py`). P7 is the binding stage — it consumes the full design context
 (S2 attribute/step data, S4 gaps/decisions, S5 intent + provisional codes, S6 placement) and emits
 the five registers S7 builds from, plus `cc_composition` which the S8 Build Sheet assembles. Emit
 keys match the register ids above exactly.*

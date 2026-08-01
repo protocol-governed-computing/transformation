@@ -144,7 +144,7 @@ objects, not a new set. A thing the business talks about, not a data store or ar
 
 ### Entity Attributes
 
-*One row per (entity, attribute) — attribute-level, so S5 (identity) and S6b (storage schema) can consume directly.*
+*One row per (entity, attribute) — attribute-level, so S5 (identity) and S7 (storage schema) can consume directly.*
 
 <!-- register:entity_attributes business_language -->
 | Entity | Attribute | Meaning | Evidence Status | Source Finding |
@@ -162,7 +162,7 @@ objects, not a new set. A thing the business talks about, not a data store or ar
 
 ### Process Steps
 
-*One row per step, in order — so S6b workflow authoring can consume the sequence directly.*
+*One row per step, in order — so S7 workflow authoring can consume the sequence directly.*
 
 <!-- register:process_steps business_language -->
 | Process | Step # | Action | Record Produced | Evidence Status | Source Finding |

@@ -94,6 +94,16 @@ PAYLOADS = {
     "19_p5_inadmissible_catalog_register.json": (
         "scripts/testbed/corpus_p5/inadmissible_p5_binding_leak.md"
     ),
+    # P6 draws lines. The inadmissible case names an artifact where a subdomain belongs, claims a
+    # capability satisfied with nothing to show, gives a boundary one side, and reaches an outcome
+    # for a capability nobody placed.
+    "20_p6_admissible_catalog_register.json": (
+        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "p6_governance_intent_book_library_mgmt_catalog_v0.md"
+    ),
+    "21_p6_inadmissible_catalog_register.json": (
+        "scripts/testbed/corpus_p6/inadmissible_p6_unplaced.md"
+    ),
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -111,6 +121,8 @@ PAYLOAD_KEY = {
     "17_p4_inadmissible_catalog_register.json": "register_text",
     "18_p5_admissible_catalog_register.json": "register_text",
     "19_p5_inadmissible_catalog_register.json": "register_text",
+    "20_p6_admissible_catalog_register.json": "register_text",
+    "21_p6_inadmissible_catalog_register.json": "register_text",
 }
 
 

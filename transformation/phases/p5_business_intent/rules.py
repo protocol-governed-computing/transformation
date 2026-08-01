@@ -6,7 +6,7 @@ Seven registers, their columns, their vocabularies and their traceability come f
 P5 is the first step **up the purity ladder**. Every phase before it is business language only;
 P5 admits *provisional* artifact codes — `CC_REGISTER_BOOK_V0` — because naming the thing you
 intend to build is how intent becomes specific. What it still may not admit is a *binding*: a
-domain-qualified FQDN, a JSONPath, a module path. Those are P6b's, and a phase that reached for
+domain-qualified FQDN, a JSONPath, a module path. Those are P7's, and a phase that reached for
 them would be deciding placement before governance intent had been established.
 
 That produces the rule pair that is P5's signature, and they pull in opposite directions:
@@ -53,7 +53,7 @@ PURITY_RULES: list[Rule] = [
             "pattern": r"::",
             "detail": (
                 "{token!r} in {column!r} — a provisional code carrying a namespace has already "
-                "been placed, and placement is Stage 6b's decision"
+                "been placed, and placement is Stage 7's decision"
             ),
         },
         intent="a provisional code names what to build, never where it will live",
@@ -96,7 +96,7 @@ PURITY_RULES: list[Rule] = [
             "pattern": r"\$\.[A-Za-z_]|/[a-z_]+/|\b[0-9a-f]{16,}\b",
             "detail": (
                 "{token!r} in {column!r} — a path, a binding expression or a hash is an "
-                "implementation decision, and Stage 6b owns those"
+                "implementation decision, and Stage 7 owns those"
             ),
         },
         intent="intent says what must be true, never how it is wired",

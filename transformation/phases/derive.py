@@ -167,7 +167,7 @@ def derived_rules(template: PhaseTemplate) -> list[Rule]:
 
     What a phase may cite is **every register the dossier declares**, not only what its
     `gov_projection` Consumes list forwards. Consumes is the lossless handoff — the working input a
-    phase receives — while provenance may reach further back: the tested P6b register cites S1, S3,
+    phase receives — while provenance may reach further back: the tested P7 register cites S1, S3,
     S5 and S6 alike, and none of those are in its Consumes.
 
     Restricting citation to Consumes rejected six of eight tested dossier documents. The rule that

@@ -33,7 +33,7 @@ wrong namespace is reported.
 
 An identity absent from the baseline is **not** a finding. Every change request that designs
 anything proposes identities that do not exist yet, and proposed-new cannot be told from fabricated
-without the CR's declared new artifacts — which arrive at P6b. Counting what was not found would
+without the CR's declared new artifacts — which arrive at P7. Counting what was not found would
 reject every correct dossier for doing its job.
 
 ---

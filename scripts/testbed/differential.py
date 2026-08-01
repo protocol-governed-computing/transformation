@@ -31,6 +31,7 @@ from transformation.phases.p2_domain_model.rules import rule_set as p2_rule_set
 from transformation.phases.p3_analysis_loop.rules import rule_set as p3_rule_set
 from transformation.phases.p4_business_model.rules import rule_set as p4_rule_set
 from transformation.phases.p5_business_intent.rules import rule_set as p5_rule_set
+from transformation.phases.p6_governance_intent.rules import rule_set as p6_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
@@ -101,6 +102,15 @@ PHASES = {
         "corpus": [
             CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p5").glob("*.md")),
+        ],
+    },
+    "P6": {
+        "wf": "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
+        "rules": p6_rule_set,
+        "observes": {"si.artifact.list": "artifacts"},
+        "corpus": [
+            CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md",
+            *sorted((REPO / "scripts/testbed/corpus_p6").glob("*.md")),
         ],
     },
 }
