@@ -25,6 +25,7 @@ artifact_kind: STRUCTURE
 version: V0
 governed_by: fb.structure::CONSTITUTION_STRUCTURE_V0
 structure_scope: transformation
+reuse_visibility: platform_service
 core:
   summary: Build-time STRUCTURE manifest (transformation pipeline domain scope)
   description: 'Compiles the transformation domain''s own artifacts (WF/IN/CC/CT/AC/RB/STRUCTURE),
