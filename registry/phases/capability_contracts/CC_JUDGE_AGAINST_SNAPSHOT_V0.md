@@ -1,40 +1,38 @@
-# CC_JUDGE_DOCUMENT_V0
+# CC_JUDGE_AGAINST_SNAPSHOT_V0
 
 ## Header (Mandatory)
 
-- **Artifact Code:** CC_JUDGE_DOCUMENT_V0
+- **Artifact Code:** CC_JUDGE_AGAINST_SNAPSHOT_V0
 - **Artifact Kind:** capability_contract
 - **Governed By:** CONSTITUTION_CAPABILITY_CONTRACT_V0
 - **Version:** V0
 - **Status:** draft
 - **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_EVALUATE_RULES_V0
+- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CS_SNAPSHOT_QUERY_V0, CT_PURE_EVALUATE_RULES_V0
 
 ---
 
 ## 1. Intent
 
-Judge a phase document against a declared rule set: read it into registers, then apply every rule
-and report what failed.
+Judge a phase document against a declared rule set **and against the composition it describes**.
 
-Reused by every phase. Each phase supplies its own document and its own rule set; the mechanism is
-the same one.
+Reused by every phase that grounds claims. Each supplies its own document and rule set; the
+mechanism is the same one.
 
 ---
 
-## 2. Rationale
+## 2. Why this is a separate contract
 
-Parsing and evaluating are two steps of one governed capability rather than two capabilities. A
-workflow composes capability *calls*, and data does not flow between them — a node reads the intent
-payload, not a previous node's result. Chaining belongs inside a contract's pipeline, where step two
-reads step one through `$.results.parse_registers.*`.
+`CC_JUDGE_DOCUMENT_V0` judges a document alone and binds nothing. That is sufficient while a rule
+is a property of what the register says about itself — structure, vocabulary, traceability.
 
-Keeping the two transforms separate still matters: parsing judges nothing and evaluating knows
-nothing about markdown, so each can be reused or replaced without disturbing the other.
+It stops being sufficient the moment a register claims something already exists. That is a claim
+about the assembled composition, and no amount of reading the document can settle it. Grounding
+needs an observation, an observation is a side effect, and a contract that binds a side effect is a
+different contract from one that binds none.
 
-Admissibility must be reproducible — the same document and the same rule set always give the same
-verdict. The rule set arrives as an input rather than as embedded content, so what is governed can
-be read from the composition without reading any code.
+Both remain: a phase that grounds nothing should not acquire a capability it does not use, and a
+contract that always observed would make every phase depend on a snapshot being present.
 
 ---
 
@@ -43,7 +41,8 @@ be read from the composition without reading any code.
 | Step | Capability | Type | Operation |
 |------|------------|------|-----------|
 | 1 | CT_PURE_PARSE_REGISTERS_V0 | CT | Parse |
-| 2 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
+| 2 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY |
+| 3 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
 
 ---
 
@@ -70,20 +69,21 @@ be read from the composition without reading any code.
 
 | Status | Condition |
 |--------|-----------|
-| SUCCESS | The rule set was applied in full and a verdict reached |
+| SUCCESS | The composition was observed, the rule set applied in full, and a verdict reached |
 | VIOLATION | The input was unusable, or a rule named an unimplemented check kind |
+| BACKEND_ERROR | The bound snapshot could not be read |
 
 ---
 
 ## Machine
 
 ```yaml
-fqdn: transformation::CC_JUDGE_DOCUMENT_V0
+fqdn: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
 governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
 core:
-  summary: Parse a phase document and judge it against a declared rule set
+  summary: Parse a phase document, observe the composition, and judge both together
   inputs:
     document_text:
       type: string
@@ -102,13 +102,9 @@ core:
     allowed:
     - SUCCESS
     - VIOLATION
+    - BACKEND_ERROR
     on_input_failure: VIOLATION
   pipeline:
-  # Declares no outputs: registers are an intermediate, not a result of judging a document.
-  # Every step's outputs mapping accumulates into the CC surface, so declaring them here would
-  # publish the entire parsed document as an observable output of the phase. Step two reads the
-  # raw result directly instead, which the dispatcher addresses as
-  # $.results.<step_id>.capability_result.<field>.
   - step: parse_registers
     transform: transformation::CT_PURE_PARSE_REGISTERS_V0
     inputs:
@@ -121,6 +117,24 @@ core:
       SUCCESS: continue
       VIOLATION: exit
 
+  # Observation is a governed capability, never an ad hoc read. The snapshot observed is the one
+  # this workflow executes from, bound by the runtime binding rather than named by a caller.
+  - step: observe_composition
+    side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
+    op: QUERY
+    inputs:
+      operation: si.artifact.list
+      params: {}
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    - BACKEND_ERROR
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:
@@ -129,9 +143,9 @@ core:
       registers: $.results.parse_registers.capability_result.registers
       document_text: $.inputs.document_text
       rule_set: $.inputs.rule_set
-      # Judges a document alone — it binds no capability and observes nothing. Declared empty
-      # rather than omitted: a rule needing an observation must find it absent, not undefined.
-      observed: {}
+      # Keyed by the operation that produced it, so a rule can say which observation it relied on.
+      observed:
+        si.artifact.list: $.results.observe_composition.capability_result.result.artifacts
     outputs:
       verdict: $.capability_result.verdict
       findings: $.capability_result.findings
@@ -143,5 +157,5 @@ core:
       SUCCESS: exit
       VIOLATION: exit
 extensions:
-  description: Reads a phase document into registers and evaluates every declared rule against it
+  description: Grounds a phase document against the composition it is executing within
 ```

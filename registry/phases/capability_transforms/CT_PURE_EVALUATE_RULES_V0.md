@@ -72,6 +72,14 @@ core:
       type: array
       required: true
       description: The declared rules deciding admissibility — supplied by the calling workflow
+    observed:
+      type: object
+      required: true
+      description: |
+        Facts gathered about the composition, keyed by the inspection operation that produced each.
+        Empty for a phase that judges a document alone; a phase that grounds claims fills it from a
+        governed inspection capability. A rule needing an observation that is absent reports that
+        it could not be checked rather than passing silently.
   outputs:
     verdict:
       type: string

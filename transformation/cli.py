@@ -17,6 +17,7 @@ from transformation.phases.oracle import judge_path
 from transformation.phases.p0 import rules as p0_rules
 from transformation.phases.p0 import template as p0_template
 from transformation.phases.p1 import rules as p1_rules
+from transformation.phases.p2 import rules as p2_rules
 from transformation.phases import catalog
 from transformation.phases.template_reader import load as load_template
 
@@ -25,6 +26,7 @@ from transformation.phases.template_reader import load as load_template
 RULE_SETS = {
     "p0": p0_rules,
     "p1": p1_rules,
+    "p2": p2_rules,
 }
 
 
@@ -142,7 +144,7 @@ def phase_list() -> None:
     """
     for spec in catalog.PHASES:
         built = "built" if spec.id in RULE_SETS else "   — "
-        rules = len(RULE_SETS[spec.id][0].rule_set()) if spec.id in RULE_SETS else 0
+        rules = len(RULE_SETS[spec.id].rule_set()) if spec.id in RULE_SETS else 0
         click.echo(f"  {spec.id:<4} {spec.purpose:<20} [{built}] {rules or '':>4} rules   admits: {spec.rung}")
         click.echo(f"       {spec.question}")
         click.echo(f"       rule: {spec.key_rule}")

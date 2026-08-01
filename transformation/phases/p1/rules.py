@@ -17,31 +17,13 @@ per-register flags rather than as a phase-wide rule, because the flag is where t
 from __future__ import annotations
 
 from transformation.phases.derive import derived_rules
-from transformation.phases.p0.template import HEADER_FIELDS
-from transformation.phases.rules import Rule
+from transformation.phases.rules import Rule, dossier_header_rules
 from transformation.phases.template_reader import load
 
 TEMPLATE = load("p1")
 
-HEADER_RULES: list[Rule] = [
-    Rule(
-        id="HEADER_FIELD_MISSING",
-        check="HEADER_FIELD_PRESENT",
-        params={"fields": list(HEADER_FIELDS)},
-        intent="the register must say which domain and subdomain it changes",
-    ),
-    Rule(
-        id="HEADER_MALFORMED",
-        check="HEADER_FIELD_MATCHES",
-        params={
-            "fields": ["Domain", "Primary subdomain"],
-            "pattern": r"^[a-z][a-z0-9_]*",
-        },
-        intent="domain and subdomain are identifiers, not prose",
-    ),
-]
 
 
 def rule_set() -> list[Rule]:
-    """The complete declared P1 rule set: derived from the template, then the header."""
-    return derived_rules(TEMPLATE) + HEADER_RULES
+    """The complete declared P1 rule set: derived from the template, then the dossier header."""
+    return derived_rules(TEMPLATE) + dossier_header_rules()

@@ -32,12 +32,19 @@ PAYLOADS = {
         "p1_change_request_transformation_phases_v0.md"
     ),
     "07_p1_inadmissible_register.json": "scripts/testbed/corpus_p1/inadmissible_p1_register.md",
+    "08_p2_admissible_register.json": (
+        "examples/transformation/phases/cr_00_new_subdomain/"
+        "p2_domain_model_transformation_phases_v0.md"
+    ),
+    "09_p2_inadmissible_register.json": "scripts/testbed/corpus_p2/inadmissible_p2_register.md",
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
 PAYLOAD_KEY = {
     "06_p1_admissible_register.json": "register_text",
     "07_p1_inadmissible_register.json": "register_text",
+    "08_p2_admissible_register.json": "register_text",
+    "09_p2_inadmissible_register.json": "register_text",
 }
 
 

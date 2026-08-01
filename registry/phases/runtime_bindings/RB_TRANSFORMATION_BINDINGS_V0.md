@@ -15,10 +15,17 @@
 
 Runtime bindings for the transformation phase pipeline.
 
-The seed phase has **no side effects and no storage**: it reads a document supplied as text and
-returns a verdict. Nothing is persisted, so no capability side effect is bound. That emptiness is
-declared rather than assumed — a phase that later needs to record a gate acceptance will bind its
-host here, through a governed change.
+Phases that judge a document alone bind nothing: they read text supplied to them and return a
+verdict, persisting nothing.
+
+From P2 onward a phase must *observe* the composition to ground what a register claims, and that is
+a side effect — the same query answers differently against different compositions. It is bound here
+to `{{snapshot_root}}`: **the snapshot the workflow is executing from**, not one a caller names. A
+workflow that could be pointed at a different composition would report confidently about the wrong
+one, and its evidence would be worthless.
+
+Nothing here is writable. The observation capability is read-only by construction, so a phase
+cannot alter the composition it is reasoning about.
 
 ---
 
@@ -29,13 +36,23 @@ fqdn: transformation::RB_TRANSFORMATION_BINDINGS_V0
 artifact_kind: RUNTIME_BINDING
 version: v0
 governed_by: fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0
+parameters:
+- snapshot_root
 core:
   summary: Runtime bindings for the transformation phase pipeline
-  description: The seed phase is pure — it binds no side effect and persists nothing.
-  bindings: {}
+  description: Binds read-only observation of the executing composition. No storage, no writes.
+  bindings:
+    capability_side_effects::CS_SNAPSHOT_QUERY_V0:
+      type: CS
+      host: SnapshotQueryRuntime
+      operation: READ
+      policy:
+        snapshot_root: "{{snapshot_root}}"
+
 
 extensions:
   notes:
     - This artifact performs no discovery and no inference.
-    - The seed phase reaches no host — it consumes supplied text and returns a verdict.
+    - The observed snapshot is the one the workflow runs inside, never one supplied by a caller.
+    - No binding here can write; observation cannot disturb what it observes.
 ```

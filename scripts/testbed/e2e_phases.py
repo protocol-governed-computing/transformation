@@ -23,9 +23,19 @@ import json
 import sys
 from pathlib import Path
 
-from runtime import api
-
 REPO = Path(__file__).resolve().parents[2]
+WORKSPACE = REPO.parent
+
+# Domain CT/CS implementations are imported by declared module path at execution. Their roots are
+# env-provisioned — the runtime never manipulates sys.path — so a suite that drives the runtime has
+# to provision them the way `run.sh` does. P2 is the first phase to need this: it binds a capability
+# whose host lives in the governance surface.
+for _root in (WORKSPACE / "software_governance", WORKSPACE / "conformance_workloads",
+              WORKSPACE / "business_domains", REPO):
+    if str(_root) not in sys.path:
+        sys.path.insert(0, str(_root))
+
+from runtime import api
 PAYLOADS = REPO / "testbed" / "phases" / "test_payloads"
 
 # phase, workflow, payload file, expected verdict, expected rule ids, expected rules evaluated.
@@ -73,6 +83,15 @@ CASES = [
          "ROW_WITHOUT_SOURCE_FINDING",
          "SOURCE_FINDING_UNRESOLVED",
      ], 94),
+    ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
+     "08_p2_admissible_register.json", "ADMISSIBLE", [], 62),
+    # Grounding: a misspelled identity and a right-code/wrong-namespace one are defects; an
+    # identity simply absent from the baseline is proposed-new and correctly goes unflagged.
+    ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
+     "09_p2_inadmissible_register.json", "INADMISSIBLE", [
+         "BASELINE_IDENTITY_UNRESOLVED",
+         "BASELINE_IDENTITY_UNRESOLVED",
+     ], 62),
 ]
 
 

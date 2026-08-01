@@ -3,10 +3,10 @@
 The P1 register. Every row restates content from the accepted seed and cites the finding it came
 from; P1 classifies and traces, it does not add. Business language only — nothing here gets a code.
 
-- **Domain:** transformation
-- **Primary subdomain:** phases — NEW
-- **Secondary subdomain:** none
-- **CR version:** V0
+**Stage:** 1 — Change Request
+**CR:** cr_00_new_subdomain
+**Status:** DRAFT
+**Feeds:** Stage 2 — Domain Model
 
 ---
 

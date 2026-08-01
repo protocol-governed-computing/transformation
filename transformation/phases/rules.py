@@ -87,3 +87,39 @@ def structural_rules(sections: Iterable) -> list[Rule]:
         )
     )
     return out
+
+
+# A dossier document states which phase it is, which CR it belongs to, where it stands in the
+# lifecycle, and which phase it feeds. The seed uses a different header entirely (domain and
+# subdomain), because the seed is where a CR's identity is established rather than carried.
+DOSSIER_HEADER_FIELDS = ("Stage", "CR", "Status", "Feeds")
+
+# Field manual §4.1a — the lifecycle a change travels, distinct from the phase it has reached.
+LIFECYCLE_STATES = (
+    "DRAFT",
+    "CONSTRUCTION_COMPLETE",
+    "ADMITTED_UNVALIDATED",
+    "EXECUTION_VALIDATED",
+    "PROMOTED",
+)
+
+
+def dossier_header_rules() -> list[Rule]:
+    """The header every dossier phase document carries."""
+    return [
+        Rule(
+            id="HEADER_FIELD_MISSING",
+            check="HEADER_FIELD_PRESENT",
+            params={"fields": list(DOSSIER_HEADER_FIELDS)},
+            intent="a dossier document states its phase, its CR, its lifecycle state, and what it feeds",
+        ),
+        Rule(
+            id="LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+            check="HEADER_FIELD_MATCHES",
+            params={
+                "fields": ["Status"],
+                "pattern": r"^(" + "|".join(LIFECYCLE_STATES) + r")\b",
+            },
+            intent="the lifecycle axis is a controlled vocabulary, not free text",
+        ),
+    ]

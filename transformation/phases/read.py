@@ -20,7 +20,9 @@ from transformation.phases.evaluate import ParsedDocument
 
 HEADING = re.compile(r"^##\s+(?:(\d+[a-z]?)\.\s+)?(.+?)\s*$")
 REGISTER_MARKER = re.compile(r"^<!--\s*register:([a-z_]+)(?:\s[^>]*)?-->\s*$")
-BULLET_FIELD = re.compile(r"^-\s+\*\*(?P<name>[^:*]+):\*\*\s*(?P<value>.*?)\s*$")
+# Header fields appear two ways: the seed lists them as bullets, a dossier document states them
+# bare. Both are `**Name:** value`; only the leading dash differs.
+BULLET_FIELD = re.compile(r"^(?:-\s+)?\*\*(?P<name>[^:*]+):\*\*\s*(?P<value>.*?)\s*$")
 TABLE_DIVIDER = re.compile(r"^\|[\s:|-]+\|$")
 
 

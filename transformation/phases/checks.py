@@ -310,6 +310,24 @@ def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 # checking it needs the world.
 
 
+def _observed_identities(doc: ParsedDocument, operation: str) -> set[str]:
+    """Artifact identities from an observation, however the inspection surface shaped them.
+
+    `si.artifact.list` answers with rows, not bare identities; other operations may answer with
+    plain strings. Normalising here keeps the shape of an inspection result out of the rule
+    declaration, which should say *what* is checked rather than how the surface happens to reply.
+    """
+    out: set[str] = set()
+    for entry in doc.observed.get(operation, []) or []:
+        if isinstance(entry, str):
+            out.add(entry)
+        elif isinstance(entry, dict):
+            value = entry.get("artifact") or entry.get("fqdn") or entry.get("fqdn_id")
+            if value:
+                out.add(str(value))
+    return out
+
+
 @check("CITED_ARTIFACTS_RESOLVE")
 def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """Classify every cited artifact identity against the observed baseline, and report only defects.
@@ -330,7 +348,7 @@ def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     new artifacts, which arrive at P6b. Until then both are left unflagged rather than guessed,
     because guessing here reintroduces the over-flagging the taxonomy exists to prevent.
     """
-    known = set(doc.observed.get(rule.params["observation"], []))
+    known = _observed_identities(doc, rule.params["observation"])
     if not known:
         return [(
             _where(rule),

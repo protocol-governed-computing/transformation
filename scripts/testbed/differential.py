@@ -23,9 +23,11 @@ from transformation.implementation.capability_transforms.atoms import (
     ct_pure_evaluate_rules_v0,
     ct_pure_parse_registers_v0,
 )
-from transformation.phases.oracle import judge_path
+from transformation.phases.oracle import evaluate
+from transformation.phases.read import read_seed
 from transformation.phases.p0.rules import rule_set as p0_rule_set
 from transformation.phases.p1.rules import rule_set as p1_rule_set
+from transformation.phases.p2.rules import rule_set as p2_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -47,6 +49,18 @@ PHASES = {
         "corpus": [
             REPO / "examples/transformation/phases/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p1").glob("*.md")),
+        ],
+    },
+    "P2": {
+        "wf": "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
+        "rules": p2_rule_set,
+        # P2 grounds claims against the composition, so the differential must supply the same
+        # observation the compiled workflow gathers. Comparing two ungrounded runs would agree
+        # perfectly while exercising none of the grounding.
+        "observes": "si.artifact.list",
+        "corpus": [
+            REPO / "examples/transformation/phases/cr_00_new_subdomain/p2_domain_model_transformation_phases_v0.md",
+            *sorted((REPO / "scripts/testbed/corpus_p2").glob("*.md")),
         ],
     },
 }
@@ -79,7 +93,19 @@ def sealed_rule_set(wf: str, snapshot_root: str) -> list[dict]:
     return rules
 
 
-def compiled_verdict(seed_text: str, rules: list[dict]) -> tuple[str, list[tuple[str, str]]]:
+def observation(operation: str | None, snapshot_root: str) -> dict:
+    """The facts a grounding phase's workflow gathers, keyed by the operation that produced them."""
+    if not operation:
+        return {}
+    status, result = api.query(operation, {}, snapshot_root)
+    if status != "SUCCESS":
+        raise RuntimeError(f"{operation} failed against {snapshot_root}: {status}")
+    return {operation: result.get("artifacts", result)}
+
+
+def compiled_verdict(
+    seed_text: str, rules: list[dict], observed: dict | None = None
+) -> tuple[str, list[tuple[str, str]]]:
     """Drive the compiled phase's atoms exactly as the workflow composes them."""
     parsed = ct_pure_parse_registers_v0.execute({"document_text": seed_text})
     result = ct_pure_evaluate_rules_v0.execute(
@@ -89,14 +115,17 @@ def compiled_verdict(seed_text: str, rules: list[dict]) -> tuple[str, list[tuple
             "registers": parsed["registers"],
             "document_text": seed_text,
             "rule_set": rules,
+            "observed": observed or {},
         }
     )
     findings = [(f["rule"], f["where"]) for f in result["findings"]]
     return result["verdict"], findings
 
 
-def genesis_verdict(doc_path: Path, rules) -> tuple[str, list[tuple[str, str]]]:
-    verdict = judge_path(doc_path, rules)
+def genesis_verdict(doc_path: Path, rules, observed: dict | None = None) -> tuple[str, list[tuple[str, str]]]:
+    doc = read_seed(doc_path)
+    doc.observed = observed or {}
+    verdict = evaluate(doc, rules)
     return verdict.verdict, [(f.rule, f.where) for f in verdict.findings]
 
 
@@ -116,6 +145,7 @@ def main() -> int:
             continue
         print("  identical")
 
+        observed = observation(spec.get("observes"), snapshot_root)
         corpus = [p for p in spec["corpus"] if p.is_file()]
         if not corpus:
             print(f"  NO DOCUMENTS — a differential over an empty corpus is not evidence")
@@ -125,8 +155,8 @@ def main() -> int:
         for doc_path in corpus:
             total += 1
             text = doc_path.read_text(encoding="utf-8")
-            g_verdict, g_findings = genesis_verdict(doc_path, declared)
-            c_verdict, c_findings = compiled_verdict(text, sealed)
+            g_verdict, g_findings = genesis_verdict(doc_path, declared, observed)
+            c_verdict, c_findings = compiled_verdict(text, sealed, observed)
             agree = g_verdict == c_verdict and sorted(g_findings) == sorted(c_findings)
             print(f"  {'AGREE ' if agree else 'DIVERGE'}  {g_verdict:<12} {len(g_findings):>2} finding(s)  {doc_path.name}")
             if not agree:
