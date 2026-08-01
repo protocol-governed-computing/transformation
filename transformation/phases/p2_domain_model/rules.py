@@ -26,6 +26,9 @@ TEMPLATE = load("p2")
 # observation and the rules that consume it cannot drift apart.
 OBSERVATION_OPERATION = "si.artifact.list"
 
+# operation → the key its result carries rows under.
+OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
+
 # A fully-qualified artifact identity, e.g. `blockchain::WF_PROPOSE_BLOCK_V0`.
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 

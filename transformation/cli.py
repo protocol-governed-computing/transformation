@@ -20,6 +20,7 @@ from transformation.phases.read import read_seed
 from transformation.phases.p0_change_seed import rules as p0_rules
 from transformation.phases.p1_change_request import rules as p1_rules
 from transformation.phases.p2_domain_model import rules as p2_rules
+from transformation.phases.p3_analysis_loop import rules as p3_rules
 from transformation.phases import catalog
 from transformation.phases.template_reader import load as load_template
 
@@ -29,6 +30,7 @@ RULE_SETS = {
     "p0": p0_rules,
     "p1": p1_rules,
     "p2": p2_rules,
+    "p3": p3_rules,
 }
 
 
@@ -72,17 +74,25 @@ def phase_check(doc_path: Path, phase_key: str, snapshot_root: Path | None, as_j
     Exit 0 if ADMISSIBLE, 1 if INADMISSIBLE.
     """
     rules_mod = RULE_SETS[phase_key]
-    observes = getattr(rules_mod, "OBSERVATION_OPERATION", None)
+    # operation → the key its result carries the rows under. A phase may ground against more than
+    # one observation: P3 resolves identities against the artifact list and bounds its reuse search
+    # by what each domain declares, and those are different questions asked of different surfaces.
+    observes = getattr(rules_mod, "OBSERVATIONS", {})
 
     doc = read_seed(doc_path)
     if observes and snapshot_root:
-        status, result = inspector_api.query(observes, {}, str(snapshot_root))
-        if status != "SUCCESS":
-            raise click.ClickException(f"{observes} failed against {snapshot_root}: {status}")
-        doc.observed = {observes: result.get("artifacts", result)}
+        gathered = {}
+        for operation, result_key in observes.items():
+            status, result = inspector_api.query(operation, {}, str(snapshot_root))
+            if status != "SUCCESS":
+                raise click.ClickException(
+                    f"{operation} failed against {snapshot_root}: {status}"
+                )
+            gathered[operation] = result.get(result_key, result)
+        doc.observed = gathered
     elif observes:
         click.echo(
-            f"  note: {phase_key} grounds claims through {observes}; "
+            f"  note: {phase_key} grounds claims through {', '.join(observes)}; "
             f"pass --snapshot to check them",
             err=True,
         )

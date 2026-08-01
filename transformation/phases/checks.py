@@ -15,7 +15,7 @@ skipped rule is the vacuity failure this codebase has hit repeatedly.
 from __future__ import annotations
 
 import re
-from typing import Callable
+from typing import Any, Callable
 
 from transformation.phases.evaluate import Block, ParsedDocument
 
@@ -225,8 +225,18 @@ def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     block = _block(doc, rule)
     if block is None or block.table is None:
         return []
-    if not block.table.rows:
-        return [(_where(rule), "section requires at least one row")]
+    # `minimum` defaults to 1 — "declared but empty asserts nothing". A register whose rows are a
+    # fixed checklist rather than free content declares the count it owes, so a claim resting on
+    # fewer rows than the criteria it cites is reported rather than read as complete.
+    minimum = int(getattr(rule, "params", {}).get("minimum", 1))
+    rows = len(block.table.rows)
+    if rows < minimum:
+        detail = (
+            "section requires at least one row"
+            if minimum == 1
+            else f"section declares {rows} row(s); {minimum} are required"
+        )
+        return [(_where(rule), detail)]
     return []
 
 
@@ -491,3 +501,68 @@ def _source_finding_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]
         ))
     return out
 
+
+
+@check("REUSE_CANDIDATE_ELIGIBLE")
+def _reuse_candidate_eligible(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every artifact offered as a reuse candidate must come from a domain that permits it.
+
+    A domain declares which plane it serves; the declaration bounds the *search space* and never
+    makes the *decision*. So this check answers one question only — may this domain's artifacts be
+    offered at all — and says nothing about whether reusing any particular one is wise. That call
+    stays with the author, per artifact, against evidence.
+
+    Two ways to fail, and the second matters more than it looks:
+
+    - the cited domain declares a visibility this CR may not draw on
+    - the cited domain declares **no** visibility at all
+
+    The second is a hard failure rather than a permissive default. Nothing yet stops a domain from
+    compiling without the declaration, so absence would otherwise mean "search everything" — the
+    inference the declaration exists to prevent, arriving silently through the back door.
+    """
+    observation = rule.params["observation"]
+    eligible = set(rule.params["eligible"])
+    pattern = re.compile(rule.params["pattern"])
+
+    # The observation is scope → visibility. Scope, not domain: substrate layers declare a
+    # visibility but are not composed domains, so a domain-keyed answer would omit exactly the
+    # artifacts a business change request most legitimately reuses.
+    declared: dict[str, Any] = dict(doc.observed.get(observation, {}) or {})
+
+    # A cited identity names a *namespace*; the domain that owns it is what declares visibility.
+    # They coincide for a business domain and diverge for the platform, whose namespaces are
+    # federation boundaries — so an unknown namespace is resolved through the observation, never
+    # by splitting the string and hoping.
+    out = []
+    for i, row in _rows(doc, rule):
+        value = _cell(row, rule.params["column"])
+        for identity in pattern.findall(value):
+            namespace = identity.split("::")[0]
+            domain = namespace if namespace in declared else _owning_domain(doc, rule, identity)
+            if domain is None:
+                continue                          # not in the baseline: proposed-new, not a reuse
+            visibility = declared.get(domain)
+            if visibility is None:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"{identity!r} belongs to domain {domain!r}, which declares no reuse "
+                    f"visibility — eligibility would have to be inferred, and inferring "
+                    f"relevance is reserved to the author",
+                ))
+            elif visibility not in eligible:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"{identity!r} belongs to domain {domain!r}, declared {visibility!r} — "
+                    f"not offerable to this change request "
+                    f"(eligible: {', '.join(sorted(eligible))})",
+                ))
+    return out
+
+
+def _owning_domain(doc: ParsedDocument, rule, identity: str) -> str | None:
+    """The domain that owns a cited identity, from the artifact observation."""
+    for entry in doc.observed.get(rule.params["artifact_observation"], []) or []:
+        if isinstance(entry, dict) and entry.get("artifact") == identity:
+            return entry.get("domain")
+    return None

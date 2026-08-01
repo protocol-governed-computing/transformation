@@ -28,6 +28,7 @@ from transformation.phases.read import read_seed
 from transformation.phases.p0_change_seed.rules import rule_set as p0_rule_set
 from transformation.phases.p1_change_request.rules import rule_set as p1_rule_set
 from transformation.phases.p2_domain_model.rules import rule_set as p2_rule_set
+from transformation.phases.p3_analysis_loop.rules import rule_set as p3_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
@@ -63,11 +64,23 @@ PHASES = {
         # P2 grounds claims against the composition, so the differential must supply the same
         # observation the compiled workflow gathers. Comparing two ungrounded runs would agree
         # perfectly while exercising none of the grounding.
-        "observes": "si.artifact.list",
+        "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
             REPO / "cr_dossiers/cr_00_new_subdomain/p2_domain_model_transformation_phases_v0.md",
             CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p2").glob("*.md")),
+        ],
+    },
+    "P3": {
+        "wf": "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0",
+        "rules": p3_rule_set,
+        # Two observations, answering different questions: does this identity exist, and may this
+        # domain be drawn on at all. A differential that supplied only the first would agree with
+        # itself perfectly while leaving the reuse ruling unexercised.
+        "observes": {"si.artifact.list": "artifacts", "si.snapshot.summary": "reuse_visibility"},
+        "corpus": [
+            CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md",
+            *sorted((REPO / "scripts/testbed/corpus_p3").glob("*.md")),
         ],
     },
 }
@@ -100,14 +113,19 @@ def sealed_rule_set(wf: str, snapshot_root: str) -> list[dict]:
     return rules
 
 
-def observation(operation: str | None, snapshot_root: str) -> dict:
-    """The facts a grounding phase's workflow gathers, keyed by the operation that produced them."""
-    if not operation:
-        return {}
-    status, result = api.query(operation, {}, snapshot_root)
-    if status != "SUCCESS":
-        raise RuntimeError(f"{operation} failed against {snapshot_root}: {status}")
-    return {operation: result.get("artifacts", result)}
+def observation(operations: dict | None, snapshot_root: str) -> dict:
+    """The facts a grounding phase's workflow gathers, keyed by the operation that produced them.
+
+    `operations` maps operation → the key its result carries rows under, because a phase may ground
+    against more than one surface and they do not answer in the same shape.
+    """
+    gathered = {}
+    for operation, result_key in (operations or {}).items():
+        status, result = api.query(operation, {}, snapshot_root)
+        if status != "SUCCESS":
+            raise RuntimeError(f"{operation} failed against {snapshot_root}: {status}")
+        gathered[operation] = result.get(result_key, result)
+    return gathered
 
 
 def compiled_verdict(

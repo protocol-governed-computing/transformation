@@ -105,6 +105,17 @@ CASES = [
          "BASELINE_IDENTITY_UNRESOLVED",
          "DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE",
      ], 62),
+    # P3 decides, so it observes twice: the artifact list resolves identities, the composition
+    # summary carries what each domain declares about being reused. The inadmissible case offers a
+    # business CR a pipeline capability and a conformance workload — a confusion that is invisible
+    # in the document and only a declaration can settle.
+    ("P3", "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0",
+     "14_p3_admissible_catalog_register.json", "ADMISSIBLE", [], 46),
+    ("P3", "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0",
+     "15_p3_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         "REUSE_CANDIDATE_NOT_ELIGIBLE",
+         "REUSE_CANDIDATE_NOT_ELIGIBLE",
+     ], 46),
 ]
 
 

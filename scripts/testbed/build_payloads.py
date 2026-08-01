@@ -64,6 +64,16 @@ PAYLOADS = {
     "13_p2_inadmissible_catalog_register.json": (
         "scripts/testbed/corpus_p2/inadmissible_p2_catalog_register.md"
     ),
+    # P3 — the first phase that decides. The inadmissible case offers a business change request a
+    # pipeline capability and a conformance workload: the exact confusion the reuse ruling exists
+    # to prevent, and one no amount of reading the document could catch.
+    "14_p3_admissible_catalog_register.json": (
+        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "p3_analysis_loop_book_library_mgmt_catalog_v0.md"
+    ),
+    "15_p3_inadmissible_catalog_register.json": (
+        "scripts/testbed/corpus_p3/inadmissible_p3_ineligible_reuse.md"
+    ),
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -75,6 +85,8 @@ PAYLOAD_KEY = {
     "11_p1_admissible_catalog_register.json": "register_text",
     "12_p2_admissible_catalog_register.json": "register_text",
     "13_p2_inadmissible_catalog_register.json": "register_text",
+    "14_p3_admissible_catalog_register.json": "register_text",
+    "15_p3_inadmissible_catalog_register.json": "register_text",
 }
 
 
