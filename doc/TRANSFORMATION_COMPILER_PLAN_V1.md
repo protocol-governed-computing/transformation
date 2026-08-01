@@ -221,24 +221,33 @@ in the repo of the domain they change, and are tracked there.
 
 ### The baseline is pinned
 
-CR-1 is validated against a **named, frozen snapshot**, not "the current snapshot":
+Every CR **SHALL** identify the baseline composition it is validated against — a named, frozen
+snapshot, never "the current snapshot".
+
+Every register a snapshot-reading phase emits encodes facts about one specific composition: which
+artifacts exist, what the normative closure contains, what a REUSE decision found. Against a moving
+snapshot those fixtures fail for reasons unrelated to the transformation compiler, and a regression
+becomes indistinguishable from a rebuild.
+
+A run that observes a snapshot other than the one its CR pins **fails before executing a phase**.
+Rebaselining is a deliberate, reviewed act that re-pins the identity and re-approves the affected
+registers — never a silent drift. Each CR after the first pins the composition its predecessor
+produced, by the same rule.
+
+**The pin's value lives in `baseline.json`, in the CR's own dossier — and nowhere else.** This
+document states the rule; it does not carry the value. Three layers, and each does exactly one job:
 
 ```
-snapshot_id  20d4df5f0c2264fae35bffd8fb0ffb8461f966466092a59cf87ca181b51aa4d9
-domains      ai_governance, inspection, platform, workload
-artifacts    249
+this plan          states the rule       every CR pins a baseline
+baseline.json      holds the values      snapshot_id, artifact count, domain list
+compiler/runtime   enforces the values   a mismatched snapshot halts the run
 ```
 
-Every `p2_expected/` and `p3_expected/` register encodes facts about a specific composition —
-which artifacts exist, what the normative closure contains, what a REUSE decision found. Against a
-moving snapshot those fixtures fail for reasons unrelated to the transformation compiler, and a
-regression becomes indistinguishable from a rebuild.
+A value restated in prose is a value nothing verifies. Once it drifts, the document that is
+supposed to govern the work is the thing misleading it — which is the failure mode this section
+exists to prevent, applied to itself.
 
-The fixture records the `snapshot_id`, and a validation run that observes a different one **fails
-before executing a phase**. Rebaselining onto a later snapshot is a deliberate, reviewed act that
-re-pins the id and re-approves the affected registers — never a silent drift.
-
-Each subsequent CR pins the composition its predecessor produced, by the same rule.
+    tc baseline verify <dossier>/baseline.json --snapshot <snapshot-root>
 
 ## 6. What the rehost must not replicate
 
