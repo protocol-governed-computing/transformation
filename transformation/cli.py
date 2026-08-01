@@ -15,6 +15,7 @@ from transformation.baseline import Baseline, BaselineMismatch, observe, verify
 from transformation.phases.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
+from transformation.phases.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.phases.oracle import evaluate
 from transformation.phases.read import read_seed
 from transformation.phases.p0_change_seed import rules as p0_rules
@@ -98,9 +99,26 @@ def phase_check(doc_path: Path, phase_key: str, snapshot_root: Path | None, as_j
         )
 
     verdict = evaluate(doc, rules_mod.rule_set())
+    # Admissibility and quality are separate axes: the rule set decides the verdict, the figure of
+    # merit says how good the document is. A document may be admissible and imperfect, or
+    # inadmissible over one misspelling while otherwise strong.
+    # The policy is declared in the composition, so a rating needs one to read. Without a snapshot
+    # there is no policy and therefore no rating — reported as not computed, never defaulted.
+    merit = None
+    if snapshot_root:
+        merit = rate_merit(verdict, doc, load_policy(str(snapshot_root)))
 
     if as_json:
-        click.echo(json.dumps(verdict.as_dict(), indent=2))
+        payload = verdict.as_dict()
+        payload["merit"] = None if merit is None else {
+            "rating": merit.rating,
+            "maximum": merit.maximum,
+            "deductions": [
+                {"id": d.id, "label": d.label, "weight": d.weight, "count": d.count}
+                for d in merit.deductions
+            ],
+        }
+        click.echo(json.dumps(payload, indent=2))
     else:
         click.echo(f"{verdict.verdict}  [{phase_key}]  {doc_path}")
         for finding in verdict.findings:
@@ -108,6 +126,21 @@ def phase_check(doc_path: Path, phase_key: str, snapshot_root: Path | None, as_j
         click.echo(
             f"  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} declared rules"
         )
+        click.echo()
+        click.echo(f"  Status            {verdict.verdict}")
+        if merit is None:
+            click.echo("  Figure of Merit   not computed — pass --snapshot to read the policy")
+        else:
+            click.echo(f"  Figure of Merit   {merit.stars} {merit.rating}/{merit.maximum}")
+            if merit.deductions:
+                click.echo("  Deductions")
+                for deduction in merit.deductions:
+                    click.echo(f"      {deduction}")
+            else:
+                click.echo("  Deductions        none")
+        nxt = catalog.next_phase(phase_key)
+        if nxt:
+            click.echo(f"  Ready for {nxt.upper():<7} {'YES' if verdict.admissible else 'NO'}")
 
     sys.exit(0 if verdict.admissible else 1)
 

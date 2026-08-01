@@ -144,3 +144,16 @@ def phase(phase_id: str) -> Phase:
     if phase_id not in PHASES_BY_ID:
         raise KeyError(f"no such phase: {phase_id!r}; declared phases are {sorted(PHASES_BY_ID)}")
     return PHASES_BY_ID[phase_id]
+
+
+def next_phase(phase_id: str) -> str | None:
+    """The phase this one feeds, or None at the end of the pipeline.
+
+    Read from the declared order rather than a lookup table, so adding a phase to `PHASES` is the
+    whole of adding it to the pipeline.
+    """
+    ids = [p.id for p in PHASES]
+    if phase_id not in ids:
+        return None
+    position = ids.index(phase_id) + 1
+    return ids[position] if position < len(ids) else None
