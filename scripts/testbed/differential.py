@@ -33,6 +33,7 @@ from transformation.phases.p4_business_model.rules import rule_set as p4_rule_se
 from transformation.phases.p5_business_intent.rules import rule_set as p5_rule_set
 from transformation.phases.p6_governance_intent.rules import rule_set as p6_rule_set
 from transformation.phases.p7_design_intent.rules import rule_set as p7_rule_set
+from transformation.phases.p8_authoring_mandate.rules import rule_set as p8_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
@@ -121,6 +122,15 @@ PHASES = {
         "corpus": [
             CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p7").glob("*.md")),
+        ],
+    },
+    "P8": {
+        "wf": "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
+        "rules": p8_rule_set,
+        "observes": {"si.artifact.list": "artifacts"},
+        "corpus": [
+            CR_01 / "p8_authoring_mandate_book_library_mgmt_catalog_v0.md",
+            *sorted((REPO / "scripts/testbed/corpus_p8").glob("*.md")),
         ],
     },
 }

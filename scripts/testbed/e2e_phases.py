@@ -174,10 +174,21 @@ CASES = [
          "STORE_WITHOUT_PROPOSED_PATH",
          "TOPOLOGY_NODE_UNDECLARED",
      ], 52, 4),
+    # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
+    # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
+    # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
+    ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
+     "24_p8_admissible_catalog_mandate.json", "ADMISSIBLE", [], 30, 5),
+    ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
+     "25_p8_inadmissible_catalog_mandate.json", "INADMISSIBLE", [
+         "BUILD_STEPS_NOT_CONTIGUOUS",
+         "CRITICAL_PATH_NOT_IN_BUILD_ORDER",
+         "DEPENDENCY_SCHEDULED_LATER",
+     ], 30, 4),
 ]
 
 
-PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4", "P5": "p5", "P6": "p6", "P7": "p7"}
+PHASE_TEMPLATE = {"P0": "p0", "P1": "p1", "P2": "p2", "P3": "p3", "P4": "p4", "P5": "p5", "P6": "p6", "P7": "p7", "P8": "p8"}
 
 
 def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:

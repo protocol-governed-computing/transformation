@@ -114,6 +114,16 @@ PAYLOADS = {
     "23_p7_inadmissible_catalog_register.json": (
         "scripts/testbed/corpus_p7/inadmissible_p7_collision.md"
     ),
+    # P8 is judged on row order. The inadmissible case drops a step, schedules a prerequisite after
+    # the thing that needs it, and routes the critical path through a step nobody scheduled — three
+    # defects that exist between rows rather than in any one of them.
+    "24_p8_admissible_catalog_mandate.json": (
+        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "p8_authoring_mandate_book_library_mgmt_catalog_v0.md"
+    ),
+    "25_p8_inadmissible_catalog_mandate.json": (
+        "scripts/testbed/corpus_p8/inadmissible_p8_broken_order.md"
+    ),
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -135,6 +145,8 @@ PAYLOAD_KEY = {
     "21_p6_inadmissible_catalog_register.json": "register_text",
     "22_p7_admissible_catalog_register.json": "register_text",
     "23_p7_inadmissible_catalog_register.json": "register_text",
+    "24_p8_admissible_catalog_mandate.json": "register_text",
+    "25_p8_inadmissible_catalog_mandate.json": "register_text",
 }
 
 

@@ -697,3 +697,91 @@ def _cited_artifacts_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
                     f"redefine an artifact rather than create one",
                 ))
     return out
+
+
+@check("COLUMN_SEQUENCE_CONTIGUOUS")
+def _column_sequence_contiguous(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An integer column must run contiguously from a declared start.
+
+    The first rule about a register's rows *as a sequence* rather than each row on its own. Every
+    row can be individually perfect and the register still wrong: a gap in a build sequence means an
+    artifact was dropped between two steps that both look fine, and nothing reading rows one at a
+    time would notice the absence.
+    """
+    column = rule.params["column"]
+    start = int(rule.params.get("start", 1))
+
+    seen: list[tuple[int, int]] = []
+    for i, row in _rows(doc, rule):
+        value = _cell(row, column)
+        if not value:
+            continue
+        try:
+            seen.append((int(value), i))
+        except ValueError:
+            return [(f"{_where(rule)} row {i}", f"{value!r} is not a step number")]
+
+    if not seen:
+        return []
+
+    out = []
+    expected = start
+    for number, i in sorted(seen):
+        if number != expected:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"step {number} follows {expected - 1} — the sequence skips {expected}, "
+                f"and a gap is an artifact silently dropped",
+            ))
+            expected = number
+        expected += 1
+    duplicates = len(seen) - len({n for n, _ in seen})
+    if duplicates:
+        out.append((_where(rule), f"{duplicates} duplicate step number(s) — order must be total"))
+    return out
+
+
+@check("DEPENDENCY_PRECEDES")
+def _dependency_precedes(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Everything a row depends on must be built before it.
+
+    This is what makes a build order a *topological* sort rather than a list. A mandate whose steps
+    are individually well formed but whose dependency is scheduled later is not a sequence anyone
+    can execute — and the defect is invisible in either row alone.
+
+    A dependency that is not itself a step is a prerequisite from outside this build (an artifact
+    that already exists), which is legitimate and deliberately not reported here.
+    """
+    column = rule.params["column"]
+    depends_column = rule.params["depends_column"]
+    order_column = rule.params["order_column"]
+    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
+
+    position: dict[str, int] = {}
+    rows = []
+    for i, row in _rows(doc, rule):
+        code = _cell(row, column)
+        step = _cell(row, order_column)
+        try:
+            step_number = int(step)
+        except ValueError:
+            continue
+        if code:
+            position[code] = step_number
+        rows.append((i, code, step_number, _cell(row, depends_column)))
+
+    out = []
+    for i, code, step_number, depends in rows:
+        for part in (p.strip() for p in depends.replace(",", ";").split(";")):
+            if not part or part in none_markers:
+                continue
+            prerequisite = position.get(part)
+            if prerequisite is None:
+                continue          # built outside this mandate — legitimate
+            if prerequisite >= step_number:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"{code!r} is step {step_number} but depends on {part!r} at step "
+                    f"{prerequisite} — a prerequisite scheduled later is not a build order",
+                ))
+    return out
