@@ -13,11 +13,13 @@ import click
 
 from transformation.baseline import Baseline, BaselineMismatch, observe, verify
 from transformation.phases.checks import kinds as check_kinds
-from transformation.phases.oracle import judge_path
-from transformation.phases.p0 import rules as p0_rules
-from transformation.phases.p0 import template as p0_template
-from transformation.phases.p1 import rules as p1_rules
-from transformation.phases.p2 import rules as p2_rules
+from inspector import api as inspector_api
+
+from transformation.phases.oracle import evaluate
+from transformation.phases.read import read_seed
+from transformation.phases.p0_change_seed import rules as p0_rules
+from transformation.phases.p1_change_request import rules as p1_rules
+from transformation.phases.p2_domain_model import rules as p2_rules
 from transformation.phases import catalog
 from transformation.phases.template_reader import load as load_template
 
@@ -53,13 +55,39 @@ _PHASE_OPTION = click.option(
 @phase.command("check")
 @click.argument("doc_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @_PHASE_OPTION
+@click.option(
+    "--snapshot",
+    "snapshot_root",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    help="Composition to ground against. Required by phases that verify claims about the system.",
+)
 @click.option("--json", "as_json", is_flag=True, help="Emit the verdict as JSON.")
-def phase_check(doc_path: Path, phase_key: str, as_json: bool) -> None:
+def phase_check(doc_path: Path, phase_key: str, snapshot_root: Path | None, as_json: bool) -> None:
     """Judge a phase document against that phase's structural oracle.
+
+    A phase that grounds claims needs a composition to ground against. Without `--snapshot` its
+    grounding rules report that they could not be checked — they do not quietly pass, because a
+    silent pass would look identical to a verified one.
 
     Exit 0 if ADMISSIBLE, 1 if INADMISSIBLE.
     """
-    verdict = judge_path(doc_path, RULE_SETS[phase_key].rule_set())
+    rules_mod = RULE_SETS[phase_key]
+    observes = getattr(rules_mod, "OBSERVATION_OPERATION", None)
+
+    doc = read_seed(doc_path)
+    if observes and snapshot_root:
+        status, result = inspector_api.query(observes, {}, str(snapshot_root))
+        if status != "SUCCESS":
+            raise click.ClickException(f"{observes} failed against {snapshot_root}: {status}")
+        doc.observed = {observes: result.get("artifacts", result)}
+    elif observes:
+        click.echo(
+            f"  note: {phase_key} grounds claims through {observes}; "
+            f"pass --snapshot to check them",
+            err=True,
+        )
+
+    verdict = evaluate(doc, rules_mod.rule_set())
 
     if as_json:
         click.echo(json.dumps(verdict.as_dict(), indent=2))
@@ -116,16 +144,6 @@ def phase_template(phase_key: str) -> None:
     """Print a phase's required section structure."""
     spec = catalog.phase(phase_key)
     click.echo(f"{phase_key} — {spec.purpose}\n  {spec.question}\n  admits: {spec.rung}\n")
-
-    if spec.template is None:
-        # P0 is new in this rehost and declares its own shape.
-        from transformation.phases.p0.template import SECTIONS
-
-        for s in SECTIONS:
-            num = f"{s.number}. " if s.number is not None else "   "
-            shape = "prose" if s.prose else f"table[{', '.join(s.table_columns)}]"
-            click.echo(f"  {num}{s.title} — {shape}{'  (may be empty)' if s.may_be_empty else ''}")
-        return
 
     for reg in load_template(phase_key).registers:
         cols = f"table[{', '.join(reg.columns)}]" if reg.columns else "no table"

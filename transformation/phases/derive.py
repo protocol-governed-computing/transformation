@@ -33,6 +33,20 @@ def _register_rules(register: Register, citable: list[str]) -> list[Rule]:
     `citable` is what this phase may cite — its own registers plus those its handoff contract
     declares it consumes.
     """
+    # A register declared without a table is narrative — the Subdomain Purpose is the only one,
+    # and it is narrative by definition: the business context no compiled artifact can derive.
+    # It is still governed; it just cannot be governed as rows.
+    if not register.columns:
+        return [
+            Rule(
+                id="REGISTER_EMPTY",
+                check="SECTION_HAS_TEXT",
+                register=register.id,
+                params={"detail": "narrative register is empty — it states nothing"},
+                intent="a narrative register carries the context nothing downstream can rederive",
+            )
+        ]
+
     out: list[Rule] = [
         Rule(
             id="REGISTER_MISSING",

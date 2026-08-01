@@ -3,7 +3,7 @@
 The rehost claim is that authoring P0 as governed artifacts preserved its behaviour. That is only
 evidence if both paths are actually exercised over the same seeds and compared:
 
-    genesis oracle    rules from transformation.phases.p0.rules  (Python declaration)
+    genesis oracle    rules from transformation.phases.p0_change_seed.rules  (Python declaration)
     compiled phase    rules from the sealed snapshot        (si.artifact.show)
 
 The rule sets must be identical and the verdicts must agree, seed by seed and finding by finding.
@@ -25,9 +25,9 @@ from transformation.implementation.capability_transforms.atoms import (
 )
 from transformation.phases.oracle import evaluate
 from transformation.phases.read import read_seed
-from transformation.phases.p0.rules import rule_set as p0_rule_set
-from transformation.phases.p1.rules import rule_set as p1_rule_set
-from transformation.phases.p2.rules import rule_set as p2_rule_set
+from transformation.phases.p0_change_seed.rules import rule_set as p0_rule_set
+from transformation.phases.p1_change_request.rules import rule_set as p1_rule_set
+from transformation.phases.p2_domain_model.rules import rule_set as p2_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
 

@@ -29,6 +29,7 @@ gates, and its only reader is the person driving the change.
 tc phase list                              # phases this build governs
 tc phase check --phase p0 <seed.md>        # structural oracle — ADMISSIBLE / INADMISSIBLE
 tc phase check --phase p1 <register.md>
+tc phase check --phase p2 <register.md> --snapshot <root>   # grounds against the composition
 tc phase template --phase p1               # the required section structure
 tc phase rules --phase p1                  # the declared rule set
 tc baseline verify <pin.json> --snapshot <root>

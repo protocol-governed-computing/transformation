@@ -163,6 +163,9 @@ def _sections_ascending(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 def _section_has_text(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     block = _block(doc, rule)
     if block is None:
+        # Same reasoning as TABLE_PRESENT: an absent narrative register is a finding, not a skip.
+        if getattr(rule, "register", None):
+            return [(_where(rule), "declared register is absent from the document")]
         return []
     if not block.text():
         return [(_where(rule), rule.params["detail"])]
@@ -185,11 +188,18 @@ def _section_declares_one_of(doc: ParsedDocument, rule) -> list[tuple[str, str]]
 
 @check("TABLE_PRESENT")
 def _table_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """The register must be there, and must be readable as rows.
+
+    Absence is the finding this check exists for. Returning nothing when the register is missing —
+    which is what an earlier version did — meant a document could drop a register entirely and be
+    judged admissible: every cell-level rule skips a register it cannot find, so nothing else would
+    have spoken up either.
+    """
     block = _block(doc, rule)
     if block is None:
-        return []
+        return [(_where(rule), "declared register is absent from the document")]
     if block.table is None:
-        return [(_where(rule), "section requires a table, none found")]
+        return [(_where(rule), "register is present but carries no table, so it cannot be read as rows")]
     return []
 
 

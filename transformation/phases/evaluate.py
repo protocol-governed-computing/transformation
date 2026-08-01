@@ -84,7 +84,12 @@ class ParsedDocument:
                         columns=list(entry["columns"]),
                         rows=[dict(r) for r in (entry.get("rows") or [])],
                     )
-                return Block(number=None, title=register_id, body="", table=table)
+                return Block(
+                    number=None,
+                    title=register_id,
+                    body=entry.get("text", ""),
+                    table=table,
+                )
         return None
 
     def find(self, title_prefix: str) -> Block | None:

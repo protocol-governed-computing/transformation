@@ -98,9 +98,22 @@ def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]], list[di
             )
             columns: list[str] = []
             rows: list[dict[str, str]] = []
+            text_lines: list[str] = []
             if header_at is not None:
                 columns, rows = _read_table(lines[header_at:])
-            registers.append({"id": marker.group(1), "columns": columns, "rows": rows})
+            else:
+                # A marker opening no table declares a narrative register; its content is the prose
+                # up to the next heading or marker.
+                for j in range(idx + 1, len(lines)):
+                    if HEADING.match(lines[j]) or REGISTER_MARKER.match(lines[j]):
+                        break
+                    text_lines.append(lines[j])
+            registers.append({
+                "id": marker.group(1),
+                "columns": columns,
+                "rows": rows,
+                "text": "\n".join(text_lines),
+            })
 
         match = HEADING.match(line)
         if match:

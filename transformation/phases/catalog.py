@@ -58,11 +58,14 @@ class Phase:
 PHASES: tuple[Phase, ...] = (
     Phase(
         id="p0",
-        purpose="seed",
+        purpose="change seed",
         question="What does the business want, stated in its own words?",
         key_rule="Faithful rewrite only — no content added, no clarification resolved, no design assigned",
         rung="business_language",
-        template=None,  # new in this rehost; no RI-0 original to salvage
+        # New in this rehost — RI-0 began at the change request and consumed a hand-built
+        # elicitation whose provenance nothing recorded. The template is authored here rather than
+        # salvaged, and carries the elicitation questions §4.3 requires of every phase.
+        template="p0_change_seed_template_v0.md",
         gate="Gate 0 — the human confirms the seed says what they meant",
     ),
     Phase(

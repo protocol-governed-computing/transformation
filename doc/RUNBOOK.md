@@ -78,9 +78,13 @@ node's result. Both checks are needed; neither substitutes for the other.
 tc phase list
 tc phase check --phase p0 <seed.md>
 tc phase check --phase p1 <register.md>
+tc phase check --phase p2 <register.md> --snapshot ~/protocol-governed-computing/snapshot
 
 cd ~/protocol-governed-computing/transformation_compiler && python scripts/testbed/differential.py
 ```
 
-`tc phase check` needs no snapshot and is the right loop while authoring a document. The differential
+`tc phase check` is the right loop while authoring a document. Phases through P1 judge a document
+alone and need no snapshot; from P2 a phase grounds claims against the composition, so `--snapshot`
+is required for its grounding rules to be checked at all — without it they report that they could
+not run rather than quietly passing. The differential
 needs an assembled snapshot and compares the sealed rule set against the declared one.
