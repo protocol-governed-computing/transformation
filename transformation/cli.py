@@ -17,13 +17,14 @@ from transformation.phases.oracle import judge_path
 from transformation.phases.p0 import rules as p0_rules
 from transformation.phases.p0 import template as p0_template
 from transformation.phases.p1 import rules as p1_rules
-from transformation.phases.p1 import template as p1_template
+from transformation.phases import catalog
+from transformation.phases.template_reader import load as load_template
 
-# Every phase is a template plus a rule set; the mechanisms are shared. Adding a phase is an entry
-# here, not a new command — the CLI generalizes exactly as the artifacts do.
-PHASES = {
-    "p0": ("the seed phase", p0_rules, p0_template),
-    "p1": ("the change request register", p1_rules, p1_template),
+# Rule sets still declared per phase; purpose, question, key rule and purity rung come from the
+# catalogue, which mirrors field manual §4.1 and §4.2.
+RULE_SETS = {
+    "p0": p0_rules,
+    "p1": p1_rules,
 }
 
 
@@ -41,7 +42,7 @@ def phase() -> None:
 _PHASE_OPTION = click.option(
     "--phase",
     "phase_key",
-    type=click.Choice(sorted(PHASES)),
+    type=click.Choice(sorted(RULE_SETS)),
     required=True,
     help="Which phase's template and rule set to apply.",
 )
@@ -56,8 +57,7 @@ def phase_check(doc_path: Path, phase_key: str, as_json: bool) -> None:
 
     Exit 0 if ADMISSIBLE, 1 if INADMISSIBLE.
     """
-    _, rules_mod, _ = PHASES[phase_key]
-    verdict = judge_path(doc_path, rules_mod.rule_set())
+    verdict = judge_path(doc_path, RULE_SETS[phase_key].rule_set())
 
     if as_json:
         click.echo(json.dumps(verdict.as_dict(), indent=2))
@@ -80,8 +80,7 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
 
     The rules are data, not code: this is the whole of what governs that phase's document.
     """
-    _, rules_mod, _ = PHASES[phase_key]
-    declared = rules_mod.rule_set()
+    declared = RULE_SETS[phase_key].rule_set()
 
     if as_json:
         click.echo(
@@ -113,25 +112,43 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
 @_PHASE_OPTION
 def phase_template(phase_key: str) -> None:
     """Print a phase's required section structure."""
-    label, _, template_mod = PHASES[phase_key]
-    click.echo(f"{phase_key} — {label}\n")
-    for spec in template_mod.SECTIONS:
-        num = f"{spec.number}. " if spec.number is not None else "   "
-        shape = "prose" if spec.prose else f"table[{', '.join(spec.table_columns)}]"
-        optional = "  (may be empty)" if spec.may_be_empty else ""
-        click.echo(f"  {num}{spec.title} — {shape}{optional}")
+    spec = catalog.phase(phase_key)
+    click.echo(f"{phase_key} — {spec.purpose}\n  {spec.question}\n  admits: {spec.rung}\n")
+
+    if spec.template is None:
+        # P0 is new in this rehost and declares its own shape.
+        from transformation.phases.p0.template import SECTIONS
+
+        for s in SECTIONS:
+            num = f"{s.number}. " if s.number is not None else "   "
+            shape = "prose" if s.prose else f"table[{', '.join(s.table_columns)}]"
+            click.echo(f"  {num}{s.title} — {shape}{'  (may be empty)' if s.may_be_empty else ''}")
+        return
+
+    for reg in load_template(phase_key).registers:
+        cols = f"table[{', '.join(reg.columns)}]" if reg.columns else "no table"
+        click.echo(f"  §{reg.section_number or '-':<3} {reg.id:<24} {cols}{'  (may be empty)' if reg.optional else ''}")
+        for column, values in reg.vocabularies.items():
+            click.echo(f"       {column}: {', '.join(values)}")
 
 
 @phase.command("list")
 def phase_list() -> None:
-    """Print the phases this build governs."""
-    for key in sorted(PHASES):
-        label, rules_mod, template_mod = PHASES[key]
-        click.echo(
-            f"  {key}  {label:<32} "
-            f"{len(template_mod.SECTIONS):>2} registers  "
-            f"{len(rules_mod.rule_set()):>3} rules"
-        )
+    """Print the pipeline: what each phase is for, and what vocabulary it admits.
+
+    A phase name says which step; it does not say what the step is for. The commonest authoring
+    failure is answering the next phase's question early, so the question and the purity rung are
+    stated alongside the name.
+    """
+    for spec in catalog.PHASES:
+        built = "built" if spec.id in RULE_SETS else "   — "
+        rules = len(RULE_SETS[spec.id][0].rule_set()) if spec.id in RULE_SETS else 0
+        click.echo(f"  {spec.id:<4} {spec.purpose:<20} [{built}] {rules or '':>4} rules   admits: {spec.rung}")
+        click.echo(f"       {spec.question}")
+        click.echo(f"       rule: {spec.key_rule}")
+        if spec.gate:
+            click.echo(f"       {spec.gate}")
+        click.echo()
 
 
 @main.group()

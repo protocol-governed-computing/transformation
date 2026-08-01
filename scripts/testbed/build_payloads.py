@@ -27,6 +27,17 @@ PAYLOADS = {
     ),
     "04_inadmissible_structural.json": "scripts/testbed/corpus/inadmissible_structural.md",
     "05_inadmissible_truncated.json": "scripts/testbed/corpus/inadmissible_truncated.md",
+    "06_p1_admissible_register.json": (
+        "examples/transformation/phases/cr_00_new_subdomain/"
+        "p1_change_request_transformation_phases_v0.md"
+    ),
+    "07_p1_inadmissible_register.json": "scripts/testbed/corpus_p1/inadmissible_p1_register.md",
+}
+
+# P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
+PAYLOAD_KEY = {
+    "06_p1_admissible_register.json": "register_text",
+    "07_p1_inadmissible_register.json": "register_text",
 }
 
 
@@ -36,7 +47,8 @@ def main() -> int:
         src = REPO / source
         if not src.is_file():
             raise FileNotFoundError(f"payload source missing: {src}")
-        payload = {"seed_text": src.read_text(encoding="utf-8"), "author_of_record": AUTHOR}
+        key = PAYLOAD_KEY.get(name, "seed_text")
+        payload = {key: src.read_text(encoding="utf-8"), "author_of_record": AUTHOR}
         (OUT / name).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         print(f"  {name:<40} <- {source}")
     print(f"\n{len(PAYLOADS)} payload(s) written to {OUT.relative_to(REPO)}")

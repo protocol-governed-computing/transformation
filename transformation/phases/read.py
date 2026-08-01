@@ -18,7 +18,8 @@ from typing import Any
 
 from transformation.phases.evaluate import ParsedDocument
 
-HEADING = re.compile(r"^##\s+(?:(\d+)\.\s+)?(.+?)\s*$")
+HEADING = re.compile(r"^##\s+(?:(\d+[a-z]?)\.\s+)?(.+?)\s*$")
+REGISTER_MARKER = re.compile(r"^<!--\s*register:([a-z_]+)(?:\s[^>]*)?-->\s*$")
 BULLET_FIELD = re.compile(r"^-\s+\*\*(?P<name>[^:*]+):\*\*\s*(?P<value>.*?)\s*$")
 TABLE_DIVIDER = re.compile(r"^\|[\s:|-]+\|$")
 
@@ -58,10 +59,17 @@ def _read_table(lines: list[str]) -> tuple[list[str], list[dict[str, str]]]:
     return [], []
 
 
-def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]]]:
-    """Parse document text into (header fields, ordered sections) as plain data."""
+def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]], list[dict[str, Any]]]:
+    """Parse document text into (header fields, sections, registers) as plain data.
+
+    Registers are the unit rules attach to. An authored phase document carries the same
+    `<!-- register:id -->` markers as its template, so a register is addressed by identity rather
+    than by matching a section title — a section may hold several registers, and retitling one
+    must not silently detach its rules.
+    """
     header: dict[str, str] = {}
     sections: list[dict[str, Any]] = []
+    registers: list[dict[str, Any]] = []
 
     current: dict[str, Any] | None = None
     current_lines: list[str] = []
@@ -76,7 +84,22 @@ def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]]]:
         current["rows"] = rows
         sections.append(current)
 
-    for line in text.splitlines():
+    lines = text.splitlines()
+    for idx, line in enumerate(lines):
+        marker = REGISTER_MARKER.match(line)
+        if marker:
+            # The table opening after the marker belongs to this register.
+            header_at = next(
+                (j for j in range(idx + 1, min(idx + 4, len(lines)))
+                 if lines[j].lstrip().startswith("|")),
+                None,
+            )
+            columns: list[str] = []
+            rows: list[dict[str, str]] = []
+            if header_at is not None:
+                columns, rows = _read_table(lines[header_at:])
+            registers.append({"id": marker.group(1), "columns": columns, "rows": rows})
+
         match = HEADING.match(line)
         if match:
             close()
@@ -98,7 +121,7 @@ def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]]]:
         if field_match:
             header[field_match.group("name").strip()] = field_match.group("value").strip()
 
-    return header, sections
+    return header, sections, registers
 
 
 def read_seed(path: Path) -> ParsedDocument:
@@ -111,5 +134,7 @@ def read_seed(path: Path) -> ParsedDocument:
         raise FileNotFoundError(f"seed not found: {path}")
 
     raw = path.read_text(encoding="utf-8")
-    header, sections = parse_text(raw)
-    return ParsedDocument(header=header, sections=sections, raw=raw, path=str(path))
+    header, sections, registers = parse_text(raw)
+    return ParsedDocument(
+        header=header, sections=sections, registers=registers, raw=raw, path=str(path)
+    )

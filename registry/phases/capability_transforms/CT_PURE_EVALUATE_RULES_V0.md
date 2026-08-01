@@ -60,6 +60,10 @@ core:
       type: array
       required: true
       description: Parsed document sections
+    registers:
+      type: array
+      required: true
+      description: Parsed registers, addressed by marker id — how a rule locates what it governs
     document_text:
       type: string
       required: true

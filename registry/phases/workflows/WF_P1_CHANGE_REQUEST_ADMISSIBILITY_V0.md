@@ -28,9 +28,14 @@ can check something P0 cannot: **traceability**. Every row must cite the seed fi
 in a parseable form. An uncited row is content the phase invented, which is precisely what P1 must
 not do.
 
-The rule set below carries that: a `ROW_WITHOUT_SOURCE_FINDING` and a `SOURCE_FINDING_MALFORMED`
-rule for every table register, derived from the template so a register added later is traced
-automatically rather than left as a hole where invention is silently permitted.
+The rule set below is **derived from the vendored template**
+(`templates/p1_change_request_template_v0.md`), which declares the fifteen registers, their columns,
+their inline controlled vocabularies, which may be empty, and which hold business language. Only the
+document header — which belongs to no register — is declared by hand.
+
+Traceability follows from the template too: every register carrying a `Source Finding` column gets a
+`ROW_WITHOUT_SOURCE_FINDING` and a `SOURCE_FINDING_MALFORMED` rule, so a register added later is
+traced automatically rather than left as a hole where invention is silently permitted.
 
 ---
 
@@ -66,130 +71,291 @@ core:
       inputs:
         document_text: $.payload.register_text
         rule_set:
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: CR Type
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: CR Type
-          params:
-            number: 1
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: CR Type
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: cr_type
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: CR Type
+          register: cr_type
           params:
             columns:
             - Classification
             - Rationale
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: CR Type
+          register: cr_type
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Business Vocabulary
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Business Vocabulary
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: cr_type
           params:
-            number: 2
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            column: Classification
+            vocabulary:
+            - NEW_SUBDOMAIN
+            - EXTEND_SUBDOMAIN
+            - MODIFY
+            - DEPRECATE
+          intent: Classification is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: cr_type
+          params:
+            columns:
+            - Classification
+            - Rationale
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: cr_type
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: cr_type
+          params:
+            column: Source Finding
+            known_registers: &id001
+            - acceptance_criteria
+            - actions
+            - actors
+            - analysis_findings
+            - architectural_observations
+            - artifact_summary
+            - assumptions
+            - authoring_decisions
+            - authoring_scope
+            - authority_boundaries
+            - belief_verification
+            - bm_entities
+            - boundary_rules
+            - build_order
+            - business_events
+            - business_invariants
+            - business_objects
+            - business_processes
+            - business_vocabulary
+            - capability_graph
+            - cc_composition
+            - clarification_requests
+            - constraint_register
+            - constraints
+            - cr_type
+            - critical_path
+            - cross_subdomain_deps
+            - cross_subdomain_notes
+            - cross_subdomain_refs
+            - dependency_discoveries
+            - dependency_graph
+            - design_decisions
+            - design_resolution
+            - discovery_concerns
+            - entities
+            - entity_attributes
+            - events
+            - execution_topology
+            - existing_inventory
+            - field_declarations
+            - gap_register
+            - gaps
+            - governance_outcome
+            - governance_scope
+            - identity_semantics
+            - impact_analysis
+            - invariants
+            - known_facts
+            - lifecycle_states
+            - mandate_artifact_summary
+            - new_artifacts
+            - new_capabilities
+            - new_intents
+            - open_questions
+            - out_of_scope
+            - ownership
+            - placement_decision
+            - pps_artifacts_requiring_action
+            - pps_baseline_fqdns
+            - process_steps
+            - provisional_codes
+            - rb_declarations
+            - relationships
+            - requested_outcomes
+            - resources
+            - saturation
+            - scope_boundary
+            - storage_governance
+            - structure_stores
+            - system_beliefs
+            - verification_results
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Business Vocabulary
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: business_vocabulary
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Business Vocabulary
+          register: business_vocabulary
           params:
             columns:
             - Term
             - Definition
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Business Vocabulary
+          register: business_vocabulary
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Requested Outcomes
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Requested Outcomes
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: business_vocabulary
           params:
-            number: 3
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Term
+            - Definition
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: business_vocabulary
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: business_vocabulary
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Requested Outcomes
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: requested_outcomes
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Requested Outcomes
+          register: requested_outcomes
           params:
             columns:
             - Outcome
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Requested Outcomes
+          register: requested_outcomes
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Known Facts
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Known Facts
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: requested_outcomes
           params:
-            number: 4
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Outcome
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: requested_outcomes
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: requested_outcomes
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Known Facts
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: known_facts
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Known Facts
+          register: known_facts
           params:
             columns:
             - Fact
             - Certainty
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Known Facts
+          register: known_facts
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Existing-System Beliefs
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Existing-System Beliefs
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: known_facts
           params:
-            number: 5
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            column: Certainty
+            vocabulary:
+            - HIGH
+            - MEDIUM
+            - LOW
+          intent: Certainty is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: known_facts
+          params:
+            columns:
+            - Fact
+            - Certainty
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: known_facts
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: known_facts
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Existing-System Beliefs
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: system_beliefs
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Existing-System Beliefs
+          register: system_beliefs
           params:
             columns:
             - Belief
@@ -197,99 +363,183 @@ core:
             - Verification Goal
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Existing-System Beliefs
+          register: system_beliefs
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Assumptions
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Assumptions
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: system_beliefs
           params:
-            number: 6
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Belief
+            - Why It Matters
+            - Verification Goal
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: system_beliefs
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: system_beliefs
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Assumptions
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: assumptions
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Assumptions
+          register: assumptions
           params:
             columns:
             - Assumption
             - Basis
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Constraints
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Constraints
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: assumptions
           params:
-            number: 7
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Assumption
+            - Basis
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: assumptions
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: assumptions
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Constraints
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: constraints
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Constraints
+          register: constraints
           params:
             columns:
             - Constraint
             - Source
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Business Invariants
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Business Invariants
+        - id: REGISTER_EMPTY
+          check: TABLE_HAS_ROWS
+          register: constraints
+          intent: an empty required register asserts nothing
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: constraints
           params:
-            number: 8
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Constraint
+            - Source
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: constraints
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: constraints
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Business Invariants
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: business_invariants
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Business Invariants
+          register: business_invariants
           params:
             columns:
             - Invariant
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Business Invariants
+          register: business_invariants
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Lifecycle States
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Lifecycle States
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: business_invariants
           params:
-            number: 9
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Invariant
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: business_invariants
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: business_invariants
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Lifecycle States
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: lifecycle_states
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Lifecycle States
+          register: lifecycle_states
           params:
             columns:
             - Object
@@ -297,27 +547,48 @@ core:
             - Meaning
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Lifecycle States
+          register: lifecycle_states
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Business Events
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Business Events
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: lifecycle_states
           params:
-            number: 10
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Object
+            - State
+            - Meaning
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: lifecycle_states
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: lifecycle_states
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Business Events
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: business_events
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Business Events
+          register: business_events
           params:
             columns:
             - Event
@@ -325,354 +596,298 @@ core:
             - Significance
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Business Events
+          register: business_events
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Authority Boundaries
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Authority Boundaries
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: business_events
           params:
-            number: 11
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Event
+            - When It Occurs
+            - Significance
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: business_events
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: business_events
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Authority Boundaries
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: authority_boundaries
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Authority Boundaries
+          register: authority_boundaries
           params:
             columns:
             - Business Object
             - Authoritative Owner
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Authority Boundaries
+          register: authority_boundaries
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Out of Scope
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Out of Scope
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: authority_boundaries
           params:
-            number: 12
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Business Object
+            - Authoritative Owner
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: authority_boundaries
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: authority_boundaries
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Out of Scope
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: out_of_scope
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Out of Scope
+          register: out_of_scope
           params:
             columns:
             - Item
             - Reason
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
-          check: TABLE_HAS_ROWS
-          register: Out of Scope
-          intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Governance Scope
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Governance Scope
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: out_of_scope
           params:
-            number: 13
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Item
+            - Reason
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: out_of_scope
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: out_of_scope
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Governance Scope
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: governance_scope
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Governance Scope
+          register: governance_scope
           params:
             columns:
             - Scope Item
             - Relationship
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Governance Scope
+          register: governance_scope
           intent: an empty required register asserts nothing
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Clarification Requests
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Clarification Requests
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: governance_scope
           params:
-            number: 14
-          intent: registers are referenced by number downstream
-        - id: SECTION_MISSING
-          check: SECTION_PRESENT
-          register: Acceptance Criteria
-          intent: every declared register must be present
-        - id: SECTION_MISNUMBERED
-          check: SECTION_NUMBERED
-          register: Acceptance Criteria
+            column: Relationship
+            vocabulary:
+            - CREATED
+            - ADJACENT
+          intent: Relationship is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: governance_scope
           params:
-            number: 15
-          intent: registers are referenced by number downstream
-        - id: TABLE_MISSING
+            columns:
+            - Scope Item
+            - Relationship
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: governance_scope
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: governance_scope
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: Acceptance Criteria
-          intent: a register must be readable as rows, not prose
-        - id: TABLE_COLUMN_MISSING
+          register: clarification_requests
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: Acceptance Criteria
+          register: clarification_requests
+          params:
+            columns:
+            - Question
+            - Why Needed
+            - Blocking
+            - Owner
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: clarification_requests
+          params:
+            column: Blocking
+            vocabulary:
+            - 'YES'
+            - 'NO'
+          intent: Blocking is a controlled vocabulary declared by the template
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: clarification_requests
+          params:
+            column: Owner
+            vocabulary:
+            - HUMAN
+            - SNAPSHOT
+            - GOVERNANCE
+          intent: Owner is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: clarification_requests
+          params:
+            columns:
+            - Question
+            - Why Needed
+            - Blocking
+            - Owner
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: clarification_requests
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: clarification_requests
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: acceptance_criteria
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: acceptance_criteria
           params:
             columns:
             - Criterion
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: TABLE_EMPTY
+        - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: Acceptance Criteria
+          register: acceptance_criteria
           intent: an empty required register asserts nothing
-        - id: SECTION_OUT_OF_ORDER
-          check: SECTIONS_ASCENDING
-          intent: section order is part of the template contract
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: acceptance_criteria
+          params:
+            columns:
+            - Criterion
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
-          register: CR Type
+          register: acceptance_criteria
           params:
             column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: CR Type
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: acceptance_criteria
           params:
             column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Business Vocabulary
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Business Vocabulary
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Requested Outcomes
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Requested Outcomes
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Known Facts
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Known Facts
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Existing-System Beliefs
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Existing-System Beliefs
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Assumptions
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Assumptions
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Constraints
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Constraints
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Business Invariants
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Business Invariants
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Lifecycle States
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Lifecycle States
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Business Events
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Business Events
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Authority Boundaries
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Authority Boundaries
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Out of Scope
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Out of Scope
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Governance Scope
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Governance Scope
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: Acceptance Criteria
-          params:
-            column: Source Finding
-            detail: row cites no seed finding — P1 restates the seed, it does not add to it
-          intent: an uncited row is content the phase invented
-        - id: SOURCE_FINDING_MALFORMED
-          check: CELL_MATCHES
-          register: Acceptance Criteria
-          params:
-            column: Source Finding
-            pattern: ^(CR seed §\d+|CR seed Subdomain Purpose|human decision)
-            detail: '{value!r} does not name a seed register — cite ''CR seed §N …'', ''CR seed Subdomain Purpose'',
-              or ''human decision'''
-          intent: an unparseable citation is not traceability
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:
@@ -690,72 +905,6 @@ core:
             - Primary subdomain
             pattern: ^[a-z][a-z0-9_]*
           intent: domain and subdomain are identifiers, not prose
-        - id: CLASSIFICATION_NOT_IN_VOCABULARY
-          check: CELL_IN_VOCABULARY
-          register: CR Type
-          params:
-            column: Classification
-            vocabulary:
-            - NEW_SUBDOMAIN
-            - EXTEND_SUBDOMAIN
-            - MODIFY
-            - DEPRECATE
-          intent: the classification is the decision P1 exists to record
-        - id: CLASSIFICATION_WITHOUT_RATIONALE
-          check: CELL_NOT_EMPTY
-          register: CR Type
-          params:
-            column: Rationale
-            detail: a classification with no rationale cannot be reviewed at the gate
-          intent: the decision must be reviewable, not merely recorded
-        - id: CERTAINTY_NOT_IN_VOCABULARY
-          check: CELL_IN_VOCABULARY
-          register: Known Facts
-          params:
-            column: Certainty
-            vocabulary:
-            - HIGH
-            - MEDIUM
-            - LOW
-          intent: a business truth carries a rated certainty
-        - id: BELIEF_CARRIES_CERTAINTY
-          check: COLUMN_ABSENT
-          register: Existing-System Beliefs
-          params:
-            column: Certainty
-            detail: beliefs must not carry a Certainty column — that would make them facts
-          intent: the truth/belief split is what P2 verification depends on
-        - id: BELIEF_WITHOUT_VERIFICATION_GOAL
-          check: CELL_NOT_EMPTY
-          register: Existing-System Beliefs
-          params:
-            column: Verification Goal
-            detail: every belief must state what P2 has to establish
-          intent: P2 consumes these goals directly; an empty one is an unverifiable belief
-        - id: SCOPE_RELATIONSHIP_NOT_IN_VOCABULARY
-          check: CELL_IN_VOCABULARY
-          register: Governance Scope
-          params:
-            column: Relationship
-            vocabulary:
-            - CREATED
-            - EXTENDED
-            - MODIFIED
-            - DEPRECATED
-            - ADJACENT
-          intent: governance relationships are a controlled vocabulary
-        - id: DESIGN_LEAKED_INTO_REGISTER
-          check: TOKEN_ABSENT
-          params:
-            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
-            detail: '{token!r} is a compiled artifact identifier — design is assigned at P6b'
-          intent: P1 classifies business content; it assigns no design
-        - id: CLARIFICATIONS_UNSTATED
-          check: SECTION_HAS_TEXT
-          register: Clarification Requests
-          params:
-            detail: state the open questions or '(none)' — an empty section asserts nothing
-          intent: silence is not the same as 'no open questions'
       next:
         SUCCESS: EXIT_JUDGED
         VIOLATION: EXIT_REJECTED

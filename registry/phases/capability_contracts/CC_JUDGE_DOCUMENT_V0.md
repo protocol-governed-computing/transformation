@@ -126,6 +126,7 @@ core:
     inputs:
       header: $.results.parse_registers.capability_result.header
       sections: $.results.parse_registers.capability_result.sections
+      registers: $.results.parse_registers.capability_result.registers
       document_text: $.inputs.document_text
       rule_set: $.inputs.rule_set
     outputs:

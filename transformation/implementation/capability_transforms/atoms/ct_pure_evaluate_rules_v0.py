@@ -44,7 +44,7 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
         findings (list): one entry per failed rule
         rules_evaluated (int): how many rules were applied
     """
-    for required in ("header", "sections", "document_text", "rule_set"):
+    for required in ("header", "sections", "registers", "document_text", "rule_set"):
         if required not in inputs:
             raise CTExecutionError(
                 f"CT_PURE_EVALUATE_RULES_V0: missing required input {required!r}"
@@ -60,6 +60,7 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
     doc = ParsedDocument(
         header=inputs["header"],
         sections=inputs["sections"],
+        registers=inputs["registers"],
         raw=inputs["document_text"],
     )
 

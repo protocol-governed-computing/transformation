@@ -33,6 +33,7 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
     Outputs:
         header (dict): header field name → declared value
         sections (list): ordered sections with number, title, text, columns, rows
+        registers (list): registers by marker id, each with columns and rows
     """
     if "document_text" not in inputs:
         raise CTExecutionError(
@@ -47,6 +48,6 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
             f"got {type(document_text).__name__}"
         )
 
-    header, sections = parse_text(document_text)
+    header, sections, registers = parse_text(document_text)
 
-    return {"header": header, "sections": sections}
+    return {"header": header, "sections": sections, "registers": registers}

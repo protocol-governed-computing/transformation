@@ -40,9 +40,14 @@ governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
 core:
   summary: Parse phase document text into structured registers
   description: |
-    Splits a phase document into its header fields and numbered sections, extracting the pipe table
-    in each section as columns and rows. Judges nothing: an absent section is simply absent from the
-    result, and the rule set decides what that means.
+    Splits a phase document into its header fields, its numbered sections, and its registers.
+
+    A register is addressed by the `<!-- register:id -->` marker an authored document repeats from
+    its template — a stable identity that survives retitling and stays unambiguous when one section
+    carries several registers. Sections remain for documents that predate the templates.
+
+    Judges nothing: an absent register is simply absent from the result, and the rule set decides
+    what that means.
   inputs:
     document_text:
       type: string
@@ -57,6 +62,10 @@ core:
       type: array
       required: true
       description: Ordered sections, each with number, title, text, and any table columns and rows
+    registers:
+      type: array
+      required: true
+      description: Registers addressed by their marker id, each with columns and rows
 machine:
   ct_kind: atom
   ct_purity: ct_pure

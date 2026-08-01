@@ -86,6 +86,7 @@ def compiled_verdict(seed_text: str, rules: list[dict]) -> tuple[str, list[tuple
         {
             "header": parsed["header"],
             "sections": parsed["sections"],
+            "registers": parsed["registers"],
             "document_text": seed_text,
             "rule_set": rules,
         }

@@ -25,6 +25,7 @@ class Rule:
     id: str
     check: str
     section_title: str | None = None
+    register: str | None = None
     params: dict[str, Any] = field(default_factory=dict)
     intent: str = ""
 
