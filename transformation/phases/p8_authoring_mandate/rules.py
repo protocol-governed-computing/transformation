@@ -125,6 +125,54 @@ ORDER_RULES: list[Rule] = [
 ]
 
 
+# P8's mandate is a mechanical derivation of P7's design, so the design is the document it must be
+# judged against. `key_rule` in the catalogue has said "must reconcile with p7 exactly" since P8 was
+# built; nothing enforced it.
+PRIORS = ("p7",)
+
+
+# The reconciliation the catalogue always claimed. P7 assigns the identities, P8 schedules them, and
+# a mandate is correct only when the two sets are the same one.
+#
+# Neither direction is visible in either document. A build order made entirely of well-formed rows,
+# contiguous, topologically sorted, can omit an artifact the design declared — every existing P8
+# rule passes it. And a mandate can schedule an identity no phase ever designed, which reads as an
+# ordinary row and is a design decision taken by whoever typed it.
+RECONCILIATION_RULES: list[Rule] = [
+    Rule(
+        id="DESIGNED_ARTIFACT_NOT_SCHEDULED",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="build_order",
+        params={
+            "prior_phase": "p7",
+            "prior_register": "new_artifacts",
+            "prior_column": "Code",
+            "column": "Code",
+            "require": "prior_in_here",
+        },
+        intent="an artifact the design declared and the mandate never schedules is not deferred, it is lost",
+    ),
+    Rule(
+        id="SCHEDULED_ARTIFACT_NOT_DESIGNED",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="build_order",
+        params={
+            "prior_phase": "p7",
+            "prior_register": "new_artifacts",
+            "prior_column": "Code",
+            "column": "Code",
+            "require": "here_in_prior",
+        },
+        intent="a mandate orders the build; it does not get to add to it",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P8 rule set: derived, then order discipline, then the header."""
-    return derived_rules(TEMPLATE) + ORDER_RULES + dossier_header_rules()
+    """The complete declared P8 rule set: derived, order discipline, reconciliation, then header."""
+    return (
+        derived_rules(TEMPLATE)
+        + ORDER_RULES
+        + RECONCILIATION_RULES
+        + dossier_header_rules()
+    )

@@ -74,8 +74,7 @@ core:
       code: CC_JUDGE_AGAINST_SNAPSHOT_V0
       inputs:
         document_text: $.payload.register_text
-        # This phase's handoff from the phase before it is not yet governed.
-        prior_texts: {}
+        prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
@@ -626,6 +625,27 @@ core:
             column: Proposed Path
             detail: store declares no proposed path — a store nobody can locate is not designed
           intent: a declared store says where it will live
+        - id: SATISFIED_DEPENDENCY_NOT_INVENTORIED
+          check: PRIOR_IDENTITIES_COVERED
+          register: existing_inventory
+          params:
+            prior_phase: p6
+            prior_register: cross_subdomain_deps
+            prior_column: Existing Artifact
+            column: FQDN
+            require: prior_in_here
+          intent: a dependency declared satisfied by an existing artifact must be inventoried as reuse
+        - id: PROVISIONAL_CODE_NEVER_BOUND
+          check: PRIOR_IDENTITIES_COVERED
+          register: new_artifacts
+          params:
+            prior_phase: p5
+            prior_register: provisional_codes
+            prior_column: Provisional Code
+            column: Code
+            require: prior_in_here
+            match_on: bare_code
+          intent: a capability the business asked for and the design never bound is declined, not deferred
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

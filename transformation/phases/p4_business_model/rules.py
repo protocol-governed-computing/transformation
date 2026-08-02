@@ -127,6 +127,38 @@ CONSOLIDATION_RULES: list[Rule] = [
 ]
 
 
+# P4's key rule is "consolidation, not re-litigation", and P3 is what it consolidates.
+PRIORS = ("p3",)
+
+
+# P3 commits every capability to REUSE, EXTEND or AUTHOR_NEW; P4's capability graph is where those
+# commitments are consolidated. A capability decided at P3 and absent from the graph has not been
+# re-litigated — it has been dropped, and the graph is complete and coherent without it.
+#
+# Matched on the capability as stated, not on a citation: P4 cites P3 by register name without an
+# ordinal, and the capability text is carried verbatim precisely because consolidation is not
+# supposed to reword anything.
+CONSOLIDATION_PRESERVATION: list[Rule] = [
+    Rule(
+        id="AUTHORING_DECISION_NOT_CONSOLIDATED",
+        check="PRIOR_ROWS_PRESENT_BY_KEY",
+        register="capability_graph",
+        params={
+            "prior_phase": "p3",
+            "prior_register": "authoring_decisions",
+            "prior_key_column": "Capability",
+            "key_column": "Capability",
+        },
+        intent="a capability P3 decided and P4 never consolidated is dropped, not deferred",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P4 rule set: derived, then consolidation, then the dossier header."""
-    return derived_rules(TEMPLATE) + CONSOLIDATION_RULES + dossier_header_rules()
+    """The complete declared P4 rule set: derived, consolidation, preservation, then the header."""
+    return (
+        derived_rules(TEMPLATE)
+        + CONSOLIDATION_RULES
+        + CONSOLIDATION_PRESERVATION
+        + dossier_header_rules()
+    )

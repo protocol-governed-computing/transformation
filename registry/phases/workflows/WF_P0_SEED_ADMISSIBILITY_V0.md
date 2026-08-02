@@ -66,6 +66,8 @@ core:
       code: CC_JUDGE_DOCUMENT_V0
       inputs:
         document_text: $.payload.seed_text
+        # P0's input is human prose, not a phase document — there is no upstream register.
+        prior_texts: {}
         rule_set:
         - id: REGISTER_EMPTY
           check: SECTION_HAS_TEXT

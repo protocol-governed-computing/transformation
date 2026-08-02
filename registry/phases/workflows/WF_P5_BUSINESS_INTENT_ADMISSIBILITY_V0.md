@@ -70,7 +70,10 @@ core:
       code: CC_JUDGE_AGAINST_SNAPSHOT_V0
       inputs:
         document_text: $.payload.register_text
-        # This phase's handoff from the phase before it is not yet governed.
+        # P4 hands this phase its consolidation, and P5 transforms it rather than restating
+        # it: `scope_boundary` is a fresh in/out judgement carrying deferrals P4 never had,
+        # and no other register receives `capability_graph`. There is no row-level obligation
+        # here to check, so none is declared.
         prior_texts: {}
         rule_set:
         - id: REGISTER_MISSING

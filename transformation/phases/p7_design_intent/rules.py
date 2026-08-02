@@ -217,6 +217,58 @@ BINDING_RULES: list[Rule] = [
 ]
 
 
+# P7 is where the purity ladder is paid off. P5 names capabilities the business asked for and is
+# forbidden to bind them; P7 binds. The design document it must be judged against is therefore P5's.
+PRIORS = ("p5", "p6")
+
+
+# One direction only, and the asymmetry is the point.
+#
+# Every provisional code must acquire a binding identity: P5 is the last phase that speaks for what
+# the business asked for, so a code that reaches P7 and is never assigned is a capability the
+# business requested and the design quietly declined to build. Nothing else would notice — P7's
+# register is complete and well formed without it.
+#
+# The reverse is not a defect. P7 legitimately assigns artifacts P5 could not have named: a
+# STRUCTURE, an RB, a CT are design-layer artifacts below the rung P5 is allowed to reach. Checking
+# containment both ways would reject every correct design for doing its job — the same over-flagging
+# the identity taxonomy exists to prevent.
+LADDER_RULES: list[Rule] = [
+    # P6 records which cross-subdomain dependencies an artifact already in the composition
+    # satisfies. P7 is where a satisfied dependency becomes inventory the design commits to reusing;
+    # one that never arrives is a dependency the design silently took on without declaring.
+    Rule(
+        id="SATISFIED_DEPENDENCY_NOT_INVENTORIED",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="existing_inventory",
+        params={
+            "prior_phase": "p6",
+            "prior_register": "cross_subdomain_deps",
+            "prior_column": "Existing Artifact",
+            "column": "FQDN",
+            "require": "prior_in_here",
+        },
+        intent="a dependency declared satisfied by an existing artifact must be inventoried as reuse",
+    ),
+    Rule(
+        id="PROVISIONAL_CODE_NEVER_BOUND",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="new_artifacts",
+        params={
+            "prior_phase": "p5",
+            "prior_register": "provisional_codes",
+            "prior_column": "Provisional Code",
+            "column": "Code",
+            "require": "prior_in_here",
+            # P5 must not namespace a provisional code and P7 must namespace an assigned one; the
+            # two cells state one identity at two rungs.
+            "match_on": "bare_code",
+        },
+        intent="a capability the business asked for and the design never bound is declined, not deferred",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P7 rule set: derived, then binding discipline, then the header."""
-    return derived_rules(TEMPLATE) + BINDING_RULES + dossier_header_rules()
+    """The complete declared P7 rule set: derived, binding discipline, ladder closure, header."""
+    return derived_rules(TEMPLATE) + BINDING_RULES + LADDER_RULES + dossier_header_rules()

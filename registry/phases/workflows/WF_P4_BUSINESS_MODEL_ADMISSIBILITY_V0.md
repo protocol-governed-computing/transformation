@@ -66,8 +66,7 @@ core:
       code: CC_JUDGE_AGAINST_SNAPSHOT_V0
       inputs:
         document_text: $.payload.register_text
-        # This phase's handoff from the phase before it is not yet governed.
-        prior_texts: {}
+        prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
@@ -668,6 +667,15 @@ core:
             column: Rationale
             detail: design decision states no rationale — a decision without a reason cannot be reviewed
           intent: a consolidated decision carries the reasoning that produced it
+        - id: AUTHORING_DECISION_NOT_CONSOLIDATED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: capability_graph
+          params:
+            prior_phase: p3
+            prior_register: authoring_decisions
+            prior_key_column: Capability
+            key_column: Capability
+          intent: a capability P3 decided and P4 never consolidated is dropped, not deferred
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

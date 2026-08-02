@@ -27,6 +27,26 @@ CATALOG_P1 = (
     "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
     "p1_change_request_book_library_mgmt_catalog_v0.md"
 )
+CATALOG_P0 = (
+    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "p0_seed_book_library_mgmt_catalog_v0.md"
+)
+CATALOG_P3 = (
+    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "p3_analysis_loop_book_library_mgmt_catalog_v0.md"
+)
+CATALOG_P6 = (
+    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "p6_governance_intent_book_library_mgmt_catalog_v0.md"
+)
+CATALOG_P5 = (
+    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "p5_business_intent_book_library_mgmt_catalog_v0.md"
+)
+CATALOG_P7 = (
+    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "p7_design_intent_book_library_mgmt_catalog_v0.md"
+)
 CATALOG_P2 = (
     "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
     "p2_domain_model_book_library_mgmt_catalog_v0.md"
@@ -126,7 +146,7 @@ PAYLOADS = {
     # P8 is judged on row order. The inadmissible case drops a step, schedules a prerequisite after
     # the thing that needs it, and routes the critical path through a step nobody scheduled — three
     # defects that exist between rows rather than in any one of them.
-    "24_p8_admissible_catalog_mandate.json": (
+    "24_p8_unreconciled_catalog_mandate.json": (
         "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
         "p8_authoring_mandate_book_library_mgmt_catalog_v0.md"
     ),
@@ -138,6 +158,40 @@ PAYLOADS = {
     # item it names. Only the handoff is wrong.
     "26_p2_inadmissible_dropped_belief.json": (
         "scripts/testbed/corpus_p2/inadmissible_p2_dropped_belief.md"
+    ),
+    # P8 reconciles against P7 as sets of identities. CR-1's own mandate does not reconcile — it
+    # drops one designed artifact — so the corpus carries a corrected mandate as the admissible
+    # case, and the authored one stays as authored.
+    "28_p8_admissible_reconciled_mandate.json": (
+        "scripts/testbed/corpus_p8/admissible_p8_reconciled_mandate.md"
+    ),
+    "29_p8_inadmissible_undesigned_artifact.json": (
+        "scripts/testbed/corpus_p8/inadmissible_p8_undesigned_artifact.md"
+    ),
+    # P0→P1 is matched on the claim, not a citation — the seed's section titles are free-form. The
+    # dropped criterion is the one execution validation later runs the composition against.
+    "30_p1_inadmissible_dropped_criterion.json": (
+        "scripts/testbed/corpus_p1/inadmissible_p1_dropped_criterion.md"
+    ),
+    # P5→P7 closes the purity ladder: a provisional code that never acquires a binding identity is
+    # a capability the business asked for and the design declined.
+    "31_p7_inadmissible_unbound_code.json": (
+        "scripts/testbed/corpus_p7/inadmissible_p7_unbound_code.md"
+    ),
+    # P3→P4 is the consolidation edge: P4's key rule is "consolidation, not re-litigation", and a
+    # decision that never reaches the capability graph has been neither.
+    "32_p4_inadmissible_dropped_decision.json": (
+        "scripts/testbed/corpus_p4/inadmissible_p4_dropped_decision.md"
+    ),
+    # P6→P7: a dependency P6 declared satisfied by an existing artifact, never inventoried as reuse.
+    "33_p7_inadmissible_dropped_reuse.json": (
+        "scripts/testbed/corpus_p7/inadmissible_p7_dropped_reuse.md"
+    ),
+    # P5→P6: a capability declared in scope that the placement phase never mentions. A row missing
+    # from `ownership` alone is what OUTCOME_CAPABILITY_UNPLACED already catches; this is the case
+    # no single document can see.
+    "34_p6_inadmissible_unplaced_scope.json": (
+        "scripts/testbed/corpus_p6/inadmissible_p6_unplaced_scope.md"
     ),
     "27_p3_inadmissible_restated_result.json": (
         "scripts/testbed/corpus_p3/inadmissible_p3_restated_result.md"
@@ -161,6 +215,26 @@ PRIOR_SOURCES = {
     "14_p3_admissible_catalog_register.json": {"p2": CATALOG_P2},
     "15_p3_inadmissible_catalog_register.json": {"p2": CATALOG_P2},
     "27_p3_inadmissible_restated_result.json": {"p2": CATALOG_P2},
+    "24_p8_unreconciled_catalog_mandate.json": {"p7": CATALOG_P7},
+    "25_p8_inadmissible_catalog_mandate.json": {"p7": CATALOG_P7},
+    "28_p8_admissible_reconciled_mandate.json": {"p7": CATALOG_P7},
+    "29_p8_inadmissible_undesigned_artifact.json": {"p7": CATALOG_P7},
+    "06_p1_admissible_register.json": {
+        "p0": "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md"},
+    "07_p1_inadmissible_register.json": {
+        "p0": "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md"},
+    "11_p1_admissible_catalog_register.json": {"p0": CATALOG_P0},
+    "30_p1_inadmissible_dropped_criterion.json": {"p0": CATALOG_P0},
+    "22_p7_admissible_catalog_register.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
+    "23_p7_inadmissible_catalog_register.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
+    "31_p7_inadmissible_unbound_code.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
+    "16_p4_admissible_catalog_register.json": {"p3": CATALOG_P3},
+    "17_p4_inadmissible_catalog_register.json": {"p3": CATALOG_P3},
+    "32_p4_inadmissible_dropped_decision.json": {"p3": CATALOG_P3},
+    "33_p7_inadmissible_dropped_reuse.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
+    "20_p6_admissible_catalog_register.json": {"p5": CATALOG_P5},
+    "21_p6_inadmissible_catalog_register.json": {"p5": CATALOG_P5},
+    "34_p6_inadmissible_unplaced_scope.json": {"p5": CATALOG_P5},
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -182,10 +256,17 @@ PAYLOAD_KEY = {
     "21_p6_inadmissible_catalog_register.json": "register_text",
     "22_p7_admissible_catalog_register.json": "register_text",
     "23_p7_inadmissible_catalog_register.json": "register_text",
-    "24_p8_admissible_catalog_mandate.json": "register_text",
+    "24_p8_unreconciled_catalog_mandate.json": "register_text",
     "25_p8_inadmissible_catalog_mandate.json": "register_text",
     "26_p2_inadmissible_dropped_belief.json": "register_text",
     "27_p3_inadmissible_restated_result.json": "register_text",
+    "28_p8_admissible_reconciled_mandate.json": "register_text",
+    "29_p8_inadmissible_undesigned_artifact.json": "register_text",
+    "30_p1_inadmissible_dropped_criterion.json": "register_text",
+    "31_p7_inadmissible_unbound_code.json": "register_text",
+    "32_p4_inadmissible_dropped_decision.json": "register_text",
+    "33_p7_inadmissible_dropped_reuse.json": "register_text",
+    "34_p6_inadmissible_unplaced_scope.json": "register_text",
 }
 
 

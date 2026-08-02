@@ -39,6 +39,13 @@ core:
       type: string
       required: true
       description: Full text of the P8 mandate — supplied by the driver, never read downstream
+    prior_texts:
+      type: object
+      required: true
+      description: |
+        Phase id → full text of the upstream document — p7 carries the design whose assigned
+        identities this mandate schedules. Supplied by the driver alongside the mandate itself: a
+        mandate is a derivation of a design, and it can only be checked against the design.
     author_of_record:
       type: string
       required: true

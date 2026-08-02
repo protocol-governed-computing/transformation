@@ -42,10 +42,12 @@ WORKSPACE = REPO.parent
 # A business CR's dossier lives with the domain it changes, not with the pipeline that judges it.
 CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog"
 
-# A CR's dossier grounds against the composition it was designed against. Reproduced on demand by
-# `e2e_phases.design_baseline()`; if it is absent the live snapshot is used and the P7/P8 documents
-# report collisions with their own output — true, and uninformative about the two paths.
-DESIGN_BASELINE = Path("/tmp/pgc_cr01_design_baseline")
+# A CR's dossier grounds against the composition it was designed against; judged against the live
+# one, the P7/P8 documents report collisions with their own output — true, and uninformative about
+# the two paths. Reproduced through `e2e_phases.design_baseline()` rather than checked for
+# existence: a cached baseline whose sources have since been recompiled is stale, and a stale
+# baseline seals a rule set the declaration has already moved past.
+from e2e_phases import design_baseline
 
 # Each phase: its workflow, its declared rule set, and the corpus it judges. A phase added here
 # without a corpus would report "identical rule sets" and prove nothing about behaviour, so the
@@ -63,6 +65,7 @@ PHASES = {
     "P1": {
         "wf": "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
         "rules": p1_rule_set,
+        "priors": True,
         "corpus": [
             REPO / "cr_dossiers/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md",
             CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md",
@@ -102,6 +105,7 @@ PHASES = {
         "wf": "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
         "rules": p4_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
+        "priors": True,
         "corpus": [
             CR_01 / "p4_business_model_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p4").glob("*.md")),
@@ -120,6 +124,7 @@ PHASES = {
         "wf": "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
         "rules": p6_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
+        "priors": True,
         "corpus": [
             CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p6").glob("*.md")),
@@ -129,6 +134,7 @@ PHASES = {
         "wf": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
         "rules": p7_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
+        "priors": True,
         "corpus": [
             CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p7").glob("*.md")),
@@ -138,6 +144,7 @@ PHASES = {
         "wf": "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
         "rules": p8_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
+        "priors": True,
         "corpus": [
             CR_01 / "p8_authoring_mandate_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p8").glob("*.md")),
@@ -215,6 +222,32 @@ PRIORS_BY_DOCUMENT = {
         "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
     "inadmissible_p3_restated_result.md": {
         "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
+    "p8_authoring_mandate_book_library_mgmt_catalog_v0.md": {
+        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p8_broken_order.md": {
+        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
+    "admissible_p8_reconciled_mandate.md": {
+        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p8_undesigned_artifact.md": {
+        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
+    "p1_change_request_transformation_phases_v0.md": {
+        "p0": CR_00 / "p0_seed_transformation_phases_v0.md"},
+    "inadmissible_p1_register.md": {
+        "p0": CR_00 / "p0_seed_transformation_phases_v0.md"},
+    "p1_change_request_book_library_mgmt_catalog_v0.md": {
+        "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p1_dropped_criterion.md": {
+        "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
+    "p7_design_intent_book_library_mgmt_catalog_v0.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p7_collision.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p7_unbound_code.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p7_dropped_reuse.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
+    "p6_governance_intent_book_library_mgmt_catalog_v0.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p6_unplaced.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p6_unplaced_scope.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
+    "p4_business_model_book_library_mgmt_catalog_v0.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p4_broken_consolidation.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p4_dropped_decision.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
 }
 
 
@@ -280,9 +313,7 @@ def main() -> int:
 
     for phase, spec in PHASES.items():
         # P7 and P8 judge assigned identities against a baseline; the rest are baseline-agnostic.
-        root = (str(DESIGN_BASELINE)
-                if phase in ("P7", "P8") and (DESIGN_BASELINE / "manifest.json").is_file()
-                else snapshot_root)
+        root = design_baseline() if phase in ("P7", "P8") else snapshot_root
         sealed = sealed_rule_set(spec["wf"], root)
         declared = spec["rules"]()
 

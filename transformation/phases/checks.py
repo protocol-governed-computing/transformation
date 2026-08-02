@@ -834,6 +834,9 @@ def _cited_ordinals(value: str, register: str) -> set[int]:
     A register id is unique across the pipeline, so the id alone identifies the upstream register
     and the stage qualifier a dossier writes in front of it (`S1 system_beliefs #2`) is redundant
     for matching. Requiring the qualifier would reject a correct citation over its prefix.
+
+    A citation naming a section title rather than a register id is out of scope here — the seed is
+    cited that way and the title is free-form, which `PRIOR_ROWS_PRESENT_BY_KEY` exists to handle.
     """
     return {
         int(n)
@@ -926,4 +929,124 @@ def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]
                     f"restates {register} #{ordinal} as {here!r}, which {phase} declared as "
                     f"{there!r} — a citation is not a licence to change the claim",
                 ))
+    return out
+
+
+@check("PRIOR_IDENTITIES_COVERED")
+def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Two registers naming artifact identities must name the same ones.
+
+    The handoffs above are checked row by row, because a belief is a claim and claims are matched by
+    what they say. From P4 on, a dossier stops citing upstream rows ordinally and starts naming
+    artifacts, so there is nothing to match a row against — but there is something better. An
+    identity is exact. Two registers that both name identities are reconciled as sets, and the
+    citation idiom stops mattering entirely.
+
+    `require` says which way the containment runs, and the two directions are different defects:
+
+        prior_in_here   something the upstream phase committed to went unscheduled
+        here_in_prior   something is scheduled that no upstream phase ever designed
+
+    Both are silent in either document alone. A build order made entirely of well-formed rows can
+    omit an artifact the design declared, and a design listing every artifact can be missing one the
+    mandate invented — and each document is internally consistent throughout.
+    """
+    prior_rows, unavailable = _prior_rows(doc, rule)
+    if unavailable:
+        return [(_where(rule), unavailable)]
+
+    phase = rule.params["prior_phase"]
+    register = rule.params["prior_register"]
+    require = rule.params["require"]
+    if require not in ("prior_in_here", "here_in_prior"):
+        raise KeyError(f"{rule.id}: 'require' must be prior_in_here or here_in_prior, not {require!r}")
+
+    # A provisional code and the FQDN it is later bound to are the same identity stated at two rungs
+    # of the purity ladder — P5 must not namespace one, P7 must. Comparing the raw cells would
+    # report every code unbound, so the rule declares which representation it is matching on.
+    match_on = rule.params.get("match_on", "exact")
+    if match_on not in ("exact", "bare_code"):
+        raise KeyError(f"{rule.id}: 'match_on' must be exact or bare_code, not {match_on!r}")
+    normalise = (lambda v: v.split("::")[-1]) if match_on == "bare_code" else (lambda v: v)
+
+    there = {
+        normalise(identity): ordinal
+        for ordinal, row in prior_rows
+        if (identity := _cell(row, rule.params["prior_column"]))
+    }
+    here = {
+        normalise(identity): i
+        for i, row in _rows(doc, rule)
+        if (identity := _cell(row, rule.params["column"]))
+    }
+
+    if require == "prior_in_here":
+        return [
+            (f"{_where(rule)}",
+             f"{identity} is declared at {phase} {register} #{ordinal} and appears nowhere here")
+            for identity, ordinal in sorted(there.items(), key=lambda kv: kv[1])
+            if identity not in here
+        ]
+    return [
+        (f"{_where(rule)} row {i}",
+         f"{identity} appears in no {phase} {register} row — it was never designed")
+        for identity, i in sorted(here.items(), key=lambda kv: kv[1])
+        if identity not in there
+    ]
+
+
+@check("PRIOR_ROWS_PRESENT_BY_KEY")
+def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every row of an upstream register must reappear here, matched on what it says.
+
+    The third way two documents are compared, and the one that needs no idiom at all.
+
+    `PRIOR_ROWS_CITED` matches on an ordinal citation, which works from P1 to P3 because those
+    dossiers cite `S1 system_beliefs #2`. It cannot work against the seed: the seed is cited by
+    section title, and the title is free-form — CR-0 writes `CR seed §5 Beliefs #1` where CR-1
+    writes `System Beliefs #1`, both abbreviating "Existing-System Beliefs — Requiring
+    Verification". A label that has already drifted between two change requests is not something to
+    match on, and blessing both spellings would only invite a third.
+
+    `PRIOR_IDENTITIES_COVERED` matches on an identity, which is exact but only exists once a phase
+    is naming artifacts.
+
+    Between them sits a register that is restated in business language: the row is the same claim,
+    written the same way, in a register of the same name. So match on the claim.
+
+    Coverage only, deliberately. A row here that is in no upstream register is an *addition*, and
+    the phases that restate legitimately elaborate — splitting one outcome into two is not a defect.
+    Loss is the silent half: a change request missing an acceptance criterion is a perfectly
+    well-formed change request, and that criterion is what the finished composition is later
+    validated against.
+    """
+    prior_rows, unavailable = _prior_rows(doc, rule)
+    if unavailable:
+        return [(_where(rule), unavailable)]
+
+    phase = rule.params["prior_phase"]
+    register = rule.params["prior_register"]
+    prior_key = rule.params["prior_key_column"]
+    key = rule.params["key_column"]
+
+    # A phase may owe a carry for only some upstream rows: every capability P5 declares IN_SCOPE
+    # must be placed at P6, while a DEFERRED one is under no such obligation. The filter reads the
+    # upstream row, because that is where the obligation is declared.
+    gate_column = rule.params.get("prior_only_when_column")
+    gate_value = rule.params.get("prior_only_when_value")
+
+    here = {_normalise(_cell(row, key)) for _, row in _rows(doc, rule)}
+
+    out = []
+    total = len(prior_rows)
+    for ordinal, row in prior_rows:
+        if gate_column and _cell(row, gate_column) != gate_value:
+            continue
+        claim = _normalise(_cell(row, prior_key))
+        if not claim or claim in here:
+            continue
+        out.append((
+            _where(rule),
+            f"{phase} {register} #{ordinal} of {total} is restated nowhere here: {claim!r}",
+        ))
     return out

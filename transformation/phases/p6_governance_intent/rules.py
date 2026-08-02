@@ -146,6 +146,57 @@ PLACEMENT_RULES: list[Rule] = [
 ]
 
 
+# P6 answers WHERE for what P5 said the change is. P5 is therefore the document it places against.
+PRIORS = ("p5",)
+
+
+# Two obligations P5 creates and only P6 can discharge.
+#
+# A capability P5 declares IN_SCOPE must be given an owner. Nothing in P6 alone notices an omission:
+# the ownership register is well formed with nine rows or with eight, and every other placement rule
+# judges the rows that are there. Filtered on IN_SCOPE deliberately — a DEFERRED capability is under
+# no placement obligation, and requiring one would reject every correct deferral.
+#
+# A capability P5 borrows from another subdomain must be recorded as a cross-subdomain dependency.
+# P5 is where borrowing is declared and forbidden to place; P6 is where the boundary it crosses is
+# drawn. A borrowed capability that never becomes a declared dependency is a subdomain boundary
+# crossed without a record of the crossing.
+PLACEMENT_PRESERVATION: list[Rule] = [
+    Rule(
+        id="IN_SCOPE_CAPABILITY_UNPLACED",
+        check="PRIOR_ROWS_PRESENT_BY_KEY",
+        register="ownership",
+        params={
+            "prior_phase": "p5",
+            "prior_register": "scope_boundary",
+            "prior_key_column": "Capability",
+            "key_column": "Capability",
+            "prior_only_when_column": "Status",
+            "prior_only_when_value": "IN_SCOPE",
+        },
+        intent="a capability declared in scope and given no owner is in nobody's scope",
+    ),
+    Rule(
+        id="BORROWED_CAPABILITY_NOT_DECLARED_CROSSING",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="cross_subdomain_deps",
+        params={
+            "prior_phase": "p5",
+            "prior_register": "cross_subdomain_refs",
+            "prior_column": "CC Code",
+            "column": "Existing Artifact",
+            "require": "prior_in_here",
+        },
+        intent="a capability borrowed across a subdomain boundary is a dependency, declared as one",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P6 rule set: derived, then placement, then the dossier header."""
-    return derived_rules(TEMPLATE) + PLACEMENT_RULES + dossier_header_rules()
+    """The complete declared P6 rule set: derived, placement, preservation, then the header."""
+    return (
+        derived_rules(TEMPLATE)
+        + PLACEMENT_RULES
+        + PLACEMENT_PRESERVATION
+        + dossier_header_rules()
+    )

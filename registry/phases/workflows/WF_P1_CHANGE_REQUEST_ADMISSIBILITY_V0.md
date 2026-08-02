@@ -70,6 +70,7 @@ core:
       code: CC_JUDGE_DOCUMENT_V0
       inputs:
         document_text: $.payload.register_text
+        prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
@@ -889,6 +890,42 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: system_beliefs
+          params:
+            prior_phase: p0
+            prior_register: system_beliefs
+            prior_key_column: Belief
+            key_column: Belief
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: requested_outcomes
+          params:
+            prior_phase: p0
+            prior_register: requested_outcomes
+            prior_key_column: Outcome
+            key_column: Outcome
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: business_invariants
+          params:
+            prior_phase: p0
+            prior_register: business_invariants
+            prior_key_column: Invariant
+            key_column: Invariant
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: acceptance_criteria
+          params:
+            prior_phase: p0
+            prior_register: acceptance_criteria
+            prior_key_column: Criterion
+            key_column: Criterion
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

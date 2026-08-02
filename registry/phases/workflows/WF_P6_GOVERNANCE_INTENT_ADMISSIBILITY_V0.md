@@ -72,8 +72,7 @@ core:
       code: CC_JUDGE_AGAINST_SNAPSHOT_V0
       inputs:
         document_text: $.payload.register_text
-        # This phase's handoff from the phase before it is not yet governed.
-        prior_texts: {}
+        prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
@@ -497,6 +496,27 @@ core:
             target_register: ownership
             target_column: Capability
           intent: the outcome restates placement, it does not introduce it
+        - id: IN_SCOPE_CAPABILITY_UNPLACED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: ownership
+          params:
+            prior_phase: p5
+            prior_register: scope_boundary
+            prior_key_column: Capability
+            key_column: Capability
+            prior_only_when_column: Status
+            prior_only_when_value: IN_SCOPE
+          intent: a capability declared in scope and given no owner is in nobody's scope
+        - id: BORROWED_CAPABILITY_NOT_DECLARED_CROSSING
+          check: PRIOR_IDENTITIES_COVERED
+          register: cross_subdomain_deps
+          params:
+            prior_phase: p5
+            prior_register: cross_subdomain_refs
+            prior_column: CC Code
+            column: Existing Artifact
+            require: prior_in_here
+          intent: a capability borrowed across a subdomain boundary is a dependency, declared as one
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

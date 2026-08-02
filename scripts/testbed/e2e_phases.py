@@ -74,7 +74,7 @@ CASES = [
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
      "05_inadmissible_truncated.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 8, 68, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-     "06_p1_admissible_register.json", "ADMISSIBLE", [], 94, 4),
+     "06_p1_admissible_register.json", "ADMISSIBLE", [], 98, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
      "07_p1_inadmissible_register.json", "INADMISSIBLE", [
          "CELL_NOT_IN_VOCABULARY",
@@ -82,8 +82,12 @@ CASES = [
          "CELL_NOT_IN_VOCABULARY",
          "DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE",
          "ROW_WITHOUT_SOURCE_FINDING",
+         # The leak and the loss are one edit seen from two sides: naming a transform inside a
+         # business invariant also stops the row restating the invariant the seed declared. The
+         # fixture was cut for the first defect years before the second rule existed.
+         "SEED_ROW_NOT_CARRIED",
          "SOURCE_FINDING_UNRESOLVED",
-     ], 94, 3),
+     ], 98, 3),
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
      "08_p2_admissible_register.json", "ADMISSIBLE", [], 64, 4),
     # Grounding: a misspelled identity and a right-code/wrong-namespace one are defects; an
@@ -99,7 +103,7 @@ CASES = [
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
      "10_p0_admissible_catalog_seed.json", "ADMISSIBLE", [], 68, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 94, 4),
+     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 98, 4),
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
      "12_p2_admissible_catalog_register.json", "ADMISSIBLE", [], 64, 4),
     # The rules must bite on business content, not only on documents about the pipeline. A
@@ -128,14 +132,14 @@ CASES = [
     # corpus's only 5/5 — a consolidation carries no open questions of its own, because P3
     # resolved them.
     ("P4", "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
-     "16_p4_admissible_catalog_register.json", "ADMISSIBLE", [], 67, 5),
+     "16_p4_admissible_catalog_register.json", "ADMISSIBLE", [], 68, 5),
     ("P4", "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
      "17_p4_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "DEPENDENCY_IDENTITY_UNRESOLVED",
          "GAP_ENTRY_UNDECLARED",
          "GAP_WITHOUT_OWNER",
          "SCOPE_GAP_UNDECLARED",
-     ], 67, 2),
+     ], 68, 2),
     # P5 is the first rung up the purity ladder, and its two rules pull opposite ways: a
     # provisional code must NOT be namespaced, while a borrowed capability MUST be — one names
     # what this change creates, the other what it leans on.
@@ -153,39 +157,51 @@ CASES = [
     # P6 draws lines, and the ladder does not simply accumulate: P5 requires provisional codes,
     # P6 forbids them. Each rung admits its own vocabulary rather than everything below it.
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
-     "20_p6_admissible_catalog_register.json", "ADMISSIBLE", [], 43, 5),
+     "20_p6_admissible_catalog_register.json", "ADMISSIBLE", [], 45, 5),
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
      "21_p6_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "DEPENDENCY_DIRECTION_MALFORMED",
+         # Writing a provisional code where a capability belongs also stops P5's in-scope
+         # capability being placed under the name P5 gave it — one edit, two rules, and the
+         # fixture was cut for the first long before the second existed.
+         "IN_SCOPE_CAPABILITY_UNPLACED",
          "OUTCOME_CAPABILITY_UNPLACED",
          "OUTCOME_CAPABILITY_UNPLACED",
          "PROVISIONAL_CODE_IN_PLACEMENT",
          "SATISFIED_WITHOUT_EXISTING_ARTIFACT",
-     ], 43, 4),
+     ], 45, 4),
     # P7 assigns binding identity, and one of its rules runs backwards: every other grounded phase
     # is wrong when a citation fails to resolve, this one is wrong when a NEW code *does*. A
     # collision is not a new artifact but a silent redefinition of an old one.
     # Judged against the design-time baseline — the composition CR-1 was designed against, not the
     # one containing its own output. Getting this wrong makes every assigned identity collide.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 55, 5, "design"),
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 57, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "NEW_CODE_MALFORMED",
          "STORE_WITHOUT_PROPOSED_PATH",
          "TOPOLOGY_NODE_UNDECLARED",
-     ], 55, 4, "design"),
+     ], 57, 4, "design"),
     # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
     # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
     # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
+    # CR-1's authored mandate, judged against its own design. It does not reconcile: one artifact
+    # P7 declared is scheduled nowhere, which every other P8 rule passes because the step sequence
+    # stays contiguous over a hole that was never a step. Kept as authored — the finding is the
+    # evidence, and rewriting the dossier to make the suite green would delete it.
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
-     "24_p8_admissible_catalog_mandate.json", "ADMISSIBLE", [], 30, 5, "design"),
+     "24_p8_unreconciled_catalog_mandate.json", "INADMISSIBLE", [
+         "DESIGNED_ARTIFACT_NOT_SCHEDULED",
+     ], 32, 4, "design"),
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
      "25_p8_inadmissible_catalog_mandate.json", "INADMISSIBLE", [
          "BUILD_STEPS_NOT_CONTIGUOUS",
          "CRITICAL_PATH_NOT_IN_BUILD_ORDER",
          "DEPENDENCY_SCHEDULED_LATER",
-     ], 30, 4),
+         "DESIGNED_ARTIFACT_NOT_SCHEDULED",
+         "SCHEDULED_ARTIFACT_NOT_DESIGNED",
+     ], 32, 4),
     # The first two cases whose defect is in neither document. Each register is correct read alone
     # — the P2 resolves every belief it lists, the P3 re-verifies every item it names — and the
     # pipeline is wrong anyway, because a commitment was lost between them. Nothing in the suite
@@ -198,6 +214,44 @@ CASES = [
      "27_p3_inadmissible_restated_result.json", "INADMISSIBLE", [
          "BELIEF_RESULT_RESTATED_FROM_P2",
      ], 48, 3),
+    # Reconciliation, both directions. A mandate scheduling everything the design declared is the
+    # corpus's only fully reconciled one; the second schedules an identity no phase ever designed,
+    # which reads as an ordinary well-formed row.
+    ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
+     "28_p8_admissible_reconciled_mandate.json", "ADMISSIBLE", [], 32, 5, "design"),
+    ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
+     "29_p8_inadmissible_undesigned_artifact.json", "INADMISSIBLE", [
+         "SCHEDULED_ARTIFACT_NOT_DESIGNED",
+     ], 32, 4, "design"),
+    # The two edges at the ends of the pipeline. Neither defect is visible in the document that
+    # carries it: a change request missing an acceptance criterion is a well-formed change request,
+    # and a design that never binds a provisional code is a complete design.
+    ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
+     "30_p1_inadmissible_dropped_criterion.json", "INADMISSIBLE", [
+         "SEED_ROW_NOT_CARRIED",
+     ], 98, 3),
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "31_p7_inadmissible_unbound_code.json", "INADMISSIBLE", [
+         "PROVISIONAL_CODE_NEVER_BOUND",
+     ], 57, 4, "design"),
+    # The last two handoffs. P4's consolidation loses a decision P3 committed to; P7 drops a reused
+    # artifact P6 declared a dependency satisfied by. The second fires two rules on one edit — an
+    # artifact that is inventoried is also composed, so removing it is visible from both directions.
+    # Only the cross-phase rule would fire for a dependency satisfied by an artifact the design
+    # never referenced at all.
+    ("P4", "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
+     "32_p4_inadmissible_dropped_decision.json", "INADMISSIBLE", [
+         "AUTHORING_DECISION_NOT_CONSOLIDATED",
+     ], 68, 4),
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "33_p7_inadmissible_dropped_reuse.json", "INADMISSIBLE", [
+         "COMPOSITION_STEP_UNDECLARED",
+         "SATISFIED_DEPENDENCY_NOT_INVENTORIED",
+     ], 57, 4, "design"),
+    ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
+     "34_p6_inadmissible_unplaced_scope.json", "INADMISSIBLE", [
+         "IN_SCOPE_CAPABILITY_UNPLACED",
+     ], 45, 4),
 ]
 
 
@@ -237,7 +291,11 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
 #
 # The baseline does not need archiving. Snapshots are dispensable and reassembled at will, so the
 # design-time composition is *reproduced* on demand from the same compiled domains minus the one
-# the CR authored. That is cheaper than storing it and cannot go stale.
+# the CR authored — cheaper than storing it, and it cannot go stale *provided the reproduction is
+# actually re-run*. Caching it under /tmp keyed on nothing is what makes it go stale: a P8 rule was
+# added and compiled, and three cases were judged against a baseline still carrying the previous
+# sealed rule set, reporting "30 rules evaluated" against 32 declared. Reproduction is now
+# conditional on the sources being no newer than the cache.
 DESIGN_BASELINE = Path("/tmp/pgc_cr01_design_baseline")
 
 DESIGN_BASELINE_ROOTS = [
@@ -249,11 +307,34 @@ DESIGN_BASELINE_ROOTS = [
 ]
 
 
+def _baseline_is_stale() -> bool:
+    """Whether any source domain has been recompiled since the baseline was reproduced.
+
+    A cached snapshot is only a reproduction while its inputs have not moved. Checking `is_file()`
+    alone answers "was this ever built", which is a different question and the one that let a stale
+    composition judge a freshly compiled rule set.
+    """
+    manifest = DESIGN_BASELINE / "manifest.json"
+    if not manifest.is_file():
+        return True
+    built_at = manifest.stat().st_mtime
+    for root in DESIGN_BASELINE_ROOTS:
+        compiled = root / "snapshot" / "compiled"
+        if any(f.stat().st_mtime > built_at for f in compiled.rglob("*.json")):
+            return True
+    return False
+
+
 def design_baseline() -> str:
-    """The composition CR-1 was designed against, reproduced if absent."""
-    if not (DESIGN_BASELINE / "manifest.json").is_file():
+    """The composition CR-1 was designed against, reproduced whenever its sources have moved."""
+    if _baseline_is_stale():
         import os
+        import shutil
         import subprocess
+
+        # Reassembling over a populated directory would leave the previous reproduction's artifacts
+        # behind, which is the same staleness one level down.
+        shutil.rmtree(DESIGN_BASELINE, ignore_errors=True)
         roots = ":".join(str(r / "snapshot" / "compiled") for r in DESIGN_BASELINE_ROOTS)
         env = {**os.environ,
                "PGC_SOURCE_ROOTS": roots,

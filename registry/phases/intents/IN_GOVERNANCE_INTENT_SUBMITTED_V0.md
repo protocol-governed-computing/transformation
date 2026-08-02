@@ -39,6 +39,14 @@ core:
       type: string
       required: true
       description: Full text of the P6 register — supplied by the driver, never read downstream
+    prior_texts:
+      type: object
+      required: true
+      description: |
+        Phase id → full text of the upstream document — p5 carries the scope this placement must
+        cover and the capabilities it borrows across a subdomain boundary. Supplied by the driver
+        alongside the register itself: a handoff is checked by reading both documents, and an
+        absent prior is reported as an unchecked handoff rather than passed over.
     author_of_record:
       type: string
       required: true

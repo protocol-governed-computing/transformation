@@ -8,7 +8,8 @@
 - **Version:** V0
 - **Status:** draft
 - **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_EVALUATE_RULES_V0
+- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_PARSE_PRIOR_PHASES_V0,
+  CT_PURE_EVALUATE_RULES_V0
 
 ---
 
@@ -88,6 +89,13 @@ core:
     document_text:
       type: string
       required: true
+    prior_texts:
+      type: object
+      required: true
+      description: |
+        Phase id → full text of the upstream document. Empty when this phase reads none — which for
+        P0 is permanent: its input is human prose, not a phase document, so there is no upstream
+        register to preserve and never will be.
     rule_set:
       type: array
       required: true
@@ -121,6 +129,18 @@ core:
       SUCCESS: continue
       VIOLATION: exit
 
+  - step: parse_priors
+    transform: transformation::CT_PURE_PARSE_PRIOR_PHASES_V0
+    inputs:
+      prior_texts: $.inputs.prior_texts
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:
@@ -132,9 +152,8 @@ core:
       # Judges a document alone — it binds no capability and observes nothing. Declared empty
       # rather than omitted: a rule needing an observation must find it absent, not undefined.
       observed: {}
-      # Reads no upstream document. Declared empty rather than omitted, for the same reason
-      # `observed` is: a cross-phase rule must find the handoff absent, not undefined.
-      priors: {}
+      # Keyed by the phase that produced it, so a rule can say which handoff it relied on.
+      priors: $.results.parse_priors.capability_result.priors
     outputs:
       verdict: $.capability_result.verdict
       findings: $.capability_result.findings

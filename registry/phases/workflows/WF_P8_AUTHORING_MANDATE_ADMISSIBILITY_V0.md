@@ -38,6 +38,22 @@ be in the composition.
 
 ---
 
+## 3. "It adds nothing and drops nothing" is now checked
+
+That sentence has stated P8's whole contract since the phase was built, and until now nothing
+enforced it. Both halves fail silently in a mandate that passes every rule above:
+
+- An artifact P7 declared and P8 never schedules is **not** deferred. Deferral is recorded; this is
+  loss, and the step sequence stays contiguous over the hole because the artifact was never a step.
+- An identity P8 schedules that P7 never assigned is a design decision taken by whoever typed the
+  row, downstream of the gate that exists to approve design.
+
+Neither is visible in either document. So this workflow takes `prior_texts` and reconciles the two
+registers as sets of identities — which needs no citation idiom at all, because an identity is
+exact.
+
+---
+
 ## Machine
 
 ```yaml
@@ -69,8 +85,7 @@ core:
       code: CC_JUDGE_AGAINST_SNAPSHOT_V0
       inputs:
         document_text: $.payload.register_text
-        # This phase's handoff from the phase before it is not yet governed.
-        prior_texts: {}
+        prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
@@ -262,6 +277,26 @@ core:
             column: Workflow
             detail: intent names no workflow — an entry point that starts nothing cannot be authored
           intent: every mandated intent names the workflow it starts
+        - id: DESIGNED_ARTIFACT_NOT_SCHEDULED
+          check: PRIOR_IDENTITIES_COVERED
+          register: build_order
+          params:
+            prior_phase: p7
+            prior_register: new_artifacts
+            prior_column: Code
+            column: Code
+            require: prior_in_here
+          intent: an artifact the design declared and the mandate never schedules is not deferred, it is lost
+        - id: SCHEDULED_ARTIFACT_NOT_DESIGNED
+          check: PRIOR_IDENTITIES_COVERED
+          register: build_order
+          params:
+            prior_phase: p7
+            prior_register: new_artifacts
+            prior_column: Code
+            column: Code
+            require: here_in_prior
+          intent: a mandate orders the build; it does not get to add to it
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

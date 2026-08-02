@@ -24,6 +24,54 @@ TEMPLATE = load("p1")
 
 
 
+# P1's input is the seed, so the seed is the document it must be judged against. This is the first
+# rung of the belief chain — P0 → P1 → P2 → P3 is now checked end to end.
+PRIORS = ("p0",)
+
+
+# P0's whole contract is "faithful rewrite only — no content added, no clarification resolved, no
+# design assigned". The *added* half was always checkable from P1 alone: a business register naming
+# a compiled artifact is design leaking in, and the derived rules catch it. The *dropped* half never
+# was. A change request that quietly loses a requested outcome or an acceptance criterion is a
+# perfectly well-formed change request; only the seed says otherwise.
+#
+# Acceptance criteria matter most here. They are what `execution_validation.py` runs the finished
+# composition against, so a criterion dropped at P1 is a business requirement that is never built,
+# never tested, and never missed.
+#
+# Matched on the claim, not on a citation. The seed is cited by section title and the title is
+# free-form — CR-0 writes `CR seed §5 Beliefs #1` where CR-1 writes `System Beliefs #1`. A label
+# that has already drifted between two change requests is not something to match on; the row itself
+# is stable, because P0 and P1 state the same claim in the same words by construction.
+SEED_PRESERVATION = (
+    ("system_beliefs", "Belief"),
+    ("requested_outcomes", "Outcome"),
+    ("business_invariants", "Invariant"),
+    ("acceptance_criteria", "Criterion"),
+)
+
+
+def _seed_rules() -> list[Rule]:
+    """Coverage over every register P1 restates from the seed."""
+    out: list[Rule] = []
+    for register, key in SEED_PRESERVATION:
+        out.append(
+            Rule(
+                id="SEED_ROW_NOT_CARRIED",
+                check="PRIOR_ROWS_PRESENT_BY_KEY",
+                register=register,
+                params={
+                    "prior_phase": "p0",
+                    "prior_register": register,
+                    "prior_key_column": key,
+                    "key_column": key,
+                },
+                intent="P0 reorganizes and P1 restates; neither may drop what the business said",
+            )
+        )
+    return out
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P1 rule set: derived from the template, then the dossier header."""
-    return derived_rules(TEMPLATE) + dossier_header_rules()
+    """The complete declared P1 rule set: derived, seed preservation, then the dossier header."""
+    return derived_rules(TEMPLATE) + _seed_rules() + dossier_header_rules()
