@@ -72,6 +72,8 @@ core:
       code: CC_JUDGE_AGAINST_SNAPSHOT_V0
       inputs:
         document_text: $.payload.register_text
+        # This phase's handoff from the phase before it is not yet governed.
+        prior_texts: {}
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT

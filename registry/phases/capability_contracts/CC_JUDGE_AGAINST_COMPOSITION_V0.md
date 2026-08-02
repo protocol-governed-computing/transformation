@@ -8,14 +8,15 @@
 - **Version:** V0
 - **Status:** draft
 - **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CS_SNAPSHOT_QUERY_V0, CT_PURE_EVALUATE_RULES_V0
+- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_PARSE_PRIOR_PHASES_V0,
+  CS_SNAPSHOT_QUERY_V0, CT_PURE_EVALUATE_RULES_V0
 
 ---
 
 ## 1. Intent
 
-Judge a phase document against a declared rule set, the artifacts the composition publishes, **and
-what each domain declares about itself**.
+Judge a phase document against a declared rule set, the artifacts the composition publishes, what
+each domain declares about itself, **and the upstream phase documents it was handed**.
 
 ---
 
@@ -35,14 +36,27 @@ does not use, and folding the two would make P2 depend on a declaration it never
 
 ---
 
-## 3. Pipeline
+## 3. Why it also reads upstream documents
+
+A decision is made against what earlier phases committed to, and until now nothing checked that
+those commitments survived the handoff. P3's verification pass exists to re-ground every prior
+result rather than inherit it; whether it covered them is a question about two documents, and no
+amount of reading this one settles it.
+
+Priors are parsed as one mapping in one step. This contract is a fixed pipeline with no iteration,
+so the number of upstream documents a phase reads must not change the contract's shape.
+
+---
+
+## 4. Pipeline
 
 | Step | Capability | Type | Operation |
 |------|------------|------|-----------|
 | 1 | CT_PURE_PARSE_REGISTERS_V0 | CT | Parse |
-| 2 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.artifact.list) |
-| 3 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.snapshot.summary) |
-| 4 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
+| 2 | CT_PURE_PARSE_PRIOR_PHASES_V0 | CT | Parse priors |
+| 3 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.artifact.list) |
+| 4 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.snapshot.summary) |
+| 5 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
 
 ---
 
@@ -54,11 +68,18 @@ artifact_kind: CAPABILITY_CONTRACT
 version: v0
 governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
 core:
-  summary: Parse a phase document, observe the composition and its declarations, and judge them together
+  summary: Parse a phase document and its priors, observe the composition and its declarations, and judge them together
   inputs:
     document_text:
       type: string
       required: true
+    prior_texts:
+      type: object
+      required: true
+      description: |
+        Phase id → full text of the upstream document. Empty when the caller handed none over; the
+        rule set decides whether that is a defect, and for a phase declaring a cross-phase rule it
+        is one.
     rule_set:
       type: array
       required: true
@@ -80,6 +101,18 @@ core:
     transform: transformation::CT_PURE_PARSE_REGISTERS_V0
     inputs:
       document_text: $.inputs.document_text
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+
+  - step: parse_priors
+    transform: transformation::CT_PURE_PARSE_PRIOR_PHASES_V0
+    inputs:
+      prior_texts: $.inputs.prior_texts
     outputs: {}
     result_surface:
     - SUCCESS
@@ -134,6 +167,8 @@ core:
       observed:
         si.artifact.list: $.results.observe_composition.capability_result.result.artifacts
         si.snapshot.summary: $.results.observe_declarations.capability_result.result.reuse_visibility
+      # Keyed by the phase that produced it, for the same reason.
+      priors: $.results.parse_priors.capability_result.priors
     outputs:
       verdict: $.capability_result.verdict
       findings: $.capability_result.findings

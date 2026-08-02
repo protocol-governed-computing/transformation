@@ -8,13 +8,15 @@
 - **Version:** V0
 - **Status:** draft
 - **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CS_SNAPSHOT_QUERY_V0, CT_PURE_EVALUATE_RULES_V0
+- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_PARSE_PRIOR_PHASES_V0,
+  CS_SNAPSHOT_QUERY_V0, CT_PURE_EVALUATE_RULES_V0
 
 ---
 
 ## 1. Intent
 
-Judge a phase document against a declared rule set **and against the composition it describes**.
+Judge a phase document against a declared rule set, **against the composition it describes**, and
+against the upstream phase documents it was handed.
 
 Reused by every phase that grounds claims. Each supplies its own document and rule set; the
 mechanism is the same one.
@@ -36,26 +38,44 @@ contract that always observed would make every phase depend on a snapshot being 
 
 ---
 
-## 3. Pipeline
+## 3. Why the prior parse does not fork the contract
+
+Reading an upstream document is the other thing a rule may need from outside the document, and it
+does **not** get its own contract. What forks a contract here is a side effect: an observation binds
+a capability, and binding one is a commitment a phase that never observes should not make.
+
+Parsing text the caller already supplied binds nothing and observes nothing. It is the same class of
+step as parsing the judged document, which every contract already carries. Forking on it would give
+three contracts six shapes and say nothing true about any of them.
+
+So the step is unconditional, and a phase that reads no upstream document says so at the call site
+by handing over an empty mapping. That is more inspectable than an absence: `prior_texts: {}` in a
+compiled workflow is a declaration that this phase's handoff is ungoverned, and it is greppable.
+
+---
+
+## 4. Pipeline
 
 | Step | Capability | Type | Operation |
 |------|------------|------|-----------|
 | 1 | CT_PURE_PARSE_REGISTERS_V0 | CT | Parse |
-| 2 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY |
-| 3 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
+| 2 | CT_PURE_PARSE_PRIOR_PHASES_V0 | CT | Parse priors |
+| 3 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY |
+| 4 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
 
 ---
 
-## 4. Inputs
+## 5. Inputs
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | document_text | string | true | Full text of the phase document |
+| prior_texts | object | true | Phase id → text of the upstream document; empty when none is read |
 | rule_set | array | true | The declared rules deciding admissibility |
 
 ---
 
-## 5. Outputs
+## 6. Outputs
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -65,7 +85,7 @@ contract that always observed would make every phase depend on a snapshot being 
 
 ---
 
-## 6. Result Status Contract
+## 7. Result Status Contract
 
 | Status | Condition |
 |--------|-----------|
@@ -83,11 +103,17 @@ artifact_kind: CAPABILITY_CONTRACT
 version: v0
 governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
 core:
-  summary: Parse a phase document, observe the composition, and judge both together
+  summary: Parse a phase document and its priors, observe the composition, and judge them together
   inputs:
     document_text:
       type: string
       required: true
+    prior_texts:
+      type: object
+      required: true
+      description: |
+        Phase id → full text of the upstream document. Empty when this phase reads none; the rule
+        set decides whether that is a defect, and for a phase declaring a cross-phase rule it is one.
     rule_set:
       type: array
       required: true
@@ -109,6 +135,18 @@ core:
     transform: transformation::CT_PURE_PARSE_REGISTERS_V0
     inputs:
       document_text: $.inputs.document_text
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+
+  - step: parse_priors
+    transform: transformation::CT_PURE_PARSE_PRIOR_PHASES_V0
+    inputs:
+      prior_texts: $.inputs.prior_texts
     outputs: {}
     result_surface:
     - SUCCESS
@@ -146,6 +184,8 @@ core:
       # Keyed by the operation that produced it, so a rule can say which observation it relied on.
       observed:
         si.artifact.list: $.results.observe_composition.capability_result.result.artifacts
+      # Keyed by the phase that produced it, for the same reason.
+      priors: $.results.parse_priors.capability_result.priors
     outputs:
       verdict: $.capability_result.verdict
       findings: $.capability_result.findings

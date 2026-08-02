@@ -153,6 +153,53 @@ SATURATION_RULES: list[Rule] = [
 ]
 
 
+# The upstream phase document P3 is judged against — P2's domain model, whose spine is the
+# register P3's mandatory verification pass re-checks.
+PRIORS = ("p2",)
+
+
+# P3's verification pass exists to re-ground every prior result against the composition rather than
+# inherit it. That is only a pass over P2's beliefs if it actually covers them: an author who
+# re-verifies two of three results has re-verified nothing about the third, and the register reads
+# as a complete pass either way.
+#
+# The register legitimately carries rows from elsewhere — a P2 baseline observation is a prior
+# finding too — so this checks coverage of the belief spine, not that every row descends from it.
+BELIEF_PRESERVATION_RULES: list[Rule] = [
+    Rule(
+        id="BELIEF_RESULT_NOT_REVERIFIED",
+        check="PRIOR_ROWS_CITED",
+        register="verification_results",
+        params={
+            "prior_phase": "p2",
+            "prior_register": "belief_verification",
+            "prior_key_column": "Belief",
+            "citation_column": "Origin",
+        },
+        intent="a result nobody re-verified was inherited, and grounding is not inherited",
+    ),
+    Rule(
+        id="BELIEF_RESULT_RESTATED_FROM_P2",
+        check="PRIOR_ROW_MATCHES_CITED",
+        register="verification_results",
+        params={
+            "prior_phase": "p2",
+            "prior_register": "belief_verification",
+            "prior_key_column": "Belief",
+            "key_column": "Item",
+            "citation_column": "Origin",
+        },
+        intent="a re-verification must address the result it cites, not a substitute for it",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P3 rule set: derived, then decisions, then saturation, then header."""
-    return derived_rules(TEMPLATE) + DECISION_RULES + SATURATION_RULES + dossier_header_rules()
+    """The complete declared P3 rule set: derived, decisions, saturation, cross-phase, header."""
+    return (
+        derived_rules(TEMPLATE)
+        + DECISION_RULES
+        + SATURATION_RULES
+        + BELIEF_PRESERVATION_RULES
+        + dossier_header_rules()
+    )

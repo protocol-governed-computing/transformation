@@ -80,6 +80,15 @@ core:
         Empty for a phase that judges a document alone; a phase that grounds claims fills it from a
         governed inspection capability. A rule needing an observation that is absent reports that
         it could not be checked rather than passing silently.
+    priors:
+      type: object
+      required: true
+      description: |
+        The upstream phase documents this one is judged against, parsed, keyed by phase id. Empty
+        for a phase judged on its own document; a phase that preserves an upstream commitment fills
+        it from the priors the caller handed over. A cross-phase rule whose prior is absent reports
+        that the handoff is unchecked rather than passing silently — an unchecked handoff and a
+        preserved one are otherwise indistinguishable.
   outputs:
     verdict:
       type: string

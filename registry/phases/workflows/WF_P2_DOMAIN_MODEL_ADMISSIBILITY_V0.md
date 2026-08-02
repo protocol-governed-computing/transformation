@@ -25,7 +25,19 @@ difference is one governed observation step, bound to the snapshot this workflow
 
 ---
 
-## 2. Grounding, and what it deliberately does not flag
+## 2. The first handoff this pipeline checks
+
+P2 is also the first phase judged against the document it was handed. P1 declares what the author
+believes the system already provides; P2's spine resolves each of those beliefs, and until now
+nothing established that the two registers were about the same beliefs.
+
+A dropped belief is invisible from either side. P1 never sees P2. P2's register is well formed with
+two rows or with three. The defect exists only in the gap, so the rule needs both documents — which
+is why this workflow takes `prior_texts` alongside the register it judges.
+
+---
+
+## 3. Grounding, and what it deliberately does not flag
 
 Cited identities are classified against the observed composition by the identity-preserving
 taxonomy: exact, typo-alias, wrong-domain, proposed-new, fabrication. Only a misspelling or a
@@ -69,6 +81,7 @@ core:
       code: CC_JUDGE_AGAINST_SNAPSHOT_V0
       inputs:
         document_text: $.payload.register_text
+        prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
@@ -183,6 +196,7 @@ core:
             - scope_boundary
             - storage_governance
             - structure_stores
+            - subdomain_purpose
             - system_beliefs
             - verification_results
             literal_sources:
@@ -636,6 +650,25 @@ core:
             column: Evidence
             detail: belief has a result but records nothing about how it was reached
           intent: a result without evidence is an assertion, not a verification
+        - id: BELIEF_NOT_CARRIED_FROM_P1
+          check: PRIOR_ROWS_CITED
+          register: belief_verification
+          params:
+            prior_phase: p1
+            prior_register: system_beliefs
+            prior_key_column: Belief
+            citation_column: Source Finding
+          intent: a belief nobody carried forward is forgotten, not resolved
+        - id: BELIEF_RESTATED_FROM_P1
+          check: PRIOR_ROW_MATCHES_CITED
+          register: belief_verification
+          params:
+            prior_phase: p1
+            prior_register: system_beliefs
+            prior_key_column: Belief
+            key_column: Belief
+            citation_column: Source Finding
+          intent: a verification must resolve the belief it cites, not a substitute for it
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

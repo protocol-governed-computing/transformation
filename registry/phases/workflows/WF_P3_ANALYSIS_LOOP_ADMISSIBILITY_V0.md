@@ -38,6 +38,18 @@ reused, extended or newly authored stays with the author, per artifact, against 
 
 ---
 
+## 3. Why it also reads P2
+
+P3's verification pass exists to re-ground every prior result against the composition rather than
+inherit it. Whether it actually covered them is not a property of this register: a pass over two of
+P2's three belief results reads as complete, and the third was inherited silently.
+
+So this workflow takes `prior_texts` and is judged against P2 as well as against the composition. A
+result nobody re-verified is a finding, and so is one re-verified under a claim P2 never made — the
+citation would otherwise lend a substitution provenance it does not have.
+
+---
+
 ## Machine
 
 ```yaml
@@ -69,6 +81,7 @@ core:
       code: CC_JUDGE_AGAINST_COMPOSITION_V0
       inputs:
         document_text: $.payload.register_text
+        prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
@@ -480,6 +493,25 @@ core:
             column: Evidence
             detail: criterion is asserted satisfied with nothing to show for it
           intent: saturation is demonstrated, not declared
+        - id: BELIEF_RESULT_NOT_REVERIFIED
+          check: PRIOR_ROWS_CITED
+          register: verification_results
+          params:
+            prior_phase: p2
+            prior_register: belief_verification
+            prior_key_column: Belief
+            citation_column: Origin
+          intent: a result nobody re-verified was inherited, and grounding is not inherited
+        - id: BELIEF_RESULT_RESTATED_FROM_P2
+          check: PRIOR_ROW_MATCHES_CITED
+          register: verification_results
+          params:
+            prior_phase: p2
+            prior_register: belief_verification
+            prior_key_column: Belief
+            key_column: Item
+            citation_column: Origin
+          intent: a re-verification must address the result it cites, not a substitute for it
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

@@ -132,6 +132,9 @@ core:
       # Judges a document alone — it binds no capability and observes nothing. Declared empty
       # rather than omitted: a rule needing an observation must find it absent, not undefined.
       observed: {}
+      # Reads no upstream document. Declared empty rather than omitted, for the same reason
+      # `observed` is: a cross-phase rule must find the handoff absent, not undefined.
+      priors: {}
     outputs:
       verdict: $.capability_result.verdict
       findings: $.capability_result.findings

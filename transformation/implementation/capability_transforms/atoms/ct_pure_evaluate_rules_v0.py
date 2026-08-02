@@ -39,13 +39,15 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
         document_text (str): original document text, for whole-document rules
         rule_set (list): declared rules deciding admissibility
         observed (dict): facts about the composition, keyed by inspection operation
+        priors (dict): upstream phase documents, parsed, keyed by phase id
 
     Outputs:
         verdict (str): ADMISSIBLE or INADMISSIBLE
         findings (list): one entry per failed rule
         rules_evaluated (int): how many rules were applied
     """
-    for required in ("header", "sections", "registers", "document_text", "rule_set", "observed"):
+    for required in ("header", "sections", "registers", "document_text", "rule_set", "observed",
+                     "priors"):
         if required not in inputs:
             raise CTExecutionError(
                 f"CT_PURE_EVALUATE_RULES_V0: missing required input {required!r}"
@@ -64,6 +66,7 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
         registers=inputs["registers"],
         raw=inputs["document_text"],
         observed=inputs["observed"] or {},
+        priors=inputs["priors"] or {},
     )
 
     findings: List[Dict[str, str]] = []

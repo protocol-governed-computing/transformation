@@ -21,6 +21,7 @@ from inspector import api
 
 from transformation.implementation.capability_transforms.atoms import (
     ct_pure_evaluate_rules_v0,
+    ct_pure_parse_prior_phases_v0,
     ct_pure_parse_registers_v0,
 )
 from transformation.phases.oracle import evaluate
@@ -75,6 +76,9 @@ PHASES = {
         # observation the compiled workflow gathers. Comparing two ungrounded runs would agree
         # perfectly while exercising none of the grounding.
         "observes": {"si.artifact.list": "artifacts"},
+        # Cross-phase rules read an upstream document, and which one is a property of the
+        # document being judged, not of the phase — see PRIORS_BY_DOCUMENT.
+        "priors": True,
         "corpus": [
             REPO / "cr_dossiers/cr_00_new_subdomain/p2_domain_model_transformation_phases_v0.md",
             CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md",
@@ -88,6 +92,7 @@ PHASES = {
         # domain be drawn on at all. A differential that supplied only the first would agree with
         # itself perfectly while leaving the reuse ruling unexercised.
         "observes": {"si.artifact.list": "artifacts", "si.snapshot.summary": "reuse_visibility"},
+        "priors": True,
         "corpus": [
             CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p3").glob("*.md")),
@@ -183,11 +188,61 @@ def observation(operations: dict | None, snapshot_root: str) -> dict:
     return gathered
 
 
+# Which upstream document each judged document was handed. Keyed per document, not per phase: the
+# P2 corpus holds pages from two different change requests, and judging CR-0's domain model against
+# CR-1's change request reports eight confident findings about a handoff that never happened. Both
+# paths agreed on every one of them, which is how a differential passes while proving nothing.
+#
+# So a phase that declares cross-phase rules must declare a prior for every document it judges. An
+# unmapped document is a hard failure rather than an unchecked handoff — the corpus is discovered by
+# glob, and a fixture dropped in without one would quietly stop exercising the rule.
+CR_00 = REPO / "cr_dossiers/cr_00_new_subdomain"
+
+PRIORS_BY_DOCUMENT = {
+    "p2_domain_model_transformation_phases_v0.md": {
+        "p1": CR_00 / "p1_change_request_transformation_phases_v0.md"},
+    "inadmissible_p2_register.md": {
+        "p1": CR_00 / "p1_change_request_transformation_phases_v0.md"},
+    "p2_domain_model_book_library_mgmt_catalog_v0.md": {
+        "p1": CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p2_catalog_register.md": {
+        "p1": CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p2_dropped_belief.md": {
+        "p1": CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md"},
+    "p3_analysis_loop_book_library_mgmt_catalog_v0.md": {
+        "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p3_ineligible_reuse.md": {
+        "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p3_restated_result.md": {
+        "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
+}
+
+
+def prior_texts(doc_path: Path, reads_priors: bool) -> dict:
+    """The upstream documents this document is judged against, as text a workflow is handed."""
+    if not reads_priors:
+        return {}
+    declared = PRIORS_BY_DOCUMENT.get(doc_path.name)
+    if declared is None:
+        raise SystemExit(
+            f"{doc_path.name} is judged by a phase with cross-phase rules and declares no prior; "
+            f"add it to PRIORS_BY_DOCUMENT"
+        )
+    return {
+        phase_id: path.read_text(encoding="utf-8")
+        for phase_id, path in declared.items()
+    }
+
+
 def compiled_verdict(
-    seed_text: str, rules: list[dict], observed: dict | None = None
+    seed_text: str,
+    rules: list[dict],
+    observed: dict | None = None,
+    priors: dict | None = None,
 ) -> tuple[str, list[tuple[str, str]]]:
     """Drive the compiled phase's atoms exactly as the workflow composes them."""
     parsed = ct_pure_parse_registers_v0.execute({"document_text": seed_text})
+    parsed_priors = ct_pure_parse_prior_phases_v0.execute({"prior_texts": priors or {}})
     result = ct_pure_evaluate_rules_v0.execute(
         {
             "header": parsed["header"],
@@ -196,15 +251,24 @@ def compiled_verdict(
             "document_text": seed_text,
             "rule_set": rules,
             "observed": observed or {},
+            "priors": parsed_priors["priors"],
         }
     )
     findings = [(f["rule"], f["where"]) for f in result["findings"]]
     return result["verdict"], findings
 
 
-def genesis_verdict(doc_path: Path, rules, observed: dict | None = None) -> tuple[str, list[tuple[str, str]]]:
+def genesis_verdict(
+    doc_path: Path,
+    rules,
+    observed: dict | None = None,
+    priors: dict | None = None,
+) -> tuple[str, list[tuple[str, str]]]:
     doc = read_seed(doc_path)
     doc.observed = observed or {}
+    # The genesis path parses its priors with the same reader the transform uses, so a divergence
+    # is a difference in rule evaluation rather than in how the two paths read a document.
+    doc.priors = ct_pure_parse_prior_phases_v0.execute({"prior_texts": priors or {}})["priors"]
     verdict = evaluate(doc, rules)
     return verdict.verdict, [(f.rule, f.where) for f in verdict.findings]
 
@@ -230,6 +294,7 @@ def main() -> int:
         print("  identical")
 
         observed = observation(spec.get("observes"), root)
+        reads_priors = bool(spec.get("priors"))
         corpus = [p for p in spec["corpus"] if p.is_file()]
         if not corpus:
             print(f"  NO DOCUMENTS — a differential over an empty corpus is not evidence")
@@ -239,8 +304,9 @@ def main() -> int:
         for doc_path in corpus:
             total += 1
             text = doc_path.read_text(encoding="utf-8")
-            g_verdict, g_findings = genesis_verdict(doc_path, declared, observed)
-            c_verdict, c_findings = compiled_verdict(text, sealed, observed)
+            priors = prior_texts(doc_path, reads_priors)
+            g_verdict, g_findings = genesis_verdict(doc_path, declared, observed, priors)
+            c_verdict, c_findings = compiled_verdict(text, sealed, observed, priors)
             agree = g_verdict == c_verdict and sorted(g_findings) == sorted(c_findings)
             print(f"  {'AGREE ' if agree else 'DIVERGE'}  {g_verdict:<12} {len(g_findings):>2} finding(s)  {doc_path.name}")
             if not agree:

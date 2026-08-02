@@ -47,6 +47,30 @@ class Block:
         )
 
 
+def _register_block(registers: list, register_id: str) -> "Block | None":
+    """Build a Block for one register out of parsed register data.
+
+    Shared by a document's own registers and by an upstream phase's, so a prior register is read
+    exactly the way the document's own is — two readers here would let a cross-phase rule disagree
+    with a same-phase rule about what a register contains.
+    """
+    for entry in registers:
+        if entry.get("id") == register_id:
+            table = None
+            if entry.get("columns"):
+                table = Table(
+                    columns=list(entry["columns"]),
+                    rows=[dict(r) for r in (entry.get("rows") or [])],
+                )
+            return Block(
+                number=None,
+                title=register_id,
+                body=entry.get("text", ""),
+                table=table,
+            )
+    return None
+
+
 @dataclass
 class ParsedDocument:
     """A phase document as registers, plus whatever was observed about the composition.
@@ -55,6 +79,12 @@ class ParsedDocument:
     the assembled system fills it from a governed inspection capability, keyed by the operation that
     produced each fact — so a check can say which observation it relied on, and a missing
     observation is visible rather than silently absent.
+
+    `priors` is the same shape for a different outside: the phase documents this one was handed.
+    Nine phases hand off through `gov_projection` and every rule until now judged one document, so
+    a phase could drop an upstream commitment and still report ADMISSIBLE. Keyed by phase id for
+    the same reason `observed` is keyed by operation — a check names what it relied on, and an
+    absent prior is visible rather than a silent pass.
     """
 
     header: dict[str, str]
@@ -63,6 +93,7 @@ class ParsedDocument:
     path: str = ""
     registers: list[Any] = field(default_factory=list)
     observed: dict[str, Any] = field(default_factory=dict)
+    priors: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.blocks = [
@@ -76,21 +107,24 @@ class ParsedDocument:
         from its template. Identity is stable across retitling and unambiguous when one section
         holds several registers.
         """
-        for entry in self.registers:
-            if entry.get("id") == register_id:
-                table = None
-                if entry.get("columns"):
-                    table = Table(
-                        columns=list(entry["columns"]),
-                        rows=[dict(r) for r in (entry.get("rows") or [])],
-                    )
-                return Block(
-                    number=None,
-                    title=register_id,
-                    body=entry.get("text", ""),
-                    table=table,
-                )
-        return None
+        return _register_block(self.registers, register_id)
+
+    def prior_register(self, phase_id: str, register_id: str) -> Block | None:
+        """A register of an upstream phase document, or None if it is not reachable.
+
+        None means one of two different things — the prior was never supplied, or it was supplied
+        and carries no such register — and a cross-phase check must distinguish them, so
+        `has_prior` answers the first separately. Reporting "the register is missing" when the
+        document was never handed over would blame the author for the driver's omission.
+        """
+        prior = self.priors.get(phase_id)
+        if not prior:
+            return None
+        return _register_block(prior.get("registers") or [], register_id)
+
+    def has_prior(self, phase_id: str) -> bool:
+        """Whether the upstream phase document was supplied at all."""
+        return bool(self.priors.get(phase_id))
 
     def find(self, title_prefix: str) -> Block | None:
         """First block whose title starts with `title_prefix`.

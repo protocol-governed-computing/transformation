@@ -45,6 +45,33 @@ RULE_SETS = {
 }
 
 
+def _parse_prior(argument: str) -> tuple[str, Path]:
+    """Split a `--prior p1=<path>` argument, or fail hard.
+
+    The phase is named rather than inferred from the filename. A dossier's filenames are a
+    convention, and inferring a phase from one would let a misnamed file be judged as the wrong
+    upstream document while reporting a confident verdict.
+    """
+    phase_id, separator, raw_path = argument.partition("=")
+    if not separator or not phase_id or not raw_path:
+        raise click.BadParameter(f"expected PHASE=PATH, got {argument!r}", param_hint="--prior")
+    if phase_id not in RULE_SETS:
+        raise click.BadParameter(
+            f"unknown phase {phase_id!r}; declared phases are {sorted(RULE_SETS)}",
+            param_hint="--prior",
+        )
+    path = Path(raw_path)
+    if not path.is_file():
+        raise click.BadParameter(f"{raw_path} is not a file", param_hint="--prior")
+    return phase_id, path
+
+
+def _read_prior(path: Path) -> dict:
+    """An upstream phase document as the plain data a cross-phase check reads."""
+    prior = read_seed(path)
+    return {"header": prior.header, "sections": prior.sections, "registers": prior.registers}
+
+
 @click.group()
 @click.version_option(package_name="transformation_compiler")
 def main() -> None:
@@ -74,13 +101,27 @@ _PHASE_OPTION = click.option(
     type=click.Path(exists=True, file_okay=False, path_type=Path),
     help="Composition to ground against. Required by phases that verify claims about the system.",
 )
+@click.option(
+    "--prior",
+    "prior_args",
+    multiple=True,
+    metavar="PHASE=PATH",
+    help="An upstream phase document this one is judged against, e.g. --prior p1=<path>.",
+)
 @click.option("--json", "as_json", is_flag=True, help="Emit the verdict as JSON.")
-def phase_check(doc_path: Path, phase_key: str, snapshot_root: Path | None, as_json: bool) -> None:
+def phase_check(
+    doc_path: Path,
+    phase_key: str,
+    snapshot_root: Path | None,
+    prior_args: tuple[str, ...],
+    as_json: bool,
+) -> None:
     """Judge a phase document against that phase's structural oracle.
 
-    A phase that grounds claims needs a composition to ground against. Without `--snapshot` its
-    grounding rules report that they could not be checked — they do not quietly pass, because a
-    silent pass would look identical to a verified one.
+    A phase that grounds claims needs a composition to ground against, and a phase that preserves
+    an upstream commitment needs the document carrying it. Without `--snapshot` or `--prior` those
+    rules report that they could not be checked — they do not quietly pass, because a silent pass
+    would look identical to a verified one.
 
     Exit 0 if ADMISSIBLE, 1 if INADMISSIBLE.
     """
@@ -105,6 +146,28 @@ def phase_check(doc_path: Path, phase_key: str, snapshot_root: Path | None, as_j
         click.echo(
             f"  note: {phase_key} grounds claims through {', '.join(observes)}; "
             f"pass --snapshot to check them",
+            err=True,
+        )
+
+    # Reading a prior is the driver's job, exactly as reading the document is. A check that opened
+    # a file would make its verdict depend on a filesystem the compiled transform cannot reach, and
+    # the genesis oracle and the composition would stop judging the same thing.
+    declared_priors = getattr(rules_mod, "PRIORS", ())
+    supplied = dict(_parse_prior(arg) for arg in prior_args)
+    for unexpected in sorted(set(supplied) - set(declared_priors)):
+        raise click.ClickException(
+            f"{phase_key} declares no prior {unexpected!r}; it reads {list(declared_priors)}"
+        )
+    doc.priors = {
+        phase_id: _read_prior(supplied[phase_id])
+        for phase_id in declared_priors
+        if phase_id in supplied
+    }
+    missing = [p for p in declared_priors if p not in supplied]
+    if missing:
+        click.echo(
+            f"  note: {phase_key} preserves commitments from {', '.join(missing)}; "
+            f"pass --prior {missing[0]}=<path> to check them",
             err=True,
         )
 

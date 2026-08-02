@@ -23,6 +23,15 @@ AUTHOR = "bachipeachy"
 # changes, which is a sibling repo. Both are payload sources, so the map carries the root.
 ROOTS = {"business_domains": WORKSPACE}
 
+CATALOG_P1 = (
+    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "p1_change_request_book_library_mgmt_catalog_v0.md"
+)
+CATALOG_P2 = (
+    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "p2_domain_model_book_library_mgmt_catalog_v0.md"
+)
+
 PAYLOADS = {
     "01_admissible_seed.json": (
         "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md"
@@ -124,6 +133,34 @@ PAYLOADS = {
     "25_p8_inadmissible_catalog_mandate.json": (
         "scripts/testbed/corpus_p8/inadmissible_p8_broken_order.md"
     ),
+    # The first two cases whose defect exists in neither document. Each is a correct dossier page
+    # by itself: the P2 register resolves every belief it lists, the P3 register re-verifies every
+    # item it names. Only the handoff is wrong.
+    "26_p2_inadmissible_dropped_belief.json": (
+        "scripts/testbed/corpus_p2/inadmissible_p2_dropped_belief.md"
+    ),
+    "27_p3_inadmissible_restated_result.json": (
+        "scripts/testbed/corpus_p3/inadmissible_p3_restated_result.md"
+    ),
+}
+
+# payload → phase id → the upstream document that phase is judged against.
+#
+# The prior travels in the payload rather than being looked up: a workflow reads what it is handed,
+# and a testbed that resolved a prior by filename convention would prove the convention, not the
+# rule. Every P2 and P3 case carries one, including the admissible ones — a cross-phase rule that
+# only ever ran on a doctored document would never be shown to pass.
+PRIOR_SOURCES = {
+    "08_p2_admissible_register.json": {
+        "p1": "cr_dossiers/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md"},
+    "09_p2_inadmissible_register.json": {
+        "p1": "cr_dossiers/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md"},
+    "12_p2_admissible_catalog_register.json": {"p1": CATALOG_P1},
+    "13_p2_inadmissible_catalog_register.json": {"p1": CATALOG_P1},
+    "26_p2_inadmissible_dropped_belief.json": {"p1": CATALOG_P1},
+    "14_p3_admissible_catalog_register.json": {"p2": CATALOG_P2},
+    "15_p3_inadmissible_catalog_register.json": {"p2": CATALOG_P2},
+    "27_p3_inadmissible_restated_result.json": {"p2": CATALOG_P2},
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.
@@ -147,6 +184,8 @@ PAYLOAD_KEY = {
     "23_p7_inadmissible_catalog_register.json": "register_text",
     "24_p8_admissible_catalog_mandate.json": "register_text",
     "25_p8_inadmissible_catalog_mandate.json": "register_text",
+    "26_p2_inadmissible_dropped_belief.json": "register_text",
+    "27_p3_inadmissible_restated_result.json": "register_text",
 }
 
 
@@ -162,6 +201,12 @@ def main() -> int:
             raise FileNotFoundError(f"payload source missing: {src}")
         key = PAYLOAD_KEY.get(name, "seed_text")
         payload = {key: src.read_text(encoding="utf-8"), "author_of_record": AUTHOR}
+        # A phase that reads no upstream document still declares that it read none. Omitting the
+        # field would make "this handoff is ungoverned" indistinguishable from "the driver forgot".
+        payload["prior_texts"] = {
+            phase_id: (root_for(source) / source).read_text(encoding="utf-8")
+            for phase_id, source in PRIOR_SOURCES.get(name, {}).items()
+        }
         (OUT / name).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         print(f"  {name:<40} <- {source}")
     print(f"\n{len(PAYLOADS)} payload(s) written to {OUT.relative_to(REPO)}")

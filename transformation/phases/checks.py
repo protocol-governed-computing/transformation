@@ -93,14 +93,13 @@ def _is_sentinel(row: dict[str, str]) -> bool:
     return values[0].upper() == _EMPTINESS_SENTINEL and not any(values[1:])
 
 
-def _rows(doc: ParsedDocument, rule):
-    """Content rows of the register a rule governs.
+def _content_rows(block: Block | None):
+    """Numbered content rows of a register block, sentinel excluded.
 
-    The emptiness sentinel is excluded: it is a statement that the register has no entries, not an
-    entry. Checking its blank cells for vocabularies and citations would report findings against a
+    The emptiness sentinel is not content: it is a statement that the register has no entries.
+    Checking its blank cells for vocabularies and citations would report findings against a
     register whose author correctly said there was nothing to report.
     """
-    block = _block(doc, rule)
     if block is None or block.table is None:
         return []
     return [
@@ -108,6 +107,11 @@ def _rows(doc: ParsedDocument, rule):
         for i, row in enumerate(block.table.rows, start=1)
         if not _is_sentinel(row)
     ]
+
+
+def _rows(doc: ParsedDocument, rule):
+    """Content rows of the register a rule governs."""
+    return _content_rows(_block(doc, rule))
 
 
 # Check kinds ------------------------------------------------------------------------------
@@ -786,5 +790,140 @@ def _dependency_precedes(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
                     f"{_where(rule)} row {i}",
                     f"{code!r} is step {step_number} but depends on {part!r} at step "
                     f"{prerequisite} — a prerequisite scheduled later is not a build order",
+                ))
+    return out
+
+
+# Cross-phase checks -------------------------------------------------------------------------
+#
+# These read `doc.priors` — the upstream phase documents this one was handed. Every check above
+# judges one document, which is sufficient while a defect lives inside it. It stops being
+# sufficient at a handoff: nine phases pass work forward through `gov_projection`, and a phase that
+# quietly drops an upstream commitment is well formed in isolation and wrong as a pipeline.
+#
+# The defect is only visible with both documents open, which is what makes these a different rule
+# form rather than another register rule. They carry no phase names — which phase reads which is
+# declared in that phase's rule set, exactly as an observation is.
+
+
+def _prior_rows(doc: ParsedDocument, rule):
+    """Content rows of the upstream register a cross-phase rule reads.
+
+    Returns `(rows, unavailable)`. `unavailable` distinguishes the two ways a prior register can be
+    absent, because they blame different people: a prior nobody supplied is the driver's omission,
+    a register missing from a supplied prior is the upstream author's. Collapsing them would report
+    a document defect for a missing command-line argument.
+    """
+    phase = rule.params["prior_phase"]
+    register = rule.params["prior_register"]
+
+    if not doc.has_prior(phase):
+        return [], (
+            f"{phase} was not supplied — this handoff is unchecked, and an unchecked handoff "
+            f"looks identical to a preserved one"
+        )
+    block = doc.prior_register(phase, register)
+    if block is None or block.table is None:
+        return [], f"{phase} carries no readable {register!r} register to preserve"
+    return _content_rows(block), None
+
+
+def _cited_ordinals(value: str, register: str) -> set[int]:
+    """Every `<register> #n` ordinal a citation cell names.
+
+    A register id is unique across the pipeline, so the id alone identifies the upstream register
+    and the stage qualifier a dossier writes in front of it (`S1 system_beliefs #2`) is redundant
+    for matching. Requiring the qualifier would reject a correct citation over its prefix.
+    """
+    return {
+        int(n)
+        for n in re.findall(rf"{re.escape(register)}\s*#\s*(\d+)", value)
+    }
+
+
+def _normalise(text: str) -> str:
+    return " ".join(text.split())
+
+
+@check("PRIOR_ROWS_CITED")
+def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every row of an upstream register must be carried forward and cited here.
+
+    Belief Preservation, stated as k of N: N rows were committed to upstream, k of them are cited
+    downstream, and the rule is that k equals N. A belief nobody carried is not resolved — it is
+    forgotten, and the dossier reports ADMISSIBLE over a question the change never answered.
+
+    Reported per dropped row rather than as a count, because an author needs to know which
+    commitment went missing, not how many did.
+    """
+    prior_rows, unavailable = _prior_rows(doc, rule)
+    if unavailable:
+        return [(_where(rule), unavailable)]
+
+    register = rule.params["prior_register"]
+    phase = rule.params["prior_phase"]
+    column = rule.params["citation_column"]
+    key_column = rule.params.get("prior_key_column")
+
+    cited: set[int] = set()
+    for _, row in _rows(doc, rule):
+        cited |= _cited_ordinals(_cell(row, column), register)
+
+    out = []
+    total = len(prior_rows)
+    for ordinal, row in prior_rows:
+        if ordinal in cited:
+            continue
+        subject = _normalise(_cell(row, key_column)) if key_column else ""
+        out.append((
+            f"{_where(rule)}",
+            f"{phase} {register} #{ordinal} of {total} is carried nowhere in this register"
+            + (f": {subject!r}" if subject else ""),
+        ))
+    return out
+
+
+@check("PRIOR_ROW_MATCHES_CITED")
+def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A row that cites an upstream row must still say what that row said.
+
+    Projection Fidelity. `PRIOR_ROWS_CITED` proves nothing was dropped; it does not prove anything
+    was preserved — a row can carry the citation forward and restate the claim as something the
+    upstream phase never committed to, which is worse than dropping it, because the citation now
+    lends the substitution a provenance it does not have.
+
+    An ordinal naming no upstream row is reported here too: it is a citation that resolves to
+    nothing, and the coverage check cannot see it — a phantom `#7` leaves all of #1..#3 uncited
+    just the same.
+    """
+    prior_rows, unavailable = _prior_rows(doc, rule)
+    if unavailable:
+        return [(_where(rule), unavailable)]
+
+    register = rule.params["prior_register"]
+    phase = rule.params["prior_phase"]
+    column = rule.params["citation_column"]
+    key_column = rule.params["key_column"]
+    prior_key_column = rule.params["prior_key_column"]
+
+    upstream = {ordinal: row for ordinal, row in prior_rows}
+
+    out = []
+    for i, row in _rows(doc, rule):
+        for ordinal in sorted(_cited_ordinals(_cell(row, column), register)):
+            if ordinal not in upstream:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"cites {register} #{ordinal}, and {phase} declares only "
+                    f"{len(upstream)} row(s) there",
+                ))
+                continue
+            here = _normalise(_cell(row, key_column))
+            there = _normalise(_cell(upstream[ordinal], prior_key_column))
+            if here != there:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"restates {register} #{ordinal} as {here!r}, which {phase} declared as "
+                    f"{there!r} — a citation is not a licence to change the claim",
                 ))
     return out

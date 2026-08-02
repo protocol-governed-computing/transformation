@@ -73,6 +73,53 @@ GROUNDING_RULES: list[Rule] = [
 
 
 
+# The upstream phase documents P2 is judged against. P2 consumes P1's change request through the
+# `gov_projection` handoff, and until now nothing checked that it arrived intact.
+PRIORS = ("p1",)
+
+
+# P1 declares what the author believes the system already provides; P2's spine is the register that
+# resolves each of those beliefs. That makes the handoff checkable in the only way that matters —
+# every belief committed to at P1 must have a result at P2, and the result must be about the belief
+# that was actually declared.
+#
+# This is the first pair of rules in the pipeline that read two documents. A dropped belief is
+# invisible to P1 (which never sees P2) and invisible to P2 (whose register is well formed with two
+# rows or with three); it exists only in the gap between them.
+BELIEF_PRESERVATION_RULES: list[Rule] = [
+    Rule(
+        id="BELIEF_NOT_CARRIED_FROM_P1",
+        check="PRIOR_ROWS_CITED",
+        register="belief_verification",
+        params={
+            "prior_phase": "p1",
+            "prior_register": "system_beliefs",
+            "prior_key_column": "Belief",
+            "citation_column": "Source Finding",
+        },
+        intent="a belief nobody carried forward is forgotten, not resolved",
+    ),
+    Rule(
+        id="BELIEF_RESTATED_FROM_P1",
+        check="PRIOR_ROW_MATCHES_CITED",
+        register="belief_verification",
+        params={
+            "prior_phase": "p1",
+            "prior_register": "system_beliefs",
+            "prior_key_column": "Belief",
+            "key_column": "Belief",
+            "citation_column": "Source Finding",
+        },
+        intent="a verification must resolve the belief it cites, not a substitute for it",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P2 rule set: derived, then grounding, then the dossier header."""
-    return derived_rules(TEMPLATE) + GROUNDING_RULES + dossier_header_rules()
+    """The complete declared P2 rule set: derived, grounding, cross-phase, then the header."""
+    return (
+        derived_rules(TEMPLATE)
+        + GROUNDING_RULES
+        + BELIEF_PRESERVATION_RULES
+        + dossier_header_rules()
+    )

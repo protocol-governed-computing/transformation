@@ -192,6 +192,7 @@ core:
             - scope_boundary
             - storage_governance
             - structure_stores
+            - subdomain_purpose
             - system_beliefs
             - verification_results
             literal_sources:
