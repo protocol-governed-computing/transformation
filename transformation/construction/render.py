@@ -20,6 +20,7 @@ omits it and the acceptance harness reports it as undetermined.
 
 from __future__ import annotations
 
+import ast
 from typing import Any
 
 # Constitution per family. Fixed by the platform, not by any change request — a design that restated
@@ -115,7 +116,7 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
     render twenty-five. The iteration lives inside a pure transform, where it observes nothing.
     """
     family = {bare(cell(r, "Code")): cell(r, "Family") for r in rows(p7, "new_artifacts")}
-    summary = {bare(cell(r, "Code")): cell(r, "Capability") for r in rows(p7, "new_artifacts")}
+    summary = {bare(cell(r, "Code")): cell(r, "Summary") for r in rows(p7, "new_artifacts")}
     subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
                  for r in rows(p8, "field_declarations")}
 
@@ -151,7 +152,7 @@ def _render(fam, code, short, summary, sub, p7, p8) -> dict:
 def _intent(m, code, short, summary, sub, p7, p8):
     row = next((r for r in rows(p8, "new_intents") if bare(cell(r, "Code")) == short), {})
     m["core"] = {
-        "summary": cell(row, "Purpose") or summary,
+        "summary": summary or cell(row, "Purpose"),
         "workflow": bare(cell(row, "Workflow")),
         "inputs": typed_fields(p7, code, "INPUT"),
         "outcomes": INTENT_OUTCOMES,
@@ -177,9 +178,7 @@ def _workflow(m, code, short, summary, sub, p7, p8):
                            "outcome": "SUCCESS" if node.endswith("COMPLETED") else "VIOLATION"}
             continue
         spec: dict[str, Any] = {"type": node_type, "code": node}
-        bindings = {cell(b, "Field"): _binding(cell(b, "Bound To"))
-                    for b in rows(p7, "node_bindings")
-                    if bare(cell(b, "Workflow")) == short and bare(cell(b, "Node")) == node}
+        bindings = _bindings(p7, short, node, "INPUT")
         if bindings:
             spec["inputs"] = bindings
         spec["next"] = _edges(cell(r, "Routing"))
@@ -191,15 +190,28 @@ def _workflow(m, code, short, summary, sub, p7, p8):
     m["core"] = {"summary": summary, "actor_context": actor, "start_node": start, "nodes": nodes}
 
 
+def _bindings(p7: dict, owner: str, step: str, direction: str) -> dict:
+    """What one node or step is handed, or where its results go."""
+    return {cell(b, "Field"): _binding(cell(b, "Bound To"))
+            for b in rows(p7, "step_bindings")
+            if bare(cell(b, "Owner")) == owner and bare(cell(b, "Step")) == step
+            and cell(b, "Direction") == direction}
+
+
 def _binding(bound_to: str) -> str:
     """A declared source rendered as the runtime's binding expression.
 
     The design states where a value comes from; the `$.`-prefixed form is a rendering convention of
     the execution surface, which is construction's business and not the designer's.
     """
-    if bound_to.startswith(("payload.", "results.", "inputs.")):
+    if bound_to.startswith(("{", "[")):
+        try:
+            return ast.literal_eval(bound_to)
+        except (ValueError, SyntaxError):
+            return bound_to
+    if bound_to.startswith(("payload.", "results.", "inputs.", "capability_result.", "result_status")):
         return f"$.{bound_to}"
-    return bound_to
+    return _literal(bound_to)
 
 
 def _edges(routing: str) -> dict:
@@ -217,19 +229,17 @@ def _contract(m, code, short, summary, sub, p7, p8):
     steps = [r for r in rows(p7, "cc_composition") if bare(cell(r, "CC Code")) == short]
     statuses, pipeline = ["SUCCESS"], []
     for r in steps:
-        kind = cell(r, "Kind")
-        step: dict[str, Any] = {}
-        # A CS step binds a side effect and names the operation it performs; a CT step binds a
-        # transform. The distinction is the register's own `Kind` column.
-        step["side_effect" if kind == "CS" else "transform"] = cell(r, "Capability")
-        if kind == "CS":
-            step["op"] = cell(r, "Operation")
-        pipeline.append(step)
+        pipeline.append(_step(p7, short, r))
         semantic = cell(r, "Semantic Status")
         if semantic and semantic not in statuses and semantic != "—":
             statuses.append(semantic)
-        if cell(r, "Interpreted By") not in ("", "—", "-"):
-            pipeline.append({"transform": cell(r, "Interpreted By")})
+        interpreter = cell(r, "Interpreted By")
+        if interpreter not in ("", "—", "-"):
+            # The interpretation is a step of its own; the register folds it into the row it
+            # interprets because it is always positionally bound to that observation.
+            name = _interpret_step(p7, short, r)
+            pipeline.append(_step(p7, short, r, interpreter=interpreter, name=name,
+                                  last=r is steps[-1]))
     m["core"] = {
         "summary": summary,
         "inputs": typed_fields(p7, code, "INPUT"),
@@ -238,6 +248,52 @@ def _contract(m, code, short, summary, sub, p7, p8):
                                    "on_input_failure": "VIOLATION"},
         "pipeline": pipeline,
     }
+
+
+def _step(p7: dict, owner: str, r: dict, interpreter: str = "", name: str = "",
+          last: bool = False) -> dict:
+    """One pipeline step: what it binds, what it addresses, and how it routes on its own result."""
+    step_name = name or cell(r, "Step Name")
+    out: dict[str, Any] = {"step": step_name}
+    if interpreter:
+        out["transform"] = interpreter
+    else:
+        kind = cell(r, "Kind")
+        out["side_effect" if kind == "CS" else "transform"] = cell(r, "Capability")
+        if kind == "CS":
+            out["op"] = cell(r, "Operation")
+        store = cell(r, "Store")
+        if store and store not in ("—", "-"):
+            out["store"] = store
+    inputs = _bindings(p7, owner, step_name, "INPUT")
+    outputs = _bindings(p7, owner, step_name, "OUTPUT")
+    if inputs:
+        out["inputs"] = inputs
+    if outputs:
+        out["outputs"] = outputs
+    if interpreter:
+        semantic = cell(r, "Semantic Status")
+        routing = {"SUCCESS": "exit" if last else "continue"}
+        if semantic and semantic not in ("—", "-", "SUCCESS"):
+            routing[semantic] = "exit"
+        routing["VIOLATION"] = "exit"
+    else:
+        routing = _edges(cell(r, "Routing"))
+    if routing:
+        out["result_surface"] = list(routing)
+        out["on_result"] = routing
+    return out
+
+
+def _interpret_step(p7: dict, owner: str, r: dict) -> str:
+    """The interpreting step's declared name — the one step_bindings addresses it by."""
+    observed = cell(r, "Step Name")
+    for b in rows(p7, "step_bindings"):
+        if bare(cell(b, "Owner")) != owner:
+            continue
+        if cell(b, "Bound To").startswith(f"results.{observed}."):
+            return cell(b, "Step")
+    return f"interpret_{observed}"
 
 
 def _transform(m, code, short, summary, sub, p7, p8):
@@ -255,8 +311,14 @@ def _transform(m, code, short, summary, sub, p7, p8):
     }
 
 
+def _properties(p7: dict, code: str) -> dict:
+    return {cell(r, "Property"): _literal(cell(r, "Value"))
+            for r in rows(p7, "artifact_properties") if bare(cell(r, "Artifact")) == bare(code)}
+
+
 def _actor(m, code, short, summary, sub, p7, p8):
-    m["core"] = {"summary": summary, "attributes": typed_fields(p7, code, "ATTRIBUTE")}
+    m["core"] = {"summary": summary, **_properties(p7, code),
+                 "attributes": typed_fields(p7, code, "ATTRIBUTE")}
 
 
 def _vocabulary(m, code, short, summary, sub, p7, p8):
@@ -270,14 +332,13 @@ def _vocabulary(m, code, short, summary, sub, p7, p8):
 
 
 def _structure(m, code, short, summary, sub, p7, p8):
-    stores = {}
-    for r in rows(p7, "structure_stores"):
-        stores[cell(r, "Store Name")] = {
-            "storage_type": cell(r, "Storage Type"),
-            "path": cell(r, "Proposed Path"),
-        }
-    m["core"] = {"summary": summary, "domain": norm(code).split("::")[0],
-                 "subdomain": sub, "entity_stores": stores}
+    stores = {cell(r, "Store Name"): {"path": cell(r, "Proposed Path")}
+              for r in rows(p7, "structure_stores")}
+    props = _properties(p7, code)
+    m["core"] = {"summary": summary, "layer": props.pop("layer", "DOMAINS"),
+                 "domain": norm(code).split("::")[0], "subdomain": sub,
+                 "storage_roots": {"base_path": props.pop("base_path", "")},
+                 "entity_stores": stores, **props}
 
 
 def _binding_artifact(m, code, short, summary, sub, p7, p8):

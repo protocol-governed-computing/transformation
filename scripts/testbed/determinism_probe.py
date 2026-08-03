@@ -145,8 +145,10 @@ class Design:
 
         # The registers that carry the facts the language could not express before.
         self.bindings: dict[str, set[str]] = {}
-        for row in p7.get("node_bindings", []):
-            self.bindings.setdefault(f"{bare(cell(row, 'Workflow'))}/{bare(cell(row, 'Node'))}", set()).add(
+        for row in p7.get("step_bindings", []):
+            if cell(row, "Direction") != "INPUT":
+                continue
+            self.bindings.setdefault(f"{bare(cell(row, 'Owner'))}/{bare(cell(row, 'Step'))}", set()).add(
                 cell(row, "Field"))
         self.fields: dict[tuple[str, str], set[str]] = {}
         for row in p7.get("interface_fields", []):

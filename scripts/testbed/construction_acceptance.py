@@ -63,11 +63,19 @@ def built(registry: Path) -> dict[str, dict]:
     return out
 
 
+# Keys that are documentation even inside the Machine block. The built corpus carries a field
+# description on some fields and not others, which is what documentation looks like — a governed
+# fact would be present or absent by rule, not by whether the author felt like writing one.
+DOCUMENTATION = {"description"}
+
+
 def diff(expected, actual, path: str = "") -> list[str]:
     """Every leaf where two Machine blocks disagree, addressed by dotted path."""
     if isinstance(expected, dict) and isinstance(actual, dict):
         out = []
         for key in sorted(set(expected) | set(actual)):
+            if key in DOCUMENTATION:
+                continue
             here = f"{path}.{key}" if path else key
             if key not in actual:
                 out.append(f"{here}: not rendered")

@@ -176,10 +176,12 @@ CASES = [
     # Judged against the design-time baseline — the composition CR-1 was designed against, not the
     # one containing its own output. Getting this wrong makes every assigned identity collide.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 81, 5, "design"),
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 87, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
-         "BINDING_NODE_UNDECLARED",
+         "BINDING_STEP_OWNER_UNDECLARED",
+         "BINDING_STEP_OWNER_UNDECLARED",
+         "BINDING_STEP_OWNER_UNDECLARED",
          "COMPOSITION_CC_UNDECLARED",
          "CONTRACT_WITHOUT_COMPOSITION",
          "INTERFACE_ARTIFACT_UNDECLARED",
@@ -190,7 +192,7 @@ CASES = [
          "STORE_WITHOUT_PROPOSED_PATH",
          "TOPOLOGY_NODE_UNDECLARED",
          "TOPOLOGY_NODE_UNDECLARED",
-     ], 81, 4, "design"),
+     ], 87, 4, "design"),
     # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
     # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
     # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
@@ -237,7 +239,7 @@ CASES = [
          "INTERFACE_ARTIFACT_UNDECLARED",
          "INTERFACE_ARTIFACT_UNDECLARED",
          "PROVISIONAL_CODE_NEVER_BOUND",
-     ], 81, 4, "design"),
+     ], 87, 4, "design"),
     # The last two handoffs. P4's consolidation loses a decision P3 committed to; P7 drops a reused
     # artifact P6 declared a dependency satisfied by. The second fires two rules on one edit — an
     # artifact that is inventoried is also composed, so removing it is visible from both directions.
@@ -251,7 +253,7 @@ CASES = [
      "33_p7_inadmissible_dropped_reuse.json", "INADMISSIBLE", [
          "COMPOSITION_STEP_UNDECLARED",
          "SATISFIED_DEPENDENCY_NOT_INVENTORIED",
-     ], 81, 4, "design"),
+     ], 87, 4, "design"),
     # The other face of reconciliation: an artifact the design declared that the mandate schedules
     # nowhere. CR-1's own mandate carried this defect until the dossier was completed, so the
     # corpus has to carry it now — it is the one the P7↔P8 rule was built for.

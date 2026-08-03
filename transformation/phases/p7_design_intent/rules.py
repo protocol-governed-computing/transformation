@@ -295,6 +295,19 @@ COMPLETENESS_RULES: list[Rule] = [
         intent="a workflow with no declared graph is a workflow construction would have to invent",
     ),
     Rule(
+        id="WORKFLOW_WITHOUT_RUNTIME_BINDING",
+        check="REGISTER_COVERS_REGISTER",
+        register="rb_declarations",
+        params={
+            "source_register": "new_artifacts",
+            "source_column": "Code",
+            "column": "Binds WF",
+            "only_when_column": "Family",
+            "only_when_value": "WF",
+        },
+        intent="a workflow with no runtime binding cannot resolve the capabilities it composes",
+    ),
+    Rule(
         id="CONTRACT_WITHOUT_COMPOSITION",
         check="REGISTER_COVERS_REGISTER",
         register="cc_composition",
@@ -340,16 +353,16 @@ COMPLETENESS_RULES: list[Rule] = [
 # a spelling variant is a second artifact, not a synonym.
 INTERFACE_RULES: list[Rule] = [
     Rule(
-        id="BINDING_NODE_UNDECLARED",
+        id="BINDING_STEP_OWNER_UNDECLARED",
         check="CELL_RESOLVES_IN_REGISTER",
-        register="node_bindings",
+        register="step_bindings",
         params={
-            "column": "Node",
+            "column": "Owner",
             "target_registers": ["new_artifacts", "existing_inventory"],
             "target_column": "Code",
             "target_columns": ["Code", "FQDN"],
         },
-        intent="a binding is declared for a node this design assigned, never for an invented one",
+        intent="a binding belongs to a workflow or contract this design declared",
     ),
     Rule(
         id="INTERFACE_ARTIFACT_UNDECLARED",
@@ -376,7 +389,7 @@ INTERFACE_RULES: list[Rule] = [
     Rule(
         id="BINDING_WITHOUT_SOURCE",
         check="CELL_NOT_EMPTY",
-        register="node_bindings",
+        register="step_bindings",
         params={
             "column": "Bound To",
             "detail": "field is bound to nothing — construction would have to choose a source",

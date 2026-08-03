@@ -108,6 +108,7 @@ core:
             - actors
             - analysis_findings
             - architectural_observations
+            - artifact_properties
             - artifact_summary
             - assumptions
             - authoring_decisions
@@ -158,7 +159,6 @@ core:
             - new_artifacts
             - new_capabilities
             - new_intents
-            - node_bindings
             - open_questions
             - out_of_scope
             - ownership
@@ -173,6 +173,7 @@ core:
             - resources
             - saturation
             - scope_boundary
+            - step_bindings
             - storage_governance
             - structure_stores
             - subdomain_purpose
@@ -245,6 +246,7 @@ core:
             - Capability
             - Family
             - Code
+            - Summary
             - Owner Subdomain
             - Status
             - Source Finding
@@ -396,11 +398,14 @@ core:
             columns:
             - CC Code
             - Step
+            - Step Name
             - Capability
             - Kind
             - Operation
+            - Store
             - Consumes
             - Produces
+            - Routing
             - Interpreted By
             - Semantic Status
             - Interface
@@ -416,29 +421,39 @@ core:
           intent: Kind is a controlled vocabulary declared by the template
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: node_bindings
+          register: step_bindings
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: node_bindings
+          register: step_bindings
           params:
             columns:
-            - Workflow
-            - Node
+            - Owner
+            - Step
+            - Direction
             - Field
             - Bound To
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: step_bindings
+          params:
+            column: Direction
+            vocabulary:
+            - INPUT
+            - OUTPUT
+          intent: Direction is a controlled vocabulary declared by the template
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
-          register: node_bindings
+          register: step_bindings
           params:
             column: Source Finding
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
-          register: node_bindings
+          register: step_bindings
           params:
             column: Source Finding
             known_registers: *id001
@@ -545,6 +560,39 @@ core:
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
           register: vocabulary_extensions
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: artifact_properties
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: artifact_properties
+          params:
+            columns:
+            - Artifact
+            - Property
+            - Value
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: artifact_properties
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: artifact_properties
           params:
             column: Source Finding
             known_registers: *id001
@@ -803,6 +851,16 @@ core:
             only_when_column: Family
             only_when_value: WF
           intent: a workflow with no declared graph is a workflow construction would have to invent
+        - id: WORKFLOW_WITHOUT_RUNTIME_BINDING
+          check: REGISTER_COVERS_REGISTER
+          register: rb_declarations
+          params:
+            source_register: new_artifacts
+            source_column: Code
+            column: Binds WF
+            only_when_column: Family
+            only_when_value: WF
+          intent: a workflow with no runtime binding cannot resolve the capabilities it composes
         - id: CONTRACT_WITHOUT_COMPOSITION
           check: REGISTER_COVERS_REGISTER
           register: cc_composition
@@ -834,11 +892,11 @@ core:
             only_when_column: Family
             only_when_value: VOCAB
           intent: a vocabulary that declares no value admits nothing
-        - id: BINDING_NODE_UNDECLARED
+        - id: BINDING_STEP_OWNER_UNDECLARED
           check: CELL_RESOLVES_IN_REGISTER
-          register: node_bindings
+          register: step_bindings
           params:
-            column: Node
+            column: Owner
             target_registers:
             - new_artifacts
             - existing_inventory
@@ -846,7 +904,7 @@ core:
             target_columns:
             - Code
             - FQDN
-          intent: a binding is declared for a node this design assigned, never for an invented one
+          intent: a binding belongs to a workflow or contract this design declared
         - id: INTERFACE_ARTIFACT_UNDECLARED
           check: CELL_RESOLVES_IN_REGISTER
           register: interface_fields
@@ -869,7 +927,7 @@ core:
           intent: a declared implementation says where it lives
         - id: BINDING_WITHOUT_SOURCE
           check: CELL_NOT_EMPTY
-          register: node_bindings
+          register: step_bindings
           params:
             column: Bound To
             detail: field is bound to nothing — construction would have to choose a source

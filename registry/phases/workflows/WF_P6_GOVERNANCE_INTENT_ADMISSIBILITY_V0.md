@@ -131,6 +131,7 @@ core:
             - actors
             - analysis_findings
             - architectural_observations
+            - artifact_properties
             - artifact_summary
             - assumptions
             - authoring_decisions
@@ -181,7 +182,6 @@ core:
             - new_artifacts
             - new_capabilities
             - new_intents
-            - node_bindings
             - open_questions
             - out_of_scope
             - ownership
@@ -196,6 +196,7 @@ core:
             - resources
             - saturation
             - scope_boundary
+            - step_bindings
             - storage_governance
             - structure_stores
             - subdomain_purpose

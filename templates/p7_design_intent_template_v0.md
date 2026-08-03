@@ -148,8 +148,8 @@ binding codes belong. Existing artifacts are cited by their real FQDN in `fqdn` 
 `owner_subdomain` is the owning subdomain; `source_finding` traces to the S6 ownership / S4 gap.*
 
 <!-- register:new_artifacts business_language=capability -->
-| Capability | Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE) | Code | Owner Subdomain | Status | Source Finding |
-|------------|------------------------------------------------|------|-----------------|--------|----------------|
+| Capability | Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE) | Code | Summary | Owner Subdomain | Status | Source Finding |
+|------------|------------------------------------------------|------|---------|-----------------|--------|----------------|
 
 ---
 
@@ -194,25 +194,29 @@ the CC keeps its business vocabulary. Syntax: `in: <ct_formal>=<cc_local>, …; 
 (e.g. `in: left=predecessor_hash, right=current_head; out: is_equal=is_match`). CS steps leave it blank.*
 
 <!-- register:cc_composition optional -->
-| CC Code | Step | Capability | Kind (CT, CS) | Operation | Consumes | Produces | Interpreted By | Semantic Status | Interface |
-|---------|------|------------|---------------|-----------|----------|----------|----------------|-----------------|-----------|
+| CC Code | Step | Step Name | Capability | Kind (CT, CS) | Operation | Store | Consumes | Produces | Routing | Interpreted By | Semantic Status | Interface |
+|---------|------|-----------|------------|---------------|-----------|-------|----------|----------|---------|----------------|-----------------|-----------|
 
 ---
 
-## 7. Node Input Bindings
+## 7. Step Bindings
 
-*What each workflow node is handed, and where it comes from. A node whose inputs are undeclared is a
-node construction must invent bindings for, and an invented binding is a design decision taken
-outside the gate.*
+*What each workflow node and each contract step is handed, and where its results go. A step whose
+bindings are undeclared is one construction must invent bindings for, and an invented binding is a
+design decision taken outside the gate.*
+
+*`owner` is the workflow or capability contract; `step` is its node or step name. A workflow node
+takes INPUT bindings only; a contract step takes both, because its outputs are named for later steps
+and for the contract's own surface.*
 
 *`bound_to` is declarative, never an expression: `payload.<field>` names a field of the starting
 intent, `<node>.<field>` names an earlier node's output in this same workflow, and a bare literal is
 a constant the design fixes (an operation name, a status). Rendering that into `$.payload.x` is
 construction's business — the design states the source, not the syntax.*
 
-<!-- register:node_bindings optional -->
-| Workflow | Node | Field | Bound To | Source Finding |
-|----------|------|-------|----------|----------------|
+<!-- register:step_bindings optional -->
+| Owner | Step | Direction (INPUT, OUTPUT) | Field | Bound To | Source Finding |
+|-------|------|--------------------------|-------|----------|----------------|
 
 ---
 
@@ -259,7 +263,19 @@ together or the composition compiles with a status nothing recognizes.*
 
 ---
 
-## 11. STRUCTURE Stores
+## 11. Artifact Properties
+
+*Scalar facts a family declares that no other register carries — an actor's `type` today. A property
+that recurs across families has stopped being family-specific and earns its own register; this one
+exists so that a single scalar does not.*
+
+<!-- register:artifact_properties optional -->
+| Artifact | Property | Value | Source Finding |
+|----------|----------|-------|----------------|
+
+---
+
+## 12. STRUCTURE Stores
 
 *New entity stores. `storage_type` selects the CS substrate; `proposed_path` is the declared store path (governance concern — never hardcoded later); `used_by` names the writing CC (its owning subdomain only).*
 
@@ -269,7 +285,7 @@ together or the composition compiles with a status nothing recognizes.*
 
 ---
 
-## 12. Artifact Summary
+## 13. Artifact Summary
 
 *Artifact count by action type, for Stage 7 input. The oracle reconciles: the NEW counts here MUST equal the rows of `new_artifacts`. `artifacts` lists the codes for that action.*
 
