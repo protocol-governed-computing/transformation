@@ -273,12 +273,9 @@ def _edges(routing: str) -> dict:
 
 def _contract(m, code, short, summary, sub, p7, p8):
     steps = [r for r in rows(p7, "cc_composition") if bare(cell(r, "CC Code")) == short]
-    statuses, pipeline = ["SUCCESS"], []
+    pipeline = []
     for r in steps:
         pipeline.append(_step(p7, short, r))
-        semantic = cell(r, "Semantic Status")
-        if semantic and semantic not in statuses and semantic != "—":
-            statuses.append(semantic)
         interpreter = cell(r, "Interpreted By")
         if interpreter not in ("", "—", "-"):
             # The interpretation is a step of its own; the register folds it into the row it
@@ -286,12 +283,12 @@ def _contract(m, code, short, summary, sub, p7, p8):
             name = _interpret_step(p7, short, r)
             pipeline.append(_step(p7, short, r, interpreter=interpreter, name=name,
                                   last=r is steps[-1]))
+    statuses = _exit_statuses(pipeline)
     m["core"] = {
         "summary": summary,
         "inputs": typed_fields(p7, code, "INPUT"),
         "outputs": typed_fields(p7, code, "OUTPUT"),
-        "result_status_contract": {"allowed": statuses + ["VIOLATION", "BACKEND_ERROR"],
-                                   "on_input_failure": "VIOLATION"},
+        "result_status_contract": {"allowed": statuses, "on_input_failure": "VIOLATION"},
         "pipeline": pipeline,
     }
 
@@ -328,6 +325,27 @@ def _step(p7: dict, owner: str, r: dict, interpreter: str = "", name: str = "",
     if routing:
         out["result_surface"] = list(routing)
         out["on_result"] = routing
+    return out
+
+
+def _exit_statuses(pipeline: list[dict]) -> list[str]:
+    """Every status that can exit the contract, which is what its surface must contract for.
+
+    Derived from the routing rather than from `Semantic Status`. The two are not the same set — a
+    step's own operation can exit on a status the design never named semantically, and
+    `ASSERT_TOPOLOGY_CONTRACT_CLOSED_V0` requires the contract to be closed over *exits*: an
+    uncontracted exit and an unreachable contracted code are both violations. Deriving from the
+    semantic column produced exactly the first when a READ began exiting on NOT_FOUND.
+
+    A last step routing `continue` exits the contract too — there is nothing left to continue to.
+    """
+    out: list[str] = []
+    for i, step in enumerate(pipeline):
+        last = i == len(pipeline) - 1
+        for outcome, target in (step.get("on_result") or {}).items():
+            if target == "exit" or (last and target == "continue"):
+                if outcome not in out:
+                    out.append(outcome)
     return out
 
 
