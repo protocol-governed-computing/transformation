@@ -22,7 +22,7 @@ from typing import Any, Dict
 
 from runtime.ct_executor import CTExecutionError
 
-from transformation.construction.render import render_all
+from transformation.construction.render import render_all, render_document
 
 
 def _registers(parsed: list) -> Dict[str, list]:
@@ -39,6 +39,7 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
 
     Outputs:
         artifacts (list): one entry per artifact, each {path, domain, machine}
+        documents (list): the same artifacts as {path, text} — what persistence is handed
         artifact_count (int): how many were rendered
     """
     for required in ("design_registers", "mandate_registers"):
@@ -58,5 +59,8 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
     return {
         "artifacts": [{"path": a["path"], "domain": a["domain"], "machine": a["machine"]}
                       for a in artifacts],
+        # Rendering the document here rather than in a second transform keeps one derivation: the
+        # machine block and the document that carries it cannot disagree if one produced both.
+        "documents": [{"path": a["path"], "text": render_document(a)} for a in artifacts],
         "artifact_count": len(artifacts),
     }

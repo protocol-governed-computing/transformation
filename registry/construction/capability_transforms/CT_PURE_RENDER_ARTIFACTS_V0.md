@@ -67,6 +67,10 @@ core:
       type: array
       required: true
       description: One entry per artifact — path, domain, and the Machine block
+    documents:
+      type: array
+      required: true
+      description: The same artifacts as {path, text} — what persistence is handed
     artifact_count:
       type: integer
       required: true

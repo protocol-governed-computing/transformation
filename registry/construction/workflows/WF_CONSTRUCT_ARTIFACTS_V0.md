@@ -57,7 +57,7 @@ artifact_kind: WORKFLOW
 version: v0
 governed_by: fb.workflow::CONSTITUTION_WORKFLOW_V0
 
-runtime_binding: transformation::RB_TRANSFORMATION_BINDINGS_V0
+runtime_binding: transformation::RB_CONSTRUCTION_BINDINGS_V0
 subdomain: construction
 structure: fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0
 
@@ -83,8 +83,18 @@ core:
         mandate_text: $.payload.mandate_text
         threshold: $.payload.threshold
       next:
-        SUCCESS: EXIT_CONSTRUCTED
+        SUCCESS: CC_PERSIST_ARTIFACTS_V0
         VIOLATION: EXIT_REFUSED
+        BACKEND_ERROR: EXIT_REJECTED
+
+    CC_PERSIST_ARTIFACTS_V0:
+      type: CC
+      code: CC_PERSIST_ARTIFACTS_V0
+      inputs:
+        documents: $.results.CC_CONSTRUCT_ARTIFACTS_V0.documents
+      next:
+        SUCCESS: EXIT_CONSTRUCTED
+        VIOLATION: EXIT_REJECTED
         BACKEND_ERROR: EXIT_REJECTED
 
     EXIT_CONSTRUCTED:

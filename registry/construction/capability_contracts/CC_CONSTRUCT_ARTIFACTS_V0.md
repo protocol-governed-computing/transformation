@@ -79,6 +79,8 @@ core:
   outputs:
     artifacts:
       type: array
+    documents:
+      type: array
     artifact_count:
       type: integer
     completeness:
@@ -137,6 +139,7 @@ core:
       mandate_registers: $.results.parse_mandate.capability_result.registers
     outputs:
       artifacts: $.capability_result.artifacts
+      documents: $.capability_result.documents
       artifact_count: $.capability_result.artifact_count
     result_surface:
     - SUCCESS

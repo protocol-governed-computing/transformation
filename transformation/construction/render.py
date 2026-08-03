@@ -427,3 +427,57 @@ _BUILDERS = {
     "IN": _intent, "WF": _workflow, "CC": _contract, "CT": _transform,
     "AC": _actor, "VOCAB": _vocabulary, "STRUCTURE": _structure, "RB": _binding_artifact,
 }
+
+
+# Document rendering ---------------------------------------------------------------------------
+#
+# The Machine block is what the compiler reads, but an artifact is a *document*, and a document a
+# human opens needs a header stating what it is. Every header field is determined — the code, the
+# family, the constitution that governs it, the version — so rendering it invents nothing.
+#
+# What construction does **not** write is narrative. An artifact's rationale is human reasoning no
+# register determines, and a generator that produced it would be authoring documentation nobody
+# committed to and overwriting it on every rebuild. The document carries its declared summary and
+# stops there; a reader who wants the reasoning reads the dossier that produced it.
+
+HEADER_KIND = {
+    "ACTOR": "actor", "INTENT": "intent", "WORKFLOW": "workflow",
+    "CAPABILITY_CONTRACT": "capability_contract", "CAPABILITY_TRANSFORM": "capability_transform",
+    "RUNTIME_BINDING": "runtime_binding", "VOCABULARY": "vocabulary", "STRUCTURE": "structure",
+}
+
+
+def render_document(artifact: dict) -> str:
+    """One artifact as the Markdown document the compiler ingests."""
+    import yaml
+
+    machine = artifact["machine"]
+    code = bare(machine["fqdn"])
+    kind = machine["artifact_kind"]
+    constitution = bare(machine["governed_by"])
+    summary = (machine.get("core") or {}).get("summary", "")
+
+    body = yaml.dump(machine, sort_keys=False, width=100, allow_unicode=True,
+                     default_flow_style=False)
+    return (
+        f"# {code}\n\n"
+        "## Header (Mandatory)\n\n"
+        f"- **Artifact Code:** {code}\n"
+        f"- **Artifact Kind:** {HEADER_KIND.get(kind, kind.lower())}\n"
+        f"- **Governed By:** {constitution}\n"
+        f"- **Version:** {machine.get('version', 'v0').upper()}\n"
+        "- **Status:** draft\n"
+        "- **Supersedes:** NONE\n\n"
+        "---\n\n"
+        "## 1. Intent\n\n"
+        f"{summary}\n\n"
+        "---\n\n"
+        "## Machine\n\n"
+        "```yaml\n"
+        f"{body}```\n"
+    )
+
+
+def render_documents(p7: dict, p8: dict) -> list[dict]:
+    """Every scheduled artifact as `{path, text}` — what persistence is handed."""
+    return [{"path": a["path"], "text": render_document(a)} for a in render_all(p7, p8)]
