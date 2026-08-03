@@ -263,7 +263,22 @@ together or the composition compiles with a status nothing recognizes.*
 
 ---
 
-## 11. Artifact Properties
+## 11. Runtime Policies
+
+*The per-capability configuration a runtime binding carries. `dispatcher.py` resolves
+`rb_policy[rb][capability]["policy"]` at execution, so this is what an RB *is* — the workflow that
+binds it is a separate fact, declared on the workflow in §4.*
+
+*A capability listed in `rb_declarations` with no row here binds with an empty policy, which is a
+declaration that it needs no configuration rather than an omission.*
+
+<!-- register:runtime_policies optional -->
+| RB Code | Capability | Key | Value | Source Finding |
+|---------|------------|-----|-------|----------------|
+
+---
+
+## 12. Artifact Properties
 
 *Scalar facts a family declares that no other register carries — an actor's `type` today. A property
 that recurs across families has stopped being family-specific and earns its own register; this one
@@ -275,7 +290,7 @@ exists so that a single scalar does not.*
 
 ---
 
-## 12. STRUCTURE Stores
+## 13. STRUCTURE Stores
 
 *New entity stores. `storage_type` selects the CS substrate; `proposed_path` is the declared store path (governance concern — never hardcoded later); `used_by` names the writing CC (its owning subdomain only).*
 
@@ -285,7 +300,7 @@ exists so that a single scalar does not.*
 
 ---
 
-## 13. Artifact Summary
+## 14. Artifact Summary
 
 *Artifact count by action type, for Stage 7 input. The oracle reconciles: the NEW counts here MUST equal the rows of `new_artifacts`. `artifacts` lists the codes for that action.*
 

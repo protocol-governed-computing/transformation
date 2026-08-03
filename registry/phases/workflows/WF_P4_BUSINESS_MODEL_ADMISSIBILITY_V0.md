@@ -179,6 +179,7 @@ core:
             - relationships
             - requested_outcomes
             - resources
+            - runtime_policies
             - saturation
             - scope_boundary
             - step_bindings

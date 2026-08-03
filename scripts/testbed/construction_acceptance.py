@@ -63,10 +63,18 @@ def built(registry: Path) -> dict[str, dict]:
     return out
 
 
-# Keys that are documentation even inside the Machine block. The built corpus carries a field
-# description on some fields and not others, which is what documentation looks like — a governed
-# fact would be present or absent by rule, not by whether the author felt like writing one.
-DOCUMENTATION = {"description"}
+# Keys that are documentation even inside the Machine block. Two tests decide membership, and both
+# are empirical rather than aesthetic:
+#
+#   nothing consumes it   `isolation`, `resolution`, `storage_roots` and `extensions` appear in no
+#                         compiler, assembler or runtime read path. `isolation.rules` restates in
+#                         prose what `entity_stores` already says structurally.
+#   it varies by author   the built corpus carries a field `description` on some fields and not
+#                         others; a governed fact is present or absent by rule.
+#
+# A key that something reads is governed however prose-like it looks — `parameters` on a runtime
+# binding is a list of names an assertion checks, so it stays in.
+DOCUMENTATION = {"description", "isolation", "resolution", "storage_roots", "extensions"}
 
 
 def diff(expected, actual, path: str = "") -> list[str]:

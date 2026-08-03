@@ -171,6 +171,7 @@ core:
             - relationships
             - requested_outcomes
             - resources
+            - runtime_policies
             - saturation
             - scope_boundary
             - step_bindings
@@ -560,6 +561,40 @@ core:
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
           register: vocabulary_extensions
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: runtime_policies
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: runtime_policies
+          params:
+            columns:
+            - RB Code
+            - Capability
+            - Key
+            - Value
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: runtime_policies
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: runtime_policies
           params:
             column: Source Finding
             known_registers: *id001

@@ -1,0 +1,62 @@
+"""
+CT_PURE_RENDER_ARTIFACTS_V0
+
+Pure Capability Transform (Atom)
+
+Purpose:
+    Render every protocol artifact a mandate schedules, from the design that determines it.
+
+Implementation:
+    - Renders the whole mandate in one call: a capability contract is a fixed pipeline with no
+      iteration, so a step that rendered one artifact could never render twenty-five
+    - Emits the Machine block, which is what the compiler reads, the snapshot seals and the runtime
+      executes; an artifact's prose is human narrative no register determines
+    - Invents nothing. Every value comes from a register or a constitution-fixed default, and the
+      completeness gate ahead of this step is what guarantees there is nothing left to invent
+    - No side effects, no external state
+
+Purity Class: ct_pure
+"""
+
+from typing import Any, Dict
+
+from runtime.ct_executor import CTExecutionError
+
+from transformation.construction.render import render_all
+
+
+def _registers(parsed: list) -> Dict[str, list]:
+    return {entry["id"]: entry.get("rows") or [] for entry in parsed or []}
+
+
+def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
+    """
+    Execute CT_PURE_RENDER_ARTIFACTS_V0.
+
+    Inputs:
+        design_registers (list): parsed P7 registers
+        mandate_registers (list): parsed P8 registers
+
+    Outputs:
+        artifacts (list): one entry per artifact, each {path, domain, machine}
+        artifact_count (int): how many were rendered
+    """
+    for required in ("design_registers", "mandate_registers"):
+        if required not in inputs:
+            raise CTExecutionError(
+                f"CT_PURE_RENDER_ARTIFACTS_V0: missing required input {required!r}"
+            )
+
+    artifacts = render_all(_registers(inputs["design_registers"]),
+                           _registers(inputs["mandate_registers"]))
+    if not artifacts:
+        raise CTExecutionError(
+            "CT_PURE_RENDER_ARTIFACTS_V0: the mandate schedules no artifact this design declares — "
+            "a construction that emits nothing is a reconciliation failure, not an empty build"
+        )
+
+    return {
+        "artifacts": [{"path": a["path"], "domain": a["domain"], "machine": a["machine"]}
+                      for a in artifacts],
+        "artifact_count": len(artifacts),
+    }

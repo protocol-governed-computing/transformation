@@ -108,6 +108,44 @@ def _literal(value: str) -> Any:
         return value
 
 
+def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
+    """Every fact construction needs, and whether the design supplies it.
+
+    Derived rather than declared: the requirement list *is* the shape the renderer emits, walked
+    leaf by leaf. A hand-maintained list drifts from the renderer the moment either changes, and it
+    did — it read 100% while the generator could reproduce one artifact in twenty-five, because it
+    asked whether a contract declared a pipeline and never whether each step declared its store.
+
+    A leaf that comes out empty is a leaf the design did not determine — unless the design said so.
+    An empty policy and an undeclared one look identical in the output, so the difference has to be
+    a declaration: a capability with an explicit "no configuration" row is determined, one that is
+    simply absent from `runtime_policies` is not.
+    """
+    out: list[tuple[str, str, bool]] = []
+    for artifact in render_all(p7, p8):
+        code = bare(artifact["machine"]["fqdn"])
+        declared_empty = set(artifact.get("declared_empty") or ())
+        for path, value in _leaves(artifact["machine"]):
+            out.append((code, path, not _empty(value) or path in declared_empty))
+    return out
+
+
+def _leaves(value: Any, path: str = ""):
+    """Every leaf of a rendered machine block, addressed by dotted path."""
+    if isinstance(value, dict) and value:
+        for key, item in value.items():
+            yield from _leaves(item, f"{path}.{key}" if path else key)
+    elif isinstance(value, list) and value:
+        for i, item in enumerate(value):
+            yield from _leaves(item, f"{path}[{i}]")
+    else:
+        yield path, value
+
+
+def _empty(value: Any) -> bool:
+    return value is None or value == "" or value == {} or value == []
+
+
 def render_all(p7: dict, p8: dict) -> list[dict]:
     """Every artifact the mandate schedules, in build order, as `{path, machine}`.
 
@@ -127,17 +165,22 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
         fam = family.get(short)
         if fam not in KIND:
             continue
-        machine = _render(fam, code, short, summary.get(short, ""), subdomain.get(short, ""), p7, p8)
+        declared_empty: list[str] = []
+        machine = _render(fam, code, short, summary.get(short, ""), subdomain.get(short, ""),
+                          p7, p8, declared_empty)
         domain = norm(code).split("::")[0]
         out.append({
             "path": f"registry/{subdomain.get(short, '')}/{DIRECTORY[fam]}/{short}.md",
             "domain": domain,
             "machine": machine,
+            # Leaves the design deliberately left empty, so a measurement can tell a declared
+            # "nothing here" from an omission.
+            "declared_empty": declared_empty,
         })
     return out
 
 
-def _render(fam, code, short, summary, sub, p7, p8) -> dict:
+def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict:
     machine: dict[str, Any] = {
         "fqdn": code,
         "artifact_kind": KIND[fam],
@@ -145,7 +188,10 @@ def _render(fam, code, short, summary, sub, p7, p8) -> dict:
         "governed_by": GOVERNED_BY[fam],
     }
     builder = _BUILDERS[fam]
-    builder(machine, code, short, summary, sub, p7, p8)
+    if fam == "RB":
+        builder(machine, code, short, summary, sub, p7, p8, declared_empty)
+    else:
+        builder(machine, code, short, summary, sub, p7, p8)
     return machine
 
 
@@ -337,17 +383,43 @@ def _structure(m, code, short, summary, sub, p7, p8):
     props = _properties(p7, code)
     m["core"] = {"summary": summary, "layer": props.pop("layer", "DOMAINS"),
                  "domain": norm(code).split("::")[0], "subdomain": sub,
-                 "storage_roots": {"base_path": props.pop("base_path", "")},
                  "entity_stores": stores, **props}
 
 
-def _binding_artifact(m, code, short, summary, sub, p7, p8):
+def _binding_artifact(m, code, short, summary, sub, p7, p8, declared_empty=None):
+    """A runtime binding as the runtime reads it.
+
+    `dispatcher.py` resolves `rb_policy[rb][cs]["policy"]` at execution, so the bindings map is
+    keyed by capability side effect, not by workflow. Which workflow binds which RB is a different
+    fact and lives on the workflow, where `rb_declarations.Binds WF` puts it.
+    """
     decls = [r for r in rows(p7, "rb_declarations") if bare(cell(r, "RB Code")) == short]
     structure = next((cell(r, "Storage Structure") for r in decls), "")
+
+    policies: dict[str, dict] = {}
+    for r in rows(p7, "runtime_policies"):
+        if bare(cell(r, "RB Code")) != short:
+            continue
+        capability = cell(r, "Capability")
+        key = cell(r, "Key")
+        # A row whose key is the none-marker declares that this capability needs no configuration,
+        # which is a different statement from having no row at all.
+        policies.setdefault(capability, {})
+        if key not in ("—", "-", ""):
+            policies[capability][key] = cell(r, "Value")
+        elif declared_empty is not None:
+            declared_empty.append(f"core.bindings.{capability}.policy")
+
     bindings = {}
     for r in decls:
-        wf = bare(cell(r, "Binds WF"))
-        bindings[wf] = [s.strip() for s in cell(r, "CS Bindings").split(",") if s.strip()]
+        for capability in (s.strip() for s in cell(r, "CS Bindings").split(",")):
+            if capability:
+                bindings[capability] = {"policy": policies.get(capability, {})}
+
+    props = _properties(p7, code)
+    parameters = props.pop("parameters", "")
+    if parameters:
+        m["parameters"] = [p.strip() for p in str(parameters).split(",") if p.strip()]
     m["core"] = {"summary": summary, "storage_structure": structure, "bindings": bindings}
 
 

@@ -305,20 +305,27 @@
 
 ---
 
-## 11. Artifact Properties
+## 11. Runtime Policies
+
+<!-- register:runtime_policies -->
+| RB Code | Capability | Key | Value | Source Finding |
+|---------|------------|-----|-------|----------------|
+| book_library_mgmt::RB_CATALOG_BINDINGS_V0 | capability_side_effects::CS_MUTABLE_JSON_V0 | path | {{module_data_root}}/book_library_mgmt/catalog/bibliographic_works.json | S6 storage_governance Bibliographic work records |
+
+---
+
+## 12. Artifact Properties
 
 <!-- register:artifact_properties -->
 | Artifact | Property | Value | Source Finding |
 |----------|----------|-------|----------------|
 | book_library_mgmt::AC_LIBRARY_STAFF_V0 | type | person | S6 ownership Confirm the staff member is authorized |
 | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 | layer | DOMAINS | S6 storage_governance Bibliographic work records |
-| book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 | base_path | {{module_data_root}} | S6 storage_governance Bibliographic work records |
-| book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 | resolution | subdomain_scoped | S6 storage_governance Bibliographic work records |
-| book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 | isolation | strict | S6 storage_governance Bibliographic work records |
+| book_library_mgmt::RB_CATALOG_BINDINGS_V0 | parameters | module_data_root | S6 storage_governance Bibliographic work records |
 
 ---
 
-## 12. Structure Stores
+## 13. Structure Stores
 
 <!-- register:structure_stores -->
 | Store Name | Storage Type | Proposed Path | Used By | Source Finding |
@@ -328,7 +335,7 @@
 | CATALOG_OPERATIONS | CS_APPENDONLY_JSONL_V0 | book_library_mgmt/catalog/catalog_operations.jsonl | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | S6 storage_governance Catalog operation journal |
 | CATALOG_STAFF | CS_MUTABLE_JSON_V0 | book_library_mgmt/catalog/catalog_staff.json | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | S6 storage_governance Bibliographic work records |
 
-## 13. Artifact Summary
+## 14. Artifact Summary
 
 <!-- register:artifact_summary -->
 | Action | Subdomain | Count | Artifacts |

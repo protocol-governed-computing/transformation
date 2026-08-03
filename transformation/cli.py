@@ -15,6 +15,7 @@ from transformation.baseline import Baseline, BaselineMismatch, observe, verify
 from transformation.phases.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
+from transformation.construction.completeness import measure
 from transformation.phases.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.phases.oracle import evaluate
 from transformation.phases.read import read_seed
@@ -285,6 +286,67 @@ def phase_list() -> None:
         if spec.gate:
             click.echo(f"       {spec.gate}")
         click.echo()
+
+
+@main.group()
+def construction() -> None:
+    """The Construction lifecycle — is a design ready to build from?"""
+
+
+@construction.command("check")
+@click.argument("dossier", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option("--require", "threshold", type=float, default=100.0, show_default=True,
+              help="Minimum Construction Completeness; below it the design is refused.")
+@click.option("--json", "as_json", is_flag=True, help="Emit the measurement as JSON.")
+def construction_check(dossier: Path, threshold: float, as_json: bool) -> None:
+    """Measure whether a design uniquely determines the artifacts it specifies.
+
+    `tc phase check` admits a document against a rule set; this admits a *design* to construction.
+    A fact the design does not state is a fact the generator would have to invent, and a generator
+    that invents design is a second, ungoverned design authority — so the default threshold is 100
+    and anything less is a refusal.
+
+    Exit 0 if the threshold is met, 1 otherwise.
+    """
+    p7 = _dossier_registers(dossier, "p7")
+    p8 = _dossier_registers(dossier, "p8")
+    result = measure(p7, p8)
+
+    if as_json:
+        click.echo(json.dumps({
+            "completeness": round(result.percentage, 2),
+            "determined": result.determined,
+            "required": result.total,
+            "undetermined": dict(result.undetermined),
+        }, indent=2))
+    else:
+        click.echo(f"{dossier.name} — {len(result.by_artifact)} artifact(s), "
+                   f"{result.total} required fact(s)\n")
+        for code, facts in sorted(result.by_artifact.items()):
+            missing = [path for path, ok in facts if not ok]
+            mark = "OK  " if not missing else "GAP "
+            click.echo(f"  {mark} {code:<44} {len(facts) - len(missing)}/{len(facts)}"
+                       + (f"   {', '.join(missing[:3])}" if missing else ""))
+        click.echo(f"\n  Construction Completeness  {result.percentage:.1f}%"
+                   f"   ({result.determined}/{result.total} determined)")
+        for name, n in result.undetermined.most_common():
+            click.echo(f"    {n:>3}  {name}")
+
+    sys.exit(0 if result.meets(threshold) else 1)
+
+
+def _dossier_registers(dossier: Path, phase_key: str) -> dict:
+    """A dossier phase document's registers, as the plain rows construction reads."""
+    matches = sorted(dossier.glob(f"{phase_key}_*.md"))
+    if not matches:
+        raise click.ClickException(f"{dossier} carries no {phase_key} document")
+    doc = read_seed(matches[0])
+    out: dict[str, list[dict]] = {}
+    for entry in doc.registers:
+        block = doc.register(entry["id"])
+        if block and block.table:
+            out[entry["id"]] = block.table.rows
+    return out
 
 
 @main.group()
