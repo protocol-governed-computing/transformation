@@ -12,24 +12,24 @@ from pathlib import Path
 import click
 
 from transformation.baseline import Baseline, BaselineMismatch, observe, verify
-from transformation.phases.checks import kinds as check_kinds
+from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
-from transformation.construction.completeness import measure
-from transformation.phases.merit import PolicyUnavailable, load_policy, rate as rate_merit
-from transformation.phases.oracle import evaluate
-from transformation.phases.read import read_seed
-from transformation.phases.p0_change_seed import rules as p0_rules
-from transformation.phases.p1_change_request import rules as p1_rules
-from transformation.phases.p2_domain_model import rules as p2_rules
-from transformation.phases.p3_analysis_loop import rules as p3_rules
-from transformation.phases.p4_business_model import rules as p4_rules
-from transformation.phases.p5_business_intent import rules as p5_rules
-from transformation.phases.p6_governance_intent import rules as p6_rules
-from transformation.phases.p7_design_intent import rules as p7_rules
-from transformation.phases.p8_authoring_mandate import rules as p8_rules
-from transformation.phases import catalog
-from transformation.phases.template_reader import load as load_template
+from transformation.build.completeness import measure
+from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
+from transformation.design.oracle import evaluate
+from transformation.design.read import read_seed
+from transformation.design.p0_change_seed import rules as p0_rules
+from transformation.design.p1_change_request import rules as p1_rules
+from transformation.design.p2_domain_model import rules as p2_rules
+from transformation.design.p3_analysis_loop import rules as p3_rules
+from transformation.design.p4_business_model import rules as p4_rules
+from transformation.design.p5_business_intent import rules as p5_rules
+from transformation.design.p6_governance_intent import rules as p6_rules
+from transformation.design.p7_design_intent import rules as p7_rules
+from transformation.design.p8_authoring_mandate import rules as p8_rules
+from transformation.design import catalog
+from transformation.design.template_reader import load as load_template
 
 # Rule sets still declared per phase; purpose, question, key rule and purity rung come from the
 # catalogue, which mirrors field manual §4.1 and §4.2.
@@ -74,7 +74,7 @@ def _read_prior(path: Path) -> dict:
 
 
 @click.group()
-@click.version_option(package_name="transformation_compiler")
+@click.version_option(package_name="transformation")
 def main() -> None:
     """PGC transformation compiler — governed change request to authoring mandate."""
 

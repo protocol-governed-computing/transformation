@@ -16,7 +16,7 @@ cd ~/protocol-governed-computing
 
 ~/protocol-governed-computing/protocol_compiler/compile_domain.sh ~/protocol-governed-computing/conformance_workloads/workloads/collatz
 
-~/protocol-governed-computing/protocol_compiler/compile_domain.sh ~/protocol-governed-computing/transformation_compiler
+~/protocol-governed-computing/protocol_compiler/compile_domain.sh ~/protocol-governed-computing/transformation
 
 ~/protocol-governed-computing/protocol_compiler/compile_domain.sh ~/protocol-governed-computing/snapshot_inspector
 
@@ -31,7 +31,7 @@ silently producing a smaller composition. If a compile step is skipped it names 
 ## Check
 
 ```bash
-python ~/protocol-governed-computing/transformation_compiler/scripts/testbed/e2e_phases.py
+python ~/protocol-governed-computing/transformation/scripts/testbed/e2e_phases.py
 
 ~/protocol-governed-computing/protocol_runtime/run.sh run --wf workload::WF_COLLATZ_CONJECTURE_V0 --payload ~/protocol-governed-computing/conformance_workloads/workloads/collatz/test_payloads/01_happy_path.json --data-root ~/protocol-governed-computing/data/collatz
 
@@ -80,7 +80,7 @@ tc phase check --phase p0 <seed.md>
 tc phase check --phase p1 <register.md>
 tc phase check --phase p2 <register.md> --snapshot ~/protocol-governed-computing/snapshot
 
-cd ~/protocol-governed-computing/transformation_compiler && python scripts/testbed/differential.py
+cd ~/protocol-governed-computing/transformation && python scripts/testbed/differential.py
 ```
 
 `tc phase check` is the right loop while authoring a document. Phases through P1 judge a document

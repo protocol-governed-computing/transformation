@@ -1,4 +1,4 @@
-# transformation_compiler
+# transformation
 
 **The governed Change Request → Protocol Artifact pipeline.** A functional rehost of RI-0's
 `pgs_change_mgmt` under pure PGC architecture.
@@ -20,7 +20,7 @@ the other.
 
 ## Build-time tool
 
-`transformation_compiler` is **CLI only** — no TI/TE boundary contract, no Operation Identity, not
+`transformation` is **CLI only** — no TI/TE boundary contract, no Operation Identity, not
 reachable over transport. A boundary contract governs a runtime surface served from a sealed
 snapshot; this tool runs *before* a snapshot exists, its output is authored artifacts a human
 gates, and its only reader is the person driving the change.
@@ -52,7 +52,7 @@ protocol_compiler       source      → compiled projections
 snapshot_assembler      projections → assembled snapshot
 protocol_runtime        snapshot    → execution
 snapshot_inspector      snapshot    → inspection
-transformation_compiler problem     → change request → authoring mandate   (this repo)
+transformation           problem     → change request → authoring mandate   (this repo)
 ```
 
 Every snapshot fact this pipeline needs arrives through

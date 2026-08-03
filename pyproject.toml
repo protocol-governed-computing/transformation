@@ -3,7 +3,7 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "transformation_compiler"
+name = "transformation"
 dynamic = ["version"]
 description = "PGC Transformation Compiler — governed change request to authoring mandate"
 readme = "README.md"
@@ -33,7 +33,7 @@ classifiers = [
 tc = "transformation.cli:main"
 
 [project.urls]
-Repository = "https://github.com/protocol-governed-computing/transformation_compiler"
+Repository = "https://github.com/protocol-governed-computing/transformation"
 
 [tool.setuptools.packages.find]
 where = ["."]

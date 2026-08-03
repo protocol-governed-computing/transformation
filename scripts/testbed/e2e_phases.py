@@ -36,7 +36,7 @@ for _root in (WORKSPACE / "software_governance", WORKSPACE / "conformance_worklo
         sys.path.insert(0, str(_root))
 
 from runtime import api
-from transformation.phases.merit import Merit, load_policy, rate
+from transformation.design.merit import Merit, load_policy, rate
 PAYLOADS = REPO / "testbed" / "phases" / "test_payloads"
 
 # phase, workflow, payload file, expected verdict, expected rule ids, expected rules evaluated,
@@ -278,8 +278,8 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
     decides, and quality is a read over the result. A runtime that scored its own output would be
     asserting an opinion the snapshot never declared.
     """
-    from transformation.phases.oracle import Verdict, Finding
-    from transformation.phases.read import parse_text
+    from transformation.design.oracle import Verdict, Finding
+    from transformation.design.read import parse_text
 
     verdict = Verdict(
         verdict=surface.get("verdict"),
@@ -292,7 +292,7 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
         ],
     )
     text = payload.get("register_text") or payload.get("seed_text") or ""
-    from transformation.phases.evaluate import ParsedDocument
+    from transformation.design.evaluate import ParsedDocument
     header, sections, registers = parse_text(text)
     doc = ParsedDocument(header=header, sections=sections, registers=registers, raw=text, path="")
     return rate(verdict, doc, policy)

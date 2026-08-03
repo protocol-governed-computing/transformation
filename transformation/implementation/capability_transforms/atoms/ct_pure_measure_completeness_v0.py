@@ -21,7 +21,7 @@ from typing import Any, Dict
 
 from runtime.ct_executor import CTExecutionError
 
-from transformation.construction.completeness import measure
+from transformation.build.completeness import measure
 
 
 def _registers(parsed: list) -> Dict[str, list]:

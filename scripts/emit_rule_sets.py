@@ -20,7 +20,7 @@ from pathlib import Path
 import yaml
 
 REPO = Path(__file__).resolve().parents[1]
-WORKFLOWS = REPO / "registry" / "phases" / "workflows"
+WORKFLOWS = REPO / "registry" / "design" / "workflows"
 
 # phase id → the workflow artifact carrying its sealed rule set.
 SEALED_IN = {

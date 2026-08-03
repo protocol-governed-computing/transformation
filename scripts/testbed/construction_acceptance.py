@@ -30,8 +30,8 @@ from pathlib import Path
 
 import yaml
 
-from transformation.construction.render import render_all, bare
-from transformation.phases.read import read_seed
+from transformation.build.render import render_all, bare
+from transformation.design.read import read_seed
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent

@@ -3,7 +3,7 @@
 The rehost claim is that authoring P0 as governed artifacts preserved its behaviour. That is only
 evidence if both paths are actually exercised over the same seeds and compared:
 
-    genesis oracle    rules from transformation.phases.p0_change_seed.rules  (Python declaration)
+    genesis oracle    rules from transformation.design.p0_change_seed.rules  (Python declaration)
     compiled phase    rules from the sealed snapshot        (si.artifact.show)
 
 The rule sets must be identical and the verdicts must agree, seed by seed and finding by finding.
@@ -24,17 +24,17 @@ from transformation.implementation.capability_transforms.atoms import (
     ct_pure_parse_prior_phases_v0,
     ct_pure_parse_registers_v0,
 )
-from transformation.phases.oracle import evaluate
-from transformation.phases.read import read_seed
-from transformation.phases.p0_change_seed.rules import rule_set as p0_rule_set
-from transformation.phases.p1_change_request.rules import rule_set as p1_rule_set
-from transformation.phases.p2_domain_model.rules import rule_set as p2_rule_set
-from transformation.phases.p3_analysis_loop.rules import rule_set as p3_rule_set
-from transformation.phases.p4_business_model.rules import rule_set as p4_rule_set
-from transformation.phases.p5_business_intent.rules import rule_set as p5_rule_set
-from transformation.phases.p6_governance_intent.rules import rule_set as p6_rule_set
-from transformation.phases.p7_design_intent.rules import rule_set as p7_rule_set
-from transformation.phases.p8_authoring_mandate.rules import rule_set as p8_rule_set
+from transformation.design.oracle import evaluate
+from transformation.design.read import read_seed
+from transformation.design.p0_change_seed.rules import rule_set as p0_rule_set
+from transformation.design.p1_change_request.rules import rule_set as p1_rule_set
+from transformation.design.p2_domain_model.rules import rule_set as p2_rule_set
+from transformation.design.p3_analysis_loop.rules import rule_set as p3_rule_set
+from transformation.design.p4_business_model.rules import rule_set as p4_rule_set
+from transformation.design.p5_business_intent.rules import rule_set as p5_rule_set
+from transformation.design.p6_governance_intent.rules import rule_set as p6_rule_set
+from transformation.design.p7_design_intent.rules import rule_set as p7_rule_set
+from transformation.design.p8_authoring_mandate.rules import rule_set as p8_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent

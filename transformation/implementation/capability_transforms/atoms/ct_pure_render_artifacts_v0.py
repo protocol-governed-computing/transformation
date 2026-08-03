@@ -22,7 +22,7 @@ from typing import Any, Dict
 
 from runtime.ct_executor import CTExecutionError
 
-from transformation.construction.render import render_all, render_document
+from transformation.build.render import render_all, render_document
 
 
 def _registers(parsed: list) -> Dict[str, list]:
