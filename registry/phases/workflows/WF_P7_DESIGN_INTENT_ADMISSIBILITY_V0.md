@@ -953,6 +953,13 @@ core:
             - Code
             - FQDN
           intent: a field belongs to an artifact this design declared
+        - id: BINDING_READS_UNPUBLISHED_FIELD
+          check: BINDING_SOURCE_PUBLISHED
+          register: step_bindings
+          params:
+            step_register: cc_composition
+            observation: si.capability.surface
+          intent: a binding reads a field the operation yields, never one it was hoped would exist
         - id: IMPLEMENTATION_WITHOUT_MODULE
           check: CELL_NOT_EMPTY
           register: implementation_bindings

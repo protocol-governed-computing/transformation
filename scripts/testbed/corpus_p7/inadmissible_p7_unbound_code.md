@@ -78,37 +78,37 @@
 | Workflow | Node | Node Type | Routing | Source Finding |
 |----------|------|-----------|---------|----------------|
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::IN_REGISTER_BOOK_V0 | IN | ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED | S7 new_artifacts IN_REGISTER_BOOK_V0 |
-| book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
+| book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0; NOT_FOUND -> EXIT_REJECTED; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | CC | SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; ALREADY_EXISTS -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | CC | SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_APPEND_CATALOG_OPERATION_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | EXIT_COMPLETED | EXIT | — | S7 execution_topology WF_REGISTER_BOOK_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | EXIT_REJECTED | EXIT | — | S7 execution_topology WF_REGISTER_BOOK_V0 |
 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0 | IN | ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED | S7 new_artifacts IN_REGISTER_PHYSICAL_COPY_V0 |
-| book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
+| book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0; NOT_FOUND -> EXIT_REJECTED; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | CC | SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; WORK_NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_REGISTER_PHYSICAL_COPY_V0 |
 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | CC | SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_APPEND_CATALOG_OPERATION_V0 |
 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | EXIT_COMPLETED | EXIT | — | S7 execution_topology WF_REGISTER_PHYSICAL_COPY_V0 |
 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | EXIT_REJECTED | EXIT | — | S7 execution_topology WF_REGISTER_PHYSICAL_COPY_V0 |
 | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | book_library_mgmt::IN_RETIRE_CATALOG_RECORD_V0 | IN | ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED | S7 new_artifacts IN_RETIRE_CATALOG_RECORD_V0 |
-| book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
+| book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0; NOT_FOUND -> EXIT_REJECTED; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | CC | SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_RETIRE_CATALOG_RECORD_V0 |
 | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | CC | SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_APPEND_CATALOG_OPERATION_V0 |
 | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | EXIT_COMPLETED | EXIT | — | S7 execution_topology WF_RETIRE_CATALOG_RECORD_V0 |
 | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | EXIT_REJECTED | EXIT | — | S7 execution_topology WF_RETIRE_CATALOG_RECORD_V0 |
 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | IN | ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED | S7 new_artifacts IN_RETRIEVE_BOOK_DETAILS_V0 |
-| book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
+| book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0; NOT_FOUND -> EXIT_REJECTED; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | CC | SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_ASSEMBLE_BOOK_DETAILS_V0 |
 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | CC | SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_APPEND_CATALOG_OPERATION_V0 |
 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | EXIT_COMPLETED | EXIT | — | S7 execution_topology WF_RETRIEVE_BOOK_DETAILS_V0 |
 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | EXIT_REJECTED | EXIT | — | S7 execution_topology WF_RETRIEVE_BOOK_DETAILS_V0 |
 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | book_library_mgmt::IN_SEARCH_CATALOG_V0 | IN | ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED | S7 new_artifacts IN_SEARCH_CATALOG_V0 |
-| book_library_mgmt::WF_SEARCH_CATALOG_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_SEARCH_CATALOG_V0; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
+| book_library_mgmt::WF_SEARCH_CATALOG_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_SEARCH_CATALOG_V0; NOT_FOUND -> EXIT_REJECTED; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | CC | SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_SEARCH_CATALOG_V0 |
 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | CC | SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_APPEND_CATALOG_OPERATION_V0 |
 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | EXIT_COMPLETED | EXIT | — | S7 execution_topology WF_SEARCH_CATALOG_V0 |
 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | EXIT_REJECTED | EXIT | — | S7 execution_topology WF_SEARCH_CATALOG_V0 |
 | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | IN | ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED | S7 new_artifacts IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
-| book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
+| book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0; NOT_FOUND -> EXIT_REJECTED; DENIED -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | CC | SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
 | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | CC | SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_APPEND_CATALOG_OPERATION_V0 |
 | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | EXIT_COMPLETED | EXIT | — | S7 execution_topology WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
@@ -122,16 +122,16 @@
 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | 1 | append_operation | capability_side_effects::CS_APPENDONLY_JSONL_V0 | CS | APPEND | CATALOG_OPERATIONS | record | result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | 1 | read_work_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | READ | BIBLIOGRAPHIC_WORKS | key | book_details, result_status | SUCCESS -> continue; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | NOT_FOUND | — |
 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | 2 | read_copies | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | LIST | PHYSICAL_COPIES | filter | copies, result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
-| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | 1 | read_authorization | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | EXISTS | CATALOG_STAFF | key | authorized, result_status | SUCCESS -> continue; VIOLATION -> exit; BACKEND_ERROR -> exit | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | DENIED | — |
+| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | 1 | read_authorization | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | READ | CATALOG_STAFF | key | staff_record, result_status | SUCCESS -> continue; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | DENIED | — |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | 1 | check_existing | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | EXISTS | BIBLIOGRAPHIC_WORKS | key | result_status | SUCCESS -> continue; VIOLATION -> exit; BACKEND_ERROR -> exit | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | ALREADY_EXISTS | — |
-| book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | 2 | write_work_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | BIBLIOGRAPHIC_WORKS | key, value | work_record, result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
+| book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | 2 | write_work_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | BIBLIOGRAPHIC_WORKS | key, value | result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | 1 | confirm_work_registered | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | EXISTS | BIBLIOGRAPHIC_WORKS | key | result_status | SUCCESS -> continue; VIOLATION -> exit; BACKEND_ERROR -> exit | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | NOT_FOUND | — |
-| book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | 2 | write_copy_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | PHYSICAL_COPIES | key, value | copy_record, result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
+| book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | 2 | write_copy_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | PHYSICAL_COPIES | key, value | result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | 1 | read_work_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | READ | BIBLIOGRAPHIC_WORKS | key | result_status | SUCCESS -> continue; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | NOT_FOUND | — |
-| book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | 2 | mark_retired | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | BIBLIOGRAPHIC_WORKS | key, value | retired_record, result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
+| book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | 2 | mark_retired | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | BIBLIOGRAPHIC_WORKS | key, value | result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | 1 | select_current_records | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | LIST | BIBLIOGRAPHIC_WORKS | filter | matching_records, result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | 1 | read_work_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | READ | BIBLIOGRAPHIC_WORKS | key | result_status | SUCCESS -> continue; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | NOT_FOUND | — |
-| book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | 2 | write_updated_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | BIBLIOGRAPHIC_WORKS | key, value | work_record, result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
+| book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | 2 | write_updated_record | capability_side_effects::CS_MUTABLE_JSON_V0 | CS | WRITE | BIBLIOGRAPHIC_WORKS | key, value | result_status | SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit | — | SUCCESS | — |
 
 ## 7. Step Bindings
 
@@ -149,10 +149,11 @@
 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | read_copies | OUTPUT | copies | capability_result.keys | S7 cc_composition read_copies |
 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | read_copies | OUTPUT | result_status | result_status | S7 cc_composition read_copies |
 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | read_authorization | INPUT | key | inputs.staff_id | S7 cc_composition read_authorization |
-| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | read_authorization | OUTPUT | authorized | capability_result.exists | S7 cc_composition read_authorization |
+| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | read_authorization | OUTPUT | staff_record | capability_result.value | S7 cc_composition read_authorization |
 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | read_authorization | OUTPUT | result_status | result_status | S7 cc_composition read_authorization |
-| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | require_authorized | INPUT | condition | results.read_authorization.capability_result.exists | S7 cc_composition require_authorized |
+| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | require_authorized | INPUT | condition | results.read_authorization.capability_result.value.authorized | S7 cc_composition require_authorized |
 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | require_authorized | INPUT | expected | True | S7 cc_composition require_authorized |
+| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | require_authorized | OUTPUT | authorized | capability_result.condition_held | S7 cc_composition require_authorized |
 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | require_authorized | OUTPUT | result_status | result_status | S7 cc_composition require_authorized |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | check_existing | INPUT | key | inputs.work_id | S7 cc_composition check_existing |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | check_existing | OUTPUT | result_status | result_status | S7 cc_composition check_existing |
@@ -161,7 +162,6 @@
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | require_absent | OUTPUT | result_status | result_status | S7 cc_composition require_absent |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | write_work_record | INPUT | key | inputs.work_id | S7 cc_composition write_work_record |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | write_work_record | INPUT | value | {'work_id': '$.inputs.work_id', 'bibliographic_information': '$.inputs.bibliographic_information', 'retired': False} | S7 cc_composition write_work_record |
-| book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | write_work_record | OUTPUT | work_record | capability_result.value | S7 cc_composition write_work_record |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | write_work_record | OUTPUT | result_status | result_status | S7 cc_composition write_work_record |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | confirm_work_registered | INPUT | key | inputs.work_id | S7 cc_composition confirm_work_registered |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | confirm_work_registered | OUTPUT | result_status | result_status | S7 cc_composition confirm_work_registered |
@@ -170,13 +170,11 @@
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | require_work_registered | OUTPUT | result_status | result_status | S7 cc_composition require_work_registered |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | write_copy_record | INPUT | key | inputs.copy_id | S7 cc_composition write_copy_record |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | write_copy_record | INPUT | value | {'copy_id': '$.inputs.copy_id', 'work_id': '$.inputs.work_id'} | S7 cc_composition write_copy_record |
-| book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | write_copy_record | OUTPUT | copy_record | capability_result.value | S7 cc_composition write_copy_record |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | write_copy_record | OUTPUT | result_status | result_status | S7 cc_composition write_copy_record |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | read_work_record | INPUT | key | inputs.work_id | S7 cc_composition read_work_record |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | read_work_record | OUTPUT | result_status | result_status | S7 cc_composition read_work_record |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | mark_retired | INPUT | key | inputs.work_id | S7 cc_composition mark_retired |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | mark_retired | INPUT | value | {'work_id': '$.inputs.work_id', 'retired': True} | S7 cc_composition mark_retired |
-| book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | mark_retired | OUTPUT | retired_record | capability_result.value | S7 cc_composition mark_retired |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | mark_retired | OUTPUT | result_status | result_status | S7 cc_composition mark_retired |
 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | select_current_records | INPUT | filter | inputs.search_terms | S7 cc_composition select_current_records |
 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | select_current_records | OUTPUT | matching_records | capability_result.keys | S7 cc_composition select_current_records |
@@ -185,7 +183,6 @@
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | read_work_record | OUTPUT | result_status | result_status | S7 cc_composition read_work_record |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | write_updated_record | INPUT | key | inputs.work_id | S7 cc_composition write_updated_record |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | write_updated_record | INPUT | value | {'work_id': '$.inputs.work_id', 'bibliographic_information': '$.inputs.bibliographic_information', 'retired': False} | S7 cc_composition write_updated_record |
-| book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | write_updated_record | OUTPUT | work_record | capability_result.value | S7 cc_composition write_updated_record |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | write_updated_record | OUTPUT | result_status | result_status | S7 cc_composition write_updated_record |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | INPUT | staff_id | payload.staff_id | S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | INPUT | work_id | payload.work_id | S7 execution_topology CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 |
@@ -246,21 +243,17 @@
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | INPUT | work_id | string | YES | — | work_id of CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | INPUT | bibliographic_information | object | YES | — | bibliographic_information of CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 |
 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | OUTPUT | result_status | string | NO | — | result_status of CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 |
-| book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | OUTPUT | work_record | object | NO | — | work_record of CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | INPUT | copy_id | string | YES | — | copy_id of CC_REGISTER_PHYSICAL_COPY_V0 |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | INPUT | work_id | string | YES | — | work_id of CC_REGISTER_PHYSICAL_COPY_V0 |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | OUTPUT | result_status | string | NO | — | result_status of CC_REGISTER_PHYSICAL_COPY_V0 |
-| book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | OUTPUT | copy_record | object | NO | — | copy_record of CC_REGISTER_PHYSICAL_COPY_V0 |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | INPUT | work_id | string | YES | — | work_id of CC_RETIRE_CATALOG_RECORD_V0 |
 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | OUTPUT | result_status | string | NO | — | result_status of CC_RETIRE_CATALOG_RECORD_V0 |
-| book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | OUTPUT | retired_record | object | NO | — | retired_record of CC_RETIRE_CATALOG_RECORD_V0 |
 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | INPUT | search_terms | object | YES | — | search_terms of CC_SEARCH_CATALOG_V0 |
 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | OUTPUT | result_status | string | NO | — | result_status of CC_SEARCH_CATALOG_V0 |
 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | OUTPUT | matching_records | array | NO | — | matching_records of CC_SEARCH_CATALOG_V0 |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | INPUT | work_id | string | YES | — | work_id of CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | INPUT | bibliographic_information | object | YES | — | bibliographic_information of CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | OUTPUT | result_status | string | NO | — | result_status of CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
-| book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | OUTPUT | work_record | object | NO | — | work_record of CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
 | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | INPUT | condition | boolean | YES | — | The observation being interpreted |
 | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | INPUT | expected | boolean | YES | — | The value the condition must hold, so one transform serves both directions |
 | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | OUTPUT | result_status | string | NO | — | SUCCESS when the condition held; the runtime maps a raise to VIOLATION |
@@ -311,6 +304,7 @@
 | RB Code | Capability | Key | Value | Source Finding |
 |---------|------------|-----|-------|----------------|
 | book_library_mgmt::RB_CATALOG_BINDINGS_V0 | capability_side_effects::CS_MUTABLE_JSON_V0 | path | {{module_data_root}}/book_library_mgmt/catalog/bibliographic_works.json | S6 storage_governance Bibliographic work records |
+| book_library_mgmt::RB_CATALOG_BINDINGS_V0 | capability_side_effects::CS_APPENDONLY_JSONL_V0 | — | — | S6 storage_governance Catalog operation journal |
 
 ---
 

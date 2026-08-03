@@ -42,7 +42,15 @@ TEMPLATE = load("p7")
 OBSERVATION_OPERATION = "si.artifact.list"
 
 # operation → the key its result carries rows under.
-OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
+# P7 grounds against two surfaces. The artifact list resolves identities; the capability surface
+# says what an operation actually yields, which is the one fact that distinguishes a step producing
+# a real field from a step producing a wish.
+CAPABILITY_OBSERVATION = "si.capability.surface"
+
+OBSERVATIONS = {
+    OBSERVATION_OPERATION: "artifacts",
+    CAPABILITY_OBSERVATION: "capabilities",
+}
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
@@ -375,6 +383,16 @@ INTERFACE_RULES: list[Rule] = [
             "target_columns": ["Code", "FQDN"],
         },
         intent="a field belongs to an artifact this design declared",
+    ),
+    Rule(
+        id="BINDING_READS_UNPUBLISHED_FIELD",
+        check="BINDING_SOURCE_PUBLISHED",
+        register="step_bindings",
+        params={
+            "step_register": "cc_composition",
+            "observation": CAPABILITY_OBSERVATION,
+        },
+        intent="a binding reads a field the operation yields, never one it was hoped would exist",
     ),
     Rule(
         id="IMPLEMENTATION_WITHOUT_MODULE",

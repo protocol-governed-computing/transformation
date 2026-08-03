@@ -60,8 +60,9 @@ compiled workflow is a declaration that this phase's handoff is ungoverned, and 
 |------|------------|------|-----------|
 | 1 | CT_PURE_PARSE_REGISTERS_V0 | CT | Parse |
 | 2 | CT_PURE_PARSE_PRIOR_PHASES_V0 | CT | Parse priors |
-| 3 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY |
-| 4 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
+| 3 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.artifact.list) |
+| 4 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.capability.surface) |
+| 5 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
 
 ---
 
@@ -173,6 +174,25 @@ core:
       VIOLATION: exit
       BACKEND_ERROR: exit
 
+  # A third question of the same bound capability, not a new capability. What an operation declares
+  # it yields is the only fact that separates a binding reading a real field from one reading a
+  # field somebody hoped existed.
+  - step: observe_capabilities
+    side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
+    op: QUERY
+    inputs:
+      operation: si.capability.surface
+      params: {}
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    - BACKEND_ERROR
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:
@@ -184,6 +204,7 @@ core:
       # Keyed by the operation that produced it, so a rule can say which observation it relied on.
       observed:
         si.artifact.list: $.results.observe_composition.capability_result.result.artifacts
+        si.capability.surface: $.results.observe_capabilities.capability_result.result.capabilities
       # Keyed by the phase that produced it, for the same reason.
       priors: $.results.parse_priors.capability_result.priors
     outputs:
