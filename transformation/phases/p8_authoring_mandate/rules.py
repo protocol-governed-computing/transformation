@@ -39,7 +39,7 @@ OBSERVATION_OPERATION = "si.artifact.list"
 OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
-BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|STRUCTURE)_[A-Z0-9_]+_V\d+$"
+BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$"
 
 
 ORDER_RULES: list[Rule] = [
@@ -168,11 +168,30 @@ RECONCILIATION_RULES: list[Rule] = [
 ]
 
 
+# Placement completeness. `field_declarations` covered eight of CR-1's twenty-five artifacts and
+# nothing noticed: every rule judged the rows present, and a compiled artifact without a declared
+# subdomain is one construction would have to place by guessing.
+COMPLETENESS_RULES: list[Rule] = [
+    Rule(
+        id="SCHEDULED_ARTIFACT_UNPLACED",
+        check="REGISTER_COVERS_REGISTER",
+        register="field_declarations",
+        params={
+            "source_register": "build_order",
+            "source_column": "Code",
+            "column": "Code",
+        },
+        intent="every artifact the mandate schedules declares the subdomain it is built into",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """The complete declared P8 rule set: derived, order discipline, reconciliation, then header."""
     return (
         derived_rules(TEMPLATE)
         + ORDER_RULES
         + RECONCILIATION_RULES
+        + COMPLETENESS_RULES
         + dossier_header_rules()
     )

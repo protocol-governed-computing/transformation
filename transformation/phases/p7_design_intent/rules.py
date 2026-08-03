@@ -47,7 +47,7 @@ OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
 # A binding FQDN: domain-qualified, family-prefixed, explicitly versioned.
-BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|STRUCTURE)_[A-Z0-9_]+_V\d+$"
+BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$"
 
 
 BINDING_RULES: list[Rule] = [
@@ -105,6 +105,8 @@ BINDING_RULES: list[Rule] = [
             "target_registers": ["new_artifacts", "existing_inventory"],
             "target_column": "Code",
             "target_columns": ["Code", "FQDN"],
+            # A terminal is a property of the graph, not an artifact anyone declares.
+            "exempt_prefixes": ["EXIT"],
             "detail": (
                 "a binding identity is immutable, so a spelling variant is a second artifact "
                 "rather than a synonym"
@@ -269,6 +271,128 @@ LADDER_RULES: list[Rule] = [
 ]
 
 
+# Construction completeness — the obligation that a declared artifact is actually specified.
+#
+# P7 declared six workflows and gave three of them a topology, declared eight capability contracts
+# and composed five, and was ADMISSIBLE at fifty-seven rules. Every rule judged the rows that were
+# present; nothing required the rows that were absent. The information had somewhere to live and no
+# obligation to exist — a deficiency in the language's *constraints*, not in its expressiveness.
+#
+# One rule per family, because the obligation differs by family: a workflow needs a topology, a
+# contract needs a composition, a transform needs an implementation, and none needs the others'.
+COMPLETENESS_RULES: list[Rule] = [
+    Rule(
+        id="WORKFLOW_WITHOUT_TOPOLOGY",
+        check="REGISTER_COVERS_REGISTER",
+        register="execution_topology",
+        params={
+            "source_register": "new_artifacts",
+            "source_column": "Code",
+            "column": "Workflow",
+            "only_when_column": "Family",
+            "only_when_value": "WF",
+        },
+        intent="a workflow with no declared graph is a workflow construction would have to invent",
+    ),
+    Rule(
+        id="CONTRACT_WITHOUT_COMPOSITION",
+        check="REGISTER_COVERS_REGISTER",
+        register="cc_composition",
+        params={
+            "source_register": "new_artifacts",
+            "source_column": "Code",
+            "column": "CC Code",
+            "only_when_column": "Family",
+            "only_when_value": "CC",
+        },
+        intent="a capability contract with no declared pipeline specifies nothing to build",
+    ),
+    Rule(
+        id="TRANSFORM_WITHOUT_IMPLEMENTATION",
+        check="REGISTER_COVERS_REGISTER",
+        register="implementation_bindings",
+        params={
+            "source_register": "new_artifacts",
+            "source_column": "Code",
+            "column": "CT Code",
+            "only_when_column": "Family",
+            "only_when_value": "CT",
+        },
+        intent="a transform is the one family that points outside the composition; the path is designed, not discovered",
+    ),
+    Rule(
+        id="VOCABULARY_WITHOUT_VALUES",
+        check="REGISTER_COVERS_REGISTER",
+        register="vocabulary_extensions",
+        params={
+            "source_register": "new_artifacts",
+            "source_column": "Code",
+            "column": "Vocabulary Code",
+            "only_when_column": "Family",
+            "only_when_value": "VOCAB",
+        },
+        intent="a vocabulary that declares no value admits nothing",
+    ),
+]
+
+
+# The new registers carry identities like every other, and the same immutability discipline applies:
+# a spelling variant is a second artifact, not a synonym.
+INTERFACE_RULES: list[Rule] = [
+    Rule(
+        id="BINDING_NODE_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="node_bindings",
+        params={
+            "column": "Node",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+        },
+        intent="a binding is declared for a node this design assigned, never for an invented one",
+    ),
+    Rule(
+        id="INTERFACE_ARTIFACT_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="interface_fields",
+        params={
+            "column": "Artifact",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+        },
+        intent="a field belongs to an artifact this design declared",
+    ),
+    Rule(
+        id="IMPLEMENTATION_WITHOUT_MODULE",
+        check="CELL_NOT_EMPTY",
+        register="implementation_bindings",
+        params={
+            "column": "Module",
+            "detail": "transform names no module — an implementation nobody can locate is not designed",
+        },
+        intent="a declared implementation says where it lives",
+    ),
+    Rule(
+        id="BINDING_WITHOUT_SOURCE",
+        check="CELL_NOT_EMPTY",
+        register="node_bindings",
+        params={
+            "column": "Bound To",
+            "detail": "field is bound to nothing — construction would have to choose a source",
+        },
+        intent="every declared input names where its value comes from",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P7 rule set: derived, binding discipline, ladder closure, header."""
-    return derived_rules(TEMPLATE) + BINDING_RULES + LADDER_RULES + dossier_header_rules()
+    """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
+    return (
+        derived_rules(TEMPLATE)
+        + BINDING_RULES
+        + LADDER_RULES
+        + COMPLETENESS_RULES
+        + INTERFACE_RULES
+        + dossier_header_rules()
+    )

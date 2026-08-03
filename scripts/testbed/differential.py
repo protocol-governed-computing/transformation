@@ -228,8 +228,8 @@ PRIORS_BY_DOCUMENT = {
         "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
     "admissible_p8_reconciled_mandate.md": {
         "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p8_undesigned_artifact.md": {
-        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p8_undesigned_artifact.md": {"p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p8_dropped_artifact.md": {"p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
     "p1_change_request_transformation_phases_v0.md": {
         "p0": CR_00 / "p0_seed_transformation_phases_v0.md"},
     "inadmissible_p1_register.md": {

@@ -236,7 +236,7 @@ core:
           register: build_order
           params:
             column: Code
-            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$
             detail: build code {value!r} must be a binding FQDN copied verbatim from Stage 7
           intent: a mandate orders binding identities, never re-typed approximations
         - id: BUILD_CODE_ALREADY_EXISTS
@@ -297,6 +297,14 @@ core:
             column: Code
             require: here_in_prior
           intent: a mandate orders the build; it does not get to add to it
+        - id: SCHEDULED_ARTIFACT_UNPLACED
+          check: REGISTER_COVERS_REGISTER
+          register: field_declarations
+          params:
+            source_register: build_order
+            source_column: Code
+            column: Code
+          intent: every artifact the mandate schedules declares the subdomain it is built into
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

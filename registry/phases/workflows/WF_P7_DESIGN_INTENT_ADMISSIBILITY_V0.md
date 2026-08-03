@@ -149,6 +149,8 @@ core:
             - governance_scope
             - identity_semantics
             - impact_analysis
+            - implementation_bindings
+            - interface_fields
             - invariants
             - known_facts
             - lifecycle_states
@@ -156,6 +158,7 @@ core:
             - new_artifacts
             - new_capabilities
             - new_intents
+            - node_bindings
             - open_questions
             - out_of_scope
             - ownership
@@ -175,6 +178,7 @@ core:
             - subdomain_purpose
             - system_beliefs
             - verification_results
+            - vocabulary_extensions
             literal_sources:
             - CR seed
             - human decision
@@ -262,6 +266,7 @@ core:
             - CC
             - CT
             - EV
+            - VOCAB
             - STRUCTURE
           intent: Family is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
@@ -411,6 +416,146 @@ core:
           intent: Kind is a controlled vocabulary declared by the template
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
+          register: node_bindings
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: node_bindings
+          params:
+            columns:
+            - Workflow
+            - Node
+            - Field
+            - Bound To
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: node_bindings
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: node_bindings
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: interface_fields
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: interface_fields
+          params:
+            columns:
+            - Artifact
+            - Direction
+            - Field
+            - Type
+            - Required
+            - Default
+            - Meaning
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: interface_fields
+          params:
+            column: Direction
+            vocabulary:
+            - INPUT
+            - OUTPUT
+            - ATTRIBUTE
+          intent: Direction is a controlled vocabulary declared by the template
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: interface_fields
+          params:
+            column: Required
+            vocabulary:
+            - 'YES'
+            - 'NO'
+          intent: Required is a controlled vocabulary declared by the template
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: implementation_bindings
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: implementation_bindings
+          params:
+            columns:
+            - CT Code
+            - Module
+            - Callable
+            - Operation
+            - Kind (atom, molecule)
+            - Purity (ct_pure, ct_impure)
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: implementation_bindings
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: implementation_bindings
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: vocabulary_extensions
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: vocabulary_extensions
+          params:
+            columns:
+            - Vocabulary Code
+            - Extends
+            - Value
+            - Meaning
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: vocabulary_extensions
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: vocabulary_extensions
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
           register: structure_stores
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
@@ -493,7 +638,7 @@ core:
           register: new_artifacts
           params:
             column: Code
-            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$
             detail: binding code {value!r} must be domain::FAMILY_NAME_V<n>
           intent: a binding identity is domain-qualified, family-prefixed and versioned
         - id: EXISTING_INVENTORY_UNRESOLVED
@@ -529,6 +674,8 @@ core:
             target_columns:
             - Code
             - FQDN
+            exempt_prefixes:
+            - EXIT
             detail: a binding identity is immutable, so a spelling variant is a second artifact rather than a
               synonym
           intent: every node in the topology is an identity this design actually assigned
@@ -646,6 +793,87 @@ core:
             require: prior_in_here
             match_on: bare_code
           intent: a capability the business asked for and the design never bound is declined, not deferred
+        - id: WORKFLOW_WITHOUT_TOPOLOGY
+          check: REGISTER_COVERS_REGISTER
+          register: execution_topology
+          params:
+            source_register: new_artifacts
+            source_column: Code
+            column: Workflow
+            only_when_column: Family
+            only_when_value: WF
+          intent: a workflow with no declared graph is a workflow construction would have to invent
+        - id: CONTRACT_WITHOUT_COMPOSITION
+          check: REGISTER_COVERS_REGISTER
+          register: cc_composition
+          params:
+            source_register: new_artifacts
+            source_column: Code
+            column: CC Code
+            only_when_column: Family
+            only_when_value: CC
+          intent: a capability contract with no declared pipeline specifies nothing to build
+        - id: TRANSFORM_WITHOUT_IMPLEMENTATION
+          check: REGISTER_COVERS_REGISTER
+          register: implementation_bindings
+          params:
+            source_register: new_artifacts
+            source_column: Code
+            column: CT Code
+            only_when_column: Family
+            only_when_value: CT
+          intent: a transform is the one family that points outside the composition; the path is designed, not
+            discovered
+        - id: VOCABULARY_WITHOUT_VALUES
+          check: REGISTER_COVERS_REGISTER
+          register: vocabulary_extensions
+          params:
+            source_register: new_artifacts
+            source_column: Code
+            column: Vocabulary Code
+            only_when_column: Family
+            only_when_value: VOCAB
+          intent: a vocabulary that declares no value admits nothing
+        - id: BINDING_NODE_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: node_bindings
+          params:
+            column: Node
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+          intent: a binding is declared for a node this design assigned, never for an invented one
+        - id: INTERFACE_ARTIFACT_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: interface_fields
+          params:
+            column: Artifact
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+          intent: a field belongs to an artifact this design declared
+        - id: IMPLEMENTATION_WITHOUT_MODULE
+          check: CELL_NOT_EMPTY
+          register: implementation_bindings
+          params:
+            column: Module
+            detail: transform names no module — an implementation nobody can locate is not designed
+          intent: a declared implementation says where it lives
+        - id: BINDING_WITHOUT_SOURCE
+          check: CELL_NOT_EMPTY
+          register: node_bindings
+          params:
+            column: Bound To
+            detail: field is bound to nothing — construction would have to choose a source
+          intent: every declared input names where its value comes from
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

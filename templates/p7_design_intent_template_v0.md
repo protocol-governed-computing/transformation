@@ -148,7 +148,7 @@ binding codes belong. Existing artifacts are cited by their real FQDN in `fqdn` 
 `owner_subdomain` is the owning subdomain; `source_finding` traces to the S6 ownership / S4 gap.*
 
 <!-- register:new_artifacts business_language=capability -->
-| Capability | Family (AC, IN, WF, RB, CC, CT, EV, STRUCTURE) | Code | Owner Subdomain | Status | Source Finding |
+| Capability | Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE) | Code | Owner Subdomain | Status | Source Finding |
 |------------|------------------------------------------------|------|-----------------|--------|----------------|
 
 ---
@@ -165,7 +165,15 @@ binding codes belong. Existing artifacts are cited by their real FQDN in `fqdn` 
 
 ## 5. Execution Topology
 
-*The DAG flattened to one row per node, in execution order, per workflow. `node` is an IN/CC binding FQDN or a terminal (EXIT / EXIT_SUCCESS); `routing` states the outcome→target edges in business status names (SUCCESS, NOT_FOUND, ALREADY_EXISTS, VIOLATION, BACKEND_ERROR).*
+*The DAG flattened to one row per node, in execution order, per workflow. `node` is an IN/CC binding
+FQDN or a terminal (EXIT / EXIT_SUCCESS).*
+
+*`routing` states the outcome→target edges as **edges, not prose**: `STATUS -> target` entries
+separated by `;`, where STATUS is a business status name (ACK, NACK, SUCCESS, NOT_FOUND,
+ALREADY_EXISTS, DENIED, VIOLATION, BACKEND_ERROR) and target is a node of this same workflow or a
+terminal. `SUCCESS -> CC_APPEND_CATALOG_OPERATION_V0; VIOLATION -> EXIT_REJECTED`. A description of
+where control goes is not a routing declaration — it names no node, and construction cannot resolve
+it.*
 
 <!-- register:execution_topology -->
 | Workflow | Node | Node Type (IN, CC, EXIT, EXIT_SUCCESS) | Routing | Source Finding |
@@ -191,7 +199,67 @@ the CC keeps its business vocabulary. Syntax: `in: <ct_formal>=<cc_local>, …; 
 
 ---
 
-## 7. STRUCTURE Stores
+## 7. Node Input Bindings
+
+*What each workflow node is handed, and where it comes from. A node whose inputs are undeclared is a
+node construction must invent bindings for, and an invented binding is a design decision taken
+outside the gate.*
+
+*`bound_to` is declarative, never an expression: `payload.<field>` names a field of the starting
+intent, `<node>.<field>` names an earlier node's output in this same workflow, and a bare literal is
+a constant the design fixes (an operation name, a status). Rendering that into `$.payload.x` is
+construction's business — the design states the source, not the syntax.*
+
+<!-- register:node_bindings optional -->
+| Workflow | Node | Field | Bound To | Source Finding |
+|----------|------|-------|----------|----------------|
+
+---
+
+## 8. Interface Fields
+
+*Every typed field an artifact declares, whichever family it belongs to. An intent's inputs, a
+capability contract's inputs and outputs, a transform's inputs and outputs, and an actor's
+attributes are one shape — (artifact, direction, field, type) — and they were all unexpressible for
+the same reason: the language could describe a capability but never a field of one.*
+
+*`direction` ∈ INPUT | OUTPUT | ATTRIBUTE. `required` ∈ YES | NO. `default` is stated only when the
+field has one; a field with no default and `required: NO` is simply absent when not supplied.*
+
+<!-- register:interface_fields optional -->
+| Artifact | Direction (INPUT, OUTPUT, ATTRIBUTE) | Field | Type | Required (YES, NO) | Default | Meaning |
+|----------|--------------------------------------|-------|------|--------------------|---------|---------|
+
+---
+
+## 9. Implementation Bindings
+
+*Where a transform's code lives. A CT is the one family whose artifact points outside the
+composition, and the module path is a governance concern for the same reason a store path is: it is
+declared once, at design time, never discovered later.*
+
+*`operation` is the CT's declared operation name; `purity` ∈ ct_pure | ct_impure; `kind` ∈ atom |
+molecule.*
+
+<!-- register:implementation_bindings optional -->
+| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Source Finding |
+|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------|
+
+---
+
+## 10. Vocabulary Extensions
+
+*Business status names this change adds, and the vocabulary they extend. A workflow that routes on
+`DENIED` needs `DENIED` to exist; the routing surface and the vocabulary that admits it are declared
+together or the composition compiles with a status nothing recognizes.*
+
+<!-- register:vocabulary_extensions optional -->
+| Vocabulary Code | Extends | Value | Meaning | Source Finding |
+|-----------------|---------|-------|---------|----------------|
+
+---
+
+## 11. STRUCTURE Stores
 
 *New entity stores. `storage_type` selects the CS substrate; `proposed_path` is the declared store path (governance concern — never hardcoded later); `used_by` names the writing CC (its owning subdomain only).*
 
@@ -201,7 +269,7 @@ the CC keeps its business vocabulary. Syntax: `in: <ct_formal>=<cc_local>, …; 
 
 ---
 
-## 8. Artifact Summary
+## 12. Artifact Summary
 
 *Artifact count by action type, for Stage 7 input. The oracle reconciles: the NEW counts here MUST equal the rows of `new_artifacts`. `artifacts` lists the codes for that action.*
 

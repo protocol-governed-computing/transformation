@@ -172,6 +172,8 @@ core:
             - governance_scope
             - identity_semantics
             - impact_analysis
+            - implementation_bindings
+            - interface_fields
             - invariants
             - known_facts
             - lifecycle_states
@@ -179,6 +181,7 @@ core:
             - new_artifacts
             - new_capabilities
             - new_intents
+            - node_bindings
             - open_questions
             - out_of_scope
             - ownership
@@ -198,6 +201,7 @@ core:
             - subdomain_purpose
             - system_beliefs
             - verification_results
+            - vocabulary_extensions
             literal_sources:
             - CR seed
             - human decision

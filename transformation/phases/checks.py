@@ -596,6 +596,11 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
 
     Absence of the cell is not this rule's business; a blank is `CELL_NOT_EMPTY`'s finding, and
     reporting it twice would make one defect look like two.
+
+    `exempt_prefixes` names values that are terminals by construction rather than identities. A
+    workflow's topology legitimately routes to `EXIT_REJECTED`, which is a graph terminal and never
+    an artifact — the rule had simply never met one, because CR-1 declared no EXIT rows until its
+    topology was completed.
     """
     # One target register, or several: a code may legitimately be declared new here OR carried over
     # from the existing inventory, and a rule naming only one of those would reject the other.
@@ -615,6 +620,7 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
             if value:
                 known.add(value.strip())
     target = " or ".join(targets)
+    exempt = tuple(rule.params.get("exempt_prefixes") or ())
 
     only_when_column = rule.params.get("only_when_column")
     only_when_value = rule.params.get("only_when_value")
@@ -632,6 +638,8 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
         if not value or value.strip() in none_markers:
             continue
         for part in (p.strip() for p in value.split(";")):
+            if exempt and part.startswith(exempt):
+                continue
             if part and part not in none_markers and part not in known:
                 detail = rule.params.get(
                     "detail", "a document may only point at what it declared"
@@ -1050,3 +1058,62 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
             f"{phase} {register} #{ordinal} of {total} is restated nowhere here: {claim!r}",
         ))
     return out
+
+
+@check("REGISTER_COVERS_REGISTER")
+def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every row of one register must be accounted for in another register of the same document.
+
+    The cross-phase kinds above check that a handoff between two documents preserved something. This
+    is the same question asked *inside* one document, and it is the one the pipeline never asked: P7
+    declared six workflows and gave three of them a topology, declared eight capability contracts and
+    composed five, and was ADMISSIBLE at fifty-seven rules — because every rule judged the rows that
+    were present and nothing required the rows that were not.
+
+    The information already had somewhere to live. What was missing was any obligation that it
+    exist, which is a deficiency in the language's **constraints** rather than in its expressiveness.
+
+    Filtered on the source row, because the obligation usually applies to one artifact family: a
+    workflow needs a topology, a capability contract needs a composition, and neither needs the
+    other's.
+    """
+    source = rule.params["source_register"]
+    block = doc.register(source)
+    if block is None or block.table is None:
+        return [(
+            _where(rule),
+            f"{source!r} is absent, so nothing establishes what this register must cover",
+        )]
+
+    gate_column = rule.params.get("only_when_column")
+    gate_value = rule.params.get("only_when_value")
+    source_column = rule.params["source_column"]
+
+    covered = {
+        _bare_identity(_cell(row, rule.params["column"]))
+        for _, row in _rows(doc, rule)
+    }
+
+    out = []
+    for ordinal, row in _content_rows(block):
+        if gate_column and _cell(row, gate_column) != gate_value:
+            continue
+        key = _cell(row, source_column)
+        if not key or _bare_identity(key) in covered:
+            continue
+        out.append((
+            f"{_where(rule)}",
+            f"{key} is declared at {source} #{ordinal} and this register says nothing about it"
+            + (f" ({gate_column} {gate_value})" if gate_column else ""),
+        ))
+    return out
+
+
+def _bare_identity(value: str) -> str:
+    """An identity without its namespace.
+
+    One register writes `book_library_mgmt::WF_SEARCH_CATALOG_V0` and another writes the same
+    workflow as a bare code; both name one artifact, and a coverage check that distinguished them
+    would report every row uncovered.
+    """
+    return _normalise(value).split("::")[-1]

@@ -146,7 +146,7 @@ PAYLOADS = {
     # P8 is judged on row order. The inadmissible case drops a step, schedules a prerequisite after
     # the thing that needs it, and routes the critical path through a step nobody scheduled — three
     # defects that exist between rows rather than in any one of them.
-    "24_p8_unreconciled_catalog_mandate.json": (
+    "24_p8_admissible_catalog_mandate.json": (
         "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
         "p8_authoring_mandate_book_library_mgmt_catalog_v0.md"
     ),
@@ -162,11 +162,11 @@ PAYLOADS = {
     # P8 reconciles against P7 as sets of identities. CR-1's own mandate does not reconcile — it
     # drops one designed artifact — so the corpus carries a corrected mandate as the admissible
     # case, and the authored one stays as authored.
-    "28_p8_admissible_reconciled_mandate.json": (
-        "scripts/testbed/corpus_p8/admissible_p8_reconciled_mandate.md"
-    ),
     "29_p8_inadmissible_undesigned_artifact.json": (
         "scripts/testbed/corpus_p8/inadmissible_p8_undesigned_artifact.md"
+    ),
+    "35_p8_inadmissible_dropped_artifact.json": (
+        "scripts/testbed/corpus_p8/inadmissible_p8_dropped_artifact.md"
     ),
     # P0→P1 is matched on the claim, not a citation — the seed's section titles are free-form. The
     # dropped criterion is the one execution validation later runs the composition against.
@@ -215,10 +215,10 @@ PRIOR_SOURCES = {
     "14_p3_admissible_catalog_register.json": {"p2": CATALOG_P2},
     "15_p3_inadmissible_catalog_register.json": {"p2": CATALOG_P2},
     "27_p3_inadmissible_restated_result.json": {"p2": CATALOG_P2},
-    "24_p8_unreconciled_catalog_mandate.json": {"p7": CATALOG_P7},
+    "24_p8_admissible_catalog_mandate.json": {"p7": CATALOG_P7},
     "25_p8_inadmissible_catalog_mandate.json": {"p7": CATALOG_P7},
-    "28_p8_admissible_reconciled_mandate.json": {"p7": CATALOG_P7},
     "29_p8_inadmissible_undesigned_artifact.json": {"p7": CATALOG_P7},
+    "35_p8_inadmissible_dropped_artifact.json": {"p7": CATALOG_P7},
     "06_p1_admissible_register.json": {
         "p0": "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md"},
     "07_p1_inadmissible_register.json": {
@@ -256,12 +256,12 @@ PAYLOAD_KEY = {
     "21_p6_inadmissible_catalog_register.json": "register_text",
     "22_p7_admissible_catalog_register.json": "register_text",
     "23_p7_inadmissible_catalog_register.json": "register_text",
-    "24_p8_unreconciled_catalog_mandate.json": "register_text",
+    "24_p8_admissible_catalog_mandate.json": "register_text",
     "25_p8_inadmissible_catalog_mandate.json": "register_text",
     "26_p2_inadmissible_dropped_belief.json": "register_text",
     "27_p3_inadmissible_restated_result.json": "register_text",
-    "28_p8_admissible_reconciled_mandate.json": "register_text",
     "29_p8_inadmissible_undesigned_artifact.json": "register_text",
+    "35_p8_inadmissible_dropped_artifact.json": "register_text",
     "30_p1_inadmissible_dropped_criterion.json": "register_text",
     "31_p7_inadmissible_unbound_code.json": "register_text",
     "32_p4_inadmissible_dropped_decision.json": "register_text",

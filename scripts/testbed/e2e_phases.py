@@ -176,13 +176,21 @@ CASES = [
     # Judged against the design-time baseline — the composition CR-1 was designed against, not the
     # one containing its own output. Getting this wrong makes every assigned identity collide.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 57, 5, "design"),
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 81, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         "BINDING_NODE_UNDECLARED",
+         "COMPOSITION_CC_UNDECLARED",
+         "CONTRACT_WITHOUT_COMPOSITION",
+         "INTERFACE_ARTIFACT_UNDECLARED",
+         "INTERFACE_ARTIFACT_UNDECLARED",
+         "INTERFACE_ARTIFACT_UNDECLARED",
          "NEW_CODE_MALFORMED",
+         "PROVISIONAL_CODE_NEVER_BOUND",
          "STORE_WITHOUT_PROPOSED_PATH",
          "TOPOLOGY_NODE_UNDECLARED",
-     ], 57, 4, "design"),
+         "TOPOLOGY_NODE_UNDECLARED",
+     ], 81, 4, "design"),
     # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
     # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
     # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
@@ -191,17 +199,13 @@ CASES = [
     # stays contiguous over a hole that was never a step. Kept as authored — the finding is the
     # evidence, and rewriting the dossier to make the suite green would delete it.
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
-     "24_p8_unreconciled_catalog_mandate.json", "INADMISSIBLE", [
-         "DESIGNED_ARTIFACT_NOT_SCHEDULED",
-     ], 32, 4, "design"),
+     "24_p8_admissible_catalog_mandate.json", "ADMISSIBLE", [], 33, 5, "design"),
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
      "25_p8_inadmissible_catalog_mandate.json", "INADMISSIBLE", [
          "BUILD_STEPS_NOT_CONTIGUOUS",
-         "CRITICAL_PATH_NOT_IN_BUILD_ORDER",
          "DEPENDENCY_SCHEDULED_LATER",
          "DESIGNED_ARTIFACT_NOT_SCHEDULED",
-         "SCHEDULED_ARTIFACT_NOT_DESIGNED",
-     ], 32, 4),
+     ], 33, 4, "design"),
     # The first two cases whose defect is in neither document. Each register is correct read alone
     # — the P2 resolves every belief it lists, the P3 re-verifies every item it names — and the
     # pipeline is wrong anyway, because a commitment was lost between them. Nothing in the suite
@@ -218,11 +222,9 @@ CASES = [
     # corpus's only fully reconciled one; the second schedules an identity no phase ever designed,
     # which reads as an ordinary well-formed row.
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
-     "28_p8_admissible_reconciled_mandate.json", "ADMISSIBLE", [], 32, 5, "design"),
-    ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
      "29_p8_inadmissible_undesigned_artifact.json", "INADMISSIBLE", [
          "SCHEDULED_ARTIFACT_NOT_DESIGNED",
-     ], 32, 4, "design"),
+     ], 33, 4, "design"),
     # The two edges at the ends of the pipeline. Neither defect is visible in the document that
     # carries it: a change request missing an acceptance criterion is a well-formed change request,
     # and a design that never binds a provisional code is a complete design.
@@ -232,8 +234,10 @@ CASES = [
      ], 98, 3),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "31_p7_inadmissible_unbound_code.json", "INADMISSIBLE", [
+         "INTERFACE_ARTIFACT_UNDECLARED",
+         "INTERFACE_ARTIFACT_UNDECLARED",
          "PROVISIONAL_CODE_NEVER_BOUND",
-     ], 57, 4, "design"),
+     ], 81, 4, "design"),
     # The last two handoffs. P4's consolidation loses a decision P3 committed to; P7 drops a reused
     # artifact P6 declared a dependency satisfied by. The second fires two rules on one edit — an
     # artifact that is inventoried is also composed, so removing it is visible from both directions.
@@ -247,7 +251,14 @@ CASES = [
      "33_p7_inadmissible_dropped_reuse.json", "INADMISSIBLE", [
          "COMPOSITION_STEP_UNDECLARED",
          "SATISFIED_DEPENDENCY_NOT_INVENTORIED",
-     ], 57, 4, "design"),
+     ], 81, 4, "design"),
+    # The other face of reconciliation: an artifact the design declared that the mandate schedules
+    # nowhere. CR-1's own mandate carried this defect until the dossier was completed, so the
+    # corpus has to carry it now — it is the one the P7↔P8 rule was built for.
+    ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
+     "35_p8_inadmissible_dropped_artifact.json", "INADMISSIBLE", [
+         "DESIGNED_ARTIFACT_NOT_SCHEDULED",
+     ], 33, 4, "design"),
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
      "34_p6_inadmissible_unplaced_scope.json", "INADMISSIBLE", [
          "IN_SCOPE_CAPABILITY_UNPLACED",

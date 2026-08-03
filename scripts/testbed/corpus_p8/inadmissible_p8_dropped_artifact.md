@@ -40,7 +40,7 @@
 | 5 | 21 | book_library_mgmt::IN_RETIRE_CATALOG_RECORD_V0 | NEW | catalog | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 |
 | 5 | 22 | book_library_mgmt::IN_SEARCH_CATALOG_V0 | NEW | catalog | book_library_mgmt::WF_SEARCH_CATALOG_V0 |
 | 5 | 23 | book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | NEW | catalog | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 |
-| 5 | 24 | book_library_mgmt::CT_PURE_REQUIRE_TRUE_V0 | NEW | catalog | — |
+| 5 | 24 | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | NEW | catalog | — |
 
 ## 2. Critical Path
 
@@ -58,7 +58,7 @@
 <!-- register:mandate_artifact_summary -->
 | Action | Count | Description |
 |--------|-------|-------------|
-| NEW | 24 | 1 STRUCTURE, 1 AC, 1 CT, 8 CC, 1 RB, 6 WF, 6 IN — all owned by catalog |
+| NEW | 25 | 1 STRUCTURE, 1 AC, 1 CT, 1 VOCAB, 8 CC, 1 RB, 6 WF, 6 IN — all owned by catalog |
 
 ## 4. Field Declarations
 
@@ -66,6 +66,15 @@
 | Code | Subdomain Field |
 |------|-----------------|
 | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 | catalog |
+| book_library_mgmt::AC_LIBRARY_STAFF_V0 | catalog |
+| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | catalog |
+| book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | catalog |
+| book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | catalog |
+| book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | catalog |
+| book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | catalog |
+| book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | catalog |
+| book_library_mgmt::CC_SEARCH_CATALOG_V0 | catalog |
+| book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | catalog |
 | book_library_mgmt::RB_CATALOG_BINDINGS_V0 | catalog |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | catalog |
 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | catalog |
@@ -73,6 +82,13 @@
 | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | catalog |
 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | catalog |
 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | catalog |
+| book_library_mgmt::IN_REGISTER_BOOK_V0 | catalog |
+| book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0 | catalog |
+| book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | catalog |
+| book_library_mgmt::IN_RETIRE_CATALOG_RECORD_V0 | catalog |
+| book_library_mgmt::IN_SEARCH_CATALOG_V0 | catalog |
+| book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | catalog |
+| book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | catalog |
 
 ## 5. New Capabilities
 
