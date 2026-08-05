@@ -524,6 +524,110 @@ core:
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
           intent: business registers name no compiled artifact
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: identity_and_sameness
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: identity_and_sameness
+          params:
+            columns:
+            - Business Object
+            - Identified By
+            - Two Are The Same When
+          intent: downstream phases read these columns by name
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: identity_and_sameness
+          params:
+            columns:
+            - Business Object
+            - Identified By
+            - Two Are The Same When
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: lifecycle_transitions
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: lifecycle_transitions
+          params:
+            columns:
+            - Object
+            - From State
+            - To State
+            - Triggered By
+            - Cascade
+          intent: downstream phases read these columns by name
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: lifecycle_transitions
+          params:
+            columns:
+            - Object
+            - From State
+            - To State
+            - Triggered By
+            - Cascade
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: operation_refusals
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: operation_refusals
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Business Reason
+          intent: downstream phases read these columns by name
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: operation_refusals
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Business Reason
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: authority_deferrals
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: authority_deferrals
+          params:
+            columns:
+            - Business Object
+            - Deferred To
+            - Until
+          intent: downstream phases read these columns by name
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: authority_deferrals
+          params:
+            columns:
+            - Business Object
+            - Deferred To
+            - Until
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
         - id: BELIEF_CARRIES_CERTAINTY
           check: COLUMN_ABSENT
           register: system_beliefs

@@ -271,6 +271,50 @@ internals.*
 
 ---
 
+## 16. Identity and Sameness
+
+*What identifies each business object, and when two of them are the same thing. S3 eliminates any
+design that cannot enforce the sameness rule; S5 declares it as behaviour.*
+
+<!-- register:identity_and_sameness business_language optional -->
+| Business Object | Identified By | Two Are The Same When | Source Finding |
+|-----------------|---------------|-----------------------|----------------|
+
+---
+
+## 17. Lifecycle Transitions
+
+*What moves an object between states, and what does not follow from it. A transition whose Cascade is
+declared as none forbids a later phase from inventing one.*
+
+<!-- register:lifecycle_transitions business_language optional -->
+| Object | From State | To State | Triggered By | Cascade | Source Finding |
+|--------|------------|----------|--------------|---------|----------------|
+
+---
+
+## 18. Operation Refusals
+
+*When an operation must refuse, and why in business terms. S5 declares each refusal; an omitted
+refusal becomes a path that succeeds when the business requires it to fail.*
+
+<!-- register:operation_refusals business_language optional -->
+| Operation | Refused When | Business Reason | Source Finding |
+|-----------|--------------|-----------------|----------------|
+
+---
+
+## 19. Authority Deferrals
+
+*Authority this CR does not take, and where it is expected to land. S6 places only what §11 owns
+now; a deferral here keeps it from placing what does not yet exist.*
+
+<!-- register:authority_deferrals business_language optional -->
+| Business Object | Deferred To | Until | Source Finding |
+|-----------------|-------------|-------|----------------|
+
+---
+
 ## gov_projection — Governed Handoff to Stage 2
 
 *Governed, lossless, identity-preserving (Stage 0 / field manual §4.7). Emit keys match the
@@ -282,4 +326,4 @@ human at the S1 gate before Stage 2 proceeds.*
 | Direction | Fields |
 |-----------|--------|
 | **Consumes** ← CR seed | human elicitation answers (the seed) |
-| **Emits** → Stage 2 | cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria |
+| **Emits** → Stage 2 | cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |

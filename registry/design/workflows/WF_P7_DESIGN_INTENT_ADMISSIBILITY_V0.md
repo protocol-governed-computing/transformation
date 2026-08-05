@@ -114,6 +114,7 @@ core:
             - authoring_decisions
             - authoring_scope
             - authority_boundaries
+            - authority_deferrals
             - belief_verification
             - bm_entities
             - boundary_rules
@@ -148,6 +149,7 @@ core:
             - gaps
             - governance_outcome
             - governance_scope
+            - identity_and_sameness
             - identity_semantics
             - impact_analysis
             - implementation_bindings
@@ -155,11 +157,13 @@ core:
             - invariants
             - known_facts
             - lifecycle_states
+            - lifecycle_transitions
             - mandate_artifact_summary
             - new_artifacts
             - new_capabilities
             - new_intents
             - open_questions
+            - operation_refusals
             - out_of_scope
             - ownership
             - placement_decision

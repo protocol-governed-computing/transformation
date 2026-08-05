@@ -65,6 +65,10 @@ invention. Both failures are silent, and both originate here.
 | Which subdomains does this touch, and how? | §13 Governance Scope — P6 reads placement from this |
 | What could you not answer? | §14 Clarification Requests — asked, never guessed |
 | How will you know it worked, without looking inside? | §15 Acceptance Criteria — business-observable, testable without runtime internals |
+| What identifies each object, and when are two of them the same thing? | §16 Identity and Sameness — P2 grounds identity in the model, P5 turns sameness into a declared rule |
+| What moves an object between states, and what does *not* follow from it? | §17 Lifecycle Transitions — P5 declares the transitions; a cascade nobody asked for is invented behaviour |
+| When must an operation refuse? | §18 Operation Refusals — P5 turns a refusal into declared behaviour rather than an unhandled path |
+| Which authority is deliberately left to a later change? | §19 Authority Deferrals — P6 must not place what this change does not own |
 
 An unanswered question is an open gap, never licence to assume.
 
@@ -170,6 +174,45 @@ rediscovered.*
 | Criterion |
 |-----------|
 
+## 16. Identity and Sameness
+
+*What identifies each business object, and the business rule that decides when two of them are the
+same thing. A domain that cannot say when two records describe one object cannot prevent a duplicate,
+and "a single authoritative record" is unverifiable.*
+
+<!-- register:identity_and_sameness business_language optional -->
+| Business Object | Identified By | Two Are The Same When |
+|-----------------|---------------|-----------------------|
+
+## 17. Lifecycle Transitions
+
+*What moves an object from one state to another, and what does **not** follow from it. The Cascade
+column is the register's reason for existing: a transition that triggers nothing must say so, because
+otherwise a later phase is free to invent the cascade the business never asked for.*
+
+<!-- register:lifecycle_transitions business_language optional -->
+| Object | From State | To State | Triggered By | Cascade |
+|--------|------------|----------|--------------|---------|
+
+## 18. Operation Refusals
+
+*When an operation must refuse, and the business reason. A refusal the business requires and the seed
+omits becomes, downstream, an unhandled path that silently succeeds.*
+
+<!-- register:operation_refusals business_language optional -->
+| Operation | Refused When | Business Reason |
+|-----------|--------------|-----------------|
+
+## 19. Authority Deferrals
+
+*Authority this change deliberately does not take, and where it is expected to land. Distinct from
+§11: an owner named there is owned **now**, and a deferral recorded as an owner is placement P6 will
+perform against a function that does not exist.*
+
+<!-- register:authority_deferrals business_language optional -->
+| Business Object | Deferred To | Until |
+|-----------------|-------------|-------|
+
 ---
 
 ## gov_projection — Governed Handoff to Stage 1
@@ -180,4 +223,4 @@ what the seed established. Emit keys match the register ids above exactly.*
 | Direction | Fields |
 |-----------|--------|
 | **Consumes** ← human | business problem statement |
-| **Emits** → Stage 1 | subdomain_purpose · cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria |
+| **Emits** → Stage 1 | subdomain_purpose · cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |

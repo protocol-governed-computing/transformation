@@ -185,3 +185,35 @@ from; P1 classifies and traces, it does not add. Business language only — noth
 | Offering the same seed twice produces the same verdict. | CR seed §15 Acceptance Criteria #4 |
 | A seed records exactly one author of record, and a gate acceptance records the person who gave it. | CR seed §15 Acceptance Criteria #5 |
 | A seed that fails the gate is not consumed by any later phase. | CR seed §15 Acceptance Criteria #6 |
+
+## 16. Identity and Sameness
+
+<!-- register:identity_and_sameness business_language optional -->
+| Business Object | Identified By | Two Are The Same When | Source Finding |
+|-----------------|---------------|-----------------------|----------------|
+
+---
+
+## 17. Lifecycle Transitions
+
+<!-- register:lifecycle_transitions business_language optional -->
+| Object | From State | To State | Triggered By | Cascade | Source Finding |
+|--------|------------|----------|--------------|---------|----------------|
+
+---
+
+## 18. Operation Refusals
+
+<!-- register:operation_refusals business_language optional -->
+| Operation | Refused When | Business Reason | Source Finding |
+|-----------|--------------|-----------------|----------------|
+
+---
+
+## 19. Authority Deferrals
+
+<!-- register:authority_deferrals business_language optional -->
+| Business Object | Deferred To | Until | Source Finding |
+|-----------------|-------------|-------|----------------|
+
+---

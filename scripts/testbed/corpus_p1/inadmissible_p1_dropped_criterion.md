@@ -176,3 +176,35 @@ from; P1 classifies and traces, it does not add. Business language only — noth
 | Authorized staff can retrieve the complete details of a registered book. | CR seed §15 Acceptance Criteria #6 |
 | Registering the same book twice does not produce two authoritative records for it. | CR seed §15 Acceptance Criteria #8 |
 | Every catalog operation performed can be traced and audited after the fact. | CR seed §15 Acceptance Criteria #9 |
+
+## 16. Identity and Sameness
+
+<!-- register:identity_and_sameness business_language optional -->
+| Business Object | Identified By | Two Are The Same When | Source Finding |
+|-----------------|---------------|-----------------------|----------------|
+
+---
+
+## 17. Lifecycle Transitions
+
+<!-- register:lifecycle_transitions business_language optional -->
+| Object | From State | To State | Triggered By | Cascade | Source Finding |
+|--------|------------|----------|--------------|---------|----------------|
+
+---
+
+## 18. Operation Refusals
+
+<!-- register:operation_refusals business_language optional -->
+| Operation | Refused When | Business Reason | Source Finding |
+|-----------|--------------|-----------------|----------------|
+
+---
+
+## 19. Authority Deferrals
+
+<!-- register:authority_deferrals business_language optional -->
+| Business Object | Deferred To | Until | Source Finding |
+|-----------------|-------------|-------|----------------|
+
+---

@@ -187,3 +187,27 @@ the foundation that the rest of the blockchain system relies on.
 | A block recorded in the ledger never changes or disappears. |
 | The total recorded supply on the ledger is 1,000,000 BachiCoin, held initially by the Genesis Actor. |
 | Once committed, a block and its contained transactions are treated as authoritative. |
+
+## 16. Identity and Sameness
+
+<!-- register:identity_and_sameness business_language optional -->
+| Business Object | Identified By | Two Are The Same When |
+|-----------------|---------------|-----------------------|
+
+## 17. Lifecycle Transitions
+
+<!-- register:lifecycle_transitions business_language optional -->
+| Object | From State | To State | Triggered By | Cascade |
+|--------|------------|----------|--------------|---------|
+
+## 18. Operation Refusals
+
+<!-- register:operation_refusals business_language optional -->
+| Operation | Refused When | Business Reason |
+|-----------|--------------|-----------------|
+
+## 19. Authority Deferrals
+
+<!-- register:authority_deferrals business_language optional -->
+| Business Object | Deferred To | Until |
+|-----------------|-------------|-------|
