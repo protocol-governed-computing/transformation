@@ -856,6 +856,22 @@ def _normalise(text: str) -> str:
     return " ".join(text.split())
 
 
+def _key_columns(declared: str | list[str]) -> list[str]:
+    """A key column declaration, as a list.
+
+    Some registers are keyed by one column and some by several: an acceptance criterion is unique on
+    its own text, while a lifecycle state is unique only as `Object` + `State` — `Registered` appears
+    once per object. Declaring a single column for those would compare a book's row against a copy's
+    and call a dropped row present.
+    """
+    return [declared] if isinstance(declared, str) else list(declared)
+
+
+def _claim(row: dict, columns: list[str]) -> str:
+    """What a row asserts, as one comparable string across its key columns."""
+    return " · ".join(_normalise(_cell(row, c)) for c in columns)
+
+
 @check("PRIOR_ROWS_CITED")
 def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """Every row of an upstream register must be carried forward and cited here.
@@ -1034,8 +1050,8 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
 
     phase = rule.params["prior_phase"]
     register = rule.params["prior_register"]
-    prior_key = rule.params["prior_key_column"]
-    key = rule.params["key_column"]
+    prior_key = _key_columns(rule.params["prior_key_column"])
+    key = _key_columns(rule.params["key_column"])
 
     # A phase may owe a carry for only some upstream rows: every capability P5 declares IN_SCOPE
     # must be placed at P6, while a DEFERRED one is under no such obligation. The filter reads the
@@ -1043,14 +1059,14 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
     gate_column = rule.params.get("prior_only_when_column")
     gate_value = rule.params.get("prior_only_when_value")
 
-    here = {_normalise(_cell(row, key)) for _, row in _rows(doc, rule)}
+    here = {_claim(row, key) for _, row in _rows(doc, rule)}
 
     out = []
     total = len(prior_rows)
     for ordinal, row in prior_rows:
         if gate_column and _cell(row, gate_column) != gate_value:
             continue
-        claim = _normalise(_cell(row, prior_key))
+        claim = _claim(row, prior_key)
         if not claim or claim in here:
             continue
         out.append((

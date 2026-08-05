@@ -48,6 +48,23 @@ SEED_PRESERVATION = (
     ("requested_outcomes", "Outcome"),
     ("business_invariants", "Invariant"),
     ("acceptance_criteria", "Criterion"),
+    ("known_facts", "Fact"),
+    ("business_vocabulary", "Term"),
+    ("constraints", "Constraint"),
+    # An assumption dropped here is never overturned at P2 — it is simply gone, and nothing records
+    # that the change once rested on it.
+    ("assumptions", "Assumption"),
+    ("business_events", "Event"),
+    ("authority_boundaries", "Business Object"),
+    ("out_of_scope", "Item"),
+    ("governance_scope", "Scope Item"),
+    ("identity_and_sameness", "Business Object"),
+    ("authority_deferrals", "Business Object"),
+    # Keyed on several columns, because no single one identifies the row: `Registered` is a state of
+    # both a book and a copy, and one operation refuses under more than one condition.
+    ("lifecycle_states", ["Object", "State"]),
+    ("lifecycle_transitions", ["Object", "From State", "To State"]),
+    ("operation_refusals", ["Operation", "Refused When"]),
 )
 
 
@@ -63,8 +80,10 @@ def _seed_rules() -> list[Rule]:
                 params={
                     "prior_phase": "p0",
                     "prior_register": register,
-                    "prior_key_column": key,
-                    "key_column": key,
+                    # Copied rather than shared: one list object referenced twice emits a YAML
+                    # anchor and an alias into the sealed rule set, which is not readable as data.
+                    "prior_key_column": list(key) if isinstance(key, list) else key,
+                    "key_column": list(key) if isinstance(key, list) else key,
                 },
                 intent="P0 reorganizes and P1 restates; neither may drop what the business said",
             )

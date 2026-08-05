@@ -82,7 +82,7 @@ from; P1 classifies and traces, it does not add. Business language only — noth
 <!-- register:assumptions business_language optional -->
 | Assumption | Basis | Source Finding |
 |------------|-------|----------------|
-| The seed template's section structure is stable and will not change while this CR is in flight. | It is fixed by the reference elicitation already in use. | CR seed §6 Assumptions |
+| The seed template's register structure is stable and will not change while this CR is in flight. | It is fixed by the reference elicitation already in use. | CR seed §6 Assumptions |
 | A person can supply every register by hand, so the pipeline never depends on an automated drafter. | Stated release constraint. | CR seed §6 Assumptions |
 
 ## 7. Constraints

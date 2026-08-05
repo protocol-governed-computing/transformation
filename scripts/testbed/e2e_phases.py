@@ -74,7 +74,7 @@ CASES = [
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
      "05_inadmissible_truncated.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 8, 80, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-     "06_p1_admissible_register.json", "ADMISSIBLE", [], 118, 4),
+     "06_p1_admissible_register.json", "ADMISSIBLE", [], 131, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
      "07_p1_inadmissible_register.json", "INADMISSIBLE", [
          "CELL_NOT_IN_VOCABULARY",
@@ -87,7 +87,7 @@ CASES = [
          # fixture was cut for the first defect years before the second rule existed.
          "SEED_ROW_NOT_CARRIED",
          "SOURCE_FINDING_UNRESOLVED",
-     ], 118, 3),
+     ], 131, 3),
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
      "08_p2_admissible_register.json", "ADMISSIBLE", [], 64, 4),
     # Grounding: a misspelled identity and a right-code/wrong-namespace one are defects; an
@@ -103,7 +103,7 @@ CASES = [
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
      "10_p0_admissible_catalog_seed.json", "ADMISSIBLE", [], 80, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 118, 4),
+     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 131, 4),
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
      "12_p2_admissible_catalog_register.json", "ADMISSIBLE", [], 64, 4),
     # The rules must bite on business content, not only on documents about the pipeline. A
@@ -233,7 +233,7 @@ CASES = [
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
      "30_p1_inadmissible_dropped_criterion.json", "INADMISSIBLE", [
          "SEED_ROW_NOT_CARRIED",
-     ], 118, 3),
+     ], 131, 3),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "31_p7_inadmissible_unbound_code.json", "INADMISSIBLE", [
          "INTERFACE_ARTIFACT_UNDECLARED",

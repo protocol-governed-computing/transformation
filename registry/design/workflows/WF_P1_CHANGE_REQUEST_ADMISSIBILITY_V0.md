@@ -1120,6 +1120,137 @@ core:
             prior_key_column: Criterion
             key_column: Criterion
           intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: known_facts
+          params:
+            prior_phase: p0
+            prior_register: known_facts
+            prior_key_column: Fact
+            key_column: Fact
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: business_vocabulary
+          params:
+            prior_phase: p0
+            prior_register: business_vocabulary
+            prior_key_column: Term
+            key_column: Term
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: constraints
+          params:
+            prior_phase: p0
+            prior_register: constraints
+            prior_key_column: Constraint
+            key_column: Constraint
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: assumptions
+          params:
+            prior_phase: p0
+            prior_register: assumptions
+            prior_key_column: Assumption
+            key_column: Assumption
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: business_events
+          params:
+            prior_phase: p0
+            prior_register: business_events
+            prior_key_column: Event
+            key_column: Event
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: authority_boundaries
+          params:
+            prior_phase: p0
+            prior_register: authority_boundaries
+            prior_key_column: Business Object
+            key_column: Business Object
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: out_of_scope
+          params:
+            prior_phase: p0
+            prior_register: out_of_scope
+            prior_key_column: Item
+            key_column: Item
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: governance_scope
+          params:
+            prior_phase: p0
+            prior_register: governance_scope
+            prior_key_column: Scope Item
+            key_column: Scope Item
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: identity_and_sameness
+          params:
+            prior_phase: p0
+            prior_register: identity_and_sameness
+            prior_key_column: Business Object
+            key_column: Business Object
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: authority_deferrals
+          params:
+            prior_phase: p0
+            prior_register: authority_deferrals
+            prior_key_column: Business Object
+            key_column: Business Object
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: lifecycle_states
+          params:
+            prior_phase: p0
+            prior_register: lifecycle_states
+            prior_key_column:
+            - Object
+            - State
+            key_column:
+            - Object
+            - State
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: lifecycle_transitions
+          params:
+            prior_phase: p0
+            prior_register: lifecycle_transitions
+            prior_key_column:
+            - Object
+            - From State
+            - To State
+            key_column:
+            - Object
+            - From State
+            - To State
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: SEED_ROW_NOT_CARRIED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: operation_refusals
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column:
+            - Operation
+            - Refused When
+            key_column:
+            - Operation
+            - Refused When
+          intent: P0 reorganizes and P1 restates; neither may drop what the business said
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:
