@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -70,9 +71,9 @@ CASES = [
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
      ], 80, 3),
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
-     "04_inadmissible_structural.json", "INADMISSIBLE", ["REGISTER_MISSING"], 80, 3),
+     "04_inadmissible_structural.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 5, 80, 3),
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
-     "05_inadmissible_truncated.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 8, 80, 4),
+     "05_inadmissible_truncated.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 12, 80, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
      "06_p1_admissible_register.json", "ADMISSIBLE", [], 131, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
@@ -85,6 +86,9 @@ CASES = [
          # The leak and the loss are one edit seen from two sides: naming a transform inside a
          # business invariant also stops the row restating the invariant the seed declared. The
          # fixture was cut for the first defect years before the second rule existed.
+         "SEED_ROW_NOT_CARRIED",
+         # The second is the assumption this fixture inherits from the change request it was cut
+         # from, reworded there from "register structure" to "section structure".
          "SEED_ROW_NOT_CARRIED",
          "SOURCE_FINDING_UNRESOLVED",
      ], 131, 3),
@@ -397,8 +401,13 @@ def main() -> int:
         if verdict != want_verdict:
             problems.append(f"verdict {verdict} != {want_verdict}")
         if fired != expected:
-            missing = [r for r in expected if r not in fired]
-            unexpected = [r for r in fired if r not in expected]
+            # Compared as multisets, not as sets. Membership tests alone report nothing when a rule
+            # fires twice against one expected occurrence — the lists differ, `missing` and
+            # `unexpected` both come back empty, and the case prints OK over a real change in what
+            # the phase found. That is how a second SEED_ROW_NOT_CARRIED went unreported here.
+            fired_counts, expected_counts = Counter(fired), Counter(expected)
+            missing = sorted((expected_counts - fired_counts).elements())
+            unexpected = sorted((fired_counts - expected_counts).elements())
             if missing:
                 problems.append(f"rules that did not fire: {missing}")
             if unexpected:
