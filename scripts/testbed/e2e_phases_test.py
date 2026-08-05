@@ -109,11 +109,11 @@ CASES = [
     # domain, so it grounds every claim against artifacts this repo also wrote; the catalog CR
     # grounds against a composition it contributed nothing to, which is the harder case.
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
-     "10_p0_admissible_catalog_seed.json", "ADMISSIBLE", [], 80, 4),
+     "10_p0_admissible_catalog_seed.json", "ADMISSIBLE", [], 80, 5),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 167, 4),
+     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 167, 5),
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
-     "12_p2_admissible_catalog_register.json", "ADMISSIBLE", [], 64, 4),
+     "12_p2_admissible_catalog_register.json", "ADMISSIBLE", [], 64, 5),
     # The rules must bite on business content, not only on documents about the pipeline. A
     # misspelled identity and a right-code/wrong-namespace one are defects; design leaking into a
     # business-language cell is a third. An identity merely absent from the baseline stays
@@ -123,18 +123,18 @@ CASES = [
          "BASELINE_IDENTITY_UNRESOLVED",
          "BASELINE_IDENTITY_UNRESOLVED",
          "DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE",
-     ], 64, 1),
+     ], 64, 2),
     # P3 decides, so it observes twice: the artifact list resolves identities, the composition
     # summary carries what each domain declares about being reused. The inadmissible case offers a
     # business CR a pipeline capability and a conformance workload — a confusion that is invisible
     # in the document and only a declaration can settle.
     ("P3", "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0",
-     "14_p3_admissible_catalog_register.json", "ADMISSIBLE", [], 48, 4),
+     "14_p3_admissible_catalog_register.json", "ADMISSIBLE", [], 48, 5),
     ("P3", "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0",
      "15_p3_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "REUSE_CANDIDATE_NOT_ELIGIBLE",
          "REUSE_CANDIDATE_NOT_ELIGIBLE",
-     ], 48, 3),
+     ], 48, 4),
     # P4 consolidates: its defects live between registers, where every register is individually
     # well formed and the document as a whole asserts something untrue. The admissible case is the
     # corpus's only 5/5 — a consolidation carries no open questions of its own, because P3
@@ -152,7 +152,7 @@ CASES = [
     # provisional code must NOT be namespaced, while a borrowed capability MUST be — one names
     # what this change creates, the other what it leans on.
     ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
-     "18_p5_admissible_catalog_register.json", "ADMISSIBLE", [], 53, 4),
+     "18_p5_admissible_catalog_register.json", "ADMISSIBLE", [], 53, 5),
     ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
      "19_p5_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "BINDING_LEAKED_INTO_INTENT",
@@ -168,15 +168,12 @@ CASES = [
      "20_p6_admissible_catalog_register.json", "ADMISSIBLE", [], 45, 5),
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
      "21_p6_inadmissible_catalog_register.json", "INADMISSIBLE", [
+         # A provisional code where a capability belongs unplaces the capability P5 named and
+         # dangles the outcome row that restates it — one edit, three rules.
          "DEPENDENCY_DIRECTION_MALFORMED",
-         # Writing a provisional code where a capability belongs also stops P5's in-scope
-         # capability being placed under the name P5 gave it — one edit, two rules, and the
-         # fixture was cut for the first long before the second existed.
          "IN_SCOPE_CAPABILITY_UNPLACED",
          "OUTCOME_CAPABILITY_UNPLACED",
-         "OUTCOME_CAPABILITY_UNPLACED",
          "PROVISIONAL_CODE_IN_PLACEMENT",
-         "SATISFIED_WITHOUT_EXISTING_ARTIFACT",
      ], 45, 4),
     # P7 assigns binding identity, and one of its rules runs backwards: every other grounded phase
     # is wrong when a citation fails to resolve, this one is wrong when a NEW code *does*. A
@@ -187,13 +184,14 @@ CASES = [
      "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 93, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
-         # Two, not three: the third was the search step's `filter` input binding, removed from the
-         # dossier when `LIST` was corrected to `SELECT` — `LIST` accepted no input to bind.
+         "BINDING_STEP_OWNER_UNDECLARED",
+         "BINDING_STEP_OWNER_UNDECLARED",
+         "BINDING_STEP_OWNER_UNDECLARED",
          "BINDING_STEP_OWNER_UNDECLARED",
          "BINDING_STEP_OWNER_UNDECLARED",
          "COMPOSITION_CC_UNDECLARED",
+         "COMPOSITION_CC_UNDECLARED",
          "CONTRACT_WITHOUT_COMPOSITION",
-         "INTERFACE_ARTIFACT_UNDECLARED",
          "INTERFACE_ARTIFACT_UNDECLARED",
          "INTERFACE_ARTIFACT_UNDECLARED",
          "NEW_CODE_MALFORMED",
@@ -224,11 +222,11 @@ CASES = [
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
      "26_p2_inadmissible_dropped_belief.json", "INADMISSIBLE", [
          "BELIEF_NOT_CARRIED_FROM_P1",
-     ], 64, 3),
+     ], 64, 4),
     ("P3", "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0",
      "27_p3_inadmissible_restated_result.json", "INADMISSIBLE", [
          "BELIEF_RESULT_RESTATED_FROM_P2",
-     ], 48, 3),
+     ], 48, 4),
     # Reconciliation, both directions. A mandate scheduling everything the design declared is the
     # corpus's only fully reconciled one; the second schedules an identity no phase ever designed,
     # which reads as an ordinary well-formed row.
@@ -242,7 +240,7 @@ CASES = [
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
      "30_p1_inadmissible_dropped_criterion.json", "INADMISSIBLE", [
          "SEED_ROW_NOT_CARRIED",
-     ], 167, 3),
+     ], 167, 4),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "31_p7_inadmissible_unbound_code.json", "INADMISSIBLE", [
          "INTERFACE_ARTIFACT_UNDECLARED",
@@ -261,7 +259,6 @@ CASES = [
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "33_p7_inadmissible_dropped_reuse.json", "INADMISSIBLE", [
          "COMPOSITION_STEP_UNDECLARED",
-         "SATISFIED_DEPENDENCY_NOT_INVENTORIED",
      ], 93, 4, "design"),
     # The other face of reconciliation: an artifact the design declared that the mandate schedules
     # nowhere. CR-1's own mandate carried this defect until the dossier was completed, so the
@@ -273,6 +270,7 @@ CASES = [
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
      "34_p6_inadmissible_unplaced_scope.json", "INADMISSIBLE", [
          "IN_SCOPE_CAPABILITY_UNPLACED",
+         "OUTCOME_CAPABILITY_UNPLACED",
      ], 45, 4),
 ]
 

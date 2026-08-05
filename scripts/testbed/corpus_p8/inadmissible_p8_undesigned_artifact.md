@@ -1,48 +1,73 @@
-# Authoring Mandate — book_library_mgmt / catalog
+# Stage 8 — Authoring Mandate: book_library_mgmt / catalog
 
 **Stage:** 8 — Authoring Mandate
 **CR:** cr_01_catalog
 **Status:** DRAFT
-**Feeds:** artifact authoring
+**Feeds:** Artifact Authoring
 
-> P8 adds nothing and drops nothing. It orders what Stage 7 assigned into the only sequence the
-> dependency graph admits — storage before the bindings that resolve it, capabilities before the
-> workflows that compose them, workflows before the intents that start them. Every code is copied
-> verbatim. Gate 2 closes here.
+The forty artifacts Stage 7 designed, scheduled in dependency order. Nothing is added here and nothing
+is dropped: the mandate orders the build, it does not decide it.
 
 ---
 
-## 1. Build Order
+## 1. Build Dependency Order
 
 <!-- register:build_order -->
 | Wave | Step | Code | Action (REPLACE, EXTEND, NEW) | Subdomain | Depends On |
 |------|------|------|-------------------------------|-----------|------------|
 | 1 | 1 | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 | NEW | catalog | — |
-| 1 | 2 | book_library_mgmt::AC_LIBRARY_STAFF_V0 | NEW | catalog | — |
-| 2 | 3 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | NEW | catalog | book_library_mgmt::AC_LIBRARY_STAFF_V0 |
-| 2 | 4 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 2 | 5 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 2 | 6 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 2 | 7 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 2 | 8 | book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 2 | 9 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 2 | 10 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 3 | 11 | book_library_mgmt::RB_CATALOG_BINDINGS_V0 | NEW | catalog | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 4 | 12 | book_library_mgmt::WF_REGISTER_BOOK_V0 | NEW | catalog | book_library_mgmt::RB_CATALOG_BINDINGS_V0; book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0; book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 |
-| 4 | 13 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | NEW | catalog | book_library_mgmt::RB_CATALOG_BINDINGS_V0; book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0; book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 |
-| 4 | 14 | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | NEW | catalog | book_library_mgmt::RB_CATALOG_BINDINGS_V0; book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
-| 4 | 15 | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | NEW | catalog | book_library_mgmt::RB_CATALOG_BINDINGS_V0; book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 |
-| 4 | 16 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | NEW | catalog | book_library_mgmt::RB_CATALOG_BINDINGS_V0; book_library_mgmt::CC_SEARCH_CATALOG_V0 |
-| 4 | 17 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | NEW | catalog | book_library_mgmt::RB_CATALOG_BINDINGS_V0; book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 |
-| 5 | 18 | book_library_mgmt::IN_REGISTER_BOOK_V0 | NEW | catalog | book_library_mgmt::WF_REGISTER_BOOK_V0 |
-| 5 | 19 | book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0 | NEW | catalog | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 |
-| 5 | 20 | book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | NEW | catalog | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |
-| 5 | 21 | book_library_mgmt::IN_RETIRE_CATALOG_RECORD_V0 | NEW | catalog | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 |
-| 5 | 22 | book_library_mgmt::IN_SEARCH_CATALOG_V0 | NEW | catalog | book_library_mgmt::WF_SEARCH_CATALOG_V0 |
-| 5 | 23 | book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | NEW | catalog | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 |
-| 5 | 24 | book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | NEW | catalog | — |
-| 5 | 25 | book_library_mgmt::VOCAB_CATALOG_STATES_V0 | NEW | catalog | — |
-| 5 | 26 | book_library_mgmt::CC_ARCHIVE_CATALOG_RECORD_V0 | NEW | catalog | — |
+| 1 | 2 | book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | NEW | catalog | — |
+| 1 | 3 | book_library_mgmt::AC_LIBRARY_STAFF_V0 | NEW | catalog | — |
+| 1 | 4 | book_library_mgmt::EV_BOOK_REGISTERED_V0 | NEW | catalog | — |
+| 1 | 5 | book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0 | NEW | catalog | — |
+| 1 | 6 | book_library_mgmt::EV_BIBLIOGRAPHIC_INFORMATION_UPDATED_V0 | NEW | catalog | — |
+| 1 | 7 | book_library_mgmt::EV_BOOK_RETIRED_V0 | NEW | catalog | — |
+| 1 | 8 | book_library_mgmt::EV_PHYSICAL_COPY_RETIRED_V0 | NEW | catalog | — |
+| 2 | 9 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | NEW | catalog | capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0 |
+| 2 | 10 | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | NEW | catalog | book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0, capability_side_effects::CS_REGISTRY_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 11 | book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | NEW | catalog | capability_side_effects::CS_REGISTRY_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 12 | book_library_mgmt::CC_REGISTER_BOOK_V0 | NEW | catalog | capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0, capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0, capability_side_effects::CS_MUTABLE_JSON_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 13 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | NEW | catalog | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0, capability_side_effects::CS_MUTABLE_JSON_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 14 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | NEW | catalog | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0, capability_side_effects::CS_MUTABLE_JSON_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 15 | book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0 | NEW | catalog | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0, capability_side_effects::CS_MUTABLE_JSON_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 16 | book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0 | NEW | catalog | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0, capability_side_effects::CS_MUTABLE_JSON_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 17 | book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0 | NEW | catalog | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0, capability_side_effects::CS_MUTABLE_JSON_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 18 | book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0 | NEW | catalog | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0, capability_side_effects::CS_MUTABLE_JSON_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 19 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | NEW | catalog | capability_side_effects::CS_MUTABLE_JSON_V0, capability_transforms::CT_PURE_FILTER_RECORDS_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 20 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | NEW | catalog | capability_side_effects::CS_MUTABLE_JSON_V0, capability_transforms::CT_PURE_FILTER_RECORDS_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 2 | 21 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | NEW | catalog | capability_side_effects::CS_APPENDONLY_JSONL_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 3 | 22 | book_library_mgmt::IN_REGISTER_BOOK_V0 | NEW | catalog | — |
+| 3 | 23 | book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0 | NEW | catalog | — |
+| 3 | 24 | book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | NEW | catalog | — |
+| 3 | 25 | book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0 | NEW | catalog | — |
+| 3 | 26 | book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0 | NEW | catalog | — |
+| 3 | 27 | book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0 | NEW | catalog | — |
+| 3 | 28 | book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0 | NEW | catalog | — |
+| 3 | 29 | book_library_mgmt::IN_SEARCH_CATALOG_V0 | NEW | catalog | — |
+| 3 | 30 | book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | NEW | catalog | — |
+| 4 | 31 | book_library_mgmt::WF_REGISTER_BOOK_V0 | NEW | catalog | book_library_mgmt::IN_REGISTER_BOOK_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0, book_library_mgmt::CC_REGISTER_BOOK_V0, book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0, book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0, book_library_mgmt::EV_BOOK_REGISTERED_V0, book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0 |
+| 4 | 32 | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | NEW | catalog | book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0, book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0, book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0 |
+| 4 | 33 | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | NEW | catalog | book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0, book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0, book_library_mgmt::EV_BIBLIOGRAPHIC_INFORMATION_UPDATED_V0 |
+| 4 | 34 | book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0 | NEW | catalog | book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0, book_library_mgmt::EV_BOOK_RETIRED_V0 |
+| 4 | 35 | book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0 | NEW | catalog | book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0, book_library_mgmt::EV_PHYSICAL_COPY_RETIRED_V0 |
+| 4 | 36 | book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0 | NEW | catalog | book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0, book_library_mgmt::EV_BOOK_REGISTERED_V0 |
+| 4 | 37 | book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0 | NEW | catalog | book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0, book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0 |
+| 4 | 38 | book_library_mgmt::WF_SEARCH_CATALOG_V0 | NEW | catalog | book_library_mgmt::IN_SEARCH_CATALOG_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_SEARCH_CATALOG_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 |
+| 4 | 39 | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | NEW | catalog | book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0, book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0, book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0, book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 |
+| 5 | 40 | book_library_mgmt::RB_CATALOG_BINDINGS_V0 | NEW | catalog | book_library_mgmt::WF_REGISTER_BOOK_V0, book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0, book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0, book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0, book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0, book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0, book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0, book_library_mgmt::WF_SEARCH_CATALOG_V0, book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0, book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
+| 5 | 41 | book_library_mgmt::CC_ARCHIVE_CATALOG_RECORD_V0 | NEW | catalog | — |
+
+Wave 1 depends on nothing: the store declaration, the identity transform, the actor and the five
+business moments. Wave 2 composes the thirteen capability contracts over those and over the platform
+mechanisms reused as-is. Wave 3 declares the nine entry points. Wave 4 wires the nine workflows, each
+over its own entry point, its contracts and the moments it recognises. Wave 5 is the runtime binding,
+which binds every workflow and therefore comes last.
+
+The platform's `capability_side_effects::CS_MUTABLE_JSON_V0` is extended, not authored, so it is
+not a step here — it already exists in the composition, and a mandate schedules only what does not.
+It is recorded in §3 and §7.
+
+---
 
 ## 2. Critical Path
 
@@ -50,80 +75,116 @@
 | Position | Code |
 |----------|------|
 | 1 | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 |
-| 2 | book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 |
-| 3 | book_library_mgmt::RB_CATALOG_BINDINGS_V0 |
-| 4 | book_library_mgmt::WF_REGISTER_BOOK_V0 |
-| 5 | book_library_mgmt::IN_REGISTER_BOOK_V0 |
+| 2 | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 |
+| 3 | book_library_mgmt::WF_REGISTER_BOOK_V0 |
+| 4 | book_library_mgmt::RB_CATALOG_BINDINGS_V0 |
 
-## 3. Mandate Artifact Summary
+The longest chain runs store declaration → identity claim → the registration workflow → the runtime
+binding. Nothing in the catalog can be exercised until that chain is complete.
+
+---
+
+## 3. Artifact Summary
 
 <!-- register:mandate_artifact_summary -->
-| Action | Count | Description |
-|--------|-------|-------------|
-| NEW | 25 | 1 STRUCTURE, 1 AC, 1 CT, 1 VOCAB, 8 CC, 1 RB, 6 WF, 6 IN — all owned by catalog |
+| Action (REPLACE, EXTEND, NEW) | Count | Description |
+|-------------------------------|-------|-------------|
+| NEW | 40 | 1 AC, 9 IN, 9 WF, 13 CC, 1 CT, 5 EV, 1 RB, 1 STRUCTURE — every identity Stage 7 assigned |
+| EXTEND | 1 | capability_side_effects::CS_MUTABLE_JSON_V0 gains an operation that publishes records; authored in the platform, not scheduled here |
 
-## 4. Field Declarations
+---
+
+## 4. Subdomain Field Declarations
 
 <!-- register:field_declarations -->
 | Code | Subdomain Field |
 |------|-----------------|
 | book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 | catalog |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | catalog |
 | book_library_mgmt::AC_LIBRARY_STAFF_V0 | catalog |
+| book_library_mgmt::EV_BOOK_REGISTERED_V0 | catalog |
+| book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0 | catalog |
+| book_library_mgmt::EV_BIBLIOGRAPHIC_INFORMATION_UPDATED_V0 | catalog |
+| book_library_mgmt::EV_BOOK_RETIRED_V0 | catalog |
+| book_library_mgmt::EV_PHYSICAL_COPY_RETIRED_V0 | catalog |
 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | catalog |
-| book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | catalog |
-| book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | catalog |
+| book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | catalog |
+| book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | catalog |
+| book_library_mgmt::CC_REGISTER_BOOK_V0 | catalog |
 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | catalog |
 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | catalog |
-| book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | catalog |
+| book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0 | catalog |
+| book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0 | catalog |
+| book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0 | catalog |
+| book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0 | catalog |
 | book_library_mgmt::CC_SEARCH_CATALOG_V0 | catalog |
 | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | catalog |
-| book_library_mgmt::RB_CATALOG_BINDINGS_V0 | catalog |
-| book_library_mgmt::WF_REGISTER_BOOK_V0 | catalog |
-| book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | catalog |
-| book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | catalog |
-| book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | catalog |
-| book_library_mgmt::WF_SEARCH_CATALOG_V0 | catalog |
-| book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | catalog |
+| book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | catalog |
 | book_library_mgmt::IN_REGISTER_BOOK_V0 | catalog |
 | book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0 | catalog |
 | book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | catalog |
-| book_library_mgmt::IN_RETIRE_CATALOG_RECORD_V0 | catalog |
+| book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0 | catalog |
+| book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0 | catalog |
+| book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0 | catalog |
+| book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0 | catalog |
 | book_library_mgmt::IN_SEARCH_CATALOG_V0 | catalog |
 | book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | catalog |
-| book_library_mgmt::CT_PURE_REQUIRE_CONDITION_V0 | catalog |
-| book_library_mgmt::VOCAB_CATALOG_STATES_V0 | catalog |
+| book_library_mgmt::WF_REGISTER_BOOK_V0 | catalog |
+| book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | catalog |
+| book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | catalog |
+| book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0 | catalog |
+| book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0 | catalog |
+| book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0 | catalog |
+| book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0 | catalog |
+| book_library_mgmt::WF_SEARCH_CATALOG_V0 | catalog |
+| book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | catalog |
+| book_library_mgmt::RB_CATALOG_BINDINGS_V0 | catalog |
 | book_library_mgmt::CC_ARCHIVE_CATALOG_RECORD_V0 | catalog |
+
+---
 
 ## 5. New Capabilities
 
-<!-- register:new_capabilities -->
+<!-- register:new_capabilities optional -->
 | Code | Purpose | Inputs | Outputs |
 |------|---------|--------|---------|
-| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | Confirm the staff member may perform catalog operations | staff_identity | authorization_decision |
-| book_library_mgmt::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | Record a work as the catalog's authoritative description of it | work_identity, bibliographic_information | work_record |
-| book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | Record a copy against exactly one bibliographic work | copy_identity, work_identity | copy_record |
-| book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | Replace the descriptive content of a work's record | work_identity, bibliographic_information | work_record |
-| book_library_mgmt::CC_RETIRE_CATALOG_RECORD_V0 | Mark a record retired so it is no longer offered as current | work_identity | retired_record |
-| book_library_mgmt::CC_SEARCH_CATALOG_V0 | Select the current records matching the staff member's terms | search_terms | matching_records |
-| book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | Assemble a work's record with the copies belonging to it | work_identity | book_details |
-| book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | Append a durable account of a performed catalog operation | staff_identity, operation_performed | operation_record |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | Form the single key the registry claims from a book's three identifying attributes, so that a second registration of the same book is refused | title:string, author:string, publication_year:integer | identity_key:string |
+
+---
 
 ## 6. New Intents
 
-<!-- register:new_intents -->
+<!-- register:new_intents optional -->
 | Code | Purpose | Workflow | Inputs |
 |------|---------|----------|--------|
-| book_library_mgmt::IN_REGISTER_BOOK_V0 | A request to register a new book | book_library_mgmt::WF_REGISTER_BOOK_V0 | staff_identity, bibliographic_information |
-| book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0 | A request to register a copy against a work | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | staff_identity, copy_identity, work_identity |
-| book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | A request to update a registered work | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | staff_identity, work_identity, bibliographic_information |
-| book_library_mgmt::IN_RETIRE_CATALOG_RECORD_V0 | A request to retire an obsolete record | book_library_mgmt::WF_RETIRE_CATALOG_RECORD_V0 | staff_identity, work_identity |
-| book_library_mgmt::IN_SEARCH_CATALOG_V0 | A request to locate materials | book_library_mgmt::WF_SEARCH_CATALOG_V0 | staff_identity, search_terms |
-| book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | A request for the complete details of a book | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | staff_identity, work_identity |
+| book_library_mgmt::IN_REGISTER_BOOK_V0 | Admit a request to register a book together with its first physical copy | book_library_mgmt::WF_REGISTER_BOOK_V0 | staff_credentials:object, authorization_rules:array, title:string, author:string, publication_year:integer, book_fields:object, barcode:string, copy_fields:object, staff_id:string |
+| book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0 | Admit a request to register a further copy against a registered book | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | staff_credentials:object, authorization_rules:array, identity_key:string, barcode:string, copy_fields:object, staff_id:string |
+| book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | Admit a request to change a registered book's description | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | staff_credentials:object, authorization_rules:array, title:string, author:string, publication_year:integer, updated_fields:object, staff_id:string |
+| book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0 | Admit a request to retire a book record judged obsolete | book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0 | staff_credentials:object, authorization_rules:array, identity_key:string, staff_id:string |
+| book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0 | Admit a request to retire a lost or damaged copy | book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0 | staff_credentials:object, authorization_rules:array, barcode:string, staff_id:string |
+| book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0 | Admit a request to return a retired book record to the registered state | book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0 | staff_credentials:object, authorization_rules:array, identity_key:string, staff_id:string |
+| book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0 | Admit a request to return a retired copy to the registered state | book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0 | staff_credentials:object, authorization_rules:array, barcode:string, staff_id:string |
+| book_library_mgmt::IN_SEARCH_CATALOG_V0 | Admit a request to locate material by subject or by title | book_library_mgmt::WF_SEARCH_CATALOG_V0 | staff_credentials:object, authorization_rules:array, search_criteria:object, staff_id:string |
+| book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0 | Admit a request for a book's complete details with the copies held | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | staff_credentials:object, authorization_rules:array, identity_key:string, staff_id:string |
+
+---
 
 ## 7. Cross-Subdomain Notes
 
-<!-- register:cross_subdomain_notes -->
+<!-- register:cross_subdomain_notes optional -->
 | Code | Note |
 |------|------|
-| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | Reads authorization; deciding who is authorized belongs to patron and is deferred to a future change request. |
-| book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | Appends only to the catalog's own journal; no peer store is written. |
+| book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | Reads whether the staff member is authorized from what the caller supplies, and grants nothing. Deciding who is authorized is a dependency gap owned by the staff function, which a future change request introduces. No store of authorized staff is declared here. |
+| capability_side_effects::CS_MUTABLE_JSON_V0 | Extended by this change with an operation that publishes records. A platform artifact amended by a business change request: additive, so none of its twelve consumers is affected, and authored in the platform repository rather than scheduled in this mandate. |
+
+No catalog artifact writes into a store another subdomain owns.
+
+---
+
+## Pipeline Provenance
+
+| Stage | Output | Status |
+|-------|--------|--------|
+| Stage 7 — Design Intent | p7_design_intent_book_library_mgmt_catalog_v0.md | GATE 1 APPROVED |
+| Stage 8 — Authoring Mandate | This document | PENDING GATE 2 APPROVAL |
+| Artifact Authoring | per build_order | PENDING |
