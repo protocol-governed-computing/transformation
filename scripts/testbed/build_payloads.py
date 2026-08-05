@@ -187,6 +187,11 @@ PAYLOADS = {
     "33_p7_inadmissible_dropped_reuse.json": (
         "scripts/testbed/corpus_p7/inadmissible_p7_dropped_reuse.md"
     ),
+    # A binding source that names a place execution does not offer, read as a literal by everything
+    # beneath it.
+    "36_p7_inadmissible_unrooted_source.json": (
+        "scripts/testbed/corpus_p7/inadmissible_p7_unrooted_source.md"
+    ),
     # P5→P6: a capability declared in scope that the placement phase never mentions. A row missing
     # from `ownership` alone is what OUTCOME_CAPABILITY_UNPLACED already catches; this is the case
     # no single document can see.
@@ -232,6 +237,7 @@ PRIOR_SOURCES = {
     "17_p4_inadmissible_catalog_register.json": {"p3": CATALOG_P3},
     "32_p4_inadmissible_dropped_decision.json": {"p3": CATALOG_P3},
     "33_p7_inadmissible_dropped_reuse.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
+    "36_p7_inadmissible_unrooted_source.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
     "20_p6_admissible_catalog_register.json": {"p5": CATALOG_P5},
     "21_p6_inadmissible_catalog_register.json": {"p5": CATALOG_P5},
     "34_p6_inadmissible_unplaced_scope.json": {"p5": CATALOG_P5},
@@ -266,6 +272,7 @@ PAYLOAD_KEY = {
     "31_p7_inadmissible_unbound_code.json": "register_text",
     "32_p4_inadmissible_dropped_decision.json": "register_text",
     "33_p7_inadmissible_dropped_reuse.json": "register_text",
+    "36_p7_inadmissible_unrooted_source.json": "register_text",
     "34_p6_inadmissible_unplaced_scope.json": "register_text",
 }
 

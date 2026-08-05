@@ -1204,6 +1204,66 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
     return out
 
 
+@check("BINDING_SOURCE_ROOTED")
+def _binding_source_rooted(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A source that names a place must be rooted in a scope execution offers.
+
+    `BINDING_SOURCE_PUBLISHED` asks whether a source reads a field that exists. This asks the prior
+    question: whether the source is a reference at all. A binding cell is either a literal the design
+    chose — `CATALOG_OPERATIONS`, `false`, `REGISTER_BOOK` — or a reference to somewhere a value comes
+    from, and only the roots in `roots` are places. Nothing distinguished the two, so a reference
+    written without its root was read as a literal by every layer beneath: the renderer emitted the
+    string verbatim, the compiler accepted it, and the runtime handed the step its own binding text.
+
+    CR-1 wrote `results.check_existing.capability_result.exists` and worked. Its re-run wrote
+    `assemble_book_record.book_record` — the same intent, the root dropped — and every workflow
+    reported SUCCESS while writing the string `"assemble_book_record.book_record"` into the store as
+    the book. Construction completeness was 100%: a determined binding to a literal is still
+    determined, which is exactly why this has to be a design rule and not a construction one.
+
+    Two shapes are caught. A dotted source whose first segment is not a root names a scope that does
+    not exist. A *scope* root written bare is a reference whose field was never written — `payload`
+    alone addresses no value. `result_status` is the exception and is not a scope: it is the step's
+    status, a scalar with nothing under it, and standing alone is its only correct form. A literal is
+    left alone: no dots, or an FQDN, or a number, or an inline object the design states outright.
+    """
+    roots = rule.params["roots"]
+    scopes = [r for r in roots if r not in rule.params["value_roots"]]
+
+    out = []
+    for i, row in _rows(doc, rule):
+        bound = _cell(row, "Bound To")
+        if not bound or bound in ("—", "-"):
+            continue                      # BINDING_WITHOUT_SOURCE owns the empty cell
+        if bound in scopes:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{bound!r} is a scope, not a value — a source rooted in {bound!r} must name the "
+                f"field it reads, or construction binds the step to the word itself",
+            ))
+            continue
+        if "." not in bound or "::" in bound or bound.startswith(("{", "[", '"', "'")):
+            continue                      # a literal the design chose, not a reference
+        if _is_number(bound):
+            continue
+        root = bound.split(".", 1)[0]
+        if root not in roots:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{bound!r} is rooted in {root!r}, which execution does not offer — a source names "
+                f"one of {sorted(roots)}, or construction reads it as the literal string {bound!r}",
+            ))
+    return out
+
+
+def _is_number(value: str) -> bool:
+    try:
+        float(value)
+    except ValueError:
+        return False
+    return True
+
+
 @check("ROWS_CONFINED_TO_PRIOR")
 def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """No row here may assert something the upstream register does not.

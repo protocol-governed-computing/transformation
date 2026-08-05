@@ -985,6 +985,19 @@ core:
             column: Bound To
             detail: field is bound to nothing — construction would have to choose a source
           intent: every declared input names where its value comes from
+        - id: BINDING_SOURCE_UNROOTED
+          check: BINDING_SOURCE_ROOTED
+          register: step_bindings
+          params:
+            roots:
+            - payload
+            - inputs
+            - results
+            - capability_result
+            - result_status
+            value_roots:
+            - result_status
+          intent: a source that names a place is rooted in one execution scope actually offers
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

@@ -242,6 +242,7 @@ PRIORS_BY_DOCUMENT = {
     "inadmissible_p7_collision.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
     "inadmissible_p7_unbound_code.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
     "inadmissible_p7_dropped_reuse.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p7_unrooted_source.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md"},
     "p6_governance_intent_book_library_mgmt_catalog_v0.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
     "inadmissible_p6_unplaced.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
     "inadmissible_p6_unplaced_scope.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},

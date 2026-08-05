@@ -1,6 +1,6 @@
 # Transformation Compiler — Plan V1
 
-The functional rehost of `pgs_change_mgmt` as `transformation_compiler`, under pure PGC
+The functional rehost of `pgs_change_mgmt` as the `transformation` repo, under pure PGC
 architecture.
 
 ---
@@ -50,8 +50,10 @@ and leaves **stages (S1–S9)** to `protocol_compiler`. The rule is mechanical: 
 in phases, a compilation is measured in stages, and no document uses one word for the other.
 
 The repo name change is not cosmetic either. **PGC evolution is never greenfield**: every change is
-a transformation of an existing composition. `transformation_compiler` names what the tool does;
-`change_mgmt` named the process it supports.
+a transformation of an existing composition. `transformation` names what the lifecycle does;
+`change_mgmt` named the process it supports. The repo was planned as `transformation_compiler` and is
+named for the lifecycle instead, because it holds two compilers — design and construction — which fail
+differently and are fixed by different people.
 
 ## 2. Phase 0 — the seed
 

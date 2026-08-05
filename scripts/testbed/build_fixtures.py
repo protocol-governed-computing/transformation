@@ -154,9 +154,36 @@ def p7_dropped_reuse(t: str) -> str:
     return drop(t, "| capability_side_effects::CS_APPENDONLY_JSONL_V0 | REUSE |")
 
 
+def p7_unrooted_source(t: str) -> str:
+    """A cross-step source with its root dropped — the defect that reached execution.
+
+    `results.assemble_book_record.book_record` names a prior step's output; `assemble_book_record.
+    book_record` names nothing, and every layer below reads it as a literal string. The renderer
+    emitted it verbatim, the compiler accepted it, and the runtime handed the store its own binding
+    text as the book. Nothing refused it: construction completeness was 100%, because a binding
+    determined to be a literal is still determined.
+    """
+    return replace(t, "results.assemble_book_record.book_record",
+                   "assemble_book_record.book_record")
+
+
+def build_step(text: str, code: str) -> str:
+    """The build_order row scheduling `code`, found by what it schedules rather than by its number.
+
+    Anchoring on a literal step number bound these fixtures to the mandate's current ordering, and
+    every artifact inserted into an earlier wave renumbered everything after it — three separate
+    breakages, each of them the anchor going stale rather than the fixture being wrong.
+    """
+    rows = [l for l in text.splitlines()
+            if l.startswith("| ") and f"| {code} | " in l and l.split(" | ")[1].isdigit()]
+    if len(rows) != 1:
+        raise SystemExit(f"expected exactly one build_order row for {code}, found {len(rows)}")
+    return rows[0]
+
+
 def p8_broken_order(t: str) -> str:
     """A dropped step, a prerequisite scheduled late, and a critical path through neither."""
-    t = drop(t, f"| 2 | 14 | {NS}CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 |")
+    t = drop(t, build_step(t, f"{NS}CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0"))
     t = replace(t, f"| 1 | 1 | {NS}STRUCTURE_CATALOG_STORAGE_V0 | NEW | catalog | — |",
                 f"| 1 | 1 | {NS}STRUCTURE_CATALOG_STORAGE_V0 | NEW | catalog | {NS}RB_CATALOG_BINDINGS_V0 |")
     return t
@@ -164,8 +191,10 @@ def p8_broken_order(t: str) -> str:
 
 def p8_undesigned_artifact(t: str) -> str:
     """A row the mandate invented, which no phase ever designed."""
-    t = after(t, f"| 5 | 40 | {NS}RB_CATALOG_BINDINGS_V0 |",
-              f"| 5 | 41 | {NS}CC_ARCHIVE_CATALOG_RECORD_V0 | NEW | catalog | — |")
+    anchor = build_step(t, f"{NS}RB_CATALOG_BINDINGS_V0")
+    wave, step = anchor.split(" | ")[0].lstrip("| "), int(anchor.split(" | ")[1])
+    t = after(t, anchor,
+              f"| {wave} | {step + 1} | {NS}CC_ARCHIVE_CATALOG_RECORD_V0 | NEW | catalog | — |")
     return after(t, f"| {NS}RB_CATALOG_BINDINGS_V0 | catalog |",
                  f"| {NS}CC_ARCHIVE_CATALOG_RECORD_V0 | catalog |")
 
@@ -177,7 +206,7 @@ def p8_dropped_artifact(t: str) -> str:
     and two findings for one edit would make the reconciliation rule hard to see. Removed from the
     field declarations too, so the placement rule does not fire in the reconciliation rule's place.
     """
-    t = drop(t, f"| 5 | 40 | {NS}RB_CATALOG_BINDINGS_V0 |")
+    t = drop(t, build_step(t, f"{NS}RB_CATALOG_BINDINGS_V0"))
     t = drop(t, f"| {NS}RB_CATALOG_BINDINGS_V0 | catalog |")
     # A mandate that dropped an artifact would not go on routing its critical path through it —
     # leaving the path row fires CRITICAL_PATH_NOT_IN_BUILD_ORDER instead of the reconciliation rule.
@@ -197,6 +226,7 @@ FIXTURES = [
     ("corpus_p7/inadmissible_p7_collision.md", P7, p7_collision),
     ("corpus_p7/inadmissible_p7_unbound_code.md", P7, p7_unbound_code),
     ("corpus_p7/inadmissible_p7_dropped_reuse.md", P7, p7_dropped_reuse),
+    ("corpus_p7/inadmissible_p7_unrooted_source.md", P7, p7_unrooted_source),
     ("corpus_p8/inadmissible_p8_broken_order.md", P8, p8_broken_order),
     ("corpus_p8/inadmissible_p8_undesigned_artifact.md", P8, p8_undesigned_artifact),
     ("corpus_p8/inadmissible_p8_dropped_artifact.md", P8, p8_dropped_artifact),

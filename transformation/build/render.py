@@ -34,19 +34,20 @@ GOVERNED_BY = {
     "RB": "fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0",
     "VOCAB": "fb.vocabulary::CONSTITUTION_VOCABULARY_V0",
     "STRUCTURE": "fb.structure::CONSTITUTION_STRUCTURE_V0",
+    "EV": "fb.event::CONSTITUTION_EVENT_V0",
 }
 
 KIND = {
     "AC": "ACTOR", "IN": "INTENT", "WF": "WORKFLOW", "CC": "CAPABILITY_CONTRACT",
     "CT": "CAPABILITY_TRANSFORM", "RB": "RUNTIME_BINDING", "VOCAB": "VOCABULARY",
-    "STRUCTURE": "STRUCTURE",
+    "STRUCTURE": "STRUCTURE", "EV": "EVENT",
 }
 
 # Where each family's artifact is written, relative to the domain's registry root.
 DIRECTORY = {
     "AC": "actors", "IN": "intents", "WF": "workflows", "CC": "capability_contracts",
     "CT": "capability_transforms", "RB": "runtime_bindings", "VOCAB": "vocabulary",
-    "STRUCTURE": "layers",
+    "STRUCTURE": "layers", "EV": "events",
 }
 
 # An intent's outcome surface is fixed by the intent constitution — every intent in the composition
@@ -188,7 +189,7 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict
         "governed_by": GOVERNED_BY[fam],
     }
     builder = _BUILDERS[fam]
-    if fam == "RB":
+    if fam in ("RB", "CC"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
@@ -271,11 +272,43 @@ def _edges(routing: str) -> dict:
     return out
 
 
-def _contract(m, code, short, summary, sub, p7, p8):
+def _declared_empty_leaves(value, path: str) -> list[str]:
+    """Every leaf inside a step that the design stated as empty.
+
+    An empty value a design *wrote* is determined; the completeness measure cannot tell it from a
+    value nobody supplied, because both are falsy. The distinction is the same one `declared_empty`
+    already draws for a step handed nothing — a rule comparing a barcode against `''` or a subject
+    list against `[]` says exactly what it means, and refusing the design for saying it would make
+    "must not be empty" inexpressible.
+    """
+    out = []
+    # An empty container is the leaf, not a thing to descend into: recursing first would iterate
+    # nothing and record nothing, which is how `value: []` stayed undetermined.
+    if _empty(value):
+        out.append(path)
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            out.extend(_declared_empty_leaves(item, f"{path}.{key}"))
+    elif isinstance(value, (list, tuple)):
+        for i, item in enumerate(value):
+            out.extend(_declared_empty_leaves(item, f"{path}[{i}]"))
+    return out
+
+
+def _contract(m, code, short, summary, sub, p7, p8, declared_empty=None):
     steps = [r for r in rows(p7, "cc_composition") if bare(cell(r, "CC Code")) == short]
     pipeline = []
     for r in steps:
+        # A step handed nothing is determined, not undetermined — the design said so by writing the
+        # none marker in `Consumes`. `SELECT` reads a whole store and declares no parameters, so the
+        # empty `inputs` the schema requires has to be a declaration rather than a silence, or the
+        # completeness measure counts a stated fact as a gap and the build gate refuses its own design.
+        if cell(r, "Consumes") in ("", "—", "-", "NONE") and declared_empty is not None:
+            declared_empty.append(f"core.pipeline[{len(pipeline)}].inputs")
+        index = len(pipeline)
         pipeline.append(_step(p7, short, r))
+        if declared_empty is not None:
+            declared_empty.extend(_declared_empty_leaves(pipeline[index], f"core.pipeline[{index}]"))
         interpreter = cell(r, "Interpreted By")
         if interpreter not in ("", "—", "-"):
             # The interpretation is a step of its own; the register folds it into the row it
@@ -310,8 +343,12 @@ def _step(p7: dict, owner: str, r: dict, interpreter: str = "", name: str = "",
             out["store"] = store
     inputs = _bindings(p7, owner, step_name, "INPUT")
     outputs = _bindings(p7, owner, step_name, "OUTPUT")
-    if inputs:
-        out["inputs"] = inputs
+    # `inputs` is emitted even when empty. The capability-contract schema requires the key on every
+    # step, and a step legitimately takes none: `SELECT` reads a whole store and declares no
+    # parameters. Omitting it made the compiler refuse two contracts for a schema violation the
+    # design had not committed — an absent binding is a declaration that there is none, and it has to
+    # be written down to say so.
+    out["inputs"] = inputs
     if outputs:
         out["outputs"] = outputs
     if interpreter:
@@ -441,9 +478,36 @@ def _binding_artifact(m, code, short, summary, sub, p7, p8, declared_empty=None)
     m["core"] = {"summary": summary, "storage_structure": structure, "bindings": bindings}
 
 
+def _event(m, code, short, summary, sub, p7, p8):
+    """A business moment the domain recognises: what it records, and the shape of the record.
+
+    An event states a fact and triggers nothing — the workflow that raises it has already decided
+    what happened. So the only thing to render beyond identity is the schema of the fact, which the
+    design declares as the event's typed fields, plus the moment when it occurs.
+
+    `timestamp` is added because every event in the composition carries one and no design should have
+    to restate a fact the event constitution fixes — the same reason an intent's ACK/NACK surface is
+    not restated either. A design that declares its own `timestamp` keeps it.
+    """
+    schema = typed_fields(p7, code, "OUTPUT") or typed_fields(p7, code, "INPUT")
+    schema.setdefault("timestamp", {
+        "type": "string",
+        "format": "date-time",
+        "required": True,
+        "description": "When the moment occurred",
+    })
+    m["core"] = {
+        "summary": summary or short,
+        "description": summary or short,
+        "subdomain": sub,
+        "schema": schema,
+    }
+
+
 _BUILDERS = {
     "IN": _intent, "WF": _workflow, "CC": _contract, "CT": _transform,
     "AC": _actor, "VOCAB": _vocabulary, "STRUCTURE": _structure, "RB": _binding_artifact,
+    "EV": _event,
 }
 
 

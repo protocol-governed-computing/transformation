@@ -359,6 +359,16 @@ COMPLETENESS_RULES: list[Rule] = [
 
 # The new registers carry identities like every other, and the same immutability discipline applies:
 # a spelling variant is a second artifact, not a synonym.
+# The roots a binding source may name. Execution offers these and nothing else: the workflow
+# payload, the contract's own inputs, a prior step or CC's results, the raw result of the step being
+# bound, and the step's status. A source rooted anywhere else names a place that does not exist, and
+# every layer below treats it as a literal string instead of saying so.
+#
+# `result_status` is a value root, not a scope — the step's status is a scalar, so it is addressed
+# whole and correctly carries no field. The other four are scopes and are addressed through one.
+BINDING_ROOTS = ["payload", "inputs", "results", "capability_result", "result_status"]
+BINDING_VALUE_ROOTS = ["result_status"]
+
 INTERFACE_RULES: list[Rule] = [
     Rule(
         id="BINDING_STEP_OWNER_UNDECLARED",
@@ -420,6 +430,13 @@ INTERFACE_RULES: list[Rule] = [
             "detail": "field is bound to nothing — construction would have to choose a source",
         },
         intent="every declared input names where its value comes from",
+    ),
+    Rule(
+        id="BINDING_SOURCE_UNROOTED",
+        check="BINDING_SOURCE_ROOTED",
+        register="step_bindings",
+        params={"roots": BINDING_ROOTS, "value_roots": BINDING_VALUE_ROOTS},
+        intent="a source that names a place is rooted in one execution scope actually offers",
     ),
 ]
 
