@@ -44,10 +44,10 @@ CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalo
 
 # A CR's dossier grounds against the composition it was designed against; judged against the live
 # one, the P7/P8 documents report collisions with their own output — true, and uninformative about
-# the two paths. Reproduced through `e2e_phases.design_baseline()` rather than checked for
+# the two paths. Reproduced through `e2e_phases_test.design_baseline()` rather than checked for
 # existence: a cached baseline whose sources have since been recompiled is stale, and a stale
 # baseline seals a rule set the declaration has already moved past.
-from e2e_phases import design_baseline
+from e2e_phases_test import design_baseline
 
 # Each phase: its workflow, its declared rule set, and the corpus it judges. A phase added here
 # without a corpus would report "identical rule sets" and prove nothing about behaviour, so the

@@ -426,15 +426,18 @@ def main() -> int:
         if merit.rating != want_rating:
             problems.append(f"figure of merit {merit.rating}/5 != {want_rating}/5")
 
-        mark = "OK   " if not problems else "FAIL "
+        # PASS/FAIL, not the verdict. ADMISSIBLE and INADMISSIBLE are both correct outcomes — half
+        # these cases exist to be refused — so printing the verdict in the result column invited
+        # reading a governed refusal as a broken test. What this line reports is whether the case
+        # matched what it declared, and the verdict appears below only when it did not.
         print(
-            f"  {mark}  {phase}  {payload_file:<40} "
-            f"{str(verdict):<13} {len(fired):>2} finding(s)  {rules} rules  "
+            f"  {'PASS' if not problems else 'FAIL'}  {phase}  {payload_file:<40} "
+            f"{len(fired):>2} finding(s)  {rules} rules  "
             f"{merit.stars} {merit.rating}/{merit.maximum}"
         )
         if problems:
             failures += 1
-            print(f"          {'; '.join(problems)}")
+            print(f"          verdict {verdict}; {'; '.join(problems)}")
 
     print()
     if failures:

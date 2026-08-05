@@ -31,7 +31,7 @@ silently producing a smaller composition. If a compile step is skipped it names 
 ## Check
 
 ```bash
-python ~/protocol-governed-computing/transformation/scripts/testbed/e2e_phases.py
+python ~/protocol-governed-computing/transformation/scripts/testbed/e2e_phases_test.py
 
 ~/protocol-governed-computing/protocol_runtime/run.sh run --wf workload::WF_COLLATZ_CONJECTURE_V0 --payload ~/protocol-governed-computing/conformance_workloads/workloads/collatz/test_payloads/01_happy_path.json --data-root ~/protocol-governed-computing/data/collatz
 
@@ -50,7 +50,7 @@ Every path is absolute; the `cd` is convenience only.
 
 | Check | Result |
 |---|---|
-| `e2e_phases.py` | `E2E PASSED` — every phase, both admissible and inadmissible, exit 0 |
+| `e2e_phases_test.py` | `E2E PASSED` — every phase, both admissible and inadmissible, exit 0 |
 | collatz | `SUCCESS`, `all_terminate: true` |
 | govern agent action | `SUCCESS` |
 | provision licensing | `SUCCESS` first run against a fresh `data/`; `ALREADY_EXISTS` on any re-run |
@@ -60,12 +60,12 @@ judgement, not a failed execution — `VIOLATION` there would mean the phase its
 
 ## Why the phase check is a script
 
-`e2e_phases.py` executes each compiled workflow through `protocol_runtime` and asserts the verdict,
+`e2e_phases_test.py` executes each compiled workflow through `protocol_runtime` and asserts the verdict,
 finding count and rules evaluated. It is not the same evidence as the differential:
 
 - `differential.py` drives the capability transforms directly — it proves the rule sets and the
   check logic, and nothing about workflow wiring.
-- `e2e_phases.py` boots the assembled snapshot and dispatches workflows — it proves the IN/WF/CC
+- `e2e_phases_test.py` boots the assembled snapshot and dispatches workflows — it proves the IN/WF/CC
   wiring, node bindings and routing.
 
 A workflow that bound `$.capability_result.header` across nodes passed the differential and failed
