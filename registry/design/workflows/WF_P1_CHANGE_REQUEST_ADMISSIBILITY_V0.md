@@ -1251,6 +1251,287 @@ core:
             - Operation
             - Refused When
           intent: P0 reorganizes and P1 restates; neither may drop what the business said
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: system_beliefs
+          params:
+            prior_phase: p0
+            prior_register: system_beliefs
+            prior_key_column: Belief
+            key_column: Belief
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: requested_outcomes
+          params:
+            prior_phase: p0
+            prior_register: requested_outcomes
+            prior_key_column: Outcome
+            key_column: Outcome
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: business_invariants
+          params:
+            prior_phase: p0
+            prior_register: business_invariants
+            prior_key_column: Invariant
+            key_column: Invariant
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: acceptance_criteria
+          params:
+            prior_phase: p0
+            prior_register: acceptance_criteria
+            prior_key_column: Criterion
+            key_column: Criterion
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: known_facts
+          params:
+            prior_phase: p0
+            prior_register: known_facts
+            prior_key_column: Fact
+            key_column: Fact
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: business_vocabulary
+          params:
+            prior_phase: p0
+            prior_register: business_vocabulary
+            prior_key_column: Term
+            key_column: Term
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: constraints
+          params:
+            prior_phase: p0
+            prior_register: constraints
+            prior_key_column: Constraint
+            key_column: Constraint
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: assumptions
+          params:
+            prior_phase: p0
+            prior_register: assumptions
+            prior_key_column: Assumption
+            key_column: Assumption
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: business_events
+          params:
+            prior_phase: p0
+            prior_register: business_events
+            prior_key_column: Event
+            key_column: Event
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: authority_boundaries
+          params:
+            prior_phase: p0
+            prior_register: authority_boundaries
+            prior_key_column: Business Object
+            key_column: Business Object
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: out_of_scope
+          params:
+            prior_phase: p0
+            prior_register: out_of_scope
+            prior_key_column: Item
+            key_column: Item
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: governance_scope
+          params:
+            prior_phase: p0
+            prior_register: governance_scope
+            prior_key_column: Scope Item
+            key_column: Scope Item
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: identity_and_sameness
+          params:
+            prior_phase: p0
+            prior_register: identity_and_sameness
+            prior_key_column: Business Object
+            key_column: Business Object
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: authority_deferrals
+          params:
+            prior_phase: p0
+            prior_register: authority_deferrals
+            prior_key_column: Business Object
+            key_column: Business Object
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: lifecycle_states
+          params:
+            prior_phase: p0
+            prior_register: lifecycle_states
+            prior_key_column:
+            - Object
+            - State
+            key_column:
+            - Object
+            - State
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: lifecycle_transitions
+          params:
+            prior_phase: p0
+            prior_register: lifecycle_transitions
+            prior_key_column:
+            - Object
+            - From State
+            - To State
+            key_column:
+            - Object
+            - From State
+            - To State
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: ROW_NOT_IN_SEED
+          check: ROWS_CONFINED_TO_PRIOR
+          register: operation_refusals
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column:
+            - Operation
+            - Refused When
+            key_column:
+            - Operation
+            - Refused When
+          intent: P1 interrogates and restates; business content enters at P0 or not at all
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: cr_type
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: business_vocabulary
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: requested_outcomes
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: known_facts
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: system_beliefs
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: assumptions
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: constraints
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: business_invariants
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: lifecycle_states
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: business_events
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: authority_boundaries
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: out_of_scope
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: governance_scope
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: clarification_requests
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: acceptance_criteria
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: identity_and_sameness
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: lifecycle_transitions
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: operation_refusals
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
+        - id: CITATION_ROW_UNRESOLVED
+          check: CITATION_ROW_UNRESOLVED
+          register: authority_deferrals
+          params:
+            column: Source Finding
+          intent: a citation that resolves to nothing is evidence of nothing
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

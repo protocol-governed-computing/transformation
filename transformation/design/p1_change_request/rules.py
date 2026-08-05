@@ -91,6 +91,54 @@ def _seed_rules() -> list[Rule]:
     return out
 
 
+def _confinement_rules() -> list[Rule]:
+    """The other direction: no row here may state what the seed does not.
+
+    Preservation catches the dropped row. This catches the invented one — the failure a fabricated
+    business fact walked straight through, admissible over 131 rules, because every rule asked
+    whether the seed's rows survived and none asked where a new row came from.
+    """
+    out: list[Rule] = []
+    for register, key in SEED_PRESERVATION:
+        out.append(
+            Rule(
+                id="ROW_NOT_IN_SEED",
+                check="ROWS_CONFINED_TO_PRIOR",
+                register=register,
+                params={
+                    "prior_phase": "p0",
+                    "prior_register": register,
+                    "prior_key_column": list(key) if isinstance(key, list) else key,
+                    "key_column": list(key) if isinstance(key, list) else key,
+                },
+                intent="P1 interrogates and restates; business content enters at P0 or not at all",
+            )
+        )
+    return out
+
+
+def _citation_rules() -> list[Rule]:
+    """Every ordinal citation must point at a row that exists."""
+    return [
+        Rule(
+            id="CITATION_ROW_UNRESOLVED",
+            check="CITATION_ROW_UNRESOLVED",
+            register=register.id,
+            params={"column": "Source Finding"},
+            intent="a citation that resolves to nothing is evidence of nothing",
+        )
+        for register in TEMPLATE.registers
+        if "Source Finding" in register.columns
+    ]
+
+
 def rule_set() -> list[Rule]:
-    """The complete declared P1 rule set: derived, seed preservation, then the dossier header."""
-    return derived_rules(TEMPLATE) + _seed_rules() + dossier_header_rules()
+    """The complete declared P1 rule set: derived, seed preservation and confinement, citation
+    resolution, then the dossier header."""
+    return (
+        derived_rules(TEMPLATE)
+        + _seed_rules()
+        + _confinement_rules()
+        + _citation_rules()
+        + dossier_header_rules()
+    )

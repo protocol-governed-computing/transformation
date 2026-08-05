@@ -75,7 +75,7 @@ CASES = [
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
      "05_inadmissible_truncated.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 12, 80, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-     "06_p1_admissible_register.json", "ADMISSIBLE", [], 131, 4),
+     "06_p1_admissible_register.json", "ADMISSIBLE", [], 167, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
      "07_p1_inadmissible_register.json", "INADMISSIBLE", [
          "CELL_NOT_IN_VOCABULARY",
@@ -90,8 +90,12 @@ CASES = [
          # The second is the assumption this fixture inherits from the change request it was cut
          # from, reworded there from "register structure" to "section structure".
          "SEED_ROW_NOT_CARRIED",
+         # Both mutations are additions as well as losses: a reworded row states something the seed
+         # does not, which is the half of the contract confinement governs.
+         "ROW_NOT_IN_SEED",
+         "ROW_NOT_IN_SEED",
          "SOURCE_FINDING_UNRESOLVED",
-     ], 131, 3),
+     ], 167, 3),
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
      "08_p2_admissible_register.json", "ADMISSIBLE", [], 64, 4),
     # Grounding: a misspelled identity and a right-code/wrong-namespace one are defects; an
@@ -107,7 +111,7 @@ CASES = [
     ("P0", "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
      "10_p0_admissible_catalog_seed.json", "ADMISSIBLE", [], 80, 4),
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 131, 4),
+     "11_p1_admissible_catalog_register.json", "ADMISSIBLE", [], 167, 4),
     ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
      "12_p2_admissible_catalog_register.json", "ADMISSIBLE", [], 64, 4),
     # The rules must bite on business content, not only on documents about the pipeline. A
@@ -237,7 +241,7 @@ CASES = [
     ("P1", "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
      "30_p1_inadmissible_dropped_criterion.json", "INADMISSIBLE", [
          "SEED_ROW_NOT_CARRIED",
-     ], 131, 3),
+     ], 167, 3),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "31_p7_inadmissible_unbound_code.json", "INADMISSIBLE", [
          "INTERFACE_ARTIFACT_UNDECLARED",

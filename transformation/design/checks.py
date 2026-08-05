@@ -1202,3 +1202,150 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
                 f"not {field!r} — a binding cannot read a field the operation never yields",
             ))
     return out
+
+
+@check("ROWS_CONFINED_TO_PRIOR")
+def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """No row here may assert something the upstream register does not.
+
+    `PRIOR_ROWS_PRESENT_BY_KEY` is coverage — it catches the row that went missing. This is the
+    other direction, and the hole it closes was demonstrable: a change request carrying
+    "books must be shelved by Dewey Decimal number", a business fact no seed states, cited to a
+    seed row that does not exist, was ADMISSIBLE over 131 rules. Loss was governed; invention was
+    not.
+
+    Only a phase whose contract is *restatement* may carry this rule. P1 interrogates and does not
+    author, so its business registers are confined to the seed's; a phase that legitimately adds
+    (P2 projects, P3 decides) must not be judged this way.
+
+    It also narrows something the coverage rule deliberately permitted — elaborating one upstream
+    row into two. That freedom is what let a business fact enter at P1 wearing the clothes of an
+    elaboration. Elaboration now belongs at P0, in the seed, where a person owns the wording.
+    """
+    prior_rows, unavailable = _prior_rows(doc, rule)
+    if unavailable:
+        return [(_where(rule), unavailable)]
+
+    phase = rule.params["prior_phase"]
+    register = rule.params["prior_register"]
+    prior_key = _key_columns(rule.params["prior_key_column"])
+    key = _key_columns(rule.params["key_column"])
+
+    upstream = {_claim(row, prior_key) for _, row in prior_rows}
+
+    out = []
+    for i, (_, row) in enumerate(_rows(doc, rule), start=1):
+        claim = _claim(row, key)
+        if not claim or claim in upstream:
+            continue
+        out.append((
+            f"{_where(rule)} row {i}",
+            f"states what {phase} {register} does not: {claim!r} — this phase restates business "
+            f"content, so a new claim belongs upstream where a person owns it",
+        ))
+    return out
+
+
+def _prior_section_registers(phase: str) -> dict[str, str]:
+    """Section number → register id, for a prior phase's template.
+
+    The seed is cited by section, not by register id: `CR seed §4 Known Facts #1`. The title in the
+    middle is free-form and has already drifted between two change requests, but the number is
+    declared by the template, so the number is what resolves.
+    """
+    from transformation.design.template_reader import load
+
+    return {
+        r.section_number: r.id
+        for r in load(phase).registers
+        if r.section_number is not None
+    }
+
+
+@check("CITATION_ROW_UNRESOLVED")
+def _citation_row_unresolved(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An ordinal citation must name a row that exists.
+
+    `SOURCE_FINDING_UNRESOLVED` checks that a citation names a register some phase declares, which
+    catches a fabricated register id and nothing else: `CR seed §4 Known Facts #99` named a real
+    register and a row that was never written, and passed.
+
+    Resolution accepts either idiom, because both are in use across the tested dossiers — a prior
+    phase's section (`§4 … #1`) or a register id (`S1 system_beliefs #2`) — and looks in the priors
+    supplied and in this document's own registers. A citation carrying no ordinal is out of scope:
+    every downstream phase from P3 on cites by register name alone, and 162 of P7's citations are
+    of that form. Requiring ordinals everywhere is a separate decision from refusing a citation
+    that points at nothing.
+    """
+    column = rule.params["column"]
+
+    resolvable: dict[str, int] = {}
+    for entry in doc.registers:
+        rid = entry["id"] if isinstance(entry, dict) else entry.id
+        block = doc.register(rid)
+        if block is not None and block.table is not None:
+            resolvable[rid] = len(_content_rows(block))
+
+    sections: dict[str, dict[str, str]] = {}
+    for phase in doc.priors:
+        sections[phase] = _prior_section_registers(phase)
+        for register, count in _prior_register_sizes(doc, phase).items():
+            resolvable.setdefault(f"{phase}:{register}", count)
+
+    out = []
+    for i, (_, row) in enumerate(_rows(doc, rule), start=1):
+        value = _cell(row, column)
+        if not value:
+            continue
+        for register, ordinal in _citations(value, sections):
+            # A register id names this document's register *and* the prior's — `acceptance_criteria`
+            # exists at both rungs — so the ordinal resolves against whichever candidate can hold
+            # it. Checking only the nearest one reported a defect against a P1 row that correctly
+            # cited the seed's ninth criterion while this document carried eight.
+            candidates = [
+                v for k, v in resolvable.items()
+                if k == register or k.endswith(f":{register}")
+            ]
+            size = max(candidates, default=None)
+            if size is None or not 1 <= ordinal <= size:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"cites {register} #{ordinal}, which "
+                    + ("names no register any phase declares" if size is None
+                       else f"does not exist — that register carries {size} row(s)"),
+                ))
+    return out
+
+
+def _prior_register_sizes(doc: ParsedDocument, phase: str) -> dict[str, int]:
+    """How many content rows each register of a supplied prior carries."""
+    from transformation.design.template_reader import load
+
+    sizes: dict[str, int] = {}
+    for r in load(phase).registers:
+        block = doc.prior_register(phase, r.id)
+        if block is not None and block.table is not None:
+            sizes[r.id] = len(_content_rows(block))
+    return sizes
+
+
+def _citations(value: str, sections: dict[str, dict[str, str]]) -> list[tuple[str, int]]:
+    """Every (register, ordinal) pair a citation cell names, in either idiom.
+
+    The register-id idiom must match a declared id and nothing else. Matching any lowercase run
+    before a `#` read `Business Vocabulary #1` as a citation of `ocabulary` — a register no phase
+    declares — and reported a defect against a correct citation.
+    """
+    from transformation.design.derive import _all_declared_registers
+
+    found: list[tuple[str, int]] = []
+    for number, ordinal in re.findall(r"§\s*(\d+)[^#|]*#\s*(\d+)", value):
+        for mapping in sections.values():
+            register = mapping.get(number)
+            if register:
+                found.append((register, int(ordinal)))
+                break
+    for register in _all_declared_registers():
+        for ordinal in re.findall(rf"(?<![A-Za-z_]){re.escape(register)}\s*#\s*(\d+)", value):
+            found.append((register, int(ordinal)))
+    return found
