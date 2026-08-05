@@ -187,7 +187,8 @@ CASES = [
      "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 93, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
-         "BINDING_STEP_OWNER_UNDECLARED",
+         # Two, not three: the third was the search step's `filter` input binding, removed from the
+         # dossier when `LIST` was corrected to `SELECT` — `LIST` accepted no input to bind.
          "BINDING_STEP_OWNER_UNDECLARED",
          "BINDING_STEP_OWNER_UNDECLARED",
          "COMPOSITION_CC_UNDECLARED",
