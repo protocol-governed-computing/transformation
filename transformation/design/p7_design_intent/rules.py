@@ -395,6 +395,13 @@ INTERFACE_RULES: list[Rule] = [
         intent="a binding reads a field the operation yields, never one it was hoped would exist",
     ),
     Rule(
+        id="STEP_CONSUMES_UNDECLARED_INPUT",
+        check="STEP_CONSUMES_PUBLISHED",
+        register="cc_composition",
+        params={"observation": CAPABILITY_OBSERVATION},
+        intent="a step hands an operation fields it accepts, never ones it was hoped would exist",
+    ),
+    Rule(
         id="IMPLEMENTATION_WITHOUT_MODULE",
         check="CELL_NOT_EMPTY",
         register="implementation_bindings",

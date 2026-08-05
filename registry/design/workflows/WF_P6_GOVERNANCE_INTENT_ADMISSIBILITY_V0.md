@@ -338,6 +338,7 @@ core:
             - REPLACE
             - REVIEW
             - REUSE
+            - EXTEND
           intent: Action is a controlled vocabulary declared by the template
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY

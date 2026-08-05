@@ -99,10 +99,11 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 
 ## 4. PPS Artifacts Requiring Action
 
-*Existing PPS artifacts that must be reviewed or replaced as part of this CR. `fqdn` is the existing artifact. Action ∈ REPLACE | REVIEW | REUSE.*
+*Existing PPS artifacts that must be reviewed or replaced as part of this CR. `fqdn` is the existing artifact. Action ∈ REPLACE | REVIEW | REUSE | EXTEND — Stage 7's inventory already admits EXTEND, and an
+artifact amended to admit a case it did not is extended at both rungs or at neither.*
 
 <!-- register:pps_artifacts_requiring_action optional -->
-| FQDN | Current Status | Action (REPLACE, REVIEW, REUSE) | Source Finding |
+| FQDN | Current Status | Action (REPLACE, REVIEW, REUSE, EXTEND) | Source Finding |
 |------|----------------|----------------------------------|----------------|
 
 ---

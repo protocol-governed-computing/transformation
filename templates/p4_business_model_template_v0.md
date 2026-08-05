@@ -161,7 +161,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 <!-- register:gap_register business_language -->
 | Gap Code | Source Finding | Capability | Owner Subdomain | Resolution |
 |----------|----------------|-----------|-----------------|------------|
-| GAP-[n] | [finding ref] | [business-language capability] | [subdomain] | [NEW \| REUSE \| REPLACE] |
+| GAP-[n] | [finding ref] | [business-language capability] | [subdomain] | [NEW \| REUSE \| REPLACE \| EXTEND] |
 
 ---
 

@@ -292,10 +292,10 @@ exists so that a single scalar does not.*
 
 ## 13. STRUCTURE Stores
 
-*New entity stores. `storage_type` selects the CS substrate; `proposed_path` is the declared store path (governance concern — never hardcoded later); `used_by` names the writing CC (its owning subdomain only).*
+*New entity stores. `storage_type` selects the CS substrate — a store a capability claims keys in is a registry store, which the composition already carries examples of; `proposed_path` is the declared store path (governance concern — never hardcoded later); `used_by` names the writing CC (its owning subdomain only).*
 
 <!-- register:structure_stores optional -->
-| Store Name | Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0) | Proposed Path | Used By | Source Finding |
+| Store Name | Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0) | Proposed Path | Used By | Source Finding |
 |------------|-----------------------------------------------------------|---------------|---------|----------------|
 
 ---

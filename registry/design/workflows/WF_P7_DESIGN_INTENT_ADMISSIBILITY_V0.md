@@ -664,6 +664,7 @@ core:
             vocabulary:
             - CS_APPENDONLY_JSONL_V0
             - CS_MUTABLE_JSON_V0
+            - CS_REGISTRY_V0
           intent: Storage Type is a controlled vocabulary declared by the template
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
@@ -964,6 +965,12 @@ core:
             step_register: cc_composition
             observation: si.capability.surface
           intent: a binding reads a field the operation yields, never one it was hoped would exist
+        - id: STEP_CONSUMES_UNDECLARED_INPUT
+          check: STEP_CONSUMES_PUBLISHED
+          register: cc_composition
+          params:
+            observation: si.capability.surface
+          intent: a step hands an operation fields it accepts, never ones it was hoped would exist
         - id: IMPLEMENTATION_WITHOUT_MODULE
           check: CELL_NOT_EMPTY
           register: implementation_bindings
