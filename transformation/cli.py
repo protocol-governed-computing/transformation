@@ -349,7 +349,8 @@ def phase_list() -> None:
         click.echo()
 
 
-def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None) -> dict | None:
+def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
+              dossier: Path = Path(".")) -> dict | None:
     """Facts each amended artifact would lose, or None when there is nothing to compare against.
 
     An EXTEND is rendered whole and replaces its predecessor, so the design must state the artifact
@@ -357,6 +358,24 @@ def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None) -> dict | None:
     """
     if snapshot_root is None:
         return None
+
+    # An amendment is only meaningfully compared with the composition the change was designed
+    # against. Handed the live snapshot after the change was promoted, this compares the design with
+    # its own output and reports the change's additions as losses whenever they are revised. The
+    # dossier names the composition it was validated against, so say so rather than let a reader
+    # take the wrong reading for a defect.
+    pin = dossier / "baseline.json"
+    if pin.is_file():
+        declared = json.loads(pin.read_text()).get("snapshot_id", "")
+        status, summary = inspector_api.query("si.snapshot.summary", {}, str(snapshot_root))
+        observed = summary.get("snapshot_id", "") if status == "SUCCESS" else ""
+        if declared and observed and declared != observed:
+            click.echo(
+                f"  note: {snapshot_root} is not this change's baseline "
+                f"({observed[:12]}… vs {declared[:12]}…) — an amendment compared against a "
+                f"composition that already holds this change reads its own additions as losses",
+                err=True)
+
     existing = {}
     for entry in p7.get("existing_inventory", []):
         action = next((v for k, v in entry.items() if k.startswith("Action")), "")
@@ -421,7 +440,7 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
         click.echo(f"\n  Construction Completeness  {result.percentage:.1f}%"
                    f"   ({result.determined}/{result.total} determined)")
 
-        lost = _narrowed(p7, p8, snapshot_root)
+        lost = _narrowed(p7, p8, snapshot_root, dossier)
         if lost is None:
             click.echo("  note: pass --snapshot to check that no amendment narrows what it replaces",
                        err=True)
