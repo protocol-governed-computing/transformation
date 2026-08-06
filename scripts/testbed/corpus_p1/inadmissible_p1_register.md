@@ -4,7 +4,7 @@ The P1 register. Every row restates content from the accepted seed and cites the
 from; P1 classifies and traces, it does not add. Business language only — nothing here gets a code.
 
 **Stage:** 1 — Change Request
-**CR:** cr_00_new_subdomain
+**CR:** new_subdomain
 **Status:** DRAFT
 **Feeds:** Stage 2 — Domain Model
 

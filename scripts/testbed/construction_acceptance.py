@@ -1,9 +1,14 @@
-"""Construction acceptance — render CR-1's artifacts from its dossier and compare with what was built.
+"""Construction acceptance — render a domain's artifacts from its dossiers and compare with what was built.
 
-CR-1's twenty-five artifacts were hand-authored, compiled, and validated 9/9 against acceptance
-criteria the business declared before any design existed. That makes them the acceptance corpus for
-the Construction lifecycle, and it makes this comparison the only test that matters: **a design at
-100% Construction Completeness should determine them.**
+A domain's registry is what its change requests have made it, in order, so acceptance renders the
+**sequence** and not one change of it. Each dossier's design is rendered in turn and a later one
+overrides an earlier for any artifact it touches, exactly as promotion did on disk. The comparison
+then asks the only question worth asking: **does the accumulated design determine the registry?**
+
+Rendering a single dossier was right while one change request owned the domain and wrong the moment a
+second amended eight of its artifacts — the earlier design still renders them as they were, so
+acceptance reported twenty-six differences that were history rather than defects. Evolution is never
+greenfield here; the acceptance corpus is a sequence for the same reason validation is.
 
 Every difference is one of exactly two things, and the difference itself says which:
 
@@ -18,7 +23,7 @@ Comparison is semantic and scoped to the Machine block. An artifact's prose is h
 no register determines, and comparing text would report a hundred differences about paragraphs
 nobody claims are generated.
 
-Run:  python scripts/testbed/construction_acceptance.py [dossier] [registry]
+Run:  python scripts/testbed/construction_acceptance.py [dossier ...] [--registry <path>]
 Exit: 0 when every artifact matches, 1 otherwise.
 """
 
@@ -35,7 +40,10 @@ from transformation.design.read import read_seed
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
-DOSSIER = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog"
+# In order. A dossier appended here is a change that came after the ones above it, and the ordering
+# is the whole of what makes the composite meaningful.
+CR_DOSSIERS = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers"
+DOSSIERS = [CR_DOSSIERS / "cr_01_catalog", CR_DOSSIERS / "cr_02_catalog"]
 REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 
 MACHINE = re.compile(r"```yaml\n(.*?)\n```", re.S)
@@ -105,15 +113,32 @@ def diff(expected, actual, path: str = "") -> list[str]:
 
 
 def main() -> int:
-    dossier = Path(sys.argv[1]) if len(sys.argv) > 1 else DOSSIER
-    registry = Path(sys.argv[2]) if len(sys.argv) > 2 else REGISTRY
+    args = sys.argv[1:]
+    registry = REGISTRY
+    if "--registry" in args:
+        i = args.index("--registry")
+        if i + 1 >= len(args):
+            print("--registry needs a path")
+            return 1
+        registry = Path(args[i + 1])
+        del args[i:i + 2]
+    dossiers = [Path(a) for a in args] or DOSSIERS
 
-    p7 = registers(next(dossier.glob("p7_*.md")))
-    p8 = registers(next(dossier.glob("p8_*.md")))
-    rendered = {bare(a["machine"]["fqdn"]): a for a in render_all(p7, p8)}
+    # Later changes override earlier ones, artifact by artifact — the same thing promotion did.
+    rendered: dict[str, dict] = {}
+    determined_by: dict[str, str] = {}
+    for dossier in dossiers:
+        p7 = registers(next(dossier.glob("p7_*.md")))
+        p8 = registers(next(dossier.glob("p8_*.md")))
+        for artifact in render_all(p7, p8):
+            code = bare(artifact["machine"]["fqdn"])
+            rendered[code] = artifact
+            determined_by[code] = dossier.name
+
     reference = built(registry)
-
-    print(f"construction acceptance — {len(rendered)} rendered against {len(reference)} built\n")
+    sequence = " -> ".join(d.name for d in dossiers)
+    print(f"construction acceptance — {sequence}")
+    print(f"{len(rendered)} rendered against {len(reference)} built\n")
 
     failures, total_diffs = 0, 0
     for code in sorted(reference):
@@ -124,10 +149,10 @@ def main() -> int:
         differences = diff(reference[code], rendered[code]["machine"])
         total_diffs += len(differences)
         if not differences:
-            print(f"  OK    {code}")
+            print(f"  OK    {code:<44} {determined_by[code]}")
             continue
         failures += 1
-        print(f"  DIFF  {code:<44} {len(differences)} field(s)")
+        print(f"  DIFF  {code:<44} {len(differences)} field(s)   {determined_by[code]}")
         for line in differences[:6]:
             print(f"          {line}")
         if len(differences) > 6:

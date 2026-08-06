@@ -1,7 +1,7 @@
 # Domain Model — transformation / phases
 
 **Stage:** 2 — Domain Model Verification
-**CR:** cr_00_new_subdomain
+**CR:** new_subdomain
 **Status:** DRAFT
 **Feeds:** Stage 3 — Analysis Loop
 

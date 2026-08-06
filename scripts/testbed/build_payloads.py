@@ -54,7 +54,7 @@ CATALOG_P2 = (
 
 PAYLOADS = {
     "01_admissible_seed.json": (
-        "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md"
+        "dossiers/new_subdomain/p0_seed_transformation_phases_v0.md"
     ),
     "02_admissible_reference.json": "scripts/testbed/corpus/admissible_blockchain_reference.md",
     "03_inadmissible_seven_violations.json": (
@@ -63,12 +63,12 @@ PAYLOADS = {
     "04_inadmissible_structural.json": "scripts/testbed/corpus/inadmissible_structural.md",
     "05_inadmissible_truncated.json": "scripts/testbed/corpus/inadmissible_truncated.md",
     "06_p1_admissible_register.json": (
-        "cr_dossiers/cr_00_new_subdomain/"
+        "dossiers/new_subdomain/"
         "p1_change_request_transformation_phases_v0.md"
     ),
     "07_p1_inadmissible_register.json": "scripts/testbed/corpus_p1/inadmissible_p1_register.md",
     "08_p2_admissible_register.json": (
-        "cr_dossiers/cr_00_new_subdomain/"
+        "dossiers/new_subdomain/"
         "p2_domain_model_transformation_phases_v0.md"
     ),
     "09_p2_inadmissible_register.json": "scripts/testbed/corpus_p2/inadmissible_p2_register.md",
@@ -221,9 +221,9 @@ PAYLOADS = {
 # only ever ran on a doctored document would never be shown to pass.
 PRIOR_SOURCES = {
     "08_p2_admissible_register.json": {
-        "p1": "cr_dossiers/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md"},
+        "p1": "dossiers/new_subdomain/p1_change_request_transformation_phases_v0.md"},
     "09_p2_inadmissible_register.json": {
-        "p1": "cr_dossiers/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md"},
+        "p1": "dossiers/new_subdomain/p1_change_request_transformation_phases_v0.md"},
     "12_p2_admissible_catalog_register.json": {"p1": CATALOG_P1},
     "13_p2_inadmissible_catalog_register.json": {"p1": CATALOG_P1},
     "26_p2_inadmissible_dropped_belief.json": {"p1": CATALOG_P1},
@@ -238,9 +238,9 @@ PRIOR_SOURCES = {
     "29_p8_inadmissible_undesigned_artifact.json": {"p7": CATALOG_P7},
     "35_p8_inadmissible_dropped_artifact.json": {"p7": CATALOG_P7},
     "06_p1_admissible_register.json": {
-        "p0": "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md"},
+        "p0": "dossiers/new_subdomain/p0_seed_transformation_phases_v0.md"},
     "07_p1_inadmissible_register.json": {
-        "p0": "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md"},
+        "p0": "dossiers/new_subdomain/p0_seed_transformation_phases_v0.md"},
     "11_p1_admissible_catalog_register.json": {"p0": CATALOG_P0},
     "30_p1_inadmissible_dropped_criterion.json": {"p0": CATALOG_P0},
     "22_p7_admissible_catalog_register.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},

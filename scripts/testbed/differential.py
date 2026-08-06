@@ -57,7 +57,7 @@ PHASES = {
         "wf": "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
         "rules": p0_rule_set,
         "corpus": [
-            REPO / "cr_dossiers/cr_00_new_subdomain/p0_seed_transformation_phases_v0.md",
+            REPO / "dossiers/new_subdomain/p0_seed_transformation_phases_v0.md",
             CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus").glob("*.md")),
         ],
@@ -67,7 +67,7 @@ PHASES = {
         "rules": p1_rule_set,
         "priors": True,
         "corpus": [
-            REPO / "cr_dossiers/cr_00_new_subdomain/p1_change_request_transformation_phases_v0.md",
+            REPO / "dossiers/new_subdomain/p1_change_request_transformation_phases_v0.md",
             CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p1").glob("*.md")),
         ],
@@ -83,7 +83,7 @@ PHASES = {
         # document being judged, not of the phase — see PRIORS_BY_DOCUMENT.
         "priors": True,
         "corpus": [
-            REPO / "cr_dossiers/cr_00_new_subdomain/p2_domain_model_transformation_phases_v0.md",
+            REPO / "dossiers/new_subdomain/p2_domain_model_transformation_phases_v0.md",
             CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p2").glob("*.md")),
         ],
@@ -204,7 +204,7 @@ def observation(operations: dict | None, snapshot_root: str) -> dict:
 # So a phase that declares cross-phase rules must declare a prior for every document it judges. An
 # unmapped document is a hard failure rather than an unchecked handoff — the corpus is discovered by
 # glob, and a fixture dropped in without one would quietly stop exercising the rule.
-CR_00 = REPO / "cr_dossiers/cr_00_new_subdomain"
+CR_00 = REPO / "dossiers/new_subdomain"
 
 PRIORS_BY_DOCUMENT = {
     "p2_domain_model_transformation_phases_v0.md": {

@@ -218,7 +218,7 @@ evidence, not artifacts" exists to prevent. Transport stays reserved for `si.*` 
 runtime execution.
 
 **Where do dossiers live?** Outside the snapshot, always. They are evidence *about* a composition,
-never part of one. Generated dossiers are gitignored; authored dossiers live in `cr_dossiers/`
+never part of one. Generated dossiers are gitignored; authored dossiers are tracked
 in the repo of the domain they change, and are tracked there.
 
 ### The baseline is pinned
@@ -298,7 +298,7 @@ correctness first, scalability second, never both at once.
 ## 8. Fixtures
 
 ```
-<domain repo>/cr_dossiers/
+<business domain>/cr_dossiers/
   cr_NN_<subject>/
     baseline.json                             pinned snapshot_id — checked before any phase runs
     p0_business_problem_statement.md          human-authored prose — the P0 input
