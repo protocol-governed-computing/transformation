@@ -133,10 +133,19 @@ than guessing it here or hedging it as a hole.*
 
 ## 7. Provisional Artifact Codes
 
-*Provisional AC / IN / WF / CC codes (Stage 7 assigns binding FQDNs). Each carries `_V0`. `summary` is business language. Family ∈ AC | IN | WF | CC.*
+*Provisional codes for every artifact this change authors — Stage 7 assigns the binding FQDNs. Each
+carries `_V0`. `summary` is business language.*
+
+*The family vocabulary spans every kind a business change request authors, not only the four a
+reader meets first. A transform that forms a business key, the moment a record enters the catalog,
+the stores a subdomain owns and the bindings that reach them are all things the business asked for,
+and a family that could not name them left them outside the P5→P7 closure entirely: an artifact
+scheduled at Stage 7 with no provisional code is one no business intent ever named, and
+`AUTHORED_ARTIFACT_WITHOUT_INTENT` is what now refuses it. `CS` is absent deliberately — a capability
+side effect is substrate, and a business change request reuses one rather than authoring it.*
 
 <!-- register:provisional_codes business_language=summary -->
-| Provisional Code | Family (AC, IN, WF, CC) | Summary | Source Finding |
+| Provisional Code | Family (AC, IN, WF, CC, CT, EV, RB, STRUCTURE) | Summary | Source Finding |
 |------------------|-------------------------|---------|----------------|
 
 ---

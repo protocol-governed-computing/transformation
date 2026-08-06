@@ -882,6 +882,17 @@ core:
             require: prior_in_here
             match_on: bare_code
           intent: a capability the business asked for and the design never bound is declined, not deferred
+        - id: AUTHORED_ARTIFACT_WITHOUT_INTENT
+          check: PRIOR_IDENTITIES_COVERED
+          register: new_artifacts
+          params:
+            prior_phase: p5
+            prior_register: provisional_codes
+            prior_column: Provisional Code
+            column: Code
+            require: here_in_prior
+            match_on: bare_code
+          intent: an artifact the design authors is one the business asked for, never one it invented
         - id: WORKFLOW_WITHOUT_TOPOLOGY
           check: REGISTER_COVERS_REGISTER
           register: execution_topology

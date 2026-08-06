@@ -47,8 +47,14 @@ OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
-# A provisional code: family, name, version — and no namespace.
-PROVISIONAL_CODE_PATTERN = r"^(?:AC|IN|WF|CC)_[A-Z0-9_]+_V\d+$"
+# A provisional code: family, name, version — and no namespace. The families are the template's,
+# read from it rather than restated, because the two declarations drifted once already: the pattern
+# admitted four families while a business change routinely authors transforms, events, bindings and
+# a storage declaration, and every one of those fell outside the P5→P7 closure as a result.
+PROVISIONAL_CODE_FAMILIES = TEMPLATE.register("provisional_codes").vocabularies["Family"]
+PROVISIONAL_CODE_PATTERN = (
+    r"^(?:" + "|".join(PROVISIONAL_CODE_FAMILIES) + r")_[A-Z0-9_]+_V\d+$"
+)
 
 
 PURPOSE_RULES: list[Rule] = [
