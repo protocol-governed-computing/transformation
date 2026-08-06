@@ -135,9 +135,25 @@ binding codes belong. Existing artifacts are cited by their real FQDN in `fqdn` 
 
 *All existing PPS artifacts touched by this CR. Action ∈ REPLACE | REUSE | EXTEND | REVIEW. `fqdn` is the existing artifact, cited by exact FQDN.*
 
+**An `EXTEND` is a whole redeclaration, not a delta.** Construction renders an amended artifact from
+this design alone and the result replaces its predecessor, so every register that describes it must
+describe it *as it will be* — every store the declaration carries, every field the contract accepts
+and returns, every node the workflow runs — not only the parts this change adds. A design that
+states the delta renders an artifact with the rest deleted, and reports 100% completeness while
+doing it, because completeness asks whether the design's own claims are determined and never what
+the composition already holds.
+
+*The word invites the wrong reading and the reading is expensive: it produced a storage declaration
+carrying two stores where five existed. `tc construction check --snapshot` compares each amendment
+with the artifact it replaces and refuses one that narrows it.*
+
+*`Summary` states what the artifact **is**, where `Reason` states why this change touches it. It is
+required for an `EXTEND`, because a rendered artifact without its summary is one this change
+silently emptied. A `REUSE` or `REVIEW` row is not rendered and may leave it blank.*
+
 <!-- register:existing_inventory -->
-| FQDN | Action (REPLACE, REUSE, EXTEND, REVIEW) | Reason | Source Finding |
-|------|------------------------------------------|--------|----------------|
+| FQDN | Action (REPLACE, REUSE, EXTEND, REVIEW) | Summary | Reason | Source Finding |
+|------|------------------------------------------|---------|--------|----------------|
 
 ---
 

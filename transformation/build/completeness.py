@@ -70,3 +70,67 @@ class Completeness:
 def measure(p7: dict, p8: dict) -> Completeness:
     """Measure a design against what construction requires of it."""
     return Completeness(facts=requirements(p7, p8))
+
+
+# Narrowing — the failure completeness cannot see -----------------------------------------------
+#
+# Completeness asks whether every fact the design must state is stated. It cannot ask whether the
+# design states *enough* of an artifact that already exists, because it has no view of what exists.
+#
+# An artifact inventoried as EXTEND is rendered whole and replaces its predecessor, so a design that
+# names only what the change adds deletes everything it did not restate. CR-2 declared two new
+# stores and rendered a storage declaration carrying two stores where the composition had five —
+# reported at 100% completeness, because every fact the design stated was determined and the four it
+# did not state were facts it never claimed to have.
+#
+# This is where the guard belongs rather than at P7: the fact it needs is the *content* of an
+# existing artifact, one query per amended row, and a phase's observations are gathered once with no
+# parameters. It runs before anything is written, which is the property that matters.
+
+def _leaves(value, path=""):
+    """Every fact an artifact states, addressed by where it sits.
+
+    A list is walked by index rather than reduced to its length: a capability contract's pipeline is
+    a list, and comparing lengths says three steps became three steps while every field inside them
+    disappeared. That is exactly what slipped past — the compiler caught it afterwards, on a schema
+    requirement, which is later than the design could have been fixed.
+    """
+    if isinstance(value, dict):
+        for key, item in value.items():
+            yield from _leaves(item, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            # Keyed by identity where the items carry one, by position where they do not. A design
+            # that inserts a pipeline step shifts every step after it, and a positional comparison
+            # reads the whole tail as deleted — which is the opposite of what an amendment usually
+            # does. `step` names a contract's steps; `code` and `name` cover the rest.
+            key = next((item[k] for k in ("step", "code", "name")
+                        if isinstance(item, dict) and item.get(k)), index)
+            yield from _leaves(item, f"{path}[{key}]")
+    else:
+        yield path, value
+
+
+def narrowing(rendered: list[dict], existing: dict[str, dict]) -> dict[str, list[str]]:
+    """Facts an amended artifact would lose, per artifact code.
+
+    `existing` maps a bare code to the machine block the composition holds for it. An artifact the
+    composition does not hold cannot be narrowed — it is being authored, not amended.
+    """
+    out: dict[str, list[str]] = {}
+    for artifact in rendered:
+        code = artifact["path"].rsplit("/", 1)[-1].removesuffix(".md")
+        prior = existing.get(code)
+        if not prior:
+            continue
+        was = dict(_leaves(prior))
+        now = dict(_leaves(artifact["machine"]))
+        # A fact survives when the path is still there, or when something beneath it is: a binding
+        # that was a value and is now an object of values has been refined, not deleted, and a
+        # comparison that could not tell those apart would refuse every amendment that adds detail.
+        lost = sorted(fact for fact in was
+                      if fact not in now
+                      and not any(later.startswith(fact + ".") for later in now))
+        if lost:
+            out[code] = lost
+    return out

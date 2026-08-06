@@ -6,7 +6,10 @@ The only interface this tool has. It is build-time: no transport surface, no Ope
 from __future__ import annotations
 
 import json
+import re
 import sys
+
+import yaml
 from pathlib import Path
 
 import click
@@ -15,7 +18,8 @@ from transformation.baseline import Baseline, BaselineMismatch, observe, verify
 from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
-from transformation.build.completeness import measure
+from transformation.build.completeness import measure, narrowing
+from transformation.build.render import render_all
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.oracle import evaluate
 from transformation.design.project import PROJECTIONS
@@ -345,6 +349,32 @@ def phase_list() -> None:
         click.echo()
 
 
+def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None) -> dict | None:
+    """Facts each amended artifact would lose, or None when there is nothing to compare against.
+
+    An EXTEND is rendered whole and replaces its predecessor, so the design must state the artifact
+    whole. Reading what the composition already holds is the only way to know that it did.
+    """
+    if snapshot_root is None:
+        return None
+    existing = {}
+    for entry in p7.get("existing_inventory", []):
+        action = next((v for k, v in entry.items() if k.startswith("Action")), "")
+        fqdn = next((v for k, v in entry.items() if k.startswith("FQDN")), "").strip()
+        if action.strip().upper() == "EXTEND" and fqdn:
+            status, result = inspector_api.query(
+                "si.artifact.show", {"artifact": fqdn}, str(snapshot_root))
+            if status != "SUCCESS":
+                continue
+            # The machine block, read out of the canonical artifact the composition holds. It is the
+            # same shape construction renders, which is what makes the two comparable at all.
+            block = re.search(r"```yaml\n(.*?)```",
+                              (result.get("canonical") or {}).get("content", ""), re.S)
+            if block:
+                existing[fqdn.split("::")[-1]] = yaml.safe_load(block.group(1)) or {}
+    return narrowing(render_all(p7, p8), existing)
+
+
 @main.group()
 def construction() -> None:
     """The Construction lifecycle — is a design ready to build from?"""
@@ -355,7 +385,11 @@ def construction() -> None:
 @click.option("--require", "threshold", type=float, default=100.0, show_default=True,
               help="Minimum Construction Completeness; below it the design is refused.")
 @click.option("--json", "as_json", is_flag=True, help="Emit the measurement as JSON.")
-def construction_check(dossier: Path, threshold: float, as_json: bool) -> None:
+@click.option("--snapshot", "snapshot_root",
+              type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="Composition to compare amendments against, so none narrows what it replaces.")
+def construction_check(dossier: Path, threshold: float, as_json: bool,
+                       snapshot_root: Path | None = None) -> None:
     """Measure whether a design uniquely determines the artifacts it specifies.
 
     `tc phase check` admits a document against a rule set; this admits a *design* to construction.
@@ -386,6 +420,20 @@ def construction_check(dossier: Path, threshold: float, as_json: bool) -> None:
                        + (f"   {', '.join(missing[:3])}" if missing else ""))
         click.echo(f"\n  Construction Completeness  {result.percentage:.1f}%"
                    f"   ({result.determined}/{result.total} determined)")
+
+        lost = _narrowed(p7, p8, snapshot_root)
+        if lost is None:
+            click.echo("  note: pass --snapshot to check that no amendment narrows what it replaces",
+                       err=True)
+        elif lost:
+            click.echo("\n  AMENDMENT NARROWS — these facts exist now and the design does not state them:")
+            for code, facts in sorted(lost.items()):
+                click.echo(f"      {code:<44} {len(facts)} fact(s) lost")
+                for fact in facts[:4]:
+                    click.echo(f"          {fact}")
+                if len(facts) > 4:
+                    click.echo(f"          ... and {len(facts) - 4} more")
+            sys.exit(1)
         for name, n in result.undetermined.most_common():
             click.echo(f"    {n:>3}  {name}")
 

@@ -203,6 +203,7 @@ core:
             columns:
             - FQDN
             - Action
+            - Summary
             - Reason
             - Source Finding
           intent: downstream phases read these columns by name

@@ -32,16 +32,16 @@ Every binding names a field the capability declares, read from the pinned baseli
 ## 2. Artifact Inventory — Existing Artifacts
 
 <!-- register:existing_inventory -->
-| FQDN | Action (REPLACE, REUSE, EXTEND, REVIEW) | Reason | Source Finding |
-|------|------------------------------------------|--------|----------------|
-| capability_side_effects::CS_MUTABLE_JSON_V0 | EXTEND | Extended with an operation that publishes the records themselves, so a search can select among them by content; the implementation behind it already returned them. | S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0 |
-| capability_side_effects::CS_REGISTRY_V0 | REUSE | Register-if-absent gives the atomic claim duplicate prevention needs, on a key the catalog forms. | S6 ownership Claim a value once so a second claim on it fails |
-| capability_side_effects::CS_APPENDONLY_JSONL_V0 | REUSE | Appends an entry to a trail that cannot be amended. | S6 ownership Append an entry to a trail that cannot be amended |
-| capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 | REUSE | Assembles a durable record from supplied values. | S6 ownership Assemble a durable record from supplied values |
-| capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0 | REUSE | Confirms a record carries the fields its contract declares. | S6 ownership Confirm a record carries the fields its contract declares |
-| capability_transforms::CT_PURE_FILTER_RECORDS_V0 | REUSE | Selects the records matching stated criteria, and interprets a read of the store into a decision. | S6 ownership Select the records matching stated criteria |
-| capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0 | REUSE | Confirms supplied parameters satisfy declared rules, and interprets a read into a decision. | S6 ownership Confirm supplied parameters satisfy declared rules |
-| capability_transforms::CT_PURE_COMPARE_EQUAL_V0 | REUSE | Decides whether the identity an update would produce is the identity the book already has. | S6 ownership Confirm supplied parameters satisfy declared rules |
+| FQDN | Action (REPLACE, REUSE, EXTEND, REVIEW) | Summary | Reason | Source Finding |
+|------|------------------------------------------|---------|--------|----------------|
+| capability_side_effects::CS_MUTABLE_JSON_V0 | EXTEND | Writes, reads, selects, lists, updates in place and deletes durable records | Extended with an operation that publishes the records themselves, so a search can select among them by content; the implementation behind it already returned them. | S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0 |
+| capability_side_effects::CS_REGISTRY_V0 | REUSE |  | Register-if-absent gives the atomic claim duplicate prevention needs, on a key the catalog forms. | S6 ownership Claim a value once so a second claim on it fails |
+| capability_side_effects::CS_APPENDONLY_JSONL_V0 | REUSE |  | Appends an entry to a trail that cannot be amended. | S6 ownership Append an entry to a trail that cannot be amended |
+| capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 | REUSE |  | Assembles a durable record from supplied values. | S6 ownership Assemble a durable record from supplied values |
+| capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0 | REUSE |  | Confirms a record carries the fields its contract declares. | S6 ownership Confirm a record carries the fields its contract declares |
+| capability_transforms::CT_PURE_FILTER_RECORDS_V0 | REUSE |  | Selects the records matching stated criteria, and interprets a read of the store into a decision. | S6 ownership Select the records matching stated criteria |
+| capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0 | REUSE |  | Confirms supplied parameters satisfy declared rules, and interprets a read into a decision. | S6 ownership Confirm supplied parameters satisfy declared rules |
+| capability_transforms::CT_PURE_COMPARE_EQUAL_V0 | REUSE |  | Decides whether the identity an update would produce is the identity the book already has. | S6 ownership Confirm supplied parameters satisfy declared rules |
 
 ---
 

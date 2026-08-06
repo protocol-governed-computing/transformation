@@ -156,14 +156,29 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
     """
     family = {bare(cell(r, "Code")): cell(r, "Family") for r in rows(p7, "new_artifacts")}
     summary = {bare(cell(r, "Code")): cell(r, "Summary") for r in rows(p7, "new_artifacts")}
+    # An amended artifact states what it is in the inventory, because the design assigns it no new
+    # identity row to state it in. Rendering it without its summary would empty a field the
+    # composition already carries — an amendment that quietly deletes is worse than none.
+    summary.update({bare(cell(r, "FQDN")): cell(r, "Summary")
+                    for r in rows(p7, "existing_inventory") if cell(r, "Action") == "EXTEND"})
     subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
                  for r in rows(p8, "field_declarations")}
 
+    # What the mandate schedules, then what the design amends. An extended artifact is never a build
+    # step — `BUILD_CODE_ALREADY_EXISTS` refuses to mandate authoring an identity the composition
+    # already holds — so nothing rendered it, and the first change request to extend anything
+    # produced a workflow naming a runtime binding that did not bind it and contracts writing to
+    # stores that did not exist. Scheduling and amendment are different acts; both are realized.
+    amended = [cell(r, "FQDN") for r in rows(p7, "existing_inventory")
+               if cell(r, "Action") == "EXTEND"]
+    scheduled = [cell(r, "Code") for r in rows(p8, "build_order")]
+
     out = []
-    for row in rows(p8, "build_order"):
-        code = cell(row, "Code")
+    for code in scheduled + amended:
         short = bare(code)
-        fam = family.get(short)
+        # A scheduled artifact declares its family; an amended one carries it in its own identity,
+        # which is the only place it can, because the design assigns no new code for it.
+        fam = family.get(short) or short.split("_")[0]
         if fam not in KIND:
             continue
         declared_empty: list[str] = []
@@ -210,8 +225,16 @@ def _workflow(m, code, short, summary, sub, p7, p8):
     binding = next((cell(r, "RB Code") for r in rows(p7, "rb_declarations")
                     if bare(cell(r, "Binds WF")) == short), "")
     topo = [r for r in rows(p7, "execution_topology") if bare(cell(r, "Workflow")) == short]
+    # The actor a workflow runs as is the one the change authored — or, when the change extends a
+    # subdomain that already has one, the one it carries over. Reading `new_artifacts` alone was
+    # correct for exactly as long as every change request authored its own actor: the first
+    # extension change reused the actor its predecessor built, and its workflows resolved to no
+    # actor context at all while every design rule passed.
     actor = next((cell(r, "Code") for r in rows(p7, "new_artifacts")
                   if cell(r, "Family") == "AC"), "")
+    if not actor:
+        actor = next((cell(r, "FQDN") for r in rows(p7, "existing_inventory")
+                      if bare(cell(r, "FQDN")).startswith("AC_")), "")
 
     nodes: dict[str, Any] = {}
     start = ""
