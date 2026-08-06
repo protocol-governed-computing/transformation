@@ -985,6 +985,17 @@ core:
             column: Bound To
             detail: field is bound to nothing — construction would have to choose a source
           intent: every declared input names where its value comes from
+        - id: STORE_PATH_FORMAT_MISMATCH
+          check: STORE_PATH_MATCHES_STORAGE
+          register: structure_stores
+          params:
+            storage_column: Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0)
+            path_column: Proposed Path
+            formats:
+              CS_MUTABLE_JSON_V0: .json
+              CS_REGISTRY_V0: .jsonl
+              CS_APPENDONLY_JSONL_V0: .jsonl
+          intent: a store is named for the format its capability actually writes
         - id: BINDING_SOURCE_UNROOTED
           check: BINDING_SOURCE_ROOTED
           register: step_bindings

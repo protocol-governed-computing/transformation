@@ -167,6 +167,16 @@ def p7_unrooted_source(t: str) -> str:
                    "assemble_book_record.book_record")
 
 
+def p7_store_path_mismatch(t: str) -> str:
+    """A registry store named for a format its capability does not write.
+
+    `CS_REGISTRY_V0` writes JSON Lines; `.json` advertises a document that could never be parsed as
+    one. It compiled, ran, and cost nothing until the first tool that tried to read the store.
+    """
+    return replace(t, "book_library_mgmt/catalog/book_identity_registry.jsonl",
+                   "book_library_mgmt/catalog/book_identity_registry.json")
+
+
 def build_step(text: str, code: str) -> str:
     """The build_order row scheduling `code`, found by what it schedules rather than by its number.
 
@@ -227,6 +237,7 @@ FIXTURES = [
     ("corpus_p7/inadmissible_p7_unbound_code.md", P7, p7_unbound_code),
     ("corpus_p7/inadmissible_p7_dropped_reuse.md", P7, p7_dropped_reuse),
     ("corpus_p7/inadmissible_p7_unrooted_source.md", P7, p7_unrooted_source),
+    ("corpus_p7/inadmissible_p7_store_path.md", P7, p7_store_path_mismatch),
     ("corpus_p8/inadmissible_p8_broken_order.md", P8, p8_broken_order),
     ("corpus_p8/inadmissible_p8_undesigned_artifact.md", P8, p8_undesigned_artifact),
     ("corpus_p8/inadmissible_p8_dropped_artifact.md", P8, p8_dropped_artifact),

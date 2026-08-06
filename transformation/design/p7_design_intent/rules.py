@@ -366,6 +366,14 @@ COMPLETENESS_RULES: list[Rule] = [
 #
 # `result_status` is a value root, not a scope — the step's status is a scalar, so it is addressed
 # whole and correctly carries no field. The other four are scopes and are addressed through one.
+# What each storage capability writes on disk. Declared here because a CS states its format only in
+# the prose of its configuration schema; nothing machine-readable carries it.
+STORE_FORMATS = {
+    "CS_MUTABLE_JSON_V0": ".json",
+    "CS_REGISTRY_V0": ".jsonl",
+    "CS_APPENDONLY_JSONL_V0": ".jsonl",
+}
+
 BINDING_ROOTS = ["payload", "inputs", "results", "capability_result", "result_status"]
 BINDING_VALUE_ROOTS = ["result_status"]
 
@@ -430,6 +438,17 @@ INTERFACE_RULES: list[Rule] = [
             "detail": "field is bound to nothing — construction would have to choose a source",
         },
         intent="every declared input names where its value comes from",
+    ),
+    Rule(
+        id="STORE_PATH_FORMAT_MISMATCH",
+        check="STORE_PATH_MATCHES_STORAGE",
+        register="structure_stores",
+        params={
+            "storage_column": "Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0)",
+            "path_column": "Proposed Path",
+            "formats": STORE_FORMATS,
+        },
+        intent="a store is named for the format its capability actually writes",
     ),
     Rule(
         id="BINDING_SOURCE_UNROOTED",

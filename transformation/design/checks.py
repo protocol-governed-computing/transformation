@@ -1264,6 +1264,43 @@ def _is_number(value: str) -> bool:
     return True
 
 
+@check("STORE_PATH_MATCHES_STORAGE")
+def _store_path_matches_storage(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A store's path must carry the extension its storage capability writes.
+
+    The capabilities do not all write the same file format: `CS_MUTABLE_JSON_V0` writes one JSON
+    object keyed by store key, while `CS_REGISTRY_V0` and `CS_APPENDONLY_JSONL_V0` write JSON Lines.
+    A path is free naming and nothing derived it from the binding, so the catalog named two registry
+    stores `.json` — files that could never be parsed as the document their extension advertised.
+
+    It cost nothing at compile time and nothing at run time, because the runtime opens the path it is
+    given and neither reads nor cares about the suffix. It cost a reader, and the tooling a reader
+    writes: the first thing that tried to `json.loads` a store crashed on the second line.
+
+    The mapping is declared in `formats` rather than derived from the capability, because a CS states
+    its format in the prose of its configuration schema — `path: Filesystem path to JSONL registry
+    file` — and nothing machine-readable says it. Closing *that* gap is a change to the CS
+    declaration substrate, and this rule is the cheap half.
+    """
+    formats: dict[str, str] = rule.params["formats"]
+
+    out = []
+    for i, row in _rows(doc, rule):
+        storage, path = _cell(row, rule.params["storage_column"]), _cell(row, rule.params["path_column"])
+        if not storage or not path:
+            continue
+        expected = formats.get(_bare_identity(storage))
+        if expected is None:
+            continue                      # a capability this rule states no format for
+        if not path.endswith(expected):
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{storage.split('::')[-1]} writes {expected} and the path ends {path[path.rfind('.'):]!r} "
+                f"— a store's name must not advertise a format its capability does not write",
+            ))
+    return out
+
+
 @check("ROWS_CONFINED_TO_PRIOR")
 def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """No row here may assert something the upstream register does not.

@@ -566,8 +566,8 @@ BACKEND_ERROR — is already admitted, so no vocabulary is extended.
 | BOOKS | CS_MUTABLE_JSON_V0 | book_library_mgmt/catalog/books.json | book_library_mgmt::CC_REGISTER_BOOK_V0 | S6 storage_governance A durable record of every book the library catalogs |
 | PHYSICAL_COPIES | CS_MUTABLE_JSON_V0 | book_library_mgmt/catalog/physical_copies.json | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | S6 storage_governance A durable record of every physical copy the library owns |
 | CATALOG_OPERATIONS | CS_APPENDONLY_JSONL_V0 | book_library_mgmt/catalog/catalog_operations.jsonl | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | S6 storage_governance A trail of performed operations that cannot be amended |
-| BOOK_IDENTITY_REGISTRY | CS_REGISTRY_V0 | book_library_mgmt/catalog/book_identity_registry.json | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | S6 storage_governance A claim on each book's identity, held once |
-| COPY_BARCODE_REGISTRY | CS_REGISTRY_V0 | book_library_mgmt/catalog/copy_barcode_registry.json | book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | S6 storage_governance A claim on each copy's barcode, held once |
+| BOOK_IDENTITY_REGISTRY | CS_REGISTRY_V0 | book_library_mgmt/catalog/book_identity_registry.jsonl | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | S6 storage_governance A claim on each book's identity, held once |
+| COPY_BARCODE_REGISTRY | CS_REGISTRY_V0 | book_library_mgmt/catalog/copy_barcode_registry.jsonl | book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | S6 storage_governance A claim on each copy's barcode, held once |
 
 ---
 
