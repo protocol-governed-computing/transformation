@@ -5,10 +5,11 @@ disk is therefore an assertion: re-project the seed, and what comes out must be 
 what is committed. A projection nobody re-runs drifts from its input exactly the way a hand-authored
 fixture drifts from its dossier.
 
-Generality is asserted against a seed the projection was not written for. CR-1's seed is a different
-CR, of a different type, with registers of different sizes; its projection must be admissible over
-P1's full rule set with the seed supplied as its prior, or the projection only works on the document
-it was built from.
+Generality comes from CR-1, a different CR of a different type with registers of different sizes.
+Its P1 was authored by hand before the projection existed: every register row already matched what
+the compiler derives, and only the preamble and a widened vocabulary heading differed. That is the
+strongest evidence the projection is right, and asserting it byte for byte is what stops the
+authored and derived forms diverging again.
 
 Run:  python scripts/testbed/projection_test.py
 Exit: 0 if every case matched, 1 otherwise.
@@ -56,36 +57,30 @@ def _projected(seed_path: Path):
 def main() -> int:
     problems: list[str] = []
 
-    # Reproducible: the committed P1 is what the projection emits, byte for byte.
-    text, doc = _projected(CR_02 / "p0_seed_book_library_mgmt_catalog_v0.md")
-    committed = (CR_02 / "p1_change_request_book_library_mgmt_catalog_v0.md").read_text(
-        encoding="utf-8"
-    )
-    if text == committed:
-        print("  PASS  cr_02  projection reproduces the committed P1")
-    else:
-        problems.append("cr_02 projection differs from the committed P1")
-        print("  FAIL  cr_02  projection differs from the committed P1")
+    # Reproducible: every committed P1 is what the projection emits, byte for byte. Both dossiers,
+    # because CR-1's P1 was authored by hand before the projection existed and re-projected
+    # afterwards — every register row was already identical, and only its preamble and a widened
+    # vocabulary heading changed. A committed document the compiler would not reproduce is the drift
+    # the projection exists to remove, and it can only return here.
+    for name, dossier in (("cr_01", CR_01), ("cr_02", CR_02)):
+        text, doc = _projected(dossier / "p0_seed_book_library_mgmt_catalog_v0.md")
+        committed = (dossier / "p1_change_request_book_library_mgmt_catalog_v0.md").read_text(
+            encoding="utf-8"
+        )
+        if text == committed:
+            print(f"  PASS  {name}  projection reproduces the committed P1")
+        else:
+            problems.append(f"{name} projection differs from the committed P1")
+            print(f"  FAIL  {name}  projection differs from the committed P1")
 
-    verdict = evaluate(doc, p1_rules.rule_set())
-    status = "PASS" if verdict.admissible else "FAIL"
-    print(f"  {status}  cr_02  projected P1 {verdict.verdict} "
-          f"over {verdict.rules_evaluated} rules")
-    if not verdict.admissible:
-        problems.append(f"cr_02 projected P1 {verdict.verdict}")
-        for finding in verdict.findings:
-            print(f"          {finding}")
-
-    # General: a seed the projection was not written for, of a different CR type.
-    _, other = _projected(CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md")
-    verdict = evaluate(other, p1_rules.rule_set())
-    status = "PASS" if verdict.admissible else "FAIL"
-    print(f"  {status}  cr_01  projected P1 {verdict.verdict} "
-          f"over {verdict.rules_evaluated} rules")
-    if not verdict.admissible:
-        problems.append(f"cr_01 projected P1 {verdict.verdict}")
-        for finding in verdict.findings:
-            print(f"          {finding}")
+        verdict = evaluate(doc, p1_rules.rule_set())
+        status = "PASS" if verdict.admissible else "FAIL"
+        print(f"  {status}  {name}  projected P1 {verdict.verdict} "
+              f"over {verdict.rules_evaluated} rules")
+        if not verdict.admissible:
+            problems.append(f"{name} projected P1 {verdict.verdict}")
+            for finding in verdict.findings:
+                print(f"          {finding}")
 
     # Refused: a prior that still carries an open blocking clarification is not projectable, and the
     # CLI is what enforces it — this asserts the verdict the CLI acts on.

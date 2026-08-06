@@ -4,8 +4,10 @@
 **Status:** DRAFT
 **Feeds:** Stage 2 — Domain Model Discovery
 
-Every row is carried from `p0_seed_book_library_mgmt_catalog_v0.md` and cited to the seed section it
-came from. S1 interrogates; it does not author — no row states business content the seed does not.
+Projected from the change seed. Every row is the seed's own, cited to the section it was
+said in. S1 interrogates and does not author: a question raised by restating the seed
+amends the seed and is projected again, so no row here states business content the seed
+does not.
 
 ---
 
@@ -210,8 +212,8 @@ came from. S1 interrogates; it does not author — no row states business conten
 ## 13. Governance Scope
 
 <!-- register:governance_scope business_language -->
-| Scope Item | Relationship (CREATED, ADJACENT) | Source Finding |
-|----------|--------------------------------|--------------|
+| Scope Item | Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT) | Source Finding |
+|----------|----------------------------------------------------------------|--------------|
 | catalog | CREATED | CR seed §13 Governance Scope #1 |
 | circulation | ADJACENT | CR seed §13 Governance Scope #2 |
 | patron | ADJACENT | CR seed §13 Governance Scope #3 |

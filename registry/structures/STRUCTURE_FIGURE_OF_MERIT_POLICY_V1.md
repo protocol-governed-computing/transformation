@@ -1,25 +1,19 @@
-# STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
+# STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
 
 ## Header (Mandatory)
 
-- **Artifact Code:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
+- **Artifact Code:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
 - **Artifact Kind:** structure
 - **Governed By:** CONSTITUTION_STRUCTURE_V0
-- **Version:** V0
-- **Status:** superseded
-- **Supersedes:** NONE
-- **Superseded By:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
+- **Version:** V1
+- **Status:** draft
+- **Supersedes:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
 
 ---
 
 ## 1. Intent
 
 What a phase document loses a star for, and how much.
-
-**Superseded by `STRUCTURE_FIGURE_OF_MERIT_POLICY_V1`.** Four of this version's `open_hole` row
-terms score values that a rule now refuses outright, which counts one defect twice. V1 removes them
-and states the categories that decide what belongs in a `rows` term at all. Kept as the version the
-compositions before it were rated against.
 
 The figure of merit is **not** the verdict. Admissibility is decided by a phase's rule set and by
 nothing else; this policy says how good an artifact is once judged. The two axes are independent in
@@ -41,24 +35,54 @@ tool — unversioned, unreadable from the composition, and changeable without a 
 Changing a weight is therefore a change to this artifact, and a change to this artifact is a new
 version like any other.
 
-## 3. Deductions
+## 3. What a cell value can be, and what scores it
+
+Three categories, and only the middle one belongs in a `rows` term:
+
+| Category | Example | Admissible? | Scored here? |
+|----------|---------|-------------|--------------|
+| A valid value | `Result = VERIFIED` | Yes | No — nothing is wrong with it |
+| A **governed hole** | `Result = INSUFFICIENT_EVIDENCE` | Yes | **Yes** — the legal alternative to guessing, surfaced rather than rejected |
+| An **admission violation** | a cell reading `UNRESOLVED`; a clarification still `Blocking = YES` | **No** | No — a rule already refused it |
+
+A governed hole is the only one this policy has business scoring. The first needs no deduction. The
+third is already refused by a rule, and scoring it as well **double-counts one defect**: the
+document loses a star through `finding` for the rule that fired, and loses a second through
+`open_hole` for the cell that fired it. A reader comparing two documents then sees a gap that
+measures how many ways the same cell was counted.
+
+**V0 scored four admission violations this way.** `Identity Field`, `Uniqueness Rule` and `Source`
+reading `UNRESOLVED` became inadmissible under `REGISTER_CELL_UNRESOLVED`, and a clarification
+`Blocking = YES` became inadmissible under `BLOCKING_CLARIFICATION_OUTSTANDING`. The last was
+redundant even before that rule existed: a row present in `clarification_requests` is already
+counted by the register term above it, so one blocking question cost two stars for one fact. All
+four are removed here.
+
+The rule is general, not a list: **when a rule begins refusing a value, the `rows` term that scored
+it comes out of this policy in the same change.** Admission decides whether a document may enter the
+pipeline; the figure of merit compares the documents that entered. A term for something admission
+forbids describes a document that cannot exist as an admissible one, and is measured twice in the
+one case it can still appear — the inadmissible document that is rated anyway.
+
+## 4. Deductions
 
 | Deduction | Weight | What it catches |
 |-----------|--------|-----------------|
 | `identity_unresolved` | 2 | A citation that resolves to nothing really in the composition — a misspelling or a wrong namespace. Weighted double because a wrong identity propagates: every later phase reads it as established fact. |
 | `register_incomplete` | 1 | A declared register that did not arrive intact. |
 | `finding` | 1 | Any remaining rule finding. |
-| `open_hole` | 1 | A declared governed hole. Not a defect — it is the legal alternative to guessing — so it is surfaced and scored rather than rejected. |
+| `open_hole` | 1 | A declared governed hole — an open question carried in a register whose content is open questions, or a cell whose value states that the phase could not settle it. Not a defect, and never an admission violation. |
 
 ---
 
 ## Machine
 
 ```yaml
-fqdn: transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
+fqdn: transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
 artifact_kind: STRUCTURE
-version: V0
+version: V1
 governed_by: fb.structure::CONSTITUTION_STRUCTURE_V0
+supersedes: transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
 
 core:
   summary: Deterministic figure of merit for a phase document — deduction-based, 0 to 5
@@ -94,23 +118,15 @@ core:
       columns:
         Resolution Status:
         - OPEN
-        Blocking:
-        - 'YES'
         Status:
         - NOT_SATISFIED
         Result:
         - INSUFFICIENT_EVIDENCE
-        Identity Field:
-        - UNRESOLVED
-        Uniqueness Rule:
-        - UNRESOLVED
-        Source:
-        - UNRESOLVED
 ```
 
 ---
 
-## 4. Not ported from RI-0
+## 5. Not ported from RI-0
 
 RI-0 deducted a star when an iterative worker loop ended forced, at max-iterations, or stalled.
 PGC's phases are deterministic and single-shot: there is no loop, so convergence is *undefined*

@@ -165,7 +165,9 @@ CASES = [
          # template used to invite. A hole nothing forces closed is how a design whose central
          # identity question was never settled reached execution admissible at every gate.
          "REGISTER_CELL_UNRESOLVED",
-     ], 62, 3),
+     # 4/5, not 3/5, since the merit policy stopped scoring the `UNRESOLVED` identity cell it now
+     # refuses. One defect, one deduction: the rule that fired it.
+     ], 62, 4),
     # P6 draws lines, and the ladder does not simply accumulate: P5 requires provisional codes,
     # P6 forbids them. Each rung admits its own vocabulary rather than everything below it.
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
