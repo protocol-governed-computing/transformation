@@ -27,7 +27,11 @@ admissible, scored on the figure of merit, and strictly better than a guess.
 from __future__ import annotations
 
 from transformation.design.derive import derived_rules
-from transformation.design.rules import Rule, dossier_header_rules
+from transformation.design.rules import (
+    Rule,
+    dossier_header_rules,
+    governed_hole_rules,
+)
 from transformation.design.template_reader import load
 
 TEMPLATE = load("p5")
@@ -132,4 +136,9 @@ PURITY_RULES: list[Rule] = [
 
 def rule_set() -> list[Rule]:
     """The complete declared P5 rule set: derived, then purity, then the dossier header."""
-    return derived_rules(TEMPLATE) + PURITY_RULES + dossier_header_rules()
+    return (
+        derived_rules(TEMPLATE)
+        + PURITY_RULES
+        + governed_hole_rules()
+        + dossier_header_rules()
+    )

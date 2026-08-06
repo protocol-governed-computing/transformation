@@ -104,6 +104,56 @@ LIFECYCLE_STATES = (
 )
 
 
+def governed_hole_rules(exempt: Iterable[str] = ()) -> list[Rule]:
+    """No register may declare a cell unresolved instead of stating it.
+
+    A hole was previously admissible anywhere: a cell reading `UNRESOLVED` satisfies every rule that
+    asks whether a cell is filled, and no rule asked whether what filled it was an answer. The
+    phases that legitimately hold an open question — a clarification register, a gap register —
+    declare themselves exempt, so the question is *registered* rather than scattered through the
+    registers a later phase reads as decided.
+    """
+    return [
+        Rule(
+            id="REGISTER_CELL_UNRESOLVED",
+            check="UNRESOLVED_MARKER_ABSENT",
+            params={
+                "exempt": list(exempt),
+                "detail": (
+                    "{column!r} declares the question unanswered ({marker}) rather than answering "
+                    "it — ask it as a clarification, do not hedge it in a register"
+                ),
+            },
+            intent="an unanswered question left in a register reads as decided to every later phase",
+        )
+    ]
+
+
+def clarification_closure_rules(register: str = "clarification_requests") -> list[Rule]:
+    """A phase may not hand on a clarification still marked blocking.
+
+    Asking is what the register is for; the rule is about *when* the document is consumed. A
+    blocking question is the author's own statement that a later phase cannot proceed without the
+    answer, and the phase that proceeds anyway answers it by invention.
+    """
+    return [
+        Rule(
+            id="BLOCKING_CLARIFICATION_OUTSTANDING",
+            check="ROW_ABSENT_WHEN",
+            register=register,
+            params={
+                "column": "Blocking",
+                "value": "YES",
+                "detail": (
+                    "a blocking clarification is unanswered — resolve it with the named owner and "
+                    "fold the answer into the document before any phase consumes it"
+                ),
+            },
+            intent="a blocking question the next phase never sees is answered by invention",
+        )
+    ]
+
+
 def dossier_header_rules() -> list[Rule]:
     """The header every dossier phase document carries."""
     return [

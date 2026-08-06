@@ -686,6 +686,14 @@ core:
             prior_key_column: Capability
             key_column: Capability
           intent: a capability P3 decided and P4 never consolidated is dropped, not deferred
+        - id: REGISTER_CELL_UNRESOLVED
+          check: UNRESOLVED_MARKER_ABSENT
+          params:
+            exempt:
+            - gap_register
+            detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
+              as a clarification, do not hedge it in a register'
+          intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

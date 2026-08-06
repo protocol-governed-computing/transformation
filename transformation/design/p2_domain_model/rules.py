@@ -17,7 +17,11 @@ rule that flagged them would reject every correct dossier for doing its job.
 from __future__ import annotations
 
 from transformation.design.derive import derived_rules
-from transformation.design.rules import Rule, dossier_header_rules
+from transformation.design.rules import (
+    Rule,
+    dossier_header_rules,
+    governed_hole_rules,
+)
 from transformation.design.template_reader import load
 
 TEMPLATE = load("p2")
@@ -121,5 +125,6 @@ def rule_set() -> list[Rule]:
         derived_rules(TEMPLATE)
         + GROUNDING_RULES
         + BELIEF_PRESERVATION_RULES
+        + governed_hole_rules(exempt=["gaps", "open_questions", "discovery_concerns"])
         + dossier_header_rules()
     )

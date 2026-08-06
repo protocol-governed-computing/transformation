@@ -313,6 +313,80 @@ def _cell_not_prefixed(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return out
 
 
+@check("ROW_ABSENT_WHEN")
+def _row_absent_when(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A register may not carry a row in a given state.
+
+    `CELL_IN_VOCABULARY` says which values a column may hold; this says which of them the document
+    may still be carrying when it is judged. The difference matters for a register whose whole
+    purpose is to hold rows that must eventually be gone — an open question is well-formed and
+    still not something a downstream phase may consume.
+    """
+    out = []
+    column = rule.params["column"]
+    value = str(rule.params["value"]).strip().upper()
+    for i, row in _rows(doc, rule):
+        if _cell(row, column).strip().upper() == value:
+            out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
+    return out
+
+
+# A cell that declares the question unanswered rather than answering it. Matched at the head of a
+# cell, so `UNRESOLVED — whether an edition is a Book` fires and a sentence that merely mentions an
+# unresolved question does not. `PENDING` is deliberately absent: in a projection table it means
+# scheduled, not unknown.
+GOVERNED_HOLE_MARKERS = (
+    "UNRESOLVED",
+    "UNDECIDED",
+    "UNKNOWN",
+    "TBD",
+    "TBC",
+    "TO BE DETERMINED",
+    "TO BE DECIDED",
+    "TO BE CONFIRMED",
+    "NOT YET DECIDED",
+    "OPEN QUESTION",
+    "???",
+)
+
+
+@check("UNRESOLVED_MARKER_ABSENT")
+def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """No register may hedge a cell instead of stating it.
+
+    Document-wide rather than per-register: a hole can open in any cell of any register, and a rule
+    that had to name the columns in advance would only ever catch the holes someone had already
+    seen. The registers where an open question is the content — a clarification register, a gap
+    register — are declared exempt by the phase that owns them.
+
+    An unanswered question is not a value. Left in a register it is *determined* as far as every
+    later phase can tell, which is how a design whose central business question was never settled
+    reached execution reporting admissible at every gate.
+    """
+    out = []
+    exempt = {r.lower() for r in rule.params.get("exempt", ())}
+    markers = tuple(m.upper() for m in rule.params.get("markers", GOVERNED_HOLE_MARKERS))
+    for entry in doc.registers:
+        register_id = str(entry.get("id") or "")
+        if register_id.lower() in exempt or not entry.get("columns"):
+            continue
+        rows = [dict(r) for r in (entry.get("rows") or [])]
+        for i, row in enumerate(rows, start=1):
+            if _is_sentinel(row):
+                continue
+            for column, raw in row.items():
+                value = str(raw).strip().strip("*_`").upper()
+                marker = next((m for m in markers if value.startswith(m)), None)
+                if marker:
+                    out.append(
+                        (
+                            f"{register_id} row {i}",
+                            rule.params["detail"].format(marker=marker, column=column),
+                        )
+                    )
+    return out
+
+
 @check("TOKEN_ABSENT")
 def _token_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     pattern = re.compile(rule.params["pattern"])

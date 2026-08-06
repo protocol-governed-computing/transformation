@@ -17,7 +17,12 @@ per-register flags rather than as a phase-wide rule, because the flag is where t
 from __future__ import annotations
 
 from transformation.design.derive import derived_rules
-from transformation.design.rules import Rule, dossier_header_rules
+from transformation.design.rules import (
+    Rule,
+    clarification_closure_rules,
+    dossier_header_rules,
+    governed_hole_rules,
+)
 from transformation.design.template_reader import load
 
 TEMPLATE = load("p1")
@@ -140,5 +145,7 @@ def rule_set() -> list[Rule]:
         + _seed_rules()
         + _confinement_rules()
         + _citation_rules()
+        + governed_hole_rules(exempt=["clarification_requests"])
+        + clarification_closure_rules()
         + dossier_header_rules()
     )

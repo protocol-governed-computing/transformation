@@ -19,7 +19,12 @@ so a compiled artifact identity anywhere in the seed is caught by the derived ru
 from __future__ import annotations
 
 from transformation.design.derive import derived_rules
-from transformation.design.rules import Rule, dossier_header_rules
+from transformation.design.rules import (
+    Rule,
+    clarification_closure_rules,
+    dossier_header_rules,
+    governed_hole_rules,
+)
 from transformation.design.template_reader import load
 
 TEMPLATE = load("p0")
@@ -76,4 +81,10 @@ SEED_DISCIPLINE_RULES: list[Rule] = [
 
 def rule_set() -> list[Rule]:
     """The complete declared P0 rule set: derived, then seed discipline, then the dossier header."""
-    return derived_rules(TEMPLATE) + SEED_DISCIPLINE_RULES + dossier_header_rules()
+    return (
+        derived_rules(TEMPLATE)
+        + SEED_DISCIPLINE_RULES
+        + governed_hole_rules(exempt=["clarification_requests"])
+        + clarification_closure_rules()
+        + dossier_header_rules()
+    )

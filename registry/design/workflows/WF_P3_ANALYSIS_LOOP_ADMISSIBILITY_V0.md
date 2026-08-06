@@ -522,6 +522,13 @@ core:
             key_column: Item
             citation_column: Origin
           intent: a re-verification must address the result it cites, not a substitute for it
+        - id: REGISTER_CELL_UNRESOLVED
+          check: UNRESOLVED_MARKER_ABSENT
+          params:
+            exempt: []
+            detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
+              as a clarification, do not hedge it in a register'
+          intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

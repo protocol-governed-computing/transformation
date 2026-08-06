@@ -196,6 +196,12 @@ PAYLOADS = {
     "37_p7_inadmissible_store_path.json": (
         "scripts/testbed/corpus_p7/inadmissible_p7_store_path.md"
     ),
+    # A seed that asks a blocking question and hands it on unanswered. Every other rule passes:
+    # the row is well-formed and in vocabulary, and says in the author's own words that the next
+    # phase cannot proceed without the answer.
+    "38_p0_inadmissible_blocking_clarification.json": (
+        "scripts/testbed/corpus/inadmissible_p0_blocking_clarification.md"
+    ),
     # P5→P6: a capability declared in scope that the placement phase never mentions. A row missing
     # from `ownership` alone is what OUTCOME_CAPABILITY_UNPLACED already catches; this is the case
     # no single document can see.

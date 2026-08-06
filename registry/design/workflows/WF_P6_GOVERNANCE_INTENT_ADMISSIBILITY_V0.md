@@ -528,6 +528,13 @@ core:
             column: Existing Artifact
             require: prior_in_here
           intent: a capability borrowed across a subdomain boundary is a dependency, declared as one
+        - id: REGISTER_CELL_UNRESOLVED
+          check: UNRESOLVED_MARKER_ABSENT
+          params:
+            exempt: []
+            detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
+              as a clarification, do not hedge it in a register'
+          intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

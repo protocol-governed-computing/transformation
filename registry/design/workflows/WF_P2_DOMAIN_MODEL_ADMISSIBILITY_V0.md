@@ -679,6 +679,16 @@ core:
             key_column: Belief
             citation_column: Source Finding
           intent: a verification must resolve the belief it cites, not a substitute for it
+        - id: REGISTER_CELL_UNRESOLVED
+          check: UNRESOLVED_MARKER_ABSENT
+          params:
+            exempt:
+            - gaps
+            - open_questions
+            - discovery_concerns
+            detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
+              as a clarification, do not hedge it in a register'
+          intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

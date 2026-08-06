@@ -26,7 +26,11 @@ would leave a dossier that reads as though the mistake never happened.
 from __future__ import annotations
 
 from transformation.design.derive import derived_rules
-from transformation.design.rules import Rule, dossier_header_rules
+from transformation.design.rules import (
+    Rule,
+    dossier_header_rules,
+    governed_hole_rules,
+)
 from transformation.design.template_reader import load
 
 TEMPLATE = load("p3")
@@ -201,5 +205,6 @@ def rule_set() -> list[Rule]:
         + DECISION_RULES
         + SATURATION_RULES
         + BELIEF_PRESERVATION_RULES
+        + governed_hole_rules()
         + dossier_header_rules()
     )

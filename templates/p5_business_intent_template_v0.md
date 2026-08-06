@@ -15,11 +15,14 @@ the irreducible WHAT — purpose, scope, invariants, actions, and provisional ar
 (§1) is short prose (the one irreducible business narrative a compiler can never derive); everything
 else — including Identity Semantics (§4) — is registers. The worker emits register ROWS; a
 deterministic renderer owns the document. A required cell with no basis in the seed or the snapshot
-is declared `UNRESOLVED` (a governed hole), never fabricated and never left blank.
+is not a cell this phase can write: it is a question that belonged to P0 or P1 and was carried past
+its gate. Send it back to be asked and answered — never fabricated, never left blank, and never
+hedged with `UNRESOLVED`. A hole declared here is invisible to every phase downstream, which reads
+the cell as decided.
 
 VALID OUTPUT:
 - The Purpose prose section (§1) filled for this subdomain
-- Populated register tables (every required register below), or `UNRESOLVED` for a genuine hole
+- Populated register tables (every required register below), every cell stating a decided value
 - Business-language descriptions in content columns
 
 INVALID OUTPUT:
@@ -85,8 +88,9 @@ names.*
 
 *Which field uniquely identifies each record, where it comes from, what a duplicate means, and any
 cross-subdomain identity relationship. The compiler cannot infer identity semantics from field
-names — this is irreducible business knowledge. If a cell is genuinely not derivable from the seed,
-declare it `UNRESOLVED` (a governed hole a human will resolve) rather than guessing.*
+names — this is irreducible business knowledge. A cell not derivable from the seed is a question the
+seed's Clarification Requests should have asked and its author answered; return to that gate rather
+than guessing it here or hedging it as a hole.*
 
 <!-- register:identity_semantics business_language=identity_field,source,uniqueness_rule,cross_subdomain_relationship -->
 | Store Name | Identity Field | Source | Uniqueness Rule | Cross-Subdomain Relationship | Source Finding |

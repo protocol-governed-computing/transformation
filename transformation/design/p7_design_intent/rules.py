@@ -34,7 +34,11 @@ carried over. A reference to neither is a name nobody owns.
 from __future__ import annotations
 
 from transformation.design.derive import derived_rules
-from transformation.design.rules import Rule, dossier_header_rules
+from transformation.design.rules import (
+    Rule,
+    dossier_header_rules,
+    governed_hole_rules,
+)
 from transformation.design.template_reader import load
 
 TEMPLATE = load("p7")
@@ -468,5 +472,6 @@ def rule_set() -> list[Rule]:
         + LADDER_RULES
         + COMPLETENESS_RULES
         + INTERFACE_RULES
+        + governed_hole_rules()
         + dossier_header_rules()
     )

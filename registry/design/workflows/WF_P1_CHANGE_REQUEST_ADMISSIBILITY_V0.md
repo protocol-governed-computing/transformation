@@ -1532,6 +1532,23 @@ core:
           params:
             column: Source Finding
           intent: a citation that resolves to nothing is evidence of nothing
+        - id: REGISTER_CELL_UNRESOLVED
+          check: UNRESOLVED_MARKER_ABSENT
+          params:
+            exempt:
+            - clarification_requests
+            detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
+              as a clarification, do not hedge it in a register'
+          intent: an unanswered question left in a register reads as decided to every later phase
+        - id: BLOCKING_CLARIFICATION_OUTSTANDING
+          check: ROW_ABSENT_WHEN
+          register: clarification_requests
+          params:
+            column: Blocking
+            value: 'YES'
+            detail: a blocking clarification is unanswered — resolve it with the named owner and fold the answer
+              into the document before any phase consumes it
+          intent: a blocking question the next phase never sees is answered by invention
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

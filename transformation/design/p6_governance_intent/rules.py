@@ -24,7 +24,11 @@ named in the outcome was placed in the ownership register first.
 from __future__ import annotations
 
 from transformation.design.derive import derived_rules
-from transformation.design.rules import Rule, dossier_header_rules
+from transformation.design.rules import (
+    Rule,
+    dossier_header_rules,
+    governed_hole_rules,
+)
 from transformation.design.template_reader import load
 
 TEMPLATE = load("p6")
@@ -198,5 +202,6 @@ def rule_set() -> list[Rule]:
         derived_rules(TEMPLATE)
         + PLACEMENT_RULES
         + PLACEMENT_PRESERVATION
+        + governed_hole_rules()
         + dossier_header_rules()
     )

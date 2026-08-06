@@ -26,6 +26,7 @@ WORKSPACE = REPO.parent
 CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog"
 CORPUS = REPO / "scripts/testbed"
 
+P0 = CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"
 P1 = CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md"
 P2 = CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"
 P3 = CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"
@@ -62,6 +63,22 @@ def after(text: str, prefix: str, addition: str) -> str:
 
 
 NS = "book_library_mgmt::"
+
+
+def p0_blocking_clarification(t: str) -> str:
+    """A question the seed asks, marked blocking, and handed on unanswered.
+
+    CR-1's author answered every clarification, so the register is empty and the defect has to be
+    introduced rather than removed. It is the one seed defect that cannot be seen by reading the
+    register alone: the row is well-formed, in vocabulary, and says the next phase must not proceed.
+    """
+    return replace(
+        t,
+        "|----------|------------|----------|-------|\n",
+        "|----------|------------|----------|-------|\n"
+        "| Does a physical copy belong to the book or to the library branch holding it? "
+        "| Registration cannot be designed until a copy's owner is settled. | YES | HUMAN |\n",
+    )
 
 
 def p1_dropped_criterion(t: str) -> str:
@@ -224,6 +241,7 @@ def p8_dropped_artifact(t: str) -> str:
 
 
 FIXTURES = [
+    ("corpus/inadmissible_p0_blocking_clarification.md", P0, p0_blocking_clarification),
     ("corpus_p1/inadmissible_p1_dropped_criterion.md", P1, p1_dropped_criterion),
     ("corpus_p2/inadmissible_p2_catalog_register.md", P2, p2_grounding),
     ("corpus_p2/inadmissible_p2_dropped_belief.md", P2, p2_dropped_belief),

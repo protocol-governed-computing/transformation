@@ -1009,6 +1009,13 @@ core:
             value_roots:
             - result_status
           intent: a source that names a place is rooted in one execution scope actually offers
+        - id: REGISTER_CELL_UNRESOLVED
+          check: UNRESOLVED_MARKER_ABSENT
+          params:
+            exempt: []
+            detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
+              as a clarification, do not hedge it in a register'
+          intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:
