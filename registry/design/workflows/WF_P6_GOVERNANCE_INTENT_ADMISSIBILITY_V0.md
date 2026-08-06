@@ -1,0 +1,567 @@
+# WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
+
+## Header (Mandatory)
+
+- **Artifact Code:** WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
+- **Artifact Kind:** workflow
+- **Governed By:** CONSTITUTION_WORKFLOW_V0
+- **Version:** V0
+- **Status:** draft
+- **Supersedes:** NONE
+
+---
+
+## 1. Intent
+
+Phase 6 of the change pipeline: decide whether an offered Governance Intent register is admissible.
+
+P6 answers WHERE — which subdomain owns each capability, which owns each store, and what crosses a
+boundary. It is the phase that draws lines.
+
+---
+
+## 2. The ladder does not simply accumulate
+
+Stage 5 requires provisional artifact codes; this stage forbids them. That looks like a step
+backwards and is not: each rung admits its *own* vocabulary rather than everything below it. P6's
+vocabulary is placement, so a capability here is named in business language and placed in a
+subdomain. A row naming a provisional code has answered a question this stage is not asking and
+pre-empted one Stage 7 owns.
+
+Existing artifacts stay citable by exact FQDN at every rung, because citing what already exists is
+observation rather than design — which is why this workflow grounds.
+
+## 3. What ownership exclusivity means here
+
+A store is written only by capabilities of the subdomain that owns it. When a change needs a peer's
+store written, the writing capability belongs to that peer and is declared as a dependency gap.
+That is not visible in any single cell, so what is checked is the discipline that makes it
+visible: a dependency states its direction, a satisfied one names the artifact that satisfies it,
+and every capability in the outcome was placed in the ownership register first.
+
+---
+
+## Machine
+
+```yaml
+fqdn: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
+artifact_kind: WORKFLOW
+version: v0
+governed_by: fb.workflow::CONSTITUTION_WORKFLOW_V0
+
+runtime_binding: transformation::RB_TRANSFORMATION_BINDINGS_V0
+subdomain: design
+structure: fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0
+
+core:
+  summary: Decide whether an offered Governance Intent register is admissible
+  actor_context: transformation::AC_REGISTER_AUTHOR_V0
+
+  start_node: IN_GOVERNANCE_INTENT_SUBMITTED_V0
+
+  nodes:
+    IN_GOVERNANCE_INTENT_SUBMITTED_V0:
+      type: IN
+      code: IN_GOVERNANCE_INTENT_SUBMITTED_V0
+      next:
+        ACK: CC_JUDGE_AGAINST_SNAPSHOT_V0
+        NACK: EXIT_REJECTED
+
+    CC_JUDGE_AGAINST_SNAPSHOT_V0:
+      type: CC
+      code: CC_JUDGE_AGAINST_SNAPSHOT_V0
+      inputs:
+        document_text: $.payload.register_text
+        prior_texts: $.payload.prior_texts
+        rule_set:
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: ownership
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: ownership
+          params:
+            columns:
+            - Capability
+            - Owner Subdomain
+            - Disposition
+            - Existing Artifact
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: REGISTER_EMPTY
+          check: TABLE_HAS_ROWS
+          register: ownership
+          intent: an empty required register asserts nothing
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: ownership
+          params:
+            column: Disposition
+            vocabulary:
+            - OWNED
+            - SATISFIED
+            - DEFERRED
+          intent: Disposition is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: ownership
+          params:
+            columns:
+            - capability
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: ownership
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: ownership
+          params:
+            column: Source Finding
+            known_registers: &id001
+            - acceptance_criteria
+            - actions
+            - actors
+            - analysis_findings
+            - architectural_observations
+            - artifact_properties
+            - artifact_summary
+            - assumptions
+            - authoring_decisions
+            - authoring_scope
+            - authority_boundaries
+            - authority_deferrals
+            - belief_verification
+            - bm_entities
+            - boundary_rules
+            - build_order
+            - business_events
+            - business_invariants
+            - business_objects
+            - business_processes
+            - business_vocabulary
+            - capability_graph
+            - cc_composition
+            - clarification_requests
+            - constraint_register
+            - constraints
+            - cr_type
+            - critical_path
+            - cross_subdomain_deps
+            - cross_subdomain_notes
+            - cross_subdomain_refs
+            - dependency_discoveries
+            - dependency_graph
+            - design_decisions
+            - design_resolution
+            - discovery_concerns
+            - entities
+            - entity_attributes
+            - events
+            - execution_topology
+            - existing_inventory
+            - field_declarations
+            - gap_register
+            - gaps
+            - governance_outcome
+            - governance_scope
+            - identity_and_sameness
+            - identity_semantics
+            - impact_analysis
+            - implementation_bindings
+            - interface_fields
+            - invariants
+            - known_facts
+            - lifecycle_states
+            - lifecycle_transitions
+            - mandate_artifact_summary
+            - new_artifacts
+            - new_capabilities
+            - new_intents
+            - open_questions
+            - operation_refusals
+            - out_of_scope
+            - ownership
+            - placement_decision
+            - pps_artifacts_requiring_action
+            - pps_baseline_fqdns
+            - process_steps
+            - provisional_codes
+            - purpose_provenance
+            - rb_declarations
+            - relationships
+            - requested_outcomes
+            - resources
+            - runtime_policies
+            - saturation
+            - scope_boundary
+            - step_bindings
+            - storage_governance
+            - structure_stores
+            - subdomain_purpose
+            - system_beliefs
+            - verification_results
+            - vocabulary_extensions
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: storage_governance
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: storage_governance
+          params:
+            columns:
+            - Storage Need
+            - Purpose
+            - Subdomain
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: REGISTER_EMPTY
+          check: TABLE_HAS_ROWS
+          register: storage_governance
+          intent: an empty required register asserts nothing
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: storage_governance
+          params:
+            columns:
+            - storage_need
+            - purpose
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: storage_governance
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: storage_governance
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: cross_subdomain_deps
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: cross_subdomain_deps
+          params:
+            columns:
+            - Dependency
+            - Direction
+            - Existing Artifact
+            - Status
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: cross_subdomain_deps
+          params:
+            column: Status
+            vocabulary:
+            - SATISFIED
+            - GAP
+          intent: Status is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: cross_subdomain_deps
+          params:
+            columns:
+            - dependency
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: cross_subdomain_deps
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: cross_subdomain_deps
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: pps_artifacts_requiring_action
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: pps_artifacts_requiring_action
+          params:
+            columns:
+            - FQDN
+            - Current Status
+            - Action
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: pps_artifacts_requiring_action
+          params:
+            column: Action
+            vocabulary:
+            - REPLACE
+            - REVIEW
+            - REUSE
+            - EXTEND
+          intent: Action is a controlled vocabulary declared by the template
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: pps_artifacts_requiring_action
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: pps_artifacts_requiring_action
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: boundary_rules
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: boundary_rules
+          params:
+            columns:
+            - Rule Name
+            - Statement
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: boundary_rules
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: boundary_rules
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: governance_outcome
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: governance_outcome
+          params:
+            columns:
+            - Capability
+            - Owner Subdomain
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: governance_outcome
+          params:
+            columns:
+            - capability
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: governance_outcome
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: governance_outcome
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: PROVISIONAL_CODE_IN_PLACEMENT
+          check: CELL_TOKEN_ABSENT
+          register: ownership
+          params:
+            columns:
+            - Capability
+            - Owner Subdomain
+            pattern: \b(?:AC|IN|WF|CC|CT|CS|EV|RB)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} in {column!r} — this stage places capabilities in subdomains; naming an artifact
+              answers a question Stage 7 owns'
+          intent: placement names a subdomain, never an artifact
+        - id: STORAGE_CODE_IN_PLACEMENT
+          check: CELL_TOKEN_ABSENT
+          register: storage_governance
+          params:
+            columns:
+            - Storage Need
+            - Purpose
+            - Subdomain
+            pattern: \b(?:AC|IN|WF|CC|CT|CS|EV|RB)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} in {column!r} — a storage need is business language, not an artifact'
+          intent: a store is described by what it holds, not by what will write it
+        - id: SATISFIED_WITHOUT_EXISTING_ARTIFACT
+          check: CELL_NOT_EMPTY
+          register: ownership
+          params:
+            column: Existing Artifact
+            only_when_column: Disposition
+            only_when_value: SATISFIED
+            detail: capability is SATISFIED but names no existing artifact — a claim that something already covers
+              this needs the something
+          intent: a satisfied capability names what satisfies it
+        - id: EXISTING_ARTIFACT_UNRESOLVED
+          check: CITED_ARTIFACTS_RESOLVE
+          register: ownership
+          params:
+            column: Existing Artifact
+            pattern: '[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+'
+            observation: si.artifact.list
+          intent: an artifact said to cover a capability must be one that really exists
+        - id: PPS_ACTION_IDENTITY_UNRESOLVED
+          check: CITED_ARTIFACTS_RESOLVE
+          register: pps_artifacts_requiring_action
+          params:
+            column: FQDN
+            pattern: '[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+'
+            observation: si.artifact.list
+          intent: an artifact this change will act on must be one the composition carries
+        - id: DEPENDENCY_DIRECTION_MALFORMED
+          check: CELL_MATCHES
+          register: cross_subdomain_deps
+          params:
+            column: Direction
+            pattern: ^[a-z][a-z0-9_]*\s*(?:->|→)\s*[a-z][a-z0-9_]*$
+            detail: direction {value!r} must read `this_subdomain -> peer` — a boundary has two sides
+          intent: a dependency states which way it crosses the boundary
+        - id: DEPENDENCY_SATISFIED_WITHOUT_ARTIFACT
+          check: CELL_NOT_EMPTY
+          register: cross_subdomain_deps
+          params:
+            column: Existing Artifact
+            only_when_column: Status
+            only_when_value: SATISFIED
+            detail: dependency is SATISFIED but names no existing artifact — an unsatisfied dependency declared
+              satisfied is how a gap goes missing
+          intent: a satisfied dependency names the artifact that satisfies it
+        - id: OUTCOME_CAPABILITY_UNPLACED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: governance_outcome
+          params:
+            column: Capability
+            target_register: ownership
+            target_column: Capability
+          intent: the outcome restates placement, it does not introduce it
+        - id: IN_SCOPE_CAPABILITY_UNPLACED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: ownership
+          params:
+            prior_phase: p5
+            prior_register: scope_boundary
+            prior_key_column: Capability
+            key_column: Capability
+            prior_only_when_column: Status
+            prior_only_when_value: IN_SCOPE
+          intent: a capability declared in scope and given no owner is in nobody's scope
+        - id: BORROWED_CAPABILITY_NOT_DECLARED_CROSSING
+          check: PRIOR_IDENTITIES_COVERED
+          register: cross_subdomain_deps
+          params:
+            prior_phase: p5
+            prior_register: cross_subdomain_refs
+            prior_column: CC Code
+            column: Existing Artifact
+            require: prior_in_here
+          intent: a capability borrowed across a subdomain boundary is a dependency, declared as one
+        - id: REGISTER_CELL_UNRESOLVED
+          check: UNRESOLVED_MARKER_ABSENT
+          params:
+            exempt: []
+            detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
+              as a clarification, do not hedge it in a register'
+          intent: an unanswered question left in a register reads as decided to every later phase
+        - id: HEADER_FIELD_MISSING
+          check: HEADER_FIELD_PRESENT
+          params:
+            fields:
+            - Stage
+            - CR
+            - Status
+            - Feeds
+          intent: a dossier document states its phase, its CR, its lifecycle state, and what it feeds
+        - id: LIFECYCLE_STATE_NOT_IN_VOCABULARY
+          check: HEADER_FIELD_MATCHES
+          params:
+            fields:
+            - Status
+            pattern: ^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\b
+          intent: the lifecycle axis is a controlled vocabulary, not free text
+      next:
+        SUCCESS: EXIT_JUDGED
+        VIOLATION: EXIT_REJECTED
+        BACKEND_ERROR: EXIT_REJECTED
+
+    EXIT_JUDGED:
+      type: EXIT
+      outcome: SUCCESS
+
+    EXIT_REJECTED:
+      type: EXIT
+      outcome: VIOLATION
+```

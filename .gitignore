@@ -17,6 +17,9 @@ compiled/
 **/compiled/
 snapshot/
 
-# Dossiers are evidence ABOUT a composition, not part of one. Generated dossiers stay local;
-# the fixture dossiers under examples/ are authored and tracked.
-dossiers/
+# Dossiers are evidence ABOUT a composition, not part of one. Generated dossiers stay local.
+# Authored ones are tracked, and they now share this directory with the generated output — so the
+# exclusion names what is generated and re-admits what is authored. A bare `dossiers/` would ignore
+# the authored dossier too, silently, the moment it moved here.
+/dossiers/*
+!/dossiers/new_subdomain/
