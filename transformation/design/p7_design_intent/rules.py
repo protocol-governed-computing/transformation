@@ -277,6 +277,17 @@ LADDER_RULES: list[Rule] = [
             # P5 must not namespace a provisional code and P7 must namespace an assigned one; the
             # two cells state one identity at two rungs.
             "match_on": "bare_code",
+            # A code is bound by authoring the artifact or by extending the one that already
+            # carries the identity. Without the second, a change request that extends anything is
+            # unauthorable: the code must appear in `new_artifacts` to satisfy this rule and must
+            # not, because `NEW_CODE_ALREADY_EXISTS` refuses an identity the composition already
+            # holds. The two rules were each correct and jointly unsatisfiable.
+            "union": [{
+                "register": "existing_inventory",
+                "column": "FQDN",
+                "only_when_column": "Action",
+                "only_when_value": "EXTEND",
+            }],
         },
         intent="a capability the business asked for and the design never bound is declined, not deferred",
     ),

@@ -881,6 +881,11 @@ core:
             column: Code
             require: prior_in_here
             match_on: bare_code
+            union:
+            - register: existing_inventory
+              column: FQDN
+              only_when_column: Action
+              only_when_value: EXTEND
           intent: a capability the business asked for and the design never bound is declined, not deferred
         - id: AUTHORED_ARTIFACT_WITHOUT_INTENT
           check: PRIOR_IDENTITIES_COVERED

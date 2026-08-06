@@ -1125,6 +1125,26 @@ def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]
         if (identity := _cell(row, rule.params["column"]))
     }
 
+    # `union` widens the local side across more than one register, because a commitment can be
+    # honoured in more than one place. A change request that *extends* an existing artifact honours
+    # its provisional code in the existing inventory, not by authoring a new identity — and the
+    # first CR to extend anything found that no P7 could satisfy both directions of the closure at
+    # once. Declared per rule and gated per register, so a widening states which rows count.
+    #
+    # Only ever declared on `prior_in_here`. The reverse direction asks a different question — was
+    # this authored without intent — and an extended artifact may legitimately be substrate the
+    # business never named, which is why a union there would refuse correct dossiers.
+    for spec in rule.params.get("union", ()):
+        block = doc.register(spec["register"])
+        gate_column = spec.get("only_when_column")
+        gate_value = str(spec.get("only_when_value", "")).strip().upper()
+        for i, row in _content_rows(block):
+            if gate_column and _cell(row, gate_column).strip().upper() != gate_value:
+                continue
+            identity = _cell(row, spec["column"])
+            if identity:
+                here.setdefault(normalise(identity), i)
+
     if require == "prior_in_here":
         return [
             (f"{_where(rule)}",
