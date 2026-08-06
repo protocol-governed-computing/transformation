@@ -910,6 +910,53 @@ def _prior_rows(doc: ParsedDocument, rule):
     return _content_rows(block), None
 
 
+@check("PRIOR_PROSE_CARRIED")
+def _prior_prose_carried(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A narrative register carried from an upstream phase, inherited or explicitly superseded.
+
+    Preservation elsewhere is row-keyed, and a paragraph has no key. That is why the one register
+    the pipeline could never derive — the subdomain purpose, human-authored once at P0 — was the
+    one thing it dropped: P1 through P4 have nowhere to put it, and P5 wrote a fresh paragraph in
+    its place. A second author's paragraph is not the business's statement, and nothing recorded
+    that the substitution had happened.
+
+    The register itself declares which it is. `INHERITED` means the prose is the prior's, and the
+    two must match once whitespace is normalised. `REFINED` means this phase deliberately says more,
+    and must state what it added — a disposition that permitted silence would be indistinguishable
+    from the loss it exists to prevent.
+    """
+    phase = rule.params["prior_phase"]
+    prior_register = rule.params["prior_register"]
+    inherited = str(rule.params.get("inherited_value", "INHERITED")).upper()
+
+    if not doc.has_prior(phase):
+        return [(
+            _where(rule),
+            f"{phase} was not supplied — this handoff is unchecked, and an unchecked handoff "
+            f"looks identical to a preserved one",
+        )]
+    prior = doc.prior_register(phase, prior_register)
+    if prior is None:
+        return [(_where(rule), f"{phase} carries no {prior_register!r} register to carry forward")]
+
+    rows = _rows(doc, rule)
+    if not rows:
+        return [(_where(rule), "no disposition declared — say whether the prose is inherited or refined")]
+
+    out = []
+    column = rule.params["column"]
+    carried = doc.register(rule.params["prose_register"])
+    for i, row in rows:
+        if _cell(row, column).strip().upper() != inherited:
+            continue
+        if carried is None:
+            out.append((f"{_where(rule)} row {i}", "the register it declares a disposition for is absent"))
+            continue
+        if _normalise(carried.text()) != _normalise(prior.text()):
+            out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
+    return out
+
+
 def _cited_ordinals(value: str, register: str) -> set[int]:
     """Every `<register> #n` ordinal a citation cell names.
 

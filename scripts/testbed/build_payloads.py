@@ -227,6 +227,9 @@ PRIOR_SOURCES = {
     "12_p2_admissible_catalog_register.json": {"p1": CATALOG_P1},
     "13_p2_inadmissible_catalog_register.json": {"p1": CATALOG_P1},
     "26_p2_inadmissible_dropped_belief.json": {"p1": CATALOG_P1},
+    # P5 carries the subdomain purpose forward from the seed, so the seed travels with it.
+    "18_p5_admissible_catalog_register.json": {"p0": CATALOG_P0},
+    "19_p5_inadmissible_catalog_register.json": {"p0": CATALOG_P0},
     "14_p3_admissible_catalog_register.json": {"p2": CATALOG_P2},
     "15_p3_inadmissible_catalog_register.json": {"p2": CATALOG_P2},
     "27_p3_inadmissible_restated_result.json": {"p2": CATALOG_P2},

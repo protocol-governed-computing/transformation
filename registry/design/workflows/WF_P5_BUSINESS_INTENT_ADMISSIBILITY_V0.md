@@ -73,9 +73,55 @@ core:
         # P4 hands this phase its consolidation, and P5 transforms it rather than restating
         # it: `scope_boundary` is a fresh in/out judgement carrying deferrals P4 never had,
         # and no other register receives `capability_graph`. There is no row-level obligation
-        # here to check, so none is declared.
-        prior_texts: {}
+        # there to check, so none is declared against P4.
+        #
+        # The seed is a different matter. The subdomain purpose is authored once at P0 and has
+        # no register to travel in between, so this is where it reappears — and until the
+        # handoff was checked, it reappeared as a second author's paragraph.
+        prior_texts: $.payload.prior_texts
         rule_set:
+        - id: REGISTER_EMPTY
+          check: SECTION_HAS_TEXT
+          register: subdomain_purpose
+          params:
+            detail: narrative register is empty — it states nothing
+          intent: a narrative register carries the context nothing downstream can rederive
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: purpose_provenance
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: purpose_provenance
+          params:
+            columns:
+            - Source
+            - Disposition
+            - Refinement
+          intent: downstream phases read these columns by name
+        - id: REGISTER_EMPTY
+          check: TABLE_HAS_ROWS
+          register: purpose_provenance
+          intent: an empty required register asserts nothing
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: purpose_provenance
+          params:
+            column: Disposition
+            vocabulary:
+            - INHERITED
+            - REFINED
+          intent: Disposition is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: purpose_provenance
+          params:
+            columns:
+            - refinement
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: scope_boundary
@@ -195,6 +241,7 @@ core:
             - pps_baseline_fqdns
             - process_steps
             - provisional_codes
+            - purpose_provenance
             - rb_declarations
             - relationships
             - requested_outcomes
@@ -528,6 +575,28 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: PURPOSE_NOT_CARRIED_FROM_SEED
+          check: PRIOR_PROSE_CARRIED
+          register: purpose_provenance
+          params:
+            prior_phase: p0
+            prior_register: subdomain_purpose
+            prose_register: subdomain_purpose
+            column: Disposition
+            inherited_value: INHERITED
+            detail: the purpose is declared INHERITED and does not match the seed's — inherit it word for word,
+              or declare REFINED and say what this phase adds
+          intent: the one narrative no artifact can derive is authored once and never quietly replaced
+        - id: REFINEMENT_NOT_STATED
+          check: CELL_NOT_EMPTY
+          register: purpose_provenance
+          params:
+            column: Refinement
+            only_when_column: Disposition
+            only_when_value: REFINED
+            detail: a refined purpose must state what it adds that the seed did not say; silence here is the silent
+              replacement this register exists to prevent
+          intent: superseding upstream content is allowed, doing it without saying so is not
         - id: PROVISIONAL_CODE_ALREADY_BOUND
           check: CELL_TOKEN_ABSENT
           register: provisional_codes

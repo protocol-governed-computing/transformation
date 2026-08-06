@@ -115,6 +115,7 @@ PHASES = {
         "wf": "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
         "rules": p5_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
+        "priors": True,
         "corpus": [
             CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p5").glob("*.md")),
@@ -250,6 +251,10 @@ PRIORS_BY_DOCUMENT = {
     "p4_business_model_book_library_mgmt_catalog_v0.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
     "inadmissible_p4_broken_consolidation.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
     "inadmissible_p4_dropped_decision.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
+    # P5 reads the seed, not P4: the subdomain purpose is authored at P0 and has no register to
+    # travel in between, so P5 is where it reappears and where the substitution has to be declared.
+    "p5_business_intent_book_library_mgmt_catalog_v0.md": {"p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
+    "inadmissible_p5_binding_leak.md": {"p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
 }
 
 

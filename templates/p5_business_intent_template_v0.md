@@ -60,7 +60,20 @@ artifacts record facts, never trigger execution.
 manages, and the business rationale for its existence. Write for a business stakeholder. No artifact
 names.*
 
+*This paragraph is not written here for the first time. The business author stated it at P0, as the
+one irreducible narrative no compiled artifact can derive, and P1 through P4 have no register to
+carry it in. This phase therefore says which it is doing: **INHERITED**, and the paragraph is the
+seed's, word for word; or **REFINED**, and the Refinement column states what this phase adds that
+the seed did not say. Human semantic content enters the dossier once. A later phase may preserve it
+or supersede it in the open — never quietly replace it.*
+
+<!-- register:subdomain_purpose business_language -->
+
 [Purpose paragraph for [domain]/[subdomain].]
+
+<!-- register:purpose_provenance business_language=refinement -->
+| Source | Disposition (INHERITED, REFINED) | Refinement |
+|--------|----------------------------------|------------|
 
 ---
 

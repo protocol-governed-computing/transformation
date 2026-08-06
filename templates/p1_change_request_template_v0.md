@@ -241,7 +241,7 @@ explicitly so downstream stages do not chase future-state architecture.*
 item declares its `Relationship` to this CR — what the CR does to/with that boundary.*
 
 <!-- register:governance_scope business_language -->
-| Scope Item | Relationship (CREATED, ADJACENT) | Source Finding |
+| Scope Item | Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT) | Source Finding |
 |------------|----------------|----------------|
 
 ---

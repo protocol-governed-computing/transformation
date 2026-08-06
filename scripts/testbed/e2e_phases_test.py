@@ -152,7 +152,7 @@ CASES = [
     # provisional code must NOT be namespaced, while a borrowed capability MUST be — one names
     # what this change creates, the other what it leans on.
     ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
-     "18_p5_admissible_catalog_register.json", "ADMISSIBLE", [], 54, 5),
+     "18_p5_admissible_catalog_register.json", "ADMISSIBLE", [], 62, 5),
     ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
      "19_p5_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "BINDING_LEAKED_INTO_INTENT",
@@ -165,7 +165,7 @@ CASES = [
          # template used to invite. A hole nothing forces closed is how a design whose central
          # identity question was never settled reached execution admissible at every gate.
          "REGISTER_CELL_UNRESOLVED",
-     ], 54, 3),
+     ], 62, 3),
     # P6 draws lines, and the ladder does not simply accumulate: P5 requires provisional codes,
     # P6 forbids them. Each rung admits its own vocabulary rather than everything below it.
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",

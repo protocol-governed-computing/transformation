@@ -36,6 +36,10 @@ from transformation.design.template_reader import load
 
 TEMPLATE = load("p5")
 
+# P5 is the phase where the subdomain purpose reappears, and until now it reappeared as a fresh
+# paragraph by a second author. It reads the seed so the substitution has to be declared.
+PRIORS = ("p0",)
+
 OBSERVATION_OPERATION = "si.artifact.list"
 
 # operation → the key its result carries rows under.
@@ -45,6 +49,42 @@ ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
 # A provisional code: family, name, version — and no namespace.
 PROVISIONAL_CODE_PATTERN = r"^(?:AC|IN|WF|CC)_[A-Z0-9_]+_V\d+$"
+
+
+PURPOSE_RULES: list[Rule] = [
+    Rule(
+        id="PURPOSE_NOT_CARRIED_FROM_SEED",
+        check="PRIOR_PROSE_CARRIED",
+        register="purpose_provenance",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "subdomain_purpose",
+            "prose_register": "subdomain_purpose",
+            "column": "Disposition",
+            "inherited_value": "INHERITED",
+            "detail": (
+                "the purpose is declared INHERITED and does not match the seed's — inherit it "
+                "word for word, or declare REFINED and say what this phase adds"
+            ),
+        },
+        intent="the one narrative no artifact can derive is authored once and never quietly replaced",
+    ),
+    Rule(
+        id="REFINEMENT_NOT_STATED",
+        check="CELL_NOT_EMPTY",
+        register="purpose_provenance",
+        params={
+            "column": "Refinement",
+            "only_when_column": "Disposition",
+            "only_when_value": "REFINED",
+            "detail": (
+                "a refined purpose must state what it adds that the seed did not say; silence "
+                "here is the silent replacement this register exists to prevent"
+            ),
+        },
+        intent="superseding upstream content is allowed, doing it without saying so is not",
+    ),
+]
 
 
 PURITY_RULES: list[Rule] = [
@@ -138,6 +178,7 @@ def rule_set() -> list[Rule]:
     """The complete declared P5 rule set: derived, then purity, then the dossier header."""
     return (
         derived_rules(TEMPLATE)
+        + PURPOSE_RULES
         + PURITY_RULES
         + governed_hole_rules()
         + dossier_header_rules()

@@ -179,6 +179,7 @@ core:
             - pps_baseline_fqdns
             - process_steps
             - provisional_codes
+            - purpose_provenance
             - rb_declarations
             - relationships
             - requested_outcomes

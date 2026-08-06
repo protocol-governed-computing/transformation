@@ -21,6 +21,11 @@ hand today, which produces inconsistent descriptions, duplicate entries and diff
 materials. It owns the description of the collection and the operations that maintain it; it does
 not govern who borrows the collection, what is ordered, or what is owed.
 
+<!-- register:purpose_provenance business_language=refinement -->
+| Source | Disposition (INHERITED, REFINED) | Refinement |
+|--------|----------------------------------|------------|
+| CR seed §0 Subdomain Purpose | REFINED | States what the subdomain owns and the three functions it does not govern. |
+
 ## 2. Scope Boundary
 
 <!-- register:scope_boundary business_language -->

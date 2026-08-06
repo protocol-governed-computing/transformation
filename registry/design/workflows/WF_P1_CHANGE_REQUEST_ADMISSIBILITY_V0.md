@@ -192,6 +192,7 @@ core:
             - pps_baseline_fqdns
             - process_steps
             - provisional_codes
+            - purpose_provenance
             - rb_declarations
             - relationships
             - requested_outcomes
@@ -757,6 +758,9 @@ core:
             column: Relationship
             vocabulary:
             - CREATED
+            - EXTENDED
+            - MODIFIED
+            - DEPRECATED
             - ADJACENT
           intent: Relationship is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE

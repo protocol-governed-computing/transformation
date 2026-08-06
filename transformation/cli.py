@@ -18,6 +18,7 @@ from inspector import api as inspector_api
 from transformation.build.completeness import measure
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.oracle import evaluate
+from transformation.design.project import PROJECTIONS
 from transformation.design.read import read_seed
 from transformation.design.p0_change_seed import rules as p0_rules
 from transformation.design.p1_change_request import rules as p1_rules
@@ -217,6 +218,62 @@ def phase_check(
             click.echo(f"  Ready for {nxt.upper():<7} {'YES' if verdict.admissible else 'NO'}")
 
     sys.exit(0 if verdict.admissible else 1)
+
+
+@phase.command("project")
+@click.argument("prior_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@_PHASE_OPTION
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(dir_okay=False, path_type=Path),
+    required=True,
+    help="Where to write the projected document.",
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Overwrite an existing document. Without it, an existing file is left alone.",
+)
+def phase_project(prior_path: Path, phase_key: str, out_path: Path, force: bool) -> None:
+    """Project a phase document from the prior that uniquely determines it.
+
+    Only phases that decide nothing can be projected. P1 is one: with blocking clarifications
+    inadmissible at P0, a change request is the seed's registers plus the citation naming where each
+    row was said, and there is no authoring choice left to make. A phase absent from the projection
+    table is one a human still decides.
+
+    The prior is judged before it is projected. Projecting an inadmissible seed would launder its
+    open questions into a document that reads as settled — and a citation is only evidence if the
+    thing it cites was admitted.
+
+    Exit 0 if the document was written, 1 if the prior was refused.
+    """
+    if phase_key not in PROJECTIONS:
+        raise click.ClickException(
+            f"{phase_key} is not projected — it is authored. "
+            f"Projected phases are {sorted(PROJECTIONS)}"
+        )
+    prior_phase, projection = PROJECTIONS[phase_key]
+
+    prior = read_seed(prior_path)
+    verdict = evaluate(prior, RULE_SETS[prior_phase].rule_set())
+    if not verdict.admissible:
+        click.echo(f"{verdict.verdict}  [{prior_phase}]  {prior_path}")
+        for finding in verdict.findings:
+            click.echo(f"  {finding}")
+        click.echo(
+            f"\n  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} declared rules"
+        )
+        click.echo(f"  {phase_key.upper()} not projected — resolve the prior first")
+        sys.exit(1)
+
+    if out_path.exists() and not force:
+        raise click.ClickException(f"{out_path} exists; pass --force to overwrite it")
+
+    out_path.write_text(projection(prior), encoding="utf-8")
+    click.echo(f"  projected {phase_key} from {prior_phase}  ->  {out_path}")
+    click.echo(f"  {prior_phase} ADMISSIBLE over {verdict.rules_evaluated} declared rules")
 
 
 @phase.command("rules")
