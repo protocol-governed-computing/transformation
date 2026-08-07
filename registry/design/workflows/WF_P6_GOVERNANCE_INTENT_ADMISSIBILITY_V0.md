@@ -215,6 +215,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: ownership
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: storage_governance
@@ -263,6 +269,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: storage_governance
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: cross_subdomain_deps
@@ -316,6 +328,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: cross_subdomain_deps
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: pps_artifacts_requiring_action
@@ -360,6 +378,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: pps_artifacts_requiring_action
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: boundary_rules
@@ -392,6 +416,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: boundary_rules
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: governance_outcome
@@ -434,6 +464,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: governance_outcome
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: PROVISIONAL_CODE_IN_PLACEMENT
           check: CELL_TOKEN_ABSENT
           register: ownership

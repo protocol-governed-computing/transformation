@@ -82,15 +82,17 @@ def _cell(row: dict[str, str], prefix: str) -> str:
 # A register with nothing in it renders one `| NONE IDENTIFIED |` row rather than no rows at all.
 # Emptiness is declared, never inferred from absence — an empty table and a register nobody filled
 # in look identical, and only one of them is a considered answer.
-_EMPTINESS_SENTINEL = "NONE IDENTIFIED"
+EMPTINESS_SENTINEL = "NONE IDENTIFIED"
+# Public because the P1 projection must emit the same marker it will later be judged against; a
+# second spelling of it in project.py is a second declaration that can drift from this one.
 
 
-def _is_sentinel(row: dict[str, str]) -> bool:
+def is_sentinel(row: dict[str, str]) -> bool:
     """True when a row is the declared-empty marker rather than content."""
     values = [str(v).strip() for v in row.values()]
     if not values:
         return False
-    return values[0].upper() == _EMPTINESS_SENTINEL and not any(values[1:])
+    return values[0].upper() == EMPTINESS_SENTINEL and not any(values[1:])
 
 
 def _content_rows(block: Block | None):
@@ -105,7 +107,7 @@ def _content_rows(block: Block | None):
     return [
         (i, row)
         for i, row in enumerate(block.table.rows, start=1)
-        if not _is_sentinel(row)
+        if not is_sentinel(row)
     ]
 
 
@@ -332,7 +334,7 @@ def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]
             continue
         rows = [dict(r) for r in (entry.get("rows") or [])]
         for i, row in enumerate(rows, start=1):
-            if _is_sentinel(row):
+            if is_sentinel(row):
                 continue
             for column, raw in row.items():
                 value = str(raw).strip().strip("*_`").upper()
@@ -639,7 +641,7 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
         if block is None or block.table is None:
             continue
         for row in block.table.rows:
-            if _is_sentinel(row):
+            if is_sentinel(row):
                 continue
             value = _cell(row, column)
             if value:
@@ -1667,5 +1669,51 @@ def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]
                     f"{operation} on {capability.split('::')[-1]} accepts "
                     f"{sorted(declared) or 'no input'}, not {field!r} — a step cannot hand an "
                     f"operation a field it does not take",
+                ))
+    return out
+
+
+@check("CITED_ORDINAL_RESOLVES")
+def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A citation naming a row by ordinal must name a row that is there.
+
+    `SOURCE_FINDING_RESOLVES` asks whether a citation names a register this phase may cite. It never
+    asks whether the register has the row. So `S1 known_facts #18` against a register holding
+    seventeen rows passes, and the finding it claims to rest on does not exist — the failure
+    `project.py` names exactly: an ordinal pointing past the end resolves to a claim the row does
+    not make, and nothing downstream can tell.
+
+    A projected document cannot have this defect: its ordinals are generated from the rows they
+    count. Every hand-authored phase from P2 on can, and P2 did — four citations off by one and one
+    past the end of the register, all admitted.
+
+    Resolved against whichever document the citation names: a stage-qualified register is looked up
+    in that prior, an unqualified one in this document, which is ordinary intra-phase provenance.
+
+    **Silent when the register cannot be reached.** A prior nobody supplied is the driver's
+    omission, and reporting a document defect for a missing command-line argument is the confusion
+    `_prior_rows` exists to avoid. This rule reports one thing only: the register was read, and the
+    row it was asked for is not in it.
+    """
+    column = rule.params["column"]
+    cited = re.compile(r"^(?:S(\d+)[a-z]?\s+)?([a-z][a-z0-9_]*)\s+#(\d+)\b")
+
+    out: list[tuple[str, str]] = []
+    for index, row in _rows(doc, rule):
+        for citation in (part.strip() for part in _cell(row, column).split(";")):
+            match = cited.match(citation)
+            if not match:
+                continue
+            stage, register, ordinal = match.group(1), match.group(2), int(match.group(3))
+            block = doc.prior_register(f"p{stage}", register) if stage else doc.register(register)
+            if block is None or block.table is None:
+                continue
+            held = len(_content_rows(block))
+            if ordinal < 1 or ordinal > held:
+                where = f"{_where(rule)} row {index}"
+                out.append((
+                    where,
+                    f"cites {register} #{ordinal}, which holds {held} row(s) — the citation "
+                    f"resolves to a finding that is not there",
                 ))
     return out

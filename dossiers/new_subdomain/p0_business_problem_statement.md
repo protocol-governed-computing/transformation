@@ -32,3 +32,20 @@ depend on, and collapsing them is the failure this phase exists to prevent.
 This change establishes the seed phase and its rule set only. The remaining phases, the workers that
 might draft a seed, and any reachability beyond a local command line are intentionally excluded, and
 are expected to arrive through later governed change requests rather than being designed in now.
+
+## Clarifications answered by the business author
+
+The following business questions were put to the business author and answered by them. They were not
+assumed by the design process.
+
+- **In what form is the rule set carried as declared data?** Sealed inside the phase's own compiled
+  artifact, alongside the workflow that applies it. The business wants one thing to version, one
+  thing to inspect and one thing to review: a rule set held apart from the phase it governs is a
+  second thing that can be changed without the phase changing, which is the drift the requirement
+  that rules be readable from the composition exists to stop. The copy is generated from the
+  declaration, never typed, and the two are compared on every run.
+- **Does the phase receive the seed as text, or as a location it must read?** As text. The whole
+  document travels with the request. A verdict must be reproducible from what was judged, and a
+  phase handed a location judges whatever that location holds at the moment it looks — which is not
+  the same document twice, and makes a recorded verdict evidence of nothing.
+

@@ -100,6 +100,41 @@ def clarification_closure_rules(register: str = "clarification_requests") -> lis
     ]
 
 
+def business_question_closure_rules(register: str = "clarification_requests") -> list[Rule]:
+    """A question only the business can answer may not be carried past the seed.
+
+    `Blocking` is the author's judgement about *when* an answer is needed, and it was the only thing
+    holding a business question back. A question marked non-blocking travels: P1 projects it, P2
+    carries it forward, and by the phase that actually needs it the answer is several documents away
+    from the person who owns it. No rule then asks whether the phase answered it or invented it,
+    because inventing looks exactly like deciding.
+
+    So the deadline is not "before the phase that needs it" but "before the seed is consumed at
+    all". A business question is asked of the business, answered by the business, and folded into
+    the problem statement — after which the seed is re-authored, P1 re-projected and the downstream
+    phases re-derived from an answer that is now a Known Fact with a human behind it.
+
+    Only `HUMAN` is closed here. A question the snapshot answers is what P2 exists to resolve, and
+    one governance answers is a ruling a later phase legitimately carries.
+    """
+    return [
+        Rule(
+            id="BUSINESS_CLARIFICATION_OUTSTANDING",
+            check="ROW_ABSENT_WHEN",
+            register=register,
+            params={
+                "column": "Owner",
+                "value": "HUMAN",
+                "detail": (
+                    "only the business can answer this — ask it, fold the answer into the problem "
+                    "statement, and re-author the seed rather than carrying the question forward"
+                ),
+            },
+            intent="a business question that outlives the seed is answered downstream by inference",
+        )
+    ]
+
+
 def dossier_header_rules() -> list[Rule]:
     """The header every dossier phase document carries."""
     return [

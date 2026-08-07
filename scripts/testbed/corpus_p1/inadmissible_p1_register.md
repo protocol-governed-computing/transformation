@@ -62,6 +62,10 @@ from; P1 classifies and traces, it does not add. Business language only — noth
 | The seed phase may not promote a System Belief into a Business Truth. | HIGH | CR seed §4 Known Facts #11 |
 | Changing the rule set requires the same governed change process as any other declared behaviour. | HIGH | CR seed §4 Known Facts #12 |
 | This change establishes the seed phase and its rule set only. | HIGH | CR seed §4 Known Facts #13 |
+| The rule set is carried sealed inside the phase's own compiled artifact, alongside the workflow that applies it. | HIGH | CR seed §4 Known Facts — Business Truths #13 |
+| The sealed rule set is generated from the declaration rather than typed, and the two are compared on every run. | HIGH | CR seed §4 Known Facts — Business Truths #14 |
+| A phase receives the seed as text, the whole document travelling with the request. | HIGH | CR seed §4 Known Facts — Business Truths #15 |
+| A verdict must be reproducible from what was judged, so a phase is never handed a location to read. | HIGH | CR seed §4 Known Facts — Business Truths #16 |
 
 ## 5. Existing-System Beliefs — Requiring Verification
 
@@ -171,8 +175,7 @@ from; P1 classifies and traces, it does not add. Business language only — noth
 <!-- register:clarification_requests business_language optional -->
 | Question | Why Needed | Blocking (YES, NO) | Owner (HUMAN, SNAPSHOT, GOVERNANCE) | Source Finding |
 |----------|------------|----------|-------|----------------|
-| How is the rule set carried as declared data? | The seed requires it readable from the composition and versioned as declared behaviour, but does not say in what form. | NO | HUMAN | CR seed §14 Clarification Requests #1 |
-| Does the phase receive the seed as text, or as a location it must read? | Reproducibility of a verdict depends on the answer. | NO | HUMAN | CR seed §14 Clarification Requests #2 |
+| NONE IDENTIFIED |
 
 ## 15. Acceptance Criteria
 

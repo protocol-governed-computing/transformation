@@ -21,6 +21,7 @@ from __future__ import annotations
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
     Rule,
+    business_question_closure_rules,
     clarification_closure_rules,
     dossier_header_rules,
     governed_hole_rules,
@@ -86,5 +87,6 @@ def rule_set() -> list[Rule]:
         + SEED_DISCIPLINE_RULES
         + governed_hole_rules(exempt=["clarification_requests"])
         + clarification_closure_rules()
+        + business_question_closure_rules()
         + dossier_header_rules()
     )

@@ -136,6 +136,15 @@ def _register_rules(register: Register, citable: list[str]) -> list[Rule]:
                 intent="a citation must name something this phase can actually cite",
             )
         )
+        out.append(
+            Rule(
+                id="CITATION_ORDINAL_UNRESOLVED",
+                check="CITED_ORDINAL_RESOLVES",
+                register=register.id,
+                params={"column": "Source Finding"},
+                intent="an ordinal past the end of a register cites a finding that is not there",
+            )
+        )
 
     return out
 
