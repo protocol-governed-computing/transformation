@@ -359,7 +359,13 @@ def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     out = []
     column = rule.params["column"]
     pattern = re.compile(rule.params["pattern"])
+    # A pattern that applies to only some rows says so, the way every other gated check does. A
+    # naming rule for one artifact family would otherwise have to be a check kind of its own.
+    gate_column = rule.params.get("only_when_column")
+    gate_value = rule.params.get("only_when_value")
     for i, row in _rows(doc, rule):
+        if gate_column and _cell(row, gate_column).strip().upper() != str(gate_value).upper():
+            continue
         value = _cell(row, column)
         if value and not pattern.match(value):
             out.append((f"{_where(rule)} row {i}", rule.params["detail"].format(value=value)))

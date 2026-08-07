@@ -153,7 +153,7 @@ CASES = [
     # provisional code must NOT be namespaced, while a borrowed capability MUST be — one names
     # what this change creates, the other what it leans on.
     ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
-     "18_p5_admissible_catalog_register.json", "ADMISSIBLE", [], 69, 5),
+     "18_p5_admissible_catalog_register.json", "ADMISSIBLE", [], 70, 5),
     ("P5", "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
      "19_p5_inadmissible_catalog_register.json", "INADMISSIBLE", [
          "BINDING_LEAKED_INTO_INTENT",
@@ -168,7 +168,7 @@ CASES = [
          "REGISTER_CELL_UNRESOLVED",
      # 4/5, not 3/5, since the merit policy stopped scoring the `UNRESOLVED` identity cell it now
      # refuses. One defect, one deduction: the rule that fired it.
-     ], 69, 4),
+     ], 70, 4),
     # P6 draws lines, and the ladder does not simply accumulate: P5 requires provisional codes,
     # P6 forbids them. Each rung admits its own vocabulary rather than everything below it.
     ("P6", "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
@@ -188,7 +188,7 @@ CASES = [
     # Judged against the design-time baseline — the composition CR-1 was designed against, not the
     # one containing its own output. Getting this wrong makes every assigned identity collide.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 117, 5, "design"),
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 118, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
          # The fixture renames an authored artifact, which leaves the renamed one traceable to no
@@ -209,7 +209,7 @@ CASES = [
          "STORE_WITHOUT_PROPOSED_PATH",
          "TOPOLOGY_NODE_UNDECLARED",
          "TOPOLOGY_NODE_UNDECLARED",
-     ], 117, 4, "design"),
+     ], 118, 4, "design"),
     # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
     # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
     # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
@@ -256,7 +256,7 @@ CASES = [
          "INTERFACE_ARTIFACT_UNDECLARED",
          "INTERFACE_ARTIFACT_UNDECLARED",
          "PROVISIONAL_CODE_NEVER_BOUND",
-     ], 117, 4, "design"),
+     ], 118, 4, "design"),
     # The last two handoffs. P4's consolidation loses a decision P3 committed to; P7 drops a reused
     # artifact P6 declared a dependency satisfied by. The second fires two rules on one edit — an
     # artifact that is inventoried is also composed, so removing it is visible from both directions.
@@ -269,7 +269,7 @@ CASES = [
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "33_p7_inadmissible_dropped_reuse.json", "INADMISSIBLE", [
          "COMPOSITION_STEP_UNDECLARED",
-     ], 117, 4, "design"),
+     ], 118, 4, "design"),
     # The defect that reached execution: a source naming a place execution does not offer. Every
     # layer beneath read it as a literal and reported success — the design rules are the only place
     # it can be refused, because a binding determined to be a literal is still determined and
@@ -277,13 +277,13 @@ CASES = [
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "36_p7_inadmissible_unrooted_source.json", "INADMISSIBLE", [
          "BINDING_SOURCE_UNROOTED",
-     ], 117, 4, "design"),
+     ], 118, 4, "design"),
     # A store whose name advertises a format its capability does not write. Nothing below the design
     # can catch it: the runtime opens the path it is handed and never reads the suffix.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "37_p7_inadmissible_store_path.json", "INADMISSIBLE", [
          "STORE_PATH_FORMAT_MISMATCH",
-     ], 117, 4, "design"),
+     ], 118, 4, "design"),
     # The other face of reconciliation: an artifact the design declared that the mandate schedules
     # nowhere. CR-1's own mandate carried this defect until the dossier was completed, so the
     # corpus has to carry it now — it is the one the P7↔P8 rule was built for.

@@ -708,6 +708,17 @@ core:
             detail: identity declares no uniqueness rule — what a duplicate means is irreducible business knowledge
               the compiler cannot infer
           intent: identity semantics are stated, never inferred from field names
+        - id: EVENT_CODE_NOT_PAST_PARTICIPLE
+          check: CELL_MATCHES
+          register: provisional_codes
+          params:
+            column: Provisional Code
+            pattern: ^(?:[a-z][a-z0-9_.]*::)?EV_[A-Z0-9_]+ED_V\d+$
+            only_when_column: Family
+            only_when_value: EV
+            detail: '{value!r} does not name a moment that has happened — an event code reads EV_<subject>_<participle>,
+              as EV_ACTOR_REGISTERED_V0 does'
+          intent: an event names an occurrence, and a code in the imperative names an operation
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:

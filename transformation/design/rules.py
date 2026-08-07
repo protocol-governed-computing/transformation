@@ -154,3 +154,37 @@ def dossier_header_rules() -> list[Rule]:
             intent="the lifecycle axis is a controlled vocabulary, not free text",
         ),
     ]
+
+
+# An event names a moment that has happened, so its code reads as one: `EV_<subject>_<participle>`.
+# The composition already holds the convention — eighteen of nineteen events end in a past
+# participle, and every event the pipeline's own domain and the catalog declare does. Stating it as
+# a rule stops the nineteenth from becoming a precedent.
+#
+# Intents follow the same shape in the newer domains (`transformation` is ten for ten) and the
+# imperative form in the older ones, so intent naming is a documented preference and not a rule:
+# enforcing it would make thirteen sealed artifacts non-conformant, and each rename is a governed
+# REPLACE rather than an edit.
+EVENT_CODE_PATTERN = r"^(?:[a-z][a-z0-9_.]*::)?EV_[A-Z0-9_]+ED_V\d+$"
+
+
+def event_naming_rules(register: str, column: str, family_column: str = "Family") -> list[Rule]:
+    """An event's code must name what happened, in the past participle."""
+    return [
+        Rule(
+            id="EVENT_CODE_NOT_PAST_PARTICIPLE",
+            check="CELL_MATCHES",
+            register=register,
+            params={
+                "column": column,
+                "pattern": EVENT_CODE_PATTERN,
+                "only_when_column": family_column,
+                "only_when_value": "EV",
+                "detail": (
+                    "{value!r} does not name a moment that has happened — an event code reads "
+                    "EV_<subject>_<participle>, as EV_ACTOR_REGISTERED_V0 does"
+                ),
+            },
+            intent="an event names an occurrence, and a code in the imperative names an operation",
+        )
+    ]

@@ -26,7 +26,7 @@ from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
 from transformation.build.completeness import measure, narrowing
-from transformation.build.render import render_all
+from transformation.build.render import bare, build_manifest, render_all, render_document, render_documents
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.meta import RULE_MODULES, verify as meta_verify
 from transformation.design.oracle import evaluate
@@ -507,6 +507,70 @@ def _dossier_registers(dossier: Path, phase_key: str) -> dict:
         if block and block.table:
             out[entry["id"]] = block.table.rows
     return out
+
+
+
+@construction.command("emit")
+@click.argument("dossier", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option("--root", "domain_root", required=True,
+              type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="The domain repository the artifacts belong to.")
+@click.option("--force", is_flag=True, help="Overwrite artifacts that already exist.")
+@click.option("--require", "threshold", type=float, default=100.0, show_default=True,
+              help="Minimum Construction Completeness; below it nothing is written.")
+def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: float) -> None:
+    """Write the artifacts a mandate schedules into the domain that owns them.
+
+    Construction has always been able to render; nothing put the result on disk, so the only thing
+    that ever consumed a render was the acceptance harness comparing it against artifacts written
+    by hand. This is the other half.
+
+    **Measured before anything is written.** A design below the threshold does not determine its
+    artifacts, and emitting one would put the generator's guesses into a registry where they read
+    as authored. Nothing is written unless everything can be.
+
+    The domain's build manifest is written too when the domain has none. It is not an artifact any
+    phase designs — every field of it is compiler configuration — but a domain the compiler cannot
+    discover is a domain that does not build, and hand-copying it between domains has drifted.
+
+    Exit 0 if everything was written, 1 if the design was refused or a path already exists.
+    """
+    p7 = _dossier_registers(dossier, "p7")
+    p8 = _dossier_registers(dossier, "p8")
+
+    result = measure(p7, p8)
+    if not result.meets(threshold):
+        click.echo(f"REFUSED — Construction Completeness {result.percentage:.1f}% is below "
+                   f"{threshold:.0f}%; nothing written.", err=True)
+        for path, count in result.undetermined.most_common(8):
+            click.echo(f"    {count:>3}  {path}", err=True)
+        sys.exit(1)
+
+    documents = render_documents(p7, p8)
+    manifest = build_manifest(p7, p8)
+    planned: list[tuple[Path, str]] = [(domain_root / d["path"], d["text"]) for d in documents]
+    if manifest is not None:
+        target = domain_root / "registry" / "structures" / f"{bare(manifest['fqdn'])}.md"
+        if not target.exists():
+            planned.append((target, render_document({"machine": manifest})))
+
+    clashes = [path for path, _ in planned if path.exists()]
+    if clashes and not force:
+        click.echo(f"REFUSED — {len(clashes)} artifact(s) already exist; pass --force to "
+                   f"overwrite. Nothing written.", err=True)
+        for path in clashes[:8]:
+            click.echo(f"    {path}", err=True)
+        sys.exit(1)
+
+    for path, text in planned:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    click.echo(f"  emitted {len(planned)} file(s) under {domain_root}")
+    for path, _ in planned:
+        click.echo(f"    {path.relative_to(domain_root)}")
+    click.echo(f"\n  Construction Completeness {result.percentage:.1f}% "
+               f"({result.determined}/{result.total} determined)")
+
 
 
 @main.group()

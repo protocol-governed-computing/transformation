@@ -36,6 +36,7 @@ from __future__ import annotations
 from transformation.design.families import binding_fqdn_pattern
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
+    event_naming_rules,
     Rule,
     dossier_header_rules,
     governed_hole_rules,
@@ -519,6 +520,7 @@ def rule_set() -> list[Rule]:
         + LADDER_RULES
         + COMPLETENESS_RULES
         + INTERFACE_RULES
+        + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()
     )
