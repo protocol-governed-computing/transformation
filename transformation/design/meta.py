@@ -28,6 +28,7 @@ from dataclasses import dataclass
 from types import ModuleType
 
 from transformation.design import catalog
+from transformation.design.families import AUTHORABLE, BY_CODE
 from transformation.design import checks as checks_module
 from transformation.design import rules as shared_rules
 from transformation.design.checks import kinds as declared_kinds
@@ -227,6 +228,34 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
                     f"composed for it — its document would be admitted unjudged",
                 )
             )
+    # A template's Family vocabulary is a copy of the family declaration, and the copies had already
+    # drifted — P5 admitted no VOCAB where P7 did, so a design could name a family its own intent
+    # phase had refused. The vocabulary is authored in the template and cannot be generated from
+    # here, so it is asserted instead.
+    for phase_id, module in sorted(rule_modules.items()):
+        template = getattr(module, "TEMPLATE", None)
+        if template is None:
+            continue
+        for register in template.registers:
+            declared = register.vocabularies.get("Family")
+            if not declared:
+                continue
+            unknown = sorted(set(declared) - set(BY_CODE))
+            missing = sorted(set(AUTHORABLE) - set(declared))
+            for code in unknown:
+                findings.append(MetaFinding(
+                    "TEMPLATE_FAMILY_UNDECLARED",
+                    f"{phase_id}/{register.id}",
+                    f"admits family {code!r}, which design.families does not declare",
+                ))
+            for code in missing:
+                findings.append(MetaFinding(
+                    "TEMPLATE_FAMILY_MISSING",
+                    f"{phase_id}/{register.id}",
+                    f"does not admit family {code!r}, which is declared authorable — a design "
+                    f"could not name it even though construction can build one",
+                ))
+
     for phase_id in sorted(set(rule_modules) - {spec.id for spec in catalog.PHASES}):
         findings.append(
             MetaFinding(

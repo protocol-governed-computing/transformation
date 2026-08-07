@@ -33,6 +33,7 @@ carried over. A reference to neither is a name nobody owns.
 
 from __future__ import annotations
 
+from transformation.design.families import binding_fqdn_pattern
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
     Rule,
@@ -59,7 +60,7 @@ OBSERVATIONS = {
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
 # A binding FQDN: domain-qualified, family-prefixed, explicitly versioned.
-BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$"
+BINDING_FQDN_PATTERN = binding_fqdn_pattern()
 
 
 BINDING_RULES: list[Rule] = [

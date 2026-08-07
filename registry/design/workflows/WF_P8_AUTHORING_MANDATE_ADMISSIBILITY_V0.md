@@ -236,7 +236,7 @@ core:
           register: build_order
           params:
             column: Code
-            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
             detail: build code {value!r} must be a binding FQDN copied verbatim from Stage 7
           intent: a mandate orders binding identities, never re-typed approximations
         - id: BUILD_CODE_ALREADY_EXISTS

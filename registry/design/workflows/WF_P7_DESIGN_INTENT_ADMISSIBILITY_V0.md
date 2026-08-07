@@ -184,6 +184,7 @@ core:
             - structure_stores
             - subdomain_purpose
             - system_beliefs
+            - transport_bindings
             - verification_results
             - vocabulary_extensions
             literal_sources:
@@ -289,6 +290,8 @@ core:
             - EV
             - VOCAB
             - STRUCTURE
+            - TI
+            - TE
           intent: Family is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
@@ -755,6 +758,67 @@ core:
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
+          register: transport_bindings
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: transport_bindings
+          params:
+            columns:
+            - Artifact
+            - Direction
+            - Operation
+            - Handler Kind
+            - Handler Target
+            - Field
+            - Bound To
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: transport_bindings
+          params:
+            column: Direction
+            vocabulary:
+            - INGRESS
+            - EGRESS
+          intent: Direction is a controlled vocabulary declared by the template
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: transport_bindings
+          params:
+            column: Handler Kind
+            vocabulary:
+            - WF_INVOCATION
+            - SNAPSHOT_READ
+          intent: Handler Kind is a controlled vocabulary declared by the template
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: transport_bindings
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: transport_bindings
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: transport_bindings
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
           register: artifact_summary
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
@@ -794,7 +858,7 @@ core:
           register: new_artifacts
           params:
             column: Code
-            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
             detail: binding code {value!r} must be domain::FAMILY_NAME_V<n>
           intent: a binding identity is domain-qualified, family-prefixed and versioned
         - id: EXISTING_INVENTORY_UNRESOLVED

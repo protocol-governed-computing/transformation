@@ -254,6 +254,7 @@ core:
             - structure_stores
             - subdomain_purpose
             - system_beliefs
+            - transport_bindings
             - verification_results
             - vocabulary_extensions
             literal_sources:
@@ -535,7 +536,10 @@ core:
             - CT
             - EV
             - RB
+            - VOCAB
             - STRUCTURE
+            - TI
+            - TE
           intent: Family is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
@@ -658,7 +662,7 @@ core:
           register: provisional_codes
           params:
             column: Provisional Code
-            pattern: ^(?:AC|IN|WF|CC|CT|EV|RB|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^(?:AC|IN|WF|CC|CT|EV|RB|VOCAB|STRUCTURE|TI|TE)_[A-Z0-9_]+_V\d+$
             detail: provisional code must be FAMILY_NAME_V<n> with no namespace
           intent: a provisional code is readable as a family, a name and a version
         - id: PROVISIONAL_FAMILY_MISMATCH

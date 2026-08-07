@@ -207,6 +207,7 @@ core:
             - structure_stores
             - subdomain_purpose
             - system_beliefs
+            - transport_bindings
             - verification_results
             - vocabulary_extensions
             literal_sources:
@@ -477,7 +478,7 @@ core:
             columns:
             - Capability
             - Owner Subdomain
-            pattern: \b(?:AC|IN|WF|CC|CT|CS|EV|RB)_[A-Z0-9_]+_V\d+\b
+            pattern: \b(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} in {column!r} — this stage places capabilities in subdomains; naming an artifact
               answers a question Stage 7 owns'
           intent: placement names a subdomain, never an artifact
@@ -489,7 +490,7 @@ core:
             - Storage Need
             - Purpose
             - Subdomain
-            pattern: \b(?:AC|IN|WF|CC|CT|CS|EV|RB)_[A-Z0-9_]+_V\d+\b
+            pattern: \b(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} in {column!r} — a storage need is business language, not an artifact'
           intent: a store is described by what it holds, not by what will write it
         - id: SATISFIED_WITHOUT_EXISTING_ARTIFACT

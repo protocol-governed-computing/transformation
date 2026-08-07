@@ -23,32 +23,14 @@ from __future__ import annotations
 import ast
 from typing import Any
 
-# Constitution per family. Fixed by the platform, not by any change request — a design that restated
-# them would be declaring something it does not own.
-GOVERNED_BY = {
-    "AC": "fb.governance::CONSTITUTION_GOVERNANCE_V0",
-    "IN": "fb.intent::CONSTITUTION_INTENT_V0",
-    "WF": "fb.workflow::CONSTITUTION_WORKFLOW_V0",
-    "CC": "fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0",
-    "CT": "fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0",
-    "RB": "fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0",
-    "VOCAB": "fb.vocabulary::CONSTITUTION_VOCABULARY_V0",
-    "STRUCTURE": "fb.structure::CONSTITUTION_STRUCTURE_V0",
-    "EV": "fb.event::CONSTITUTION_EVENT_V0",
-}
+from transformation.design.families import FAMILIES
 
-KIND = {
-    "AC": "ACTOR", "IN": "INTENT", "WF": "WORKFLOW", "CC": "CAPABILITY_CONTRACT",
-    "CT": "CAPABILITY_TRANSFORM", "RB": "RUNTIME_BINDING", "VOCAB": "VOCABULARY",
-    "STRUCTURE": "STRUCTURE", "EV": "EVENT",
-}
-
-# Where each family's artifact is written, relative to the domain's registry root.
-DIRECTORY = {
-    "AC": "actors", "IN": "intents", "WF": "workflows", "CC": "capability_contracts",
-    "CT": "capability_transforms", "RB": "runtime_bindings", "VOCAB": "vocabulary",
-    "STRUCTURE": "layers", "EV": "events",
-}
+# Constitution, compiled kind and registry directory per family — all three derived from the one
+# declaration in `design.families`, because they were three hand-kept copies of it and the copies
+# had already drifted. A design that restated them would be declaring something it does not own.
+GOVERNED_BY = {f.code: f.constitution for f in FAMILIES}
+KIND = {f.code: f.artifact_kind for f in FAMILIES}
+DIRECTORY = {f.code: f.directory for f in FAMILIES}
 
 # An intent's outcome surface is fixed by the intent constitution — every intent in the composition
 # carries the same two. Requiring a design to restate them would be ceremony, not determinacy.
@@ -191,7 +173,7 @@ def unrenderable(p7: dict, p8: dict) -> list[tuple[str, str]]:
     Reported here rather than raised: the whole point of Construction Completeness is that a design
     is told everything it fails to determine in one pass, and a family gap is one more such fact.
     """
-    return [(code, fam) for code, _, fam in _scheduled(p7, p8) if fam not in KIND]
+    return [(code, fam) for code, _, fam in _scheduled(p7, p8) if fam not in _BUILDERS]
 
 
 def render_all(p7: dict, p8: dict) -> list[dict]:
@@ -215,7 +197,7 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
 
     out = []
     for code, short, fam in _scheduled(p7, p8):
-        if fam not in KIND:
+        if fam not in _BUILDERS:
             continue
         declared_empty: list[str] = []
         machine = _render(fam, code, short, summary.get(short, ""), subdomain.get(short, ""),
@@ -563,10 +545,68 @@ def _event(m, code, short, summary, sub, p7, p8):
     }
 
 
+
+def _transport_rows(p7, code, direction):
+    """The `transport_bindings` rows for one boundary contract, in declared order."""
+    return [r for r in rows(p7, "transport_bindings")
+            if bare(cell(r, "Artifact")) == bare(code)
+            and cell(r, "Direction").upper() == direction]
+
+
+def _transport_ingress(m, code, short, summary, sub, p7, p8):
+    """A boundary contract admitting a caller the composition does not control.
+
+    Its input contract is the artifact's own declared INPUT fields, exactly as an intent's is — the
+    boundary and the intent behind it state their surface the same way, and a second spelling would
+    let the two disagree about what a caller may send.
+    """
+    first = next(iter(_transport_rows(p7, code, "INGRESS")), {})
+    m["operation"] = cell(first, "Operation")
+    m["core"] = {"summary": summary}
+    m["input_contract"] = typed_fields(p7, code, "INPUT")
+    # Reserved in V0 and declared empty rather than omitted, so a measurement can tell a stated
+    # "nothing required" from a fact the design forgot.
+    m["context_requirements"] = []
+    handler: dict[str, Any] = {
+        "kind": cell(first, "Handler Kind"),
+        "workflow": cell(first, "Handler Target"),
+    }
+    template = {cell(r, "Field"): cell(r, "Bound To") for r in _transport_rows(p7, code, "INGRESS")
+                if cell(r, "Field")}
+    if template:
+        handler["payload_template"] = template
+    m["handler"] = handler
+
+
+def _transport_egress(m, code, short, summary, sub, p7, p8):
+    """A boundary contract shaping what a caller is told, and how a result status is classified.
+
+    The output contract is a list rather than a mapping because order is part of it: a client reads
+    the fields in the order the contract declares them.
+    """
+    first = next(iter(_transport_rows(p7, code, "EGRESS")), {})
+    m["operation"] = cell(first, "Operation")
+    m["core"] = {"summary": summary}
+    m["output_contract"] = [
+        {"field": cell(r, "Field"), "from": cell(r, "Bound To")}
+        for r in _transport_rows(p7, code, "EGRESS") if cell(r, "Field")
+    ]
+    classification = {cell(r, "Property").removeprefix("result_class."): cell(r, "Value")
+                      for r in rows(p7, "artifact_properties")
+                      if bare(cell(r, "Artifact")) == bare(code)
+                      and cell(r, "Property").startswith("result_class.")}
+    if classification:
+        m["result_classification"] = classification
+    for key in ("default_result_class", "evidence_policy"):
+        value = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
+                      if bare(cell(r, "Artifact")) == bare(code) and cell(r, "Property") == key), "")
+        m[key] = value
+
+
 _BUILDERS = {
     "IN": _intent, "WF": _workflow, "CC": _contract, "CT": _transform,
     "AC": _actor, "VOCAB": _vocabulary, "STRUCTURE": _structure, "RB": _binding_artifact,
-    "EV": _event,
+    "EV": _event, "TI": _transport_ingress, "TE": _transport_egress,
 }
 
 

@@ -27,6 +27,7 @@ than referring to the first.
 
 from __future__ import annotations
 
+from transformation.design.families import binding_fqdn_pattern
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
     Rule,
@@ -43,7 +44,7 @@ OBSERVATION_OPERATION = "si.artifact.list"
 OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
-BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$"
+BINDING_FQDN_PATTERN = binding_fqdn_pattern()
 
 
 ORDER_RULES: list[Rule] = [

@@ -23,6 +23,7 @@ named in the outcome was placed in the ownership register first.
 
 from __future__ import annotations
 
+from transformation.design.families import artifact_token_pattern
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
     Rule,
@@ -41,7 +42,7 @@ OBSERVATIONS = {OBSERVATION_OPERATION: "artifacts"}
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
 # A provisional code — the vocabulary Stage 5 admits and this stage does not.
-PROVISIONAL_CODE_PATTERN = r"\b(?:AC|IN|WF|CC|CT|CS|EV|RB)_[A-Z0-9_]+_V\d+\b"
+PROVISIONAL_CODE_PATTERN = artifact_token_pattern()
 
 # `this_subdomain → peer`, in either arrow form.
 DIRECTION_PATTERN = r"^[a-z][a-z0-9_]*\s*(?:->|→)\s*[a-z][a-z0-9_]*$"

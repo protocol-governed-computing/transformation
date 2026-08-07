@@ -145,7 +145,7 @@ scheduled at Stage 7 with no provisional code is one no business intent ever nam
 side effect is substrate, and a business change request reuses one rather than authoring it.*
 
 <!-- register:provisional_codes business_language=summary -->
-| Provisional Code | Family (AC, IN, WF, CC, CT, EV, RB, STRUCTURE) | Summary | Source Finding |
+| Provisional Code | Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE) | Summary | Source Finding |
 |------------------|-------------------------|---------|----------------|
 
 ---
