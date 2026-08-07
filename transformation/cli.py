@@ -14,7 +14,14 @@ from pathlib import Path
 
 import click
 
-from transformation.baseline import Baseline, BaselineMismatch, observe, verify
+from transformation.baseline import (
+    Baseline,
+    BaselineMismatch,
+    grounded_registers,
+    observe,
+    pending,
+    verify,
+)
 from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
@@ -527,6 +534,62 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
     click.echo(f"BASELINE OK  {actual.snapshot_id}")
     click.echo(f"  artifacts {actual.artifact_count}  domains {', '.join(actual.domains)}")
 
+    # The id proves the composition is the one named. It proves nothing about whether anyone
+    # re-read the registers that assert facts about it, which is the half a re-pin silently drops.
+    outstanding = {phase: pending(pin, phase) for phase in sorted(RULE_MODULES)}
+    outstanding = {phase: regs for phase, regs in outstanding.items() if regs}
+    approved = sum(len(r) for r in pin.approved_registers.values())
+    if approved:
+        for phase, registers in sorted(pin.approved_registers.items()):
+            for register, who in sorted(registers.items()):
+                click.echo(f"  approved  {phase}/{register:<28} {who}")
+    if outstanding:
+        # Phrased as owed rather than neglected: a phase this CR has not reached yet trivially
+        # carries no approval, and calling that a defect would cry wolf on every early dossier.
+        click.echo("\n  NOT YET APPROVED against this pin — each rests on a snapshot fact:")
+        for phase, registers in outstanding.items():
+            for register in registers:
+                click.echo(f"    {phase}/{register}")
+        click.echo("    run: tc baseline approve --phase <p> --by <name> " + str(pin_path))
+
+
+@baseline.command("approve")
+@click.argument("pin_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--phase", "phase_key", type=click.Choice(sorted(RULE_MODULES)), required=True,
+              help="Which phase's grounded registers were re-read.")
+@click.option("--by", "approver", required=True, help="Who re-grounded them.")
+@click.option("--register", "registers", multiple=True,
+              help="A single register; repeatable. Omit to approve every grounded register of the phase.")
+def baseline_approve(pin_path: Path, phase_key: str, approver: str, registers: tuple[str, ...]) -> None:
+    """Record that a phase's snapshot-grounded registers were re-read against this pin.
+
+    The second half of rebaselining. Verifying the id proves the composition is the one named; this
+    records that someone re-read the registers asserting facts about it. The approval lives in the
+    pin, so re-pinning drops it — an approval is against one composition and survives no other.
+
+    Which registers a phase owes is derived from its rule set: a register rests on a snapshot fact
+    exactly when a rule governing it consults an observation.
+    """
+    pin = Baseline.load(pin_path)
+    owed = grounded_registers(phase_key)
+    if not owed:
+        raise click.ClickException(
+            f"{phase_key} has no register resting on a snapshot fact — nothing to approve"
+        )
+    chosen = registers or owed
+    unknown = [r for r in chosen if r not in owed]
+    if unknown:
+        raise click.ClickException(
+            f"{phase_key} grounds no register named {', '.join(unknown)}; it grounds {', '.join(owed)}"
+        )
+    updated = pin.approve(phase_key, chosen, approver)
+    pin_path.write_text(json.dumps(updated.as_dict(), indent=2) + "\n", encoding="utf-8")
+    for register in chosen:
+        click.echo(f"  approved  {phase_key}/{register}  by {approver}")
+    still = pending(updated, phase_key)
+    click.echo(f"  {phase_key}: {len(owed) - len(still)}/{len(owed)} grounded register(s) approved "
+               f"against {updated.snapshot_id[:16]}")
+
 
 @baseline.command("show")
 @click.option(
@@ -538,14 +601,12 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
 )
 def baseline_show(snapshot_root: Path) -> None:
     """Print the composition present at a snapshot root, as a pin."""
+    # Deliberately carries no approvals: observing a composition approves nothing about it, and a
+    # re-pin that inherited them would assert a review that never happened.
     actual = observe(snapshot_root)
     click.echo(
         json.dumps(
-            {
-                "snapshot_id": actual.snapshot_id,
-                "artifact_count": actual.artifact_count,
-                "domains": list(actual.domains),
-            },
+            actual.as_dict(),
             indent=2,
         )
     )
