@@ -48,6 +48,7 @@ CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalo
 # existence: a cached baseline whose sources have since been recompiled is stale, and a stale
 # baseline seals a rule set the declaration has already moved past.
 from e2e_phases_test import design_baseline
+from meta_test import assert_consistent
 
 # Each phase: its workflow, its declared rule set, and the corpus it judges. A phase added here
 # without a corpus would report "identical rule sets" and prove nothing about behaviour, so the
@@ -314,6 +315,9 @@ def genesis_verdict(
 
 
 def main() -> int:
+    # The rule sets must hold together before either path's verdict is evidence — two paths can
+    # agree perfectly on a rule that never ran.
+    assert_consistent()
     snapshot_root = sys.argv[1] if len(sys.argv) > 1 else str(REPO.parent / "snapshot")
     failures = 0
     total = 0

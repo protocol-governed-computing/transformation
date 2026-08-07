@@ -21,34 +21,17 @@ from inspector import api as inspector_api
 from transformation.build.completeness import measure, narrowing
 from transformation.build.render import render_all
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
+from transformation.design.meta import RULE_MODULES, verify as meta_verify
 from transformation.design.oracle import evaluate
 from transformation.design.project import PROJECTIONS
 from transformation.design.read import read_seed
-from transformation.design.p0_change_seed import rules as p0_rules
-from transformation.design.p1_change_request import rules as p1_rules
-from transformation.design.p2_domain_model import rules as p2_rules
-from transformation.design.p3_analysis_loop import rules as p3_rules
-from transformation.design.p4_business_model import rules as p4_rules
-from transformation.design.p5_business_intent import rules as p5_rules
-from transformation.design.p6_governance_intent import rules as p6_rules
-from transformation.design.p7_design_intent import rules as p7_rules
-from transformation.design.p8_authoring_mandate import rules as p8_rules
 from transformation.design import catalog
 from transformation.design.template_reader import load as load_template
 
-# Rule sets still declared per phase; purpose, question, key rule and purity rung come from the
+# Rule sets are declared per phase and mapped once, in `design.meta` — the module that has to
+# verify the mapping is complete. Purpose, question, key rule and purity rung come from the
 # catalogue, which mirrors field manual §4.1 and §4.2.
-RULE_SETS = {
-    "p0": p0_rules,
-    "p1": p1_rules,
-    "p2": p2_rules,
-    "p3": p3_rules,
-    "p4": p4_rules,
-    "p5": p5_rules,
-    "p6": p6_rules,
-    "p7": p7_rules,
-    "p8": p8_rules,
-}
+RULE_SETS = RULE_MODULES
 
 
 def _parse_prior(argument: str) -> tuple[str, Path]:
@@ -297,7 +280,7 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
                     {
                         "id": r.id,
                         "check": r.check,
-                        "register": r.section_title,
+                        "register": r.register or r.section_title,
                         "params": r.params,
                         "intent": r.intent,
                     }
@@ -309,11 +292,57 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
         return
 
     for rule in declared:
-        register = rule.section_title or "(document)"
+        register = rule.register or rule.section_title or "(document)"
         click.echo(f"  {rule.id:<38} {rule.check:<24} {register}")
         if rule.intent:
             click.echo(f"  {'':<38} └─ {rule.intent}")
     click.echo(f"\n  {len(declared)} rules over {len(check_kinds())} check kinds")
+
+
+@phase.command("meta")
+@click.option("--json", "as_json", is_flag=True, help="Emit the findings as JSON.")
+def phase_meta(as_json: bool) -> None:
+    """Verify the rule sets themselves — declaration/enforcement parity, before any document.
+
+    Meta-governance: this judges no dossier. It asserts that every declared rule can actually run
+    and that every implemented mechanism is actually declared. If that correspondence is broken, a
+    verdict over a document is meaningless — a rule that cannot run reports green over a subject it
+    never evaluated.
+    """
+    findings = meta_verify(RULE_SETS)
+
+    if as_json:
+        click.echo(
+            json.dumps(
+                {
+                    "verdict": "CONSISTENT" if not findings else "INCONSISTENT",
+                    "phases": sorted(RULE_SETS),
+                    "rules_examined": sum(len(m.rule_set()) for m in RULE_SETS.values()),
+                    "check_kinds": len(check_kinds()),
+                    "findings": [
+                        {"code": f.code, "where": f.where, "detail": f.detail} for f in findings
+                    ],
+                },
+                indent=2,
+            )
+        )
+        sys.exit(1 if findings else 0)
+
+    examined = sum(len(m.rule_set()) for m in RULE_SETS.values())
+    if not findings:
+        click.echo(
+            f"  CONSISTENT — {examined} rules across {len(RULE_SETS)} phases resolve against "
+            f"{len(check_kinds())} check kinds"
+        )
+        return
+
+    for finding in findings:
+        click.echo(f"  [{finding.code}] {finding.where}")
+        click.echo(f"      {finding.detail}")
+    click.echo(
+        f"\n  INCONSISTENT — {len(findings)} finding(s) over {examined} declared rules"
+    )
+    sys.exit(1)
 
 
 @phase.command("template")

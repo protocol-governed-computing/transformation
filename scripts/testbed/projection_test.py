@@ -24,6 +24,7 @@ REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
 sys.path.insert(0, str(REPO))
 
+from meta_test import assert_consistent  # noqa: E402
 from transformation.design.oracle import evaluate  # noqa: E402
 from transformation.design.p0_change_seed import rules as p0_rules  # noqa: E402
 from transformation.design.p1_change_request import rules as p1_rules  # noqa: E402
@@ -55,6 +56,8 @@ def _projected(seed_path: Path):
 
 
 def main() -> int:
+    # The projected P1 is judged against P1's rule set; that judgement is the whole assertion here.
+    assert_consistent()
     problems: list[str] = []
 
     # Reproducible: every committed P1 is what the projection emits, byte for byte. Both dossiers,

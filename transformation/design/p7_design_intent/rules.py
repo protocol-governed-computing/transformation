@@ -486,6 +486,27 @@ INTERFACE_RULES: list[Rule] = [
         params={"roots": BINDING_ROOTS, "value_roots": BINDING_VALUE_ROOTS},
         intent="a source that names a place is rooted in one execution scope actually offers",
     ),
+    Rule(
+        id="NODE_INPUT_UNBOUND",
+        check="NODE_INPUT_BOUND",
+        register="step_bindings",
+        params={
+            "topology_register": "execution_topology",
+            "fields_register": "interface_fields",
+        },
+        intent="a workflow hands a contract everything that contract says it requires",
+    ),
+    Rule(
+        id="BINDING_SOURCE_UNREACHABLE",
+        check="BINDING_SOURCE_REACHABLE",
+        register="step_bindings",
+        params={
+            "topology_register": "execution_topology",
+            # `results.<node>.<field>`, and the same reference inside a composed literal.
+            "pattern": r"results\.([A-Za-z][A-Za-z0-9_.:]*?)\.",
+        },
+        intent="a source that names another node must name one this workflow reaches",
+    ),
 ]
 
 

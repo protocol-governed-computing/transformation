@@ -137,32 +137,6 @@ def _header_field_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return out
 
 
-@check("SECTION_PRESENT")
-def _section_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    if _block(doc, rule) is None:
-        return [(_where(rule), "required section absent from the seed")]
-    return []
-
-
-@check("SECTION_NUMBERED")
-def _section_numbered(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    block = _block(doc, rule)
-    if block is None:
-        return []
-    expected = rule.params["number"]
-    if block.number != expected:
-        return [(_where(rule), f"expected section {expected}, found {block.number}")]
-    return []
-
-
-@check("SECTIONS_ASCENDING")
-def _sections_ascending(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    numbers = [b.number for b in doc.blocks if b.number is not None]
-    if numbers != sorted(numbers):
-        return [("document", "numbered sections are not in ascending order")]
-    return []
-
-
 @check("SECTION_HAS_TEXT")
 def _section_has_text(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     block = _block(doc, rule)
@@ -173,20 +147,6 @@ def _section_has_text(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         return []
     if not block.text():
         return [(_where(rule), rule.params["detail"])]
-    return []
-
-
-@check("SECTION_DECLARES_ONE_OF")
-def _section_declares_one_of(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    block = _block(doc, rule)
-    if block is None:
-        return []
-    vocabulary = rule.params["vocabulary"]
-    found = [t for t in vocabulary if re.search(rf"\b{re.escape(t)}\b", block.text())]
-    if not found:
-        return [(_where(rule), f"nothing declared; expected one of {list(vocabulary)}")]
-    if len(found) > 1:
-        return [(_where(rule), f"multiple values named: {found}")]
     return []
 
 
@@ -232,7 +192,7 @@ def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     # `minimum` defaults to 1 — "declared but empty asserts nothing". A register whose rows are a
     # fixed checklist rather than free content declares the count it owes, so a claim resting on
     # fewer rows than the criteria it cites is reported rather than read as complete.
-    minimum = int(getattr(rule, "params", {}).get("minimum", 1))
+    minimum = int(rule.params.get("minimum", 1))
     rows = len(block.table.rows)
     if rows < minimum:
         detail = (
@@ -385,15 +345,6 @@ def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]
                         )
                     )
     return out
-
-
-@check("TOKEN_ABSENT")
-def _token_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    pattern = re.compile(rule.params["pattern"])
-    return [
-        ("document", rule.params["detail"].format(token=token))
-        for token in sorted(set(pattern.findall(doc.raw)))
-    ]
 
 
 @check("CELL_MATCHES")
@@ -908,6 +859,81 @@ def _prior_rows(doc: ParsedDocument, rule):
     if block is None or block.table is None:
         return [], f"{phase} carries no readable {register!r} register to preserve"
     return _content_rows(block), None
+
+
+@check("NODE_INPUT_BOUND")
+def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A workflow node must be handed every input its contract requires.
+
+    A contract declares what it accepts; a workflow node declares what it is handed. Nothing checked
+    that the second covered the first, so extending a contract to need a new input left its callers
+    silently short — the contract was well formed, the workflow was well formed, and the value
+    arrived as null at execution. Two contracts were extended that way in one change, and both
+    designs were admissible over the full rule set and complete at 100%.
+
+    Only required inputs are checked. An optional one absent is a declaration that the node does not
+    supply it, which is what optional means.
+    """
+    topology = rule.params["topology_register"]
+    fields = rule.params["fields_register"]
+
+    declared: dict[str, set[str]] = {}
+    for _, row in _content_rows(doc.register(fields)):
+        if (_cell(row, "Direction").upper() != "INPUT"
+                or _cell(row, "Required").upper() != "YES"):
+            continue
+        declared.setdefault(_bare_identity(_cell(row, "Artifact")), set()).add(_cell(row, "Field"))
+
+    bound: dict[tuple[str, str], set[str]] = {}
+    for _, row in _rows(doc, rule):
+        if _cell(row, "Direction").upper() != "INPUT":
+            continue
+        key = (_bare_identity(_cell(row, "Owner")), _bare_identity(_cell(row, "Step")))
+        bound.setdefault(key, set()).add(_cell(row, "Field"))
+
+    out = []
+    for i, row in _content_rows(doc.register(topology)):
+        if _cell(row, "Node Type").upper() != "CC":
+            continue
+        workflow = _bare_identity(_cell(row, "Workflow"))
+        node = _bare_identity(_cell(row, "Node"))
+        missing = sorted(declared.get(node, set()) - bound.get((workflow, node), set()))
+        for field in missing:
+            out.append((
+                f"{topology} row {i}",
+                f"{workflow} hands {node} no {field!r}, which that contract requires",
+            ))
+    return out
+
+
+@check("BINDING_SOURCE_REACHABLE")
+def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A source rooted at another node must name a node the workflow actually runs.
+
+    `BINDING_SOURCE_UNROOTED` proves a source is a reference rather than a literal. It cannot prove
+    the reference resolves: a source naming a contract this workflow never reaches is well-rooted,
+    well-formed, and null at execution. One such binding existed in a design that passed every rule.
+    """
+    topology = rule.params["topology_register"]
+    pattern = re.compile(rule.params["pattern"])
+
+    nodes: dict[str, set[str]] = {}
+    for _, row in _content_rows(doc.register(topology)):
+        nodes.setdefault(_bare_identity(_cell(row, "Workflow")), set()).add(
+            _bare_identity(_cell(row, "Node")))
+
+    out = []
+    for i, row in _rows(doc, rule):
+        owner = _bare_identity(_cell(row, "Owner"))
+        if owner not in nodes:
+            continue
+        for named in sorted(set(pattern.findall(_cell(row, "Bound To")))):
+            if _bare_identity(named) not in nodes[owner]:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"source names {named!r}, which {owner} never runs — well-rooted and unreachable",
+                ))
+    return out
 
 
 @check("PRIOR_PROSE_CARRIED")

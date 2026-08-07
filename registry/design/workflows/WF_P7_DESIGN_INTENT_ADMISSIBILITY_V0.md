@@ -1027,6 +1027,20 @@ core:
             value_roots:
             - result_status
           intent: a source that names a place is rooted in one execution scope actually offers
+        - id: NODE_INPUT_UNBOUND
+          check: NODE_INPUT_BOUND
+          register: step_bindings
+          params:
+            topology_register: execution_topology
+            fields_register: interface_fields
+          intent: a workflow hands a contract everything that contract says it requires
+        - id: BINDING_SOURCE_UNREACHABLE
+          check: BINDING_SOURCE_REACHABLE
+          register: step_bindings
+          params:
+            topology_register: execution_topology
+            pattern: results\.([A-Za-z][A-Za-z0-9_.:]*?)\.
+          intent: a source that names another node must name one this workflow reaches
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:
