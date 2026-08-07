@@ -128,6 +128,12 @@ def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
         declared_empty = set(artifact.get("declared_empty") or ())
         for path, value in _leaves(artifact["machine"]):
             out.append((code, path, not _empty(value) or path in declared_empty))
+
+    # An artifact construction has no builder for determines nothing, and must be counted as
+    # determining nothing. Leaving it out of the measurement entirely — which is what skipping it
+    # silently amounted to — let a design score 100% while naming an artifact that cannot be built.
+    for code, fam in unrenderable(p7, p8):
+        out.append((bare(code), f"<no builder for family {fam}>", False))
     return out
 
 
@@ -147,23 +153,14 @@ def _empty(value: Any) -> bool:
     return value is None or value == "" or value == {} or value == []
 
 
-def render_all(p7: dict, p8: dict) -> list[dict]:
-    """Every artifact the mandate schedules, in build order, as `{path, machine}`.
+def _scheduled(p7: dict, p8: dict) -> list[tuple[str, str, str]]:
+    """Every `(code, short, family)` the mandate schedules or the design amends.
 
-    One call over the whole mandate rather than one call per artifact: a capability contract is a
-    fixed pipeline with no iteration, so a construction step that rendered one artifact could never
-    render twenty-five. The iteration lives inside a pure transform, where it observes nothing.
+    Shared by `render_all` and `unrenderable` so the two cannot disagree about what construction
+    was asked for — the whole point of separating them is that one answers and the other reports
+    the remainder, and a second reading of the mandate would let a family fall through both.
     """
     family = {bare(cell(r, "Code")): cell(r, "Family") for r in rows(p7, "new_artifacts")}
-    summary = {bare(cell(r, "Code")): cell(r, "Summary") for r in rows(p7, "new_artifacts")}
-    # An amended artifact states what it is in the inventory, because the design assigns it no new
-    # identity row to state it in. Rendering it without its summary would empty a field the
-    # composition already carries — an amendment that quietly deletes is worse than none.
-    summary.update({bare(cell(r, "FQDN")): cell(r, "Summary")
-                    for r in rows(p7, "existing_inventory") if cell(r, "Action") == "EXTEND"})
-    subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
-                 for r in rows(p8, "field_declarations")}
-
     # What the mandate schedules, then what the design amends. An extended artifact is never a build
     # step — `BUILD_CODE_ALREADY_EXISTS` refuses to mandate authoring an identity the composition
     # already holds — so nothing rendered it, and the first change request to extend anything
@@ -178,7 +175,46 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
         short = bare(code)
         # A scheduled artifact declares its family; an amended one carries it in its own identity,
         # which is the only place it can, because the design assigns no new code for it.
-        fam = family.get(short) or short.split("_")[0]
+        out.append((code, short, family.get(short) or short.split("_")[0]))
+    return out
+
+
+def unrenderable(p7: dict, p8: dict) -> list[tuple[str, str]]:
+    """`(code, family)` the mandate schedules that construction has no builder for.
+
+    A family with no builder was previously skipped in silence. Nothing was emitted, so nothing was
+    measured, and completeness reported a fully determined design over an artifact construction
+    cannot produce at all — the design was graded only on the artifacts it happened to be able to
+    build. An unbuildable artifact is the strongest possible construction failure and it read as no
+    failure at all.
+
+    Reported here rather than raised: the whole point of Construction Completeness is that a design
+    is told everything it fails to determine in one pass, and a family gap is one more such fact.
+    """
+    return [(code, fam) for code, _, fam in _scheduled(p7, p8) if fam not in KIND]
+
+
+def render_all(p7: dict, p8: dict) -> list[dict]:
+    """Every artifact the mandate schedules *and construction can build*, as `{path, machine}`.
+
+    One call over the whole mandate rather than one call per artifact: a capability contract is a
+    fixed pipeline with no iteration, so a construction step that rendered one artifact could never
+    render twenty-five. The iteration lives inside a pure transform, where it observes nothing.
+
+    A family with no builder is absent from this list and reported by `unrenderable` instead, so a
+    caller that writes files never has to reason about an artifact that has no path.
+    """
+    summary = {bare(cell(r, "Code")): cell(r, "Summary") for r in rows(p7, "new_artifacts")}
+    # An amended artifact states what it is in the inventory, because the design assigns it no new
+    # identity row to state it in. Rendering it without its summary would empty a field the
+    # composition already carries — an amendment that quietly deletes is worse than none.
+    summary.update({bare(cell(r, "FQDN")): cell(r, "Summary")
+                    for r in rows(p7, "existing_inventory") if cell(r, "Action") == "EXTEND"})
+    subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
+                 for r in rows(p8, "field_declarations")}
+
+    out = []
+    for code, short, fam in _scheduled(p7, p8):
         if fam not in KIND:
             continue
         declared_empty: list[str] = []
