@@ -23,7 +23,7 @@ from __future__ import annotations
 import ast
 from typing import Any
 
-from transformation.design.families import FAMILIES
+from transformation.design.families import BY_CODE, FAMILIES
 
 # Constitution, compiled kind and registry directory per family — all three derived from the one
 # declaration in `design.families`, because they were three hand-kept copies of it and the copies
@@ -608,6 +608,94 @@ _BUILDERS = {
     "AC": _actor, "VOCAB": _vocabulary, "STRUCTURE": _structure, "RB": _binding_artifact,
     "EV": _event, "TI": _transport_ingress, "TE": _transport_egress,
 }
+
+
+
+# The domain build manifest ---------------------------------------------------------------------
+#
+# Not an artifact any change request designs. Every field of it is compiler configuration — which
+# layers to search, how a namespace is matched, where projections are written — and a design that
+# restated them would be declaring something it does not own, exactly as it would by restating a
+# constitution. That is why no phase produces one, and why `STRUCTURE_BUILD_BOOK_LIBRARY_MGMT_
+# CONFIG_V0` is the single artifact the acceptance harness has always reported as rendering nothing.
+#
+# But hand-copying it per domain has failed visibly: the book library's manifest describes itself as
+# the AI governance domain and lists that domain's subdomains, because it was copied and never
+# corrected, and nothing governs it. So it is generated from the three facts that actually vary —
+# the domain, its subdomains, and the families it uses — all of which the mandate already declares.
+
+BUILD_PHASES = [
+    ("discover", "Discover {domain} artifacts via STRUCTURE"),
+    ("parse", "Parse artifacts into canonical machine form"),
+    ("normalize", "Resolve references ({domain} + imported governance surface)"),
+    ("validate", "Validate artifacts using compiler schema rules"),
+    ("assert", "Evaluate cross-artifact invariants"),
+    ("materialize", "Emit deterministic compiled artifacts ({domain} scope only)"),
+]
+
+
+def build_manifest(p7: dict, p8: dict) -> dict | None:
+    """The compiler's discovery manifest for the domain this mandate builds.
+
+    Returns None when the mandate schedules nothing, because a manifest for no artifacts would
+    declare a domain the composition has no reason to compile.
+    """
+    scheduled = [cell(r, "Code") for r in rows(p8, "build_order")]
+    if not scheduled:
+        return None
+    domain = norm(scheduled[0]).split("::")[0]
+    subdomains = sorted({cell(r, "Subdomain Field") for r in rows(p8, "field_declarations")
+                         if cell(r, "Subdomain Field")})
+    families = [f.code for f in FAMILIES if f.authorable]
+    layer = domain.upper()
+    return {
+        "fqdn": f"{domain}::STRUCTURE_BUILD_{layer}_CONFIG_V0",
+        "artifact_kind": "STRUCTURE",
+        "version": "V0",
+        "governed_by": BY_CODE["STRUCTURE"].constitution,
+        "structure_scope": domain,
+        "reuse_visibility": "business",
+        "core": {
+            "summary": f"Build-time STRUCTURE manifest ({domain} business-domain scope)",
+            "description": (
+                f"Compiles the {domain} domain's own artifacts, resolving governance and platform "
+                f"capability references against the imported compiled governance surface. Emits "
+                f"only {domain} artifacts. Self-describing: declares its own source layer and "
+                f"namespace rule additively. Subdomains: {', '.join(subdomains) or 'none declared'}."
+            ),
+        },
+        "layer_definitions": {
+            layer: {
+                "domain_subpath": "registry",
+                "registry_module": f"{domain}.registry",
+                "implementation_namespace":
+                    f"{domain}.implementation.capability_transforms.atoms",
+                "layer_category": "domain",
+            }
+        },
+        "identity_rules": [{"match": f"{domain}.registry", "namespace": domain}],
+        "artifact_discovery": {
+            "search_layers": [layer],
+            "import_surface": {"domain": "platform"},
+            "artifact_types": families,
+        },
+        "output_configuration": {
+            "artifacts": {"layer": "PROTOCOL_BUILD_ROOT", "subpath": "compiled/canonical"},
+            "vocabulary_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/vocabulary"},
+            "tokenized_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/tokenized"},
+            "evidence_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/evidence"},
+            "trust_attestation_path": {"layer": "GOVERNANCE", "subpath": "compiled/trust"},
+            "visualization_projection_path":
+                {"layer": "GOVERNANCE", "subpath": "compiled/visualization"},
+            "layer_outputs": {layer: {"layer": layer, "subpath": "compiled/canonical"}},
+            "bootstrap_search_roots": [{"layer": "GOVERNANCE", "subpath": "structure/structures"}],
+        },
+        "build_phases": [
+            {"phase": name, "description": text.format(domain=domain)}
+            | ({"target": "compiled/artifacts/"} if name == "materialize" else {})
+            for name, text in BUILD_PHASES
+        ],
+    }
 
 
 # Document rendering ---------------------------------------------------------------------------
