@@ -1171,6 +1171,12 @@ core:
             topology_register: execution_topology
             pattern: results\.([A-Za-z][A-Za-z0-9_.:]*?)\.
           intent: a source that names another node must name one this workflow reaches
+        - id: STEP_INTERFACE_NOT_CONFORMANT
+          check: STEP_INTERFACE_CONFORMS
+          register: cc_composition
+          params:
+            observation: si.capability.surface#transforms
+          intent: a transform handed an input it does not declare receives nothing under that name
         - id: STEP_INPUT_UNBOUND
           check: STEP_INPUTS_BOUND
           register: step_bindings

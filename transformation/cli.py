@@ -130,13 +130,17 @@ def phase_check(
     doc = read_seed(doc_path)
     if observes and snapshot_root:
         gathered = {}
-        for operation, result_key in observes.items():
+        for name, result_key in observes.items():
+            # `si.capability.surface#transforms` observes one field of one operation; a bare name
+            # observes the operation's default field. A phase grounds on more than one field of a
+            # surface without querying it twice.
+            operation = name.split("#", 1)[0]
             status, result = inspector_api.query(operation, {}, str(snapshot_root))
             if status != "SUCCESS":
                 raise click.ClickException(
                     f"{operation} failed against {snapshot_root}: {status}"
                 )
-            gathered[operation] = result.get(result_key, result)
+            gathered[name] = result.get(result_key, result)
         doc.observed = gathered
     elif observes:
         click.echo(

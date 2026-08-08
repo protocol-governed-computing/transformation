@@ -53,9 +53,12 @@ OBSERVATION_OPERATION = "si.artifact.list"
 # a real field from a step producing a wish.
 CAPABILITY_OBSERVATION = "si.capability.surface"
 
+TRANSFORM_OBSERVATION = "si.capability.surface#transforms"
+
 OBSERVATIONS = {
     OBSERVATION_OPERATION: "artifacts",
     CAPABILITY_OBSERVATION: "capabilities",
+    TRANSFORM_OBSERVATION: "transforms",
 }
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
@@ -519,6 +522,13 @@ INTERFACE_RULES: list[Rule] = [
 # `results.record` where the runtime reads `capability_result.record`, and a contract declaring an
 # output no step of it emits.
 COMPOSITION_INTEGRITY_RULES: list[Rule] = [
+    Rule(
+        id="STEP_INTERFACE_NOT_CONFORMANT",
+        check="STEP_INTERFACE_CONFORMS",
+        register="cc_composition",
+        params={"observation": TRANSFORM_OBSERVATION},
+        intent="a transform handed an input it does not declare receives nothing under that name",
+    ),
     Rule(
         id="STEP_INPUT_UNBOUND",
         check="STEP_INPUTS_BOUND",
