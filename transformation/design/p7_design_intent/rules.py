@@ -530,6 +530,13 @@ COMPOSITION_INTEGRITY_RULES: list[Rule] = [
         intent="a transform handed an input it does not declare receives nothing under that name",
     ),
     Rule(
+        id="STEP_BINDING_NOT_IN_INTERFACE",
+        check="STEP_BINDINGS_MATCH_INTERFACE",
+        register="step_bindings",
+        params={"composition_register": "cc_composition"},
+        intent="a binding outside the interface feeds a capability input that does not exist",
+    ),
+    Rule(
         id="STEP_INPUT_UNBOUND",
         check="STEP_INPUTS_BOUND",
         register="step_bindings",
