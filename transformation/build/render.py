@@ -21,6 +21,7 @@ omits it and the acceptance harness reports it as undetermined.
 from __future__ import annotations
 
 import ast
+import re
 from typing import Any
 
 from transformation.design.families import BY_CODE, FAMILIES
@@ -40,6 +41,10 @@ INTENT_OUTCOMES = {
 }
 
 WORKFLOW_STRUCTURE = "fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0"
+
+# The boundary's own substitution syntax, matched here so the renderer can tell a token it must
+# preserve verbatim from a constant it should read as a value. Kept identical to the resolver's.
+_INPUT_TOKEN = re.compile(r"^\$\{input\.(\w+)\}$")
 
 
 def norm(value: Any) -> str:
@@ -222,7 +227,7 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict
         "governed_by": GOVERNED_BY[fam],
     }
     builder = _BUILDERS[fam]
-    if fam in ("RB", "CC"):
+    if fam in ("RB", "CC", "TI"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
@@ -553,7 +558,42 @@ def _transport_rows(p7, code, direction):
             and cell(r, "Direction").upper() == direction]
 
 
-def _transport_ingress(m, code, short, summary, sub, p7, p8):
+def _nest(target: dict, path: str, value: Any) -> None:
+    """Place `value` at a dotted `path`, creating the objects along the way.
+
+    A payload template mirrors the shape the workflow reads, and a workflow reads structure —
+    `$.payload.decided_actor_fields.state` is a value inside an object, not a key with a dot in its
+    name. One row per leaf keeps the mapping checkable; nesting is what makes it the payload.
+    """
+    *parents, leaf = path.split(".")
+    for key in parents:
+        node = target.get(key)
+        if not isinstance(node, dict):
+            node = {}
+            target[key] = node
+        target = node
+    target[leaf] = value
+
+
+def _bound_value(bound: str) -> Any:
+    """What a `Bound To` cell means: a substitution token, or the value itself.
+
+    `${input.KEY}` is the boundary's own substitution syntax and passes through untouched. Anything
+    else is a constant the design states — the rules an act requires and a caller must not send — and
+    it is read as YAML so that a list is a list and a flag is a flag. A constant written as prose
+    would reach the act as prose, which is how a template silently sends the word "constant".
+    """
+    import yaml
+
+    if _INPUT_TOKEN.match(bound):
+        return bound
+    try:
+        return yaml.safe_load(bound)
+    except yaml.YAMLError:
+        return bound
+
+
+def _transport_ingress(m, code, short, summary, sub, p7, p8, declared_empty=None):
     """A boundary contract admitting a caller the composition does not control.
 
     Its input contract is the artifact's own declared INPUT fields, exactly as an intent's is — the
@@ -565,14 +605,21 @@ def _transport_ingress(m, code, short, summary, sub, p7, p8):
     m["core"] = {"summary": summary}
     m["input_contract"] = typed_fields(p7, code, "INPUT")
     # Reserved in V0 and declared empty rather than omitted, so a measurement can tell a stated
-    # "nothing required" from a fact the design forgot.
+    # "nothing required" from a fact the design forgot. The emptiness is the contract's own — the
+    # version reserves it — so the builder declares it here rather than asking a design to state a
+    # fact no design owns.
     m["context_requirements"] = []
+    if declared_empty is not None:
+        declared_empty.append("context_requirements")
     handler: dict[str, Any] = {
         "kind": cell(first, "Handler Kind"),
         "workflow": cell(first, "Handler Target"),
     }
-    template = {cell(r, "Field"): cell(r, "Bound To") for r in _transport_rows(p7, code, "INGRESS")
-                if cell(r, "Field")}
+    template: dict[str, Any] = {}
+    for row in _transport_rows(p7, code, "INGRESS"):
+        field = cell(row, "Field")
+        if field:
+            _nest(template, field, _bound_value(cell(row, "Bound To")))
     if template:
         handler["payload_template"] = template
     m["handler"] = handler
