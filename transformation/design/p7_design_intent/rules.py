@@ -512,6 +512,51 @@ INTERFACE_RULES: list[Rule] = [
 ]
 
 
+
+# A composition and its bindings are two halves of one statement, and nothing held them together.
+# Each of these caught a defect that passed every other rule at 100% Construction Completeness and
+# failed at execution: a step consuming three inputs and binding one, an output written to
+# `results.record` where the runtime reads `capability_result.record`, and a contract declaring an
+# output no step of it emits.
+COMPOSITION_INTEGRITY_RULES: list[Rule] = [
+    Rule(
+        id="STEP_INPUT_UNBOUND",
+        check="STEP_INPUTS_BOUND",
+        register="step_bindings",
+        params={"composition_register": "cc_composition", "fields_register": "interface_fields"},
+        intent="a capability handed no value for an input it declares receives a null",
+    ),
+    Rule(
+        id="BINDING_SOURCE_MALFORMED",
+        check="BINDING_SOURCE_WELL_FORMED",
+        register="step_bindings",
+        params={
+            # A step result is addressed by the step that produced it, never bare.
+            "output_pattern": r"^(?:capability_result\.[A-Za-z_][A-Za-z0-9_]*|result_status)$",
+            "input_pattern": (
+                r"^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*"
+                r"|payload\.[A-Za-z_][A-Za-z0-9_.]*"
+                r"|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*"
+                r"|[\[{].*[\]}]"
+                r"|[A-Za-z_][A-Za-z0-9_]*)$"
+            ),
+            "detail": (
+                "an output is written to capability_result.<field> or result_status; an input "
+                "reads inputs.<field>, payload.<field>, results.<step>.<field>, or is a literal"
+            ),
+        },
+        intent="a reference the runtime cannot resolve is indistinguishable from one it can",
+    ),
+    Rule(
+        id="CONTRACT_OUTPUT_UNPRODUCED",
+        check="CONTRACT_OUTPUT_PRODUCED",
+        register="interface_fields",
+        params={"bindings_register": "step_bindings"},
+        intent="a declared output no step emits gives every caller a name that resolves to nothing",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
     return (
@@ -520,6 +565,7 @@ def rule_set() -> list[Rule]:
         + LADDER_RULES
         + COMPLETENESS_RULES
         + INTERFACE_RULES
+        + COMPOSITION_INTEGRITY_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()

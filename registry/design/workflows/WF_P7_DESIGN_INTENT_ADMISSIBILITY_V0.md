@@ -1171,6 +1171,28 @@ core:
             topology_register: execution_topology
             pattern: results\.([A-Za-z][A-Za-z0-9_.:]*?)\.
           intent: a source that names another node must name one this workflow reaches
+        - id: STEP_INPUT_UNBOUND
+          check: STEP_INPUTS_BOUND
+          register: step_bindings
+          params:
+            composition_register: cc_composition
+            fields_register: interface_fields
+          intent: a capability handed no value for an input it declares receives a null
+        - id: BINDING_SOURCE_MALFORMED
+          check: BINDING_SOURCE_WELL_FORMED
+          register: step_bindings
+          params:
+            output_pattern: ^(?:capability_result\.[A-Za-z_][A-Za-z0-9_]*|result_status)$
+            input_pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|payload\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|[A-Za-z_][A-Za-z0-9_]*)$
+            detail: an output is written to capability_result.<field> or result_status; an input reads inputs.<field>,
+              payload.<field>, results.<step>.<field>, or is a literal
+          intent: a reference the runtime cannot resolve is indistinguishable from one it can
+        - id: CONTRACT_OUTPUT_UNPRODUCED
+          check: CONTRACT_OUTPUT_PRODUCED
+          register: interface_fields
+          params:
+            bindings_register: step_bindings
+          intent: a declared output no step emits gives every caller a name that resolves to nothing
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

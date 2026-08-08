@@ -1723,3 +1723,136 @@ def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
                     f"resolves to a finding that is not there",
                 ))
     return out
+
+
+def _composition_steps(doc: ParsedDocument, register: str):
+    """(owner, step) -> the step's declared row, from a phase's capability composition."""
+    block = doc.register(register)
+    if block is None or block.table is None:
+        return {}
+    return {(_bare_identity(_cell(r, "CC Code")), _cell(r, "Step Name")): r
+            for _, r in _content_rows(block)}
+
+
+def _named(cell_value: str) -> set[str]:
+    """A comma-separated cell as a set of names, with the empty markers dropped."""
+    return {p.strip() for p in cell_value.split(",") if p.strip() and p.strip() not in ("—", "-")}
+
+
+@check("STEP_INPUTS_BOUND")
+def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every input a step consumes must be bound to something.
+
+    A composition says what a step hands its capability; the bindings say where each value comes
+    from. Nothing checked that the second covered the first, so a step could declare it consumes
+    `key, target_cs, target_ref`, bind only `key`, and be well formed twice over. The capability
+    then received two nulls and wrote a row keyed on nothing — `{"key": null}` in a registry whose
+    whole purpose is that the key is the identity.
+
+    This is `NODE_INPUT_BOUND` one level down: that rule holds a workflow to the contract it calls,
+    this one holds a contract to the capability it calls.
+    """
+    composition = rule.params["composition_register"]
+    bound: dict[tuple[str, str], set[str]] = {}
+    for _, row in _rows(doc, rule):
+        if _cell(row, "Direction").upper() != "INPUT":
+            continue
+        key = (_bare_identity(_cell(row, "Owner")), _cell(row, "Step"))
+        bound.setdefault(key, set()).add(_cell(row, "Field"))
+
+    # A step input the contract itself declares under the same name needs no binding row: the
+    # runtime passes it through by name, and the catalog relies on it throughout. Only a name the
+    # contract neither declares nor binds arrives as a null.
+    passed_through: dict[str, set[str]] = {}
+    fields = doc.register(rule.params["fields_register"])
+    if fields is not None and fields.table is not None:
+        for _, row in _content_rows(fields):
+            if _cell(row, "Direction").upper() == "INPUT":
+                passed_through.setdefault(_bare_identity(_cell(row, "Artifact")), set()).add(
+                    _cell(row, "Field"))
+
+    # A value an earlier step of the same contract produced under that name is also satisfied: the
+    # runtime chains by name within a contract, which is how the catalog feeds `records` from a
+    # read into a select without a binding row for it.
+    produced: dict[str, set[str]] = {}
+    for (owner, _), row in _composition_steps(doc, composition).items():
+        produced.setdefault(owner, set()).update(_named(_cell(row, "Produces")))
+
+    # Only side-effect steps are checked. `Consumes` on a CS step names the operation's own inputs
+    # — `STEP_CONSUMES_UNDECLARED_INPUT` holds it to the published surface — so an unbound one
+    # provably arrives null. On a transform step the column is unenforced, and the tested designs
+    # use domain-side names there while the bindings use the transform's, so comparing them would
+    # report a defect where a mapping exists. Transform steps become checkable once a transform's
+    # contract can be observed; until then this asserts only what it can know.
+    out: list[tuple[str, str]] = []
+    for (owner, step), row in sorted(_composition_steps(doc, composition).items()):
+        if _cell(row, "Kind").upper() != "CS":
+            continue
+        satisfied = (bound.get((owner, step), set()) | passed_through.get(owner, set())
+                     | produced.get(owner, set()))
+        for field in sorted(_named(_cell(row, "Consumes")) - satisfied):
+            out.append((f"{composition} {owner}/{step}",
+                        f"consumes {field!r} and binds it to nothing — the capability receives "
+                        f"no value for it"))
+    return out
+
+
+@check("BINDING_SOURCE_WELL_FORMED")
+def _binding_source_well_formed(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A binding must name where a value comes from in the form the runtime resolves.
+
+    An output is written to the capability result; an input is read from the artifact's own inputs,
+    from a named earlier step, from the admitted payload, or is a literal. `results.record` looks
+    like a reference and resolves to nothing, because a step's result is addressed by the step that
+    produced it. Well formed, wrong, and silent until execution.
+    """
+    out: list[tuple[str, str]] = []
+    output_form = re.compile(rule.params["output_pattern"])
+    input_form = re.compile(rule.params["input_pattern"])
+    for i, row in _rows(doc, rule):
+        source = _cell(row, "Bound To")
+        if not source:
+            continue
+        direction = _cell(row, "Direction").upper()
+        form = output_form if direction == "OUTPUT" else input_form
+        if not form.match(source):
+            out.append((f"{_where(rule)} row {i}",
+                        f"{direction.lower()} binds {source!r}, which is not a form the runtime "
+                        f"resolves — {rule.params['detail']}"))
+    return out
+
+
+@check("CONTRACT_OUTPUT_PRODUCED")
+def _contract_output_produced(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A contract's declared output must name a value one of its steps surfaces.
+
+    Surfaced, not consumed: a step's OUTPUT binding carries the *domain* name a value takes when it
+    leaves the step, while the composition's `Produces` column carries the capability's own name for
+    it. `read_work_record` produces `value` and surfaces it as `work_record`, and a contract
+    declaring `work_record` is exactly right. Reading the wrong one of those two reports a defect on
+    every correct contract that renames anything.
+
+    Declaring an output no step surfaces gives every caller a name that resolves to nothing — the
+    contract is well formed, the caller is well formed, and the value arrives absent.
+    """
+    surfaced: dict[str, set[str]] = {}
+    owners: set[str] = set()
+    bindings = doc.register(rule.params["bindings_register"])
+    if bindings is not None and bindings.table is not None:
+        for _, row in _content_rows(bindings):
+            owner = _bare_identity(_cell(row, "Owner"))
+            owners.add(owner)
+            if _cell(row, "Direction").upper() == "OUTPUT":
+                surfaced.setdefault(owner, set()).add(_cell(row, "Field"))
+
+    out: list[tuple[str, str]] = []
+    for i, row in _rows(doc, rule):
+        artifact = _bare_identity(_cell(row, "Artifact"))
+        if artifact not in owners or _cell(row, "Direction").upper() != "OUTPUT":
+            continue
+        field = _cell(row, "Field")
+        if field and field not in surfaced.get(artifact, set()):
+            out.append((f"{_where(rule)} row {i}",
+                        f"{artifact} declares output {field!r}, which no step of it surfaces — "
+                        f"its steps surface {', '.join(sorted(surfaced.get(artifact, set()))) or 'nothing'}"))
+    return out
