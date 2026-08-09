@@ -566,9 +566,7 @@ core:
 
     EXIT_JUDGED:
       type: EXIT
-      outcome: SUCCESS
 
     EXIT_REJECTED:
       type: EXIT
-      outcome: VIOLATION
 ```

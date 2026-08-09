@@ -274,14 +274,7 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
             # value derived from whether the node's name ended in COMPLETED. Every domain this
             # renderer produced therefore declared events it could never fire, while every
             # hand-authored domain fired them: the field that worked was the one nothing wrote.
-            # `outcome` is retained though nothing reads it: no constitution declares it, no
-            # assertion checks it and no runtime consults it, but eleven sealed artifacts carry it
-            # and dropping it here would make this renderer disagree with all of them. Removing a
-            # dead field is a cleanup with its own blast radius, not part of restoring emission.
-            spec_exit: dict[str, Any] = {
-                "type": "EXIT",
-                "outcome": "SUCCESS" if node.endswith("COMPLETED") else "VIOLATION",
-            }
+            spec_exit: dict[str, Any] = {"type": "EXIT"}
             event = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
                           if bare(cell(r, "Artifact")) == short
                           and cell(r, "Property") == f"emit.{node}"), "")
