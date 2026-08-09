@@ -227,7 +227,7 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict
         "governed_by": GOVERNED_BY[fam],
     }
     builder = _BUILDERS[fam]
-    if fam in ("RB", "CC", "TI"):
+    if fam in ("RB", "CC", "TI", "WF"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
@@ -244,7 +244,7 @@ def _intent(m, code, short, summary, sub, p7, p8):
     }
 
 
-def _workflow(m, code, short, summary, sub, p7, p8):
+def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
     binding = next((cell(r, "RB Code") for r in rows(p7, "rb_declarations")
                     if bare(cell(r, "Binds WF")) == short), "")
     topo = [r for r in rows(p7, "execution_topology") if bare(cell(r, "Workflow")) == short]
@@ -267,8 +267,32 @@ def _workflow(m, code, short, summary, sub, p7, p8):
         if node_type == "IN" and not start:
             start = node
         if node_type in ("EXIT", "EXIT_SUCCESS"):
-            nodes[node] = {"type": "EXIT",
-                           "outcome": "SUCCESS" if node.endswith("COMPLETED") else "VIOLATION"}
+            # An exit announces or it does not. `emit` is the only key the platform reads on an
+            # EXIT node — the compiler projects it into the dispatch table and the scheduler fires
+            # the event when the node is reached. What stood here before was `outcome`, which no
+            # constitution declares, no compiler assertion checks and no runtime reads, carrying a
+            # value derived from whether the node's name ended in COMPLETED. Every domain this
+            # renderer produced therefore declared events it could never fire, while every
+            # hand-authored domain fired them: the field that worked was the one nothing wrote.
+            # `outcome` is retained though nothing reads it: no constitution declares it, no
+            # assertion checks it and no runtime consults it, but eleven sealed artifacts carry it
+            # and dropping it here would make this renderer disagree with all of them. Removing a
+            # dead field is a cleanup with its own blast radius, not part of restoring emission.
+            spec_exit: dict[str, Any] = {
+                "type": "EXIT",
+                "outcome": "SUCCESS" if node.endswith("COMPLETED") else "VIOLATION",
+            }
+            event = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
+                          if bare(cell(r, "Artifact")) == short
+                          and cell(r, "Property") == f"emit.{node}"), "")
+            if event:
+                spec_exit["emit"] = event
+            elif declared_empty is not None:
+                # An exit that announces nothing is a design decision, not an omission — most
+                # refusal exits announce nothing — so it is declared rather than left to measure
+                # as an undetermined leaf.
+                declared_empty.append(f"core.nodes.{node}.emit")
+            nodes[node] = spec_exit
             continue
         spec: dict[str, Any] = {"type": node_type, "code": node}
         bindings = _bindings(p7, short, node, "INPUT")
