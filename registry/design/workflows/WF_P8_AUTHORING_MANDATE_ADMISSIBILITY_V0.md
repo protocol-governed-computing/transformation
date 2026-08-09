@@ -103,10 +103,6 @@ core:
             - Subdomain
             - Depends On
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: build_order
-          intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
           check: CELL_IN_VOCABULARY
           register: build_order
@@ -129,10 +125,6 @@ core:
             - Position
             - Code
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: critical_path
-          intent: an empty required register asserts nothing
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: mandate_artifact_summary

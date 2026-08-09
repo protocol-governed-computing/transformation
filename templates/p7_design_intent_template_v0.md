@@ -163,7 +163,7 @@ silently emptied. A `REUSE` or `REVIEW` row is not rendered and may leave it bla
 `capability` is business language; `code` is the binding FQDN; `family` is the execution concern;
 `owner_subdomain` is the owning subdomain; `source_finding` traces to the S6 ownership / S4 gap.*
 
-<!-- register:new_artifacts business_language=capability -->
+<!-- register:new_artifacts optional business_language=capability -->
 | Capability | Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE, TI, TE) | Code | Summary | Owner Subdomain | Status | Source Finding |
 |------------|------------------------------------------------|------|---------|-----------------|--------|----------------|
 

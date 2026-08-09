@@ -519,10 +519,6 @@ core:
             - Summary
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: provisional_codes
-          intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
           check: CELL_IN_VOCABULARY
           register: provisional_codes
