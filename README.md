@@ -70,10 +70,10 @@ re-pin the id, re-approve the affected registers.
 
 ## Documents
 
-- `standards/process/RUNBOOK.md` — clean-slate build and check, end to end, for the whole
-  composition. It lives in `standards` because it spans every repo, and it carries the two loops
-  this repo's contributors need: constructing a design into artifacts, and re-sealing a phase's rule
-  set after changing it.
+- The composition runbook — clean-slate build and check, end to end, across every repo — is
+  maintained with the release process rather than here, because it spans the whole composition.
+  It carries the two loops this repo's contributors need: constructing a design into artifacts,
+  and re-sealing a phase's rule set after changing it.
 - `doc/TRANSFORMATION_COMPILER_PLAN_V1.md` — the rehost plan: what is being rehosted, the
   phase-by-phase validation methodology, and the settled rulings.
 - `doc/TRANSFORMATION_COMPILER_PLAN_V1_ADDENDUM_A.md` — the release-4 subject: the
