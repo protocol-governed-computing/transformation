@@ -208,6 +208,7 @@ core:
             - structure_stores
             - subdomain_purpose
             - system_beliefs
+            - transport_bindings
             - verification_results
             - vocabulary_extensions
             literal_sources:
@@ -216,6 +217,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: entities
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: entity_attributes
@@ -266,6 +273,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: entity_attributes
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: business_processes
@@ -316,6 +329,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: business_processes
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: process_steps
@@ -368,6 +387,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: process_steps
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: belief_verification
@@ -415,6 +440,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: belief_verification
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: pps_baseline_fqdns
@@ -494,6 +525,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: gaps
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: architectural_observations
@@ -541,6 +578,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: architectural_observations
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: discovery_concerns
@@ -590,6 +633,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: discovery_concerns
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: open_questions
@@ -635,6 +684,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: open_questions
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: BASELINE_IDENTITY_UNRESOLVED
           check: CITED_ARTIFACTS_RESOLVE
           register: pps_baseline_fqdns

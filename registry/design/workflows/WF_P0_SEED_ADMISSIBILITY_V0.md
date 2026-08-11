@@ -674,6 +674,15 @@ core:
             detail: a blocking clarification is unanswered — resolve it with the named owner and fold the answer
               into the document before any phase consumes it
           intent: a blocking question the next phase never sees is answered by invention
+        - id: BUSINESS_CLARIFICATION_OUTSTANDING
+          check: ROW_ABSENT_WHEN
+          register: clarification_requests
+          params:
+            column: Owner
+            value: HUMAN
+            detail: only the business can answer this — ask it, fold the answer into the problem statement, and
+              re-author the seed rather than carrying the question forward
+          intent: a business question that outlives the seed is answered downstream by inference
         - id: HEADER_FIELD_MISSING
           check: HEADER_FIELD_PRESENT
           params:

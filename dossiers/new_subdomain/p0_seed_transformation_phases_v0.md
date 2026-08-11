@@ -72,6 +72,10 @@ composition is allowed to change.
 | The seed phase may not promote a System Belief into a Business Truth. | HIGH |
 | Changing the rule set requires the same governed change process as any other declared behaviour. | HIGH |
 | This change establishes the seed phase and its rule set only. | HIGH |
+| The rule set is carried sealed inside the phase's own compiled artifact, alongside the workflow that applies it. | HIGH |
+| The sealed rule set is generated from the declaration rather than typed, and the two are compared on every run. | HIGH |
+| A phase receives the seed as text, the whole document travelling with the request. | HIGH |
+| A verdict must be reproducible from what was judged, so a phase is never handed a location to read. | HIGH |
 
 ## 5. Existing-System Beliefs — Requiring Verification
 
@@ -181,8 +185,7 @@ composition is allowed to change.
 <!-- register:clarification_requests business_language optional -->
 | Question | Why Needed | Blocking (YES, NO) | Owner (HUMAN, SNAPSHOT, GOVERNANCE) |
 |----------|------------|----------|-------|
-| How is the rule set carried as declared data? | The problem statement requires it readable from the composition and versioned as declared behaviour, but does not say in what form. | NO | HUMAN |
-| Does the phase receive the seed as text, or as a location it must read? | Reproducibility of a verdict depends on the answer. | NO | HUMAN |
+| NONE IDENTIFIED |
 
 ## 15. Acceptance Criteria
 

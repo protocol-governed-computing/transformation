@@ -144,8 +144,8 @@ scheduled at Stage 7 with no provisional code is one no business intent ever nam
 `AUTHORED_ARTIFACT_WITHOUT_INTENT` is what now refuses it. `CS` is absent deliberately — a capability
 side effect is substrate, and a business change request reuses one rather than authoring it.*
 
-<!-- register:provisional_codes business_language=summary -->
-| Provisional Code | Family (AC, IN, WF, CC, CT, EV, RB, STRUCTURE) | Summary | Source Finding |
+<!-- register:provisional_codes optional business_language=summary -->
+| Provisional Code | Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE) | Summary | Source Finding |
 |------------------|-------------------------|---------|----------------|
 
 ---

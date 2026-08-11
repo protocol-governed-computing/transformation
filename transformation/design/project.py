@@ -29,6 +29,7 @@ from __future__ import annotations
 import re
 from typing import Callable
 
+from transformation.design.checks import EMPTINESS_SENTINEL, is_sentinel
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.template_reader import PhaseTemplate, load
 
@@ -145,6 +146,13 @@ def project_p1(prior: ParsedDocument) -> str:
         content = [dict(row) for row in (source.get("rows") or [])] if source else []
         rows = []
         for ordinal, row in enumerate(content, start=1):
+            # The emptiness sentinel is not a row and is projected verbatim. Padding it to the
+            # column count leaves empty cells that the register's own vocabularies then reject, and
+            # citing it to a seed finding invents a finding — the seed said the register has no
+            # entries, which is not something any row of it said.
+            if is_sentinel(row):
+                rows.append([EMPTINESS_SENTINEL])
+                continue
             values = [_value(row, column) for column in columns[:-1]]
             values.append(f"CR seed §{seed_number} {seed_title} #{ordinal}")
             rows.append(values)

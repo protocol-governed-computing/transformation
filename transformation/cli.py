@@ -14,41 +14,31 @@ from pathlib import Path
 
 import click
 
-from transformation.baseline import Baseline, BaselineMismatch, observe, verify
+from transformation.baseline import (
+    Baseline,
+    BaselineMismatch,
+    grounded_registers,
+    observe,
+    pending,
+    verify,
+)
 from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
 from transformation.build.completeness import measure, narrowing
-from transformation.build.render import render_all
+from transformation.build.render import bare, build_manifest, render_all, render_document, render_documents
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
+from transformation.design.meta import RULE_MODULES, verify as meta_verify
 from transformation.design.oracle import evaluate
 from transformation.design.project import PROJECTIONS
 from transformation.design.read import read_seed
-from transformation.design.p0_change_seed import rules as p0_rules
-from transformation.design.p1_change_request import rules as p1_rules
-from transformation.design.p2_domain_model import rules as p2_rules
-from transformation.design.p3_analysis_loop import rules as p3_rules
-from transformation.design.p4_business_model import rules as p4_rules
-from transformation.design.p5_business_intent import rules as p5_rules
-from transformation.design.p6_governance_intent import rules as p6_rules
-from transformation.design.p7_design_intent import rules as p7_rules
-from transformation.design.p8_authoring_mandate import rules as p8_rules
 from transformation.design import catalog
 from transformation.design.template_reader import load as load_template
 
-# Rule sets still declared per phase; purpose, question, key rule and purity rung come from the
+# Rule sets are declared per phase and mapped once, in `design.meta` — the module that has to
+# verify the mapping is complete. Purpose, question, key rule and purity rung come from the
 # catalogue, which mirrors field manual §4.1 and §4.2.
-RULE_SETS = {
-    "p0": p0_rules,
-    "p1": p1_rules,
-    "p2": p2_rules,
-    "p3": p3_rules,
-    "p4": p4_rules,
-    "p5": p5_rules,
-    "p6": p6_rules,
-    "p7": p7_rules,
-    "p8": p8_rules,
-}
+RULE_SETS = RULE_MODULES
 
 
 def _parse_prior(argument: str) -> tuple[str, Path]:
@@ -140,13 +130,17 @@ def phase_check(
     doc = read_seed(doc_path)
     if observes and snapshot_root:
         gathered = {}
-        for operation, result_key in observes.items():
+        for name, result_key in observes.items():
+            # `si.capability.surface#transforms` observes one field of one operation; a bare name
+            # observes the operation's default field. A phase grounds on more than one field of a
+            # surface without querying it twice.
+            operation = name.split("#", 1)[0]
             status, result = inspector_api.query(operation, {}, str(snapshot_root))
             if status != "SUCCESS":
                 raise click.ClickException(
                     f"{operation} failed against {snapshot_root}: {status}"
                 )
-            gathered[operation] = result.get(result_key, result)
+            gathered[name] = result.get(result_key, result)
         doc.observed = gathered
     elif observes:
         click.echo(
@@ -297,7 +291,7 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
                     {
                         "id": r.id,
                         "check": r.check,
-                        "register": r.section_title,
+                        "register": r.register or r.section_title,
                         "params": r.params,
                         "intent": r.intent,
                     }
@@ -309,11 +303,57 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
         return
 
     for rule in declared:
-        register = rule.section_title or "(document)"
+        register = rule.register or rule.section_title or "(document)"
         click.echo(f"  {rule.id:<38} {rule.check:<24} {register}")
         if rule.intent:
             click.echo(f"  {'':<38} └─ {rule.intent}")
     click.echo(f"\n  {len(declared)} rules over {len(check_kinds())} check kinds")
+
+
+@phase.command("meta")
+@click.option("--json", "as_json", is_flag=True, help="Emit the findings as JSON.")
+def phase_meta(as_json: bool) -> None:
+    """Verify the rule sets themselves — declaration/enforcement parity, before any document.
+
+    Meta-governance: this judges no dossier. It asserts that every declared rule can actually run
+    and that every implemented mechanism is actually declared. If that correspondence is broken, a
+    verdict over a document is meaningless — a rule that cannot run reports green over a subject it
+    never evaluated.
+    """
+    findings = meta_verify(RULE_SETS)
+
+    if as_json:
+        click.echo(
+            json.dumps(
+                {
+                    "verdict": "CONSISTENT" if not findings else "INCONSISTENT",
+                    "phases": sorted(RULE_SETS),
+                    "rules_examined": sum(len(m.rule_set()) for m in RULE_SETS.values()),
+                    "check_kinds": len(check_kinds()),
+                    "findings": [
+                        {"code": f.code, "where": f.where, "detail": f.detail} for f in findings
+                    ],
+                },
+                indent=2,
+            )
+        )
+        sys.exit(1 if findings else 0)
+
+    examined = sum(len(m.rule_set()) for m in RULE_SETS.values())
+    if not findings:
+        click.echo(
+            f"  CONSISTENT — {examined} rules across {len(RULE_SETS)} phases resolve against "
+            f"{len(check_kinds())} check kinds"
+        )
+        return
+
+    for finding in findings:
+        click.echo(f"  [{finding.code}] {finding.where}")
+        click.echo(f"      {finding.detail}")
+    click.echo(
+        f"\n  INCONSISTENT — {len(findings)} finding(s) over {examined} declared rules"
+    )
+    sys.exit(1)
 
 
 @phase.command("template")
@@ -473,6 +513,70 @@ def _dossier_registers(dossier: Path, phase_key: str) -> dict:
     return out
 
 
+
+@construction.command("emit")
+@click.argument("dossier", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option("--root", "domain_root", required=True,
+              type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="The domain repository the artifacts belong to.")
+@click.option("--force", is_flag=True, help="Overwrite artifacts that already exist.")
+@click.option("--require", "threshold", type=float, default=100.0, show_default=True,
+              help="Minimum Construction Completeness; below it nothing is written.")
+def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: float) -> None:
+    """Write the artifacts a mandate schedules into the domain that owns them.
+
+    Construction has always been able to render; nothing put the result on disk, so the only thing
+    that ever consumed a render was the acceptance harness comparing it against artifacts written
+    by hand. This is the other half.
+
+    **Measured before anything is written.** A design below the threshold does not determine its
+    artifacts, and emitting one would put the generator's guesses into a registry where they read
+    as authored. Nothing is written unless everything can be.
+
+    The domain's build manifest is written too when the domain has none. It is not an artifact any
+    phase designs — every field of it is compiler configuration — but a domain the compiler cannot
+    discover is a domain that does not build, and hand-copying it between domains has drifted.
+
+    Exit 0 if everything was written, 1 if the design was refused or a path already exists.
+    """
+    p7 = _dossier_registers(dossier, "p7")
+    p8 = _dossier_registers(dossier, "p8")
+
+    result = measure(p7, p8)
+    if not result.meets(threshold):
+        click.echo(f"REFUSED — Construction Completeness {result.percentage:.1f}% is below "
+                   f"{threshold:.0f}%; nothing written.", err=True)
+        for path, count in result.undetermined.most_common(8):
+            click.echo(f"    {count:>3}  {path}", err=True)
+        sys.exit(1)
+
+    documents = render_documents(p7, p8)
+    manifest = build_manifest(p7, p8)
+    planned: list[tuple[Path, str]] = [(domain_root / d["path"], d["text"]) for d in documents]
+    if manifest is not None:
+        target = domain_root / "registry" / "structures" / f"{bare(manifest['fqdn'])}.md"
+        if not target.exists():
+            planned.append((target, render_document({"machine": manifest})))
+
+    clashes = [path for path, _ in planned if path.exists()]
+    if clashes and not force:
+        click.echo(f"REFUSED — {len(clashes)} artifact(s) already exist; pass --force to "
+                   f"overwrite. Nothing written.", err=True)
+        for path in clashes[:8]:
+            click.echo(f"    {path}", err=True)
+        sys.exit(1)
+
+    for path, text in planned:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    click.echo(f"  emitted {len(planned)} file(s) under {domain_root}")
+    for path, _ in planned:
+        click.echo(f"    {path.relative_to(domain_root)}")
+    click.echo(f"\n  Construction Completeness {result.percentage:.1f}% "
+               f"({result.determined}/{result.total} determined)")
+
+
+
 @main.group()
 def baseline() -> None:
     """The pinned validation baseline."""
@@ -498,6 +602,62 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
     click.echo(f"BASELINE OK  {actual.snapshot_id}")
     click.echo(f"  artifacts {actual.artifact_count}  domains {', '.join(actual.domains)}")
 
+    # The id proves the composition is the one named. It proves nothing about whether anyone
+    # re-read the registers that assert facts about it, which is the half a re-pin silently drops.
+    outstanding = {phase: pending(pin, phase) for phase in sorted(RULE_MODULES)}
+    outstanding = {phase: regs for phase, regs in outstanding.items() if regs}
+    approved = sum(len(r) for r in pin.approved_registers.values())
+    if approved:
+        for phase, registers in sorted(pin.approved_registers.items()):
+            for register, who in sorted(registers.items()):
+                click.echo(f"  approved  {phase}/{register:<28} {who}")
+    if outstanding:
+        # Phrased as owed rather than neglected: a phase this CR has not reached yet trivially
+        # carries no approval, and calling that a defect would cry wolf on every early dossier.
+        click.echo("\n  NOT YET APPROVED against this pin — each rests on a snapshot fact:")
+        for phase, registers in outstanding.items():
+            for register in registers:
+                click.echo(f"    {phase}/{register}")
+        click.echo("    run: tc baseline approve --phase <p> --by <name> " + str(pin_path))
+
+
+@baseline.command("approve")
+@click.argument("pin_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--phase", "phase_key", type=click.Choice(sorted(RULE_MODULES)), required=True,
+              help="Which phase's grounded registers were re-read.")
+@click.option("--by", "approver", required=True, help="Who re-grounded them.")
+@click.option("--register", "registers", multiple=True,
+              help="A single register; repeatable. Omit to approve every grounded register of the phase.")
+def baseline_approve(pin_path: Path, phase_key: str, approver: str, registers: tuple[str, ...]) -> None:
+    """Record that a phase's snapshot-grounded registers were re-read against this pin.
+
+    The second half of rebaselining. Verifying the id proves the composition is the one named; this
+    records that someone re-read the registers asserting facts about it. The approval lives in the
+    pin, so re-pinning drops it — an approval is against one composition and survives no other.
+
+    Which registers a phase owes is derived from its rule set: a register rests on a snapshot fact
+    exactly when a rule governing it consults an observation.
+    """
+    pin = Baseline.load(pin_path)
+    owed = grounded_registers(phase_key)
+    if not owed:
+        raise click.ClickException(
+            f"{phase_key} has no register resting on a snapshot fact — nothing to approve"
+        )
+    chosen = registers or owed
+    unknown = [r for r in chosen if r not in owed]
+    if unknown:
+        raise click.ClickException(
+            f"{phase_key} grounds no register named {', '.join(unknown)}; it grounds {', '.join(owed)}"
+        )
+    updated = pin.approve(phase_key, chosen, approver)
+    pin_path.write_text(json.dumps(updated.as_dict(), indent=2) + "\n", encoding="utf-8")
+    for register in chosen:
+        click.echo(f"  approved  {phase_key}/{register}  by {approver}")
+    still = pending(updated, phase_key)
+    click.echo(f"  {phase_key}: {len(owed) - len(still)}/{len(owed)} grounded register(s) approved "
+               f"against {updated.snapshot_id[:16]}")
+
 
 @baseline.command("show")
 @click.option(
@@ -509,14 +669,12 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
 )
 def baseline_show(snapshot_root: Path) -> None:
     """Print the composition present at a snapshot root, as a pin."""
+    # Deliberately carries no approvals: observing a composition approves nothing about it, and a
+    # re-pin that inherited them would assert a review that never happened.
     actual = observe(snapshot_root)
     click.echo(
         json.dumps(
-            {
-                "snapshot_id": actual.snapshot_id,
-                "artifact_count": actual.artifact_count,
-                "domains": list(actual.domains),
-            },
+            actual.as_dict(),
             indent=2,
         )
     )

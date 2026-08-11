@@ -163,8 +163,8 @@ silently emptied. A `REUSE` or `REVIEW` row is not rendered and may leave it bla
 `capability` is business language; `code` is the binding FQDN; `family` is the execution concern;
 `owner_subdomain` is the owning subdomain; `source_finding` traces to the S6 ownership / S4 gap.*
 
-<!-- register:new_artifacts business_language=capability -->
-| Capability | Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE) | Code | Summary | Owner Subdomain | Status | Source Finding |
+<!-- register:new_artifacts optional business_language=capability -->
+| Capability | Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE, TI, TE) | Code | Summary | Owner Subdomain | Status | Source Finding |
 |------------|------------------------------------------------|------|---------|-----------------|--------|----------------|
 
 ---
@@ -316,7 +316,18 @@ exists so that a single scalar does not.*
 
 ---
 
-## 14. Artifact Summary
+## 14. Transport Bindings
+
+*What a boundary contract publishes and how it maps across the boundary. An ingress declares the
+operation identity a caller names, what dispatches it, and how the canonical input becomes the
+workflow payload; an egress declares how a result surface becomes the fields a caller reads. One row
+per mapped field, so a mapping is checkable rather than a blob.*
+
+<!-- register:transport_bindings optional -->
+| Artifact | Direction (INGRESS, EGRESS) | Operation | Handler Kind (WF_INVOCATION, SNAPSHOT_READ) | Handler Target | Field | Bound To | Source Finding |
+|----------|----------------------------|-----------|---------------------------------------------|----------------|-------|----------|----------------|
+
+## 15. Artifact Summary
 
 *Artifact count by action type, for Stage 7 input. The oracle reconciles: the NEW counts here MUST equal the rows of `new_artifacts`. `artifacts` lists the codes for that action.*
 

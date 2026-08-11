@@ -82,15 +82,17 @@ def _cell(row: dict[str, str], prefix: str) -> str:
 # A register with nothing in it renders one `| NONE IDENTIFIED |` row rather than no rows at all.
 # Emptiness is declared, never inferred from absence — an empty table and a register nobody filled
 # in look identical, and only one of them is a considered answer.
-_EMPTINESS_SENTINEL = "NONE IDENTIFIED"
+EMPTINESS_SENTINEL = "NONE IDENTIFIED"
+# Public because the P1 projection must emit the same marker it will later be judged against; a
+# second spelling of it in project.py is a second declaration that can drift from this one.
 
 
-def _is_sentinel(row: dict[str, str]) -> bool:
+def is_sentinel(row: dict[str, str]) -> bool:
     """True when a row is the declared-empty marker rather than content."""
     values = [str(v).strip() for v in row.values()]
     if not values:
         return False
-    return values[0].upper() == _EMPTINESS_SENTINEL and not any(values[1:])
+    return values[0].upper() == EMPTINESS_SENTINEL and not any(values[1:])
 
 
 def _content_rows(block: Block | None):
@@ -105,7 +107,7 @@ def _content_rows(block: Block | None):
     return [
         (i, row)
         for i, row in enumerate(block.table.rows, start=1)
-        if not _is_sentinel(row)
+        if not is_sentinel(row)
     ]
 
 
@@ -137,32 +139,6 @@ def _header_field_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return out
 
 
-@check("SECTION_PRESENT")
-def _section_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    if _block(doc, rule) is None:
-        return [(_where(rule), "required section absent from the seed")]
-    return []
-
-
-@check("SECTION_NUMBERED")
-def _section_numbered(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    block = _block(doc, rule)
-    if block is None:
-        return []
-    expected = rule.params["number"]
-    if block.number != expected:
-        return [(_where(rule), f"expected section {expected}, found {block.number}")]
-    return []
-
-
-@check("SECTIONS_ASCENDING")
-def _sections_ascending(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    numbers = [b.number for b in doc.blocks if b.number is not None]
-    if numbers != sorted(numbers):
-        return [("document", "numbered sections are not in ascending order")]
-    return []
-
-
 @check("SECTION_HAS_TEXT")
 def _section_has_text(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     block = _block(doc, rule)
@@ -173,20 +149,6 @@ def _section_has_text(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         return []
     if not block.text():
         return [(_where(rule), rule.params["detail"])]
-    return []
-
-
-@check("SECTION_DECLARES_ONE_OF")
-def _section_declares_one_of(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    block = _block(doc, rule)
-    if block is None:
-        return []
-    vocabulary = rule.params["vocabulary"]
-    found = [t for t in vocabulary if re.search(rf"\b{re.escape(t)}\b", block.text())]
-    if not found:
-        return [(_where(rule), f"nothing declared; expected one of {list(vocabulary)}")]
-    if len(found) > 1:
-        return [(_where(rule), f"multiple values named: {found}")]
     return []
 
 
@@ -232,7 +194,7 @@ def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     # `minimum` defaults to 1 — "declared but empty asserts nothing". A register whose rows are a
     # fixed checklist rather than free content declares the count it owes, so a claim resting on
     # fewer rows than the criteria it cites is reported rather than read as complete.
-    minimum = int(getattr(rule, "params", {}).get("minimum", 1))
+    minimum = int(rule.params.get("minimum", 1))
     rows = len(block.table.rows)
     if rows < minimum:
         detail = (
@@ -372,7 +334,7 @@ def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]
             continue
         rows = [dict(r) for r in (entry.get("rows") or [])]
         for i, row in enumerate(rows, start=1):
-            if _is_sentinel(row):
+            if is_sentinel(row):
                 continue
             for column, raw in row.items():
                 value = str(raw).strip().strip("*_`").upper()
@@ -387,15 +349,6 @@ def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]
     return out
 
 
-@check("TOKEN_ABSENT")
-def _token_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    pattern = re.compile(rule.params["pattern"])
-    return [
-        ("document", rule.params["detail"].format(token=token))
-        for token in sorted(set(pattern.findall(doc.raw)))
-    ]
-
-
 @check("CELL_MATCHES")
 def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """Every non-empty cell in a column must match a declared pattern.
@@ -406,7 +359,13 @@ def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     out = []
     column = rule.params["column"]
     pattern = re.compile(rule.params["pattern"])
+    # A pattern that applies to only some rows says so, the way every other gated check does. A
+    # naming rule for one artifact family would otherwise have to be a check kind of its own.
+    gate_column = rule.params.get("only_when_column")
+    gate_value = rule.params.get("only_when_value")
     for i, row in _rows(doc, rule):
+        if gate_column and _cell(row, gate_column).strip().upper() != str(gate_value).upper():
+            continue
         value = _cell(row, column)
         if value and not pattern.match(value):
             out.append((f"{_where(rule)} row {i}", rule.params["detail"].format(value=value)))
@@ -688,7 +647,7 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
         if block is None or block.table is None:
             continue
         for row in block.table.rows:
-            if _is_sentinel(row):
+            if is_sentinel(row):
                 continue
             value = _cell(row, column)
             if value:
@@ -908,6 +867,81 @@ def _prior_rows(doc: ParsedDocument, rule):
     if block is None or block.table is None:
         return [], f"{phase} carries no readable {register!r} register to preserve"
     return _content_rows(block), None
+
+
+@check("NODE_INPUT_BOUND")
+def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A workflow node must be handed every input its contract requires.
+
+    A contract declares what it accepts; a workflow node declares what it is handed. Nothing checked
+    that the second covered the first, so extending a contract to need a new input left its callers
+    silently short — the contract was well formed, the workflow was well formed, and the value
+    arrived as null at execution. Two contracts were extended that way in one change, and both
+    designs were admissible over the full rule set and complete at 100%.
+
+    Only required inputs are checked. An optional one absent is a declaration that the node does not
+    supply it, which is what optional means.
+    """
+    topology = rule.params["topology_register"]
+    fields = rule.params["fields_register"]
+
+    declared: dict[str, set[str]] = {}
+    for _, row in _content_rows(doc.register(fields)):
+        if (_cell(row, "Direction").upper() != "INPUT"
+                or _cell(row, "Required").upper() != "YES"):
+            continue
+        declared.setdefault(_bare_identity(_cell(row, "Artifact")), set()).add(_cell(row, "Field"))
+
+    bound: dict[tuple[str, str], set[str]] = {}
+    for _, row in _rows(doc, rule):
+        if _cell(row, "Direction").upper() != "INPUT":
+            continue
+        key = (_bare_identity(_cell(row, "Owner")), _bare_identity(_cell(row, "Step")))
+        bound.setdefault(key, set()).add(_cell(row, "Field"))
+
+    out = []
+    for i, row in _content_rows(doc.register(topology)):
+        if _cell(row, "Node Type").upper() != "CC":
+            continue
+        workflow = _bare_identity(_cell(row, "Workflow"))
+        node = _bare_identity(_cell(row, "Node"))
+        missing = sorted(declared.get(node, set()) - bound.get((workflow, node), set()))
+        for field in missing:
+            out.append((
+                f"{topology} row {i}",
+                f"{workflow} hands {node} no {field!r}, which that contract requires",
+            ))
+    return out
+
+
+@check("BINDING_SOURCE_REACHABLE")
+def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A source rooted at another node must name a node the workflow actually runs.
+
+    `BINDING_SOURCE_UNROOTED` proves a source is a reference rather than a literal. It cannot prove
+    the reference resolves: a source naming a contract this workflow never reaches is well-rooted,
+    well-formed, and null at execution. One such binding existed in a design that passed every rule.
+    """
+    topology = rule.params["topology_register"]
+    pattern = re.compile(rule.params["pattern"])
+
+    nodes: dict[str, set[str]] = {}
+    for _, row in _content_rows(doc.register(topology)):
+        nodes.setdefault(_bare_identity(_cell(row, "Workflow")), set()).add(
+            _bare_identity(_cell(row, "Node")))
+
+    out = []
+    for i, row in _rows(doc, rule):
+        owner = _bare_identity(_cell(row, "Owner"))
+        if owner not in nodes:
+            continue
+        for named in sorted(set(pattern.findall(_cell(row, "Bound To")))):
+            if _bare_identity(named) not in nodes[owner]:
+                out.append((
+                    f"{_where(rule)} row {i}",
+                    f"source names {named!r}, which {owner} never runs — well-rooted and unreachable",
+                ))
+    return out
 
 
 @check("PRIOR_PROSE_CARRIED")
@@ -1642,4 +1676,295 @@ def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]
                     f"{sorted(declared) or 'no input'}, not {field!r} — a step cannot hand an "
                     f"operation a field it does not take",
                 ))
+    return out
+
+
+@check("CITED_ORDINAL_RESOLVES")
+def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A citation naming a row by ordinal must name a row that is there.
+
+    `SOURCE_FINDING_RESOLVES` asks whether a citation names a register this phase may cite. It never
+    asks whether the register has the row. So `S1 known_facts #18` against a register holding
+    seventeen rows passes, and the finding it claims to rest on does not exist — the failure
+    `project.py` names exactly: an ordinal pointing past the end resolves to a claim the row does
+    not make, and nothing downstream can tell.
+
+    A projected document cannot have this defect: its ordinals are generated from the rows they
+    count. Every hand-authored phase from P2 on can, and P2 did — four citations off by one and one
+    past the end of the register, all admitted.
+
+    Resolved against whichever document the citation names: a stage-qualified register is looked up
+    in that prior, an unqualified one in this document, which is ordinary intra-phase provenance.
+
+    **Silent when the register cannot be reached.** A prior nobody supplied is the driver's
+    omission, and reporting a document defect for a missing command-line argument is the confusion
+    `_prior_rows` exists to avoid. This rule reports one thing only: the register was read, and the
+    row it was asked for is not in it.
+    """
+    column = rule.params["column"]
+    cited = re.compile(r"^(?:S(\d+)[a-z]?\s+)?([a-z][a-z0-9_]*)\s+#(\d+)\b")
+
+    out: list[tuple[str, str]] = []
+    for index, row in _rows(doc, rule):
+        for citation in (part.strip() for part in _cell(row, column).split(";")):
+            match = cited.match(citation)
+            if not match:
+                continue
+            stage, register, ordinal = match.group(1), match.group(2), int(match.group(3))
+            block = doc.prior_register(f"p{stage}", register) if stage else doc.register(register)
+            if block is None or block.table is None:
+                continue
+            held = len(_content_rows(block))
+            if ordinal < 1 or ordinal > held:
+                where = f"{_where(rule)} row {index}"
+                out.append((
+                    where,
+                    f"cites {register} #{ordinal}, which holds {held} row(s) — the citation "
+                    f"resolves to a finding that is not there",
+                ))
+    return out
+
+
+def _composition_steps(doc: ParsedDocument, register: str):
+    """(owner, step) -> the step's declared row, from a phase's capability composition."""
+    block = doc.register(register)
+    if block is None or block.table is None:
+        return {}
+    return {(_bare_identity(_cell(r, "CC Code")), _cell(r, "Step Name")): r
+            for _, r in _content_rows(block)}
+
+
+def _named(cell_value: str) -> set[str]:
+    """A comma-separated cell as a set of names, with the empty markers dropped."""
+    return {p.strip() for p in cell_value.split(",") if p.strip() and p.strip() not in ("—", "-")}
+
+
+@check("STEP_INPUTS_BOUND")
+def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every input a step consumes must be bound to something.
+
+    A composition says what a step hands its capability; the bindings say where each value comes
+    from. Nothing checked that the second covered the first, so a step could declare it consumes
+    `key, target_cs, target_ref`, bind only `key`, and be well formed twice over. The capability
+    then received two nulls and wrote a row keyed on nothing — `{"key": null}` in a registry whose
+    whole purpose is that the key is the identity.
+
+    This is `NODE_INPUT_BOUND` one level down: that rule holds a workflow to the contract it calls,
+    this one holds a contract to the capability it calls.
+    """
+    composition = rule.params["composition_register"]
+    bound: dict[tuple[str, str], set[str]] = {}
+    for _, row in _rows(doc, rule):
+        if _cell(row, "Direction").upper() != "INPUT":
+            continue
+        key = (_bare_identity(_cell(row, "Owner")), _cell(row, "Step"))
+        bound.setdefault(key, set()).add(_cell(row, "Field"))
+
+    # A step input the contract itself declares under the same name needs no binding row: the
+    # runtime passes it through by name, and the catalog relies on it throughout. Only a name the
+    # contract neither declares nor binds arrives as a null.
+    passed_through: dict[str, set[str]] = {}
+    fields = doc.register(rule.params["fields_register"])
+    if fields is not None and fields.table is not None:
+        for _, row in _content_rows(fields):
+            if _cell(row, "Direction").upper() == "INPUT":
+                passed_through.setdefault(_bare_identity(_cell(row, "Artifact")), set()).add(
+                    _cell(row, "Field"))
+
+    # A value an earlier step of the same contract produced under that name is also satisfied: the
+    # runtime chains by name within a contract, which is how the catalog feeds `records` from a
+    # read into a select without a binding row for it.
+    produced: dict[str, set[str]] = {}
+    for (owner, _), row in _composition_steps(doc, composition).items():
+        produced.setdefault(owner, set()).update(_named(_cell(row, "Produces")))
+
+    # Only side-effect steps are checked. `Consumes` on a CS step names the operation's own inputs
+    # — `STEP_CONSUMES_UNDECLARED_INPUT` holds it to the published surface — so an unbound one
+    # provably arrives null. On a transform step the column is unenforced, and the tested designs
+    # use domain-side names there while the bindings use the transform's, so comparing them would
+    # report a defect where a mapping exists. Transform steps become checkable once a transform's
+    # contract can be observed; until then this asserts only what it can know.
+    out: list[tuple[str, str]] = []
+    for (owner, step), row in sorted(_composition_steps(doc, composition).items()):
+        if _cell(row, "Kind").upper() != "CS":
+            continue
+        satisfied = (bound.get((owner, step), set()) | passed_through.get(owner, set())
+                     | produced.get(owner, set()))
+        for field in sorted(_named(_cell(row, "Consumes")) - satisfied):
+            out.append((f"{composition} {owner}/{step}",
+                        f"consumes {field!r} and binds it to nothing — the capability receives "
+                        f"no value for it"))
+    return out
+
+
+@check("BINDING_SOURCE_WELL_FORMED")
+def _binding_source_well_formed(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A binding must name where a value comes from in the form the runtime resolves.
+
+    An output is written to the capability result; an input is read from the artifact's own inputs,
+    from a named earlier step, from the admitted payload, or is a literal. `results.record` looks
+    like a reference and resolves to nothing, because a step's result is addressed by the step that
+    produced it. Well formed, wrong, and silent until execution.
+    """
+    out: list[tuple[str, str]] = []
+    output_form = re.compile(rule.params["output_pattern"])
+    input_form = re.compile(rule.params["input_pattern"])
+    for i, row in _rows(doc, rule):
+        source = _cell(row, "Bound To")
+        if not source:
+            continue
+        direction = _cell(row, "Direction").upper()
+        form = output_form if direction == "OUTPUT" else input_form
+        if not form.match(source):
+            out.append((f"{_where(rule)} row {i}",
+                        f"{direction.lower()} binds {source!r}, which is not a form the runtime "
+                        f"resolves — {rule.params['detail']}"))
+    return out
+
+
+@check("CONTRACT_OUTPUT_PRODUCED")
+def _contract_output_produced(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A contract's declared output must name a value one of its steps surfaces.
+
+    Surfaced, not consumed: a step's OUTPUT binding carries the *domain* name a value takes when it
+    leaves the step, while the composition's `Produces` column carries the capability's own name for
+    it. `read_work_record` produces `value` and surfaces it as `work_record`, and a contract
+    declaring `work_record` is exactly right. Reading the wrong one of those two reports a defect on
+    every correct contract that renames anything.
+
+    Declaring an output no step surfaces gives every caller a name that resolves to nothing — the
+    contract is well formed, the caller is well formed, and the value arrives absent.
+    """
+    surfaced: dict[str, set[str]] = {}
+    owners: set[str] = set()
+    bindings = doc.register(rule.params["bindings_register"])
+    if bindings is not None and bindings.table is not None:
+        for _, row in _content_rows(bindings):
+            owner = _bare_identity(_cell(row, "Owner"))
+            owners.add(owner)
+            if _cell(row, "Direction").upper() == "OUTPUT":
+                surfaced.setdefault(owner, set()).add(_cell(row, "Field"))
+
+    out: list[tuple[str, str]] = []
+    for i, row in _rows(doc, rule):
+        artifact = _bare_identity(_cell(row, "Artifact"))
+        if artifact not in owners or _cell(row, "Direction").upper() != "OUTPUT":
+            continue
+        field = _cell(row, "Field")
+        if field and field not in surfaced.get(artifact, set()):
+            out.append((f"{_where(rule)} row {i}",
+                        f"{artifact} declares output {field!r}, which no step of it surfaces — "
+                        f"its steps surface {', '.join(sorted(surfaced.get(artifact, set()))) or 'nothing'}"))
+    return out
+
+
+def _interface_map(cell_value: str, side: str) -> dict[str, str]:
+    """The `in:`/`out:` half of a step's Interface, as capability name -> design name.
+
+    `in: source=matching_books, attribute=group_by; out: grouped=matching_works`. The left of each
+    pair is the capability's own name for the value, which is the only half a contract can be held
+    to; the right is what the design calls it, which is the design's business.
+    """
+    out: dict[str, str] = {}
+    for part in cell_value.split(";"):
+        head, _, body = part.partition(":")
+        if head.strip().lower() != side:
+            continue
+        for pair in body.split(","):
+            name, _, mapped = pair.partition("=")
+            if name.strip():
+                out[name.strip()] = mapped.strip()
+    return out
+
+
+@check("STEP_INTERFACE_CONFORMS")
+def _step_interface_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A transform step must hand its transform the inputs that transform declares.
+
+    The side-effect half of this has been checked since `STEP_CONSUMES_UNDECLARED_INPUT`, because
+    the capability surface published side effects. It published no transforms, so a design could
+    name `rules` where the transform declares `schema`, or read `validation_status` where it
+    answers `violations`, and pass every rule at full Construction Completeness. Four contracts in
+    one change request did exactly that, and every one of them failed at execution.
+
+    Read from the **Interface** column rather than `Consumes`, because that column states the
+    mapping instead of leaving it to be inferred: `in: source=matching_books` says the transform's
+    `source` is fed by the design's `matching_books`, and only the left half is the transform's to
+    declare. `Consumes` carries the capability's names on a side-effect step and the design's on a
+    transform step, so holding a transform to it would report a defect on every design that renames
+    anything.
+    """
+    observed = {t["transform"]: t for t in
+                (doc.observed.get(rule.params["observation"]) or [])
+                if isinstance(t, dict) and t.get("transform")}
+    if not observed:
+        return []
+
+    out: list[tuple[str, str]] = []
+    for index, row in _rows(doc, rule):
+        if _cell(row, "Kind").upper() != "CT":
+            continue
+        contract = observed.get(_cell(row, "Capability"))
+        if contract is None:
+            continue
+        where = f"{_where(rule)} row {index}"
+        interface = _cell(row, "Interface")
+        supplied = _interface_map(interface, "in")
+        produced = _interface_map(interface, "out")
+
+        for name in sorted(set(supplied) - set(contract["inputs"])):
+            out.append((where, f"hands {_cell(row, 'Capability').split('::')[-1]} an input "
+                               f"{name!r} it does not declare — it accepts "
+                               f"{', '.join(sorted(contract['inputs'])) or 'nothing'}"))
+        for name in sorted(set(produced) - set(contract["outputs"])):
+            out.append((where, f"reads {name!r} from "
+                               f"{_cell(row, 'Capability').split('::')[-1]}, which answers "
+                               f"{', '.join(contract['outputs']) or 'nothing'}"))
+        required = {n for n, spec in contract["inputs"].items() if spec.get("required")}
+        for name in sorted(required - set(supplied)):
+            out.append((where, f"supplies no {name!r}, which "
+                               f"{_cell(row, 'Capability').split('::')[-1]} requires"))
+    return out
+
+
+@check("STEP_BINDINGS_MATCH_INTERFACE")
+def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A binding may only name a field the step's Interface declares.
+
+    The Interface states what the step hands its capability and reads back; the bindings say where
+    each of those comes from. `STEP_INTERFACE_CONFORMS` holds the Interface to the capability's real
+    contract, so a binding naming a field the Interface does not carry is bound to a capability
+    input that does not exist — checked at one remove, and until now not at all. A first attempt to
+    give an occurrence its time bound `occurred_at` on a transform that accepts only `fields`, and
+    passed every rule.
+
+    Only steps that declare an Interface are checked. A side-effect step leaves the column empty
+    because its `Consumes`/`Produces` already name the operation's own fields, and
+    `STEP_CONSUMES_UNDECLARED_INPUT` holds those to the published surface.
+    """
+    declared: dict[tuple[str, str], tuple[set[str], set[str]]] = {}
+    for (owner, step), row in _composition_steps(doc, rule.params["composition_register"]).items():
+        interface = _cell(row, "Interface")
+        if not interface or interface in ("—", "-"):
+            continue
+        # An input binds the capability's own name for the value — the left of `in: record=record`.
+        # An output binds the *design's* name for it, the right of `out: record=book_record`, because
+        # that is the name the value carries once it leaves the step. The two directions read
+        # opposite halves of the same column, and a check reading one half for both reports a defect
+        # on every step that renames its result.
+        declared[(owner, step)] = (set(_interface_map(interface, "in")),
+                                   set(_interface_map(interface, "out").values()))
+
+    out: list[tuple[str, str]] = []
+    for index, row in _rows(doc, rule):
+        key = (_bare_identity(_cell(row, "Owner")), _cell(row, "Step"))
+        if key not in declared:
+            continue
+        direction = _cell(row, "Direction").upper()
+        allowed = declared[key][0] if direction == "INPUT" else declared[key][1]
+        field = _cell(row, "Field")
+        if field and field not in allowed:
+            out.append((f"{_where(rule)} row {index}",
+                        f"binds {field!r} on {key[1]}, which its interface does not carry — it "
+                        f"declares {', '.join(sorted(allowed)) or 'nothing'} in that direction"))
     return out

@@ -254,6 +254,7 @@ core:
             - structure_stores
             - subdomain_purpose
             - system_beliefs
+            - transport_bindings
             - verification_results
             - vocabulary_extensions
             literal_sources:
@@ -262,6 +263,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: scope_boundary
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: business_objects
@@ -317,6 +324,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: business_objects
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: identity_semantics
@@ -369,6 +382,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: identity_semantics
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: invariants
@@ -416,6 +435,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: invariants
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: actions
@@ -474,6 +499,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: actions
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: provisional_codes
@@ -488,10 +519,6 @@ core:
             - Summary
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: provisional_codes
-          intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
           check: CELL_IN_VOCABULARY
           register: provisional_codes
@@ -505,7 +532,10 @@ core:
             - CT
             - EV
             - RB
+            - VOCAB
             - STRUCTURE
+            - TI
+            - TE
           intent: Family is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
@@ -536,6 +566,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: provisional_codes
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: cross_subdomain_refs
@@ -579,6 +615,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: cross_subdomain_refs
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: PURPOSE_NOT_CARRIED_FROM_SEED
           check: PRIOR_PROSE_CARRIED
           register: purpose_provenance
@@ -616,7 +658,7 @@ core:
           register: provisional_codes
           params:
             column: Provisional Code
-            pattern: ^(?:AC|IN|WF|CC|CT|EV|RB|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^(?:AC|IN|WF|CC|CT|EV|RB|VOCAB|STRUCTURE|TI|TE)_[A-Z0-9_]+_V\d+$
             detail: provisional code must be FAMILY_NAME_V<n> with no namespace
           intent: a provisional code is readable as a family, a name and a version
         - id: PROVISIONAL_FAMILY_MISMATCH
@@ -662,6 +704,17 @@ core:
             detail: identity declares no uniqueness rule — what a duplicate means is irreducible business knowledge
               the compiler cannot infer
           intent: identity semantics are stated, never inferred from field names
+        - id: EVENT_CODE_NOT_PAST_PARTICIPLE
+          check: CELL_MATCHES
+          register: provisional_codes
+          params:
+            column: Provisional Code
+            pattern: ^(?:[a-z][a-z0-9_.]*::)?EV_[A-Z0-9_]+ED_V\d+$
+            only_when_column: Family
+            only_when_value: EV
+            detail: '{value!r} does not name a moment that has happened — an event code reads EV_<subject>_<participle>,
+              as EV_ACTOR_REGISTERED_V0 does'
+          intent: an event names an occurrence, and a code in the imperative names an operation
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:
@@ -692,9 +745,7 @@ core:
 
     EXIT_JUDGED:
       type: EXIT
-      outcome: SUCCESS
 
     EXIT_REJECTED:
       type: EXIT
-      outcome: VIOLATION
 ```

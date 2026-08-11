@@ -184,6 +184,7 @@ core:
             - structure_stores
             - subdomain_purpose
             - system_beliefs
+            - transport_bindings
             - verification_results
             - vocabulary_extensions
             literal_sources:
@@ -192,6 +193,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: design_resolution
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: existing_inventory
@@ -241,6 +248,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: existing_inventory
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: new_artifacts
@@ -258,10 +271,6 @@ core:
             - Status
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: new_artifacts
-          intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
           check: CELL_IN_VOCABULARY
           register: new_artifacts
@@ -277,6 +286,8 @@ core:
             - EV
             - VOCAB
             - STRUCTURE
+            - TI
+            - TE
           intent: Family is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
@@ -307,6 +318,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: new_artifacts
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: rb_declarations
@@ -345,6 +362,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: rb_declarations
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: execution_topology
@@ -394,6 +417,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: execution_topology
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: cc_composition
@@ -470,6 +499,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: step_bindings
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: interface_fields
@@ -542,6 +577,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: implementation_bindings
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: vocabulary_extensions
@@ -576,6 +617,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: vocabulary_extensions
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: runtime_policies
@@ -610,6 +657,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: runtime_policies
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: artifact_properties
@@ -643,6 +696,12 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: artifact_properties
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: structure_stores
@@ -687,6 +746,73 @@ core:
             - projection
             - S1 seed
           intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: structure_stores
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: transport_bindings
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: transport_bindings
+          params:
+            columns:
+            - Artifact
+            - Direction
+            - Operation
+            - Handler Kind
+            - Handler Target
+            - Field
+            - Bound To
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: transport_bindings
+          params:
+            column: Direction
+            vocabulary:
+            - INGRESS
+            - EGRESS
+          intent: Direction is a controlled vocabulary declared by the template
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: transport_bindings
+          params:
+            column: Handler Kind
+            vocabulary:
+            - WF_INVOCATION
+            - SNAPSHOT_READ
+          intent: Handler Kind is a controlled vocabulary declared by the template
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: transport_bindings
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: transport_bindings
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: transport_bindings
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: artifact_summary
@@ -728,7 +854,7 @@ core:
           register: new_artifacts
           params:
             column: Code
-            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
             detail: binding code {value!r} must be domain::FAMILY_NAME_V<n>
           intent: a binding identity is domain-qualified, family-prefixed and versioned
         - id: EXISTING_INVENTORY_UNRESOLVED
@@ -1027,6 +1153,65 @@ core:
             value_roots:
             - result_status
           intent: a source that names a place is rooted in one execution scope actually offers
+        - id: NODE_INPUT_UNBOUND
+          check: NODE_INPUT_BOUND
+          register: step_bindings
+          params:
+            topology_register: execution_topology
+            fields_register: interface_fields
+          intent: a workflow hands a contract everything that contract says it requires
+        - id: BINDING_SOURCE_UNREACHABLE
+          check: BINDING_SOURCE_REACHABLE
+          register: step_bindings
+          params:
+            topology_register: execution_topology
+            pattern: results\.([A-Za-z][A-Za-z0-9_.:]*?)\.
+          intent: a source that names another node must name one this workflow reaches
+        - id: STEP_INTERFACE_NOT_CONFORMANT
+          check: STEP_INTERFACE_CONFORMS
+          register: cc_composition
+          params:
+            observation: si.capability.surface#transforms
+          intent: a transform handed an input it does not declare receives nothing under that name
+        - id: STEP_BINDING_NOT_IN_INTERFACE
+          check: STEP_BINDINGS_MATCH_INTERFACE
+          register: step_bindings
+          params:
+            composition_register: cc_composition
+          intent: a binding outside the interface feeds a capability input that does not exist
+        - id: STEP_INPUT_UNBOUND
+          check: STEP_INPUTS_BOUND
+          register: step_bindings
+          params:
+            composition_register: cc_composition
+            fields_register: interface_fields
+          intent: a capability handed no value for an input it declares receives a null
+        - id: BINDING_SOURCE_MALFORMED
+          check: BINDING_SOURCE_WELL_FORMED
+          register: step_bindings
+          params:
+            output_pattern: ^(?:capability_result\.[A-Za-z_][A-Za-z0-9_]*|result_status)$
+            input_pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|payload\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|[A-Za-z_][A-Za-z0-9_]*)$
+            detail: an output is written to capability_result.<field> or result_status; an input reads inputs.<field>,
+              payload.<field>, results.<step>.<field>, or is a literal
+          intent: a reference the runtime cannot resolve is indistinguishable from one it can
+        - id: CONTRACT_OUTPUT_UNPRODUCED
+          check: CONTRACT_OUTPUT_PRODUCED
+          register: interface_fields
+          params:
+            bindings_register: step_bindings
+          intent: a declared output no step emits gives every caller a name that resolves to nothing
+        - id: EVENT_CODE_NOT_PAST_PARTICIPLE
+          check: CELL_MATCHES
+          register: new_artifacts
+          params:
+            column: Code
+            pattern: ^(?:[a-z][a-z0-9_.]*::)?EV_[A-Z0-9_]+ED_V\d+$
+            only_when_column: Family
+            only_when_value: EV
+            detail: '{value!r} does not name a moment that has happened — an event code reads EV_<subject>_<participle>,
+              as EV_ACTOR_REGISTERED_V0 does'
+          intent: an event names an occurrence, and a code in the imperative names an operation
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:
@@ -1057,9 +1242,7 @@ core:
 
     EXIT_JUDGED:
       type: EXIT
-      outcome: SUCCESS
 
     EXIT_REJECTED:
       type: EXIT
-      outcome: VIOLATION
 ```

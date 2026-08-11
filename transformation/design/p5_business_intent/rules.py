@@ -28,6 +28,7 @@ from __future__ import annotations
 
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
+    event_naming_rules,
     Rule,
     dossier_header_rules,
     governed_hole_rules,
@@ -186,6 +187,7 @@ def rule_set() -> list[Rule]:
         derived_rules(TEMPLATE)
         + PURPOSE_RULES
         + PURITY_RULES
+        + event_naming_rules("provisional_codes", "Provisional Code")
         + governed_hole_rules()
         + dossier_header_rules()
     )

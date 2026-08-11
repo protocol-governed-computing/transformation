@@ -103,10 +103,6 @@ core:
             - Subdomain
             - Depends On
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: build_order
-          intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
           check: CELL_IN_VOCABULARY
           register: build_order
@@ -129,10 +125,6 @@ core:
             - Position
             - Code
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: critical_path
-          intent: an empty required register asserts nothing
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: mandate_artifact_summary
@@ -236,7 +228,7 @@ core:
           register: build_order
           params:
             column: Code
-            pattern: ^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
             detail: build code {value!r} must be a binding FQDN copied verbatim from Stage 7
           intent: a mandate orders binding identities, never re-typed approximations
         - id: BUILD_CODE_ALREADY_EXISTS
@@ -335,9 +327,7 @@ core:
 
     EXIT_JUDGED:
       type: EXIT
-      outcome: SUCCESS
 
     EXIT_REJECTED:
       type: EXIT
-      outcome: VIOLATION
 ```

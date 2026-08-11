@@ -56,7 +56,7 @@ REUSE / existing dependency is NOT authored: reference it in `depends_on`, never
 `step` is the GLOBAL execution order, contiguous from 1 across all waves; `wave` groups parallel
 work. `code` is copied verbatim from a Stage 7 register; `depends_on` lists prerequisite codes (or `—`).*
 
-<!-- register:build_order -->
+<!-- register:build_order optional -->
 | Wave | Step | Code | Action (REPLACE, EXTEND, NEW) | Subdomain | Depends On |
 |------|------|------|-------------------------------|-----------|------------|
 
@@ -67,7 +67,7 @@ work. `code` is copied verbatim from a Stage 7 register; `depends_on` lists prer
 *The longest sequential dependency chain, in order. Each `code` is a build_order step on the
 critical path.*
 
-<!-- register:critical_path -->
+<!-- register:critical_path optional -->
 | Position | Code |
 |----------|------|
 

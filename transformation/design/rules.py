@@ -3,9 +3,11 @@
 A rule is data: what it is called, which register it governs, which check kind evaluates it, and
 with what parameters. No rule logic lives here and no governance intent lives in `checks.py`.
 
-Structural rules — section present, numbered, table shaped — are *derived* from a phase's template
-rather than restated, so a template stays the single declaration of its document's shape. Every
-phase gets the same structural discipline for free and declares only what is distinctive about it.
+Structural rules — register present, columns declared, table non-empty — are *derived* from a
+phase's template by `derive.py`, so a template stays the single declaration of its document's
+shape. Every phase gets the same structural discipline for free and declares only what is
+distinctive about it. What this module publishes is the `Rule` type itself and the few rule
+factories more than one phase composes.
 """
 
 from __future__ import annotations
@@ -18,8 +20,11 @@ from typing import Any, Iterable
 class Rule:
     """One declared admissibility rule.
 
-    `id` is the finding code the oracle emits. `section_title` names the register the rule
-    governs, or None for whole-document rules. `check` names a kind in `checks.py`.
+    `id` is the finding code the oracle emits. `register` names the register identity the rule
+    governs — stable across retitling — with `section_title` as the fallback for a document that
+    carries no register markers. Either may be None for a whole-document rule. `check` names a
+    kind in `checks.py`, and `params` must satisfy that kind's contract; `tc phase meta` asserts
+    both.
     """
 
     id: str
@@ -28,65 +33,6 @@ class Rule:
     register: str | None = None
     params: dict[str, Any] = field(default_factory=dict)
     intent: str = ""
-
-
-def structural_rules(sections: Iterable) -> list[Rule]:
-    """Derive presence / numbering / table rules from a phase's template declaration."""
-    out: list[Rule] = []
-    for spec in sections:
-        out.append(
-            Rule(
-                id="SECTION_MISSING",
-                check="SECTION_PRESENT",
-                section_title=spec.title,
-                intent="every declared register must be present",
-            )
-        )
-        if spec.number is not None:
-            out.append(
-                Rule(
-                    id="SECTION_MISNUMBERED",
-                    check="SECTION_NUMBERED",
-                    section_title=spec.title,
-                    params={"number": spec.number},
-                    intent="registers are referenced by number downstream",
-                )
-            )
-        if spec.table_columns:
-            out.append(
-                Rule(
-                    id="TABLE_MISSING",
-                    check="TABLE_PRESENT",
-                    section_title=spec.title,
-                    intent="a register must be readable as rows, not prose",
-                )
-            )
-            out.append(
-                Rule(
-                    id="TABLE_COLUMN_MISSING",
-                    check="TABLE_HAS_COLUMNS",
-                    section_title=spec.title,
-                    params={"columns": list(spec.table_columns)},
-                    intent="downstream phases read these columns by name",
-                )
-            )
-            if not spec.may_be_empty:
-                out.append(
-                    Rule(
-                        id="TABLE_EMPTY",
-                        check="TABLE_HAS_ROWS",
-                        section_title=spec.title,
-                        intent="an empty required register asserts nothing",
-                    )
-                )
-    out.append(
-        Rule(
-            id="SECTION_OUT_OF_ORDER",
-            check="SECTIONS_ASCENDING",
-            intent="section order is part of the template contract",
-        )
-    )
-    return out
 
 
 # A dossier document states which phase it is, which CR it belongs to, where it stands in the
@@ -154,6 +100,41 @@ def clarification_closure_rules(register: str = "clarification_requests") -> lis
     ]
 
 
+def business_question_closure_rules(register: str = "clarification_requests") -> list[Rule]:
+    """A question only the business can answer may not be carried past the seed.
+
+    `Blocking` is the author's judgement about *when* an answer is needed, and it was the only thing
+    holding a business question back. A question marked non-blocking travels: P1 projects it, P2
+    carries it forward, and by the phase that actually needs it the answer is several documents away
+    from the person who owns it. No rule then asks whether the phase answered it or invented it,
+    because inventing looks exactly like deciding.
+
+    So the deadline is not "before the phase that needs it" but "before the seed is consumed at
+    all". A business question is asked of the business, answered by the business, and folded into
+    the problem statement — after which the seed is re-authored, P1 re-projected and the downstream
+    phases re-derived from an answer that is now a Known Fact with a human behind it.
+
+    Only `HUMAN` is closed here. A question the snapshot answers is what P2 exists to resolve, and
+    one governance answers is a ruling a later phase legitimately carries.
+    """
+    return [
+        Rule(
+            id="BUSINESS_CLARIFICATION_OUTSTANDING",
+            check="ROW_ABSENT_WHEN",
+            register=register,
+            params={
+                "column": "Owner",
+                "value": "HUMAN",
+                "detail": (
+                    "only the business can answer this — ask it, fold the answer into the problem "
+                    "statement, and re-author the seed rather than carrying the question forward"
+                ),
+            },
+            intent="a business question that outlives the seed is answered downstream by inference",
+        )
+    ]
+
+
 def dossier_header_rules() -> list[Rule]:
     """The header every dossier phase document carries."""
     return [
@@ -172,4 +153,38 @@ def dossier_header_rules() -> list[Rule]:
             },
             intent="the lifecycle axis is a controlled vocabulary, not free text",
         ),
+    ]
+
+
+# An event names a moment that has happened, so its code reads as one: `EV_<subject>_<participle>`.
+# The composition already holds the convention — eighteen of nineteen events end in a past
+# participle, and every event the pipeline's own domain and the catalog declare does. Stating it as
+# a rule stops the nineteenth from becoming a precedent.
+#
+# Intents follow the same shape in the newer domains (`transformation` is ten for ten) and the
+# imperative form in the older ones, so intent naming is a documented preference and not a rule:
+# enforcing it would make thirteen sealed artifacts non-conformant, and each rename is a governed
+# REPLACE rather than an edit.
+EVENT_CODE_PATTERN = r"^(?:[a-z][a-z0-9_.]*::)?EV_[A-Z0-9_]+ED_V\d+$"
+
+
+def event_naming_rules(register: str, column: str, family_column: str = "Family") -> list[Rule]:
+    """An event's code must name what happened, in the past participle."""
+    return [
+        Rule(
+            id="EVENT_CODE_NOT_PAST_PARTICIPLE",
+            check="CELL_MATCHES",
+            register=register,
+            params={
+                "column": column,
+                "pattern": EVENT_CODE_PATTERN,
+                "only_when_column": family_column,
+                "only_when_value": "EV",
+                "detail": (
+                    "{value!r} does not name a moment that has happened — an event code reads "
+                    "EV_<subject>_<participle>, as EV_ACTOR_REGISTERED_V0 does"
+                ),
+            },
+            intent="an event names an occurrence, and a code in the imperative names an operation",
+        )
     ]

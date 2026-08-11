@@ -570,7 +570,14 @@ BACKEND_ERROR — is already admitted, so no vocabulary is extended.
 
 ---
 
-## 14. Artifact Summary
+## 14. Transport Bindings
+
+<!-- register:transport_bindings optional -->
+| Artifact | Direction (INGRESS, EGRESS) | Operation | Handler Kind (WF_INVOCATION, SNAPSHOT_READ) | Handler Target | Field | Bound To | Source Finding |
+|----------|----------------------------|-----------|---------------------------------------------|----------------|-------|----------|----------------|
+| NONE IDENTIFIED |
+
+## 15. Artifact Summary
 
 <!-- register:artifact_summary -->
 | Action (REPLACE, EXTEND, NEW) | Subdomain | Count | Artifacts |

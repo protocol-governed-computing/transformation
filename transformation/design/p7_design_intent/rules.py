@@ -33,8 +33,10 @@ carried over. A reference to neither is a name nobody owns.
 
 from __future__ import annotations
 
+from transformation.design.families import binding_fqdn_pattern
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
+    event_naming_rules,
     Rule,
     dossier_header_rules,
     governed_hole_rules,
@@ -51,15 +53,18 @@ OBSERVATION_OPERATION = "si.artifact.list"
 # a real field from a step producing a wish.
 CAPABILITY_OBSERVATION = "si.capability.surface"
 
+TRANSFORM_OBSERVATION = "si.capability.surface#transforms"
+
 OBSERVATIONS = {
     OBSERVATION_OPERATION: "artifacts",
     CAPABILITY_OBSERVATION: "capabilities",
+    TRANSFORM_OBSERVATION: "transforms",
 }
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
 # A binding FQDN: domain-qualified, family-prefixed, explicitly versioned.
-BINDING_FQDN_PATTERN = r"^[a-z][a-z0-9_.]*::(?:WF|IN|RB|CC|CT|CS|EV|AC|VOCAB|STRUCTURE)_[A-Z0-9_]+_V\d+$"
+BINDING_FQDN_PATTERN = binding_fqdn_pattern()
 
 
 BINDING_RULES: list[Rule] = [
@@ -486,6 +491,86 @@ INTERFACE_RULES: list[Rule] = [
         params={"roots": BINDING_ROOTS, "value_roots": BINDING_VALUE_ROOTS},
         intent="a source that names a place is rooted in one execution scope actually offers",
     ),
+    Rule(
+        id="NODE_INPUT_UNBOUND",
+        check="NODE_INPUT_BOUND",
+        register="step_bindings",
+        params={
+            "topology_register": "execution_topology",
+            "fields_register": "interface_fields",
+        },
+        intent="a workflow hands a contract everything that contract says it requires",
+    ),
+    Rule(
+        id="BINDING_SOURCE_UNREACHABLE",
+        check="BINDING_SOURCE_REACHABLE",
+        register="step_bindings",
+        params={
+            "topology_register": "execution_topology",
+            # `results.<node>.<field>`, and the same reference inside a composed literal.
+            "pattern": r"results\.([A-Za-z][A-Za-z0-9_.:]*?)\.",
+        },
+        intent="a source that names another node must name one this workflow reaches",
+    ),
+]
+
+
+
+# A composition and its bindings are two halves of one statement, and nothing held them together.
+# Each of these caught a defect that passed every other rule at 100% Construction Completeness and
+# failed at execution: a step consuming three inputs and binding one, an output written to
+# `results.record` where the runtime reads `capability_result.record`, and a contract declaring an
+# output no step of it emits.
+COMPOSITION_INTEGRITY_RULES: list[Rule] = [
+    Rule(
+        id="STEP_INTERFACE_NOT_CONFORMANT",
+        check="STEP_INTERFACE_CONFORMS",
+        register="cc_composition",
+        params={"observation": TRANSFORM_OBSERVATION},
+        intent="a transform handed an input it does not declare receives nothing under that name",
+    ),
+    Rule(
+        id="STEP_BINDING_NOT_IN_INTERFACE",
+        check="STEP_BINDINGS_MATCH_INTERFACE",
+        register="step_bindings",
+        params={"composition_register": "cc_composition"},
+        intent="a binding outside the interface feeds a capability input that does not exist",
+    ),
+    Rule(
+        id="STEP_INPUT_UNBOUND",
+        check="STEP_INPUTS_BOUND",
+        register="step_bindings",
+        params={"composition_register": "cc_composition", "fields_register": "interface_fields"},
+        intent="a capability handed no value for an input it declares receives a null",
+    ),
+    Rule(
+        id="BINDING_SOURCE_MALFORMED",
+        check="BINDING_SOURCE_WELL_FORMED",
+        register="step_bindings",
+        params={
+            # A step result is addressed by the step that produced it, never bare.
+            "output_pattern": r"^(?:capability_result\.[A-Za-z_][A-Za-z0-9_]*|result_status)$",
+            "input_pattern": (
+                r"^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*"
+                r"|payload\.[A-Za-z_][A-Za-z0-9_.]*"
+                r"|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*"
+                r"|[\[{].*[\]}]"
+                r"|[A-Za-z_][A-Za-z0-9_]*)$"
+            ),
+            "detail": (
+                "an output is written to capability_result.<field> or result_status; an input "
+                "reads inputs.<field>, payload.<field>, results.<step>.<field>, or is a literal"
+            ),
+        },
+        intent="a reference the runtime cannot resolve is indistinguishable from one it can",
+    ),
+    Rule(
+        id="CONTRACT_OUTPUT_UNPRODUCED",
+        check="CONTRACT_OUTPUT_PRODUCED",
+        register="interface_fields",
+        params={"bindings_register": "step_bindings"},
+        intent="a declared output no step emits gives every caller a name that resolves to nothing",
+    ),
 ]
 
 
@@ -497,6 +582,8 @@ def rule_set() -> list[Rule]:
         + LADDER_RULES
         + COMPLETENESS_RULES
         + INTERFACE_RULES
+        + COMPOSITION_INTEGRITY_RULES
+        + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()
     )

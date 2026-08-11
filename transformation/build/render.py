@@ -21,34 +21,17 @@ omits it and the acceptance harness reports it as undetermined.
 from __future__ import annotations
 
 import ast
+import re
 from typing import Any
 
-# Constitution per family. Fixed by the platform, not by any change request — a design that restated
-# them would be declaring something it does not own.
-GOVERNED_BY = {
-    "AC": "fb.governance::CONSTITUTION_GOVERNANCE_V0",
-    "IN": "fb.intent::CONSTITUTION_INTENT_V0",
-    "WF": "fb.workflow::CONSTITUTION_WORKFLOW_V0",
-    "CC": "fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0",
-    "CT": "fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0",
-    "RB": "fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0",
-    "VOCAB": "fb.vocabulary::CONSTITUTION_VOCABULARY_V0",
-    "STRUCTURE": "fb.structure::CONSTITUTION_STRUCTURE_V0",
-    "EV": "fb.event::CONSTITUTION_EVENT_V0",
-}
+from transformation.design.families import BY_CODE, FAMILIES
 
-KIND = {
-    "AC": "ACTOR", "IN": "INTENT", "WF": "WORKFLOW", "CC": "CAPABILITY_CONTRACT",
-    "CT": "CAPABILITY_TRANSFORM", "RB": "RUNTIME_BINDING", "VOCAB": "VOCABULARY",
-    "STRUCTURE": "STRUCTURE", "EV": "EVENT",
-}
-
-# Where each family's artifact is written, relative to the domain's registry root.
-DIRECTORY = {
-    "AC": "actors", "IN": "intents", "WF": "workflows", "CC": "capability_contracts",
-    "CT": "capability_transforms", "RB": "runtime_bindings", "VOCAB": "vocabulary",
-    "STRUCTURE": "layers", "EV": "events",
-}
+# Constitution, compiled kind and registry directory per family — all three derived from the one
+# declaration in `design.families`, because they were three hand-kept copies of it and the copies
+# had already drifted. A design that restated them would be declaring something it does not own.
+GOVERNED_BY = {f.code: f.constitution for f in FAMILIES}
+KIND = {f.code: f.artifact_kind for f in FAMILIES}
+DIRECTORY = {f.code: f.directory for f in FAMILIES}
 
 # An intent's outcome surface is fixed by the intent constitution — every intent in the composition
 # carries the same two. Requiring a design to restate them would be ceremony, not determinacy.
@@ -58,6 +41,10 @@ INTENT_OUTCOMES = {
 }
 
 WORKFLOW_STRUCTURE = "fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0"
+
+# The boundary's own substitution syntax, matched here so the renderer can tell a token it must
+# preserve verbatim from a constant it should read as a value. Kept identical to the resolver's.
+_INPUT_TOKEN = re.compile(r"^\$\{input\.(\w+)\}$")
 
 
 def norm(value: Any) -> str:
@@ -128,6 +115,12 @@ def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
         declared_empty = set(artifact.get("declared_empty") or ())
         for path, value in _leaves(artifact["machine"]):
             out.append((code, path, not _empty(value) or path in declared_empty))
+
+    # An artifact construction has no builder for determines nothing, and must be counted as
+    # determining nothing. Leaving it out of the measurement entirely — which is what skipping it
+    # silently amounted to — let a design score 100% while naming an artifact that cannot be built.
+    for code, fam in unrenderable(p7, p8):
+        out.append((bare(code), f"<no builder for family {fam}>", False))
     return out
 
 
@@ -147,23 +140,14 @@ def _empty(value: Any) -> bool:
     return value is None or value == "" or value == {} or value == []
 
 
-def render_all(p7: dict, p8: dict) -> list[dict]:
-    """Every artifact the mandate schedules, in build order, as `{path, machine}`.
+def _scheduled(p7: dict, p8: dict) -> list[tuple[str, str, str]]:
+    """Every `(code, short, family)` the mandate schedules or the design amends.
 
-    One call over the whole mandate rather than one call per artifact: a capability contract is a
-    fixed pipeline with no iteration, so a construction step that rendered one artifact could never
-    render twenty-five. The iteration lives inside a pure transform, where it observes nothing.
+    Shared by `render_all` and `unrenderable` so the two cannot disagree about what construction
+    was asked for — the whole point of separating them is that one answers and the other reports
+    the remainder, and a second reading of the mandate would let a family fall through both.
     """
     family = {bare(cell(r, "Code")): cell(r, "Family") for r in rows(p7, "new_artifacts")}
-    summary = {bare(cell(r, "Code")): cell(r, "Summary") for r in rows(p7, "new_artifacts")}
-    # An amended artifact states what it is in the inventory, because the design assigns it no new
-    # identity row to state it in. Rendering it without its summary would empty a field the
-    # composition already carries — an amendment that quietly deletes is worse than none.
-    summary.update({bare(cell(r, "FQDN")): cell(r, "Summary")
-                    for r in rows(p7, "existing_inventory") if cell(r, "Action") == "EXTEND"})
-    subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
-                 for r in rows(p8, "field_declarations")}
-
     # What the mandate schedules, then what the design amends. An extended artifact is never a build
     # step — `BUILD_CODE_ALREADY_EXISTS` refuses to mandate authoring an identity the composition
     # already holds — so nothing rendered it, and the first change request to extend anything
@@ -178,8 +162,47 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
         short = bare(code)
         # A scheduled artifact declares its family; an amended one carries it in its own identity,
         # which is the only place it can, because the design assigns no new code for it.
-        fam = family.get(short) or short.split("_")[0]
-        if fam not in KIND:
+        out.append((code, short, family.get(short) or short.split("_")[0]))
+    return out
+
+
+def unrenderable(p7: dict, p8: dict) -> list[tuple[str, str]]:
+    """`(code, family)` the mandate schedules that construction has no builder for.
+
+    A family with no builder was previously skipped in silence. Nothing was emitted, so nothing was
+    measured, and completeness reported a fully determined design over an artifact construction
+    cannot produce at all — the design was graded only on the artifacts it happened to be able to
+    build. An unbuildable artifact is the strongest possible construction failure and it read as no
+    failure at all.
+
+    Reported here rather than raised: the whole point of Construction Completeness is that a design
+    is told everything it fails to determine in one pass, and a family gap is one more such fact.
+    """
+    return [(code, fam) for code, _, fam in _scheduled(p7, p8) if fam not in _BUILDERS]
+
+
+def render_all(p7: dict, p8: dict) -> list[dict]:
+    """Every artifact the mandate schedules *and construction can build*, as `{path, machine}`.
+
+    One call over the whole mandate rather than one call per artifact: a capability contract is a
+    fixed pipeline with no iteration, so a construction step that rendered one artifact could never
+    render twenty-five. The iteration lives inside a pure transform, where it observes nothing.
+
+    A family with no builder is absent from this list and reported by `unrenderable` instead, so a
+    caller that writes files never has to reason about an artifact that has no path.
+    """
+    summary = {bare(cell(r, "Code")): cell(r, "Summary") for r in rows(p7, "new_artifacts")}
+    # An amended artifact states what it is in the inventory, because the design assigns it no new
+    # identity row to state it in. Rendering it without its summary would empty a field the
+    # composition already carries — an amendment that quietly deletes is worse than none.
+    summary.update({bare(cell(r, "FQDN")): cell(r, "Summary")
+                    for r in rows(p7, "existing_inventory") if cell(r, "Action") == "EXTEND"})
+    subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
+                 for r in rows(p8, "field_declarations")}
+
+    out = []
+    for code, short, fam in _scheduled(p7, p8):
+        if fam not in _BUILDERS:
             continue
         declared_empty: list[str] = []
         machine = _render(fam, code, short, summary.get(short, ""), subdomain.get(short, ""),
@@ -204,7 +227,7 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict
         "governed_by": GOVERNED_BY[fam],
     }
     builder = _BUILDERS[fam]
-    if fam in ("RB", "CC"):
+    if fam in ("RB", "CC", "TI", "WF"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
@@ -221,7 +244,7 @@ def _intent(m, code, short, summary, sub, p7, p8):
     }
 
 
-def _workflow(m, code, short, summary, sub, p7, p8):
+def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
     binding = next((cell(r, "RB Code") for r in rows(p7, "rb_declarations")
                     if bare(cell(r, "Binds WF")) == short), "")
     topo = [r for r in rows(p7, "execution_topology") if bare(cell(r, "Workflow")) == short]
@@ -244,8 +267,25 @@ def _workflow(m, code, short, summary, sub, p7, p8):
         if node_type == "IN" and not start:
             start = node
         if node_type in ("EXIT", "EXIT_SUCCESS"):
-            nodes[node] = {"type": "EXIT",
-                           "outcome": "SUCCESS" if node.endswith("COMPLETED") else "VIOLATION"}
+            # An exit announces or it does not. `emit` is the only key the platform reads on an
+            # EXIT node — the compiler projects it into the dispatch table and the scheduler fires
+            # the event when the node is reached. What stood here before was `outcome`, which no
+            # constitution declares, no compiler assertion checks and no runtime reads, carrying a
+            # value derived from whether the node's name ended in COMPLETED. Every domain this
+            # renderer produced therefore declared events it could never fire, while every
+            # hand-authored domain fired them: the field that worked was the one nothing wrote.
+            spec_exit: dict[str, Any] = {"type": "EXIT"}
+            event = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
+                          if bare(cell(r, "Artifact")) == short
+                          and cell(r, "Property") == f"emit.{node}"), "")
+            if event:
+                spec_exit["emit"] = event
+            elif declared_empty is not None:
+                # An exit that announces nothing is a design decision, not an omission — most
+                # refusal exits announce nothing — so it is declared rather than left to measure
+                # as an undetermined leaf.
+                declared_empty.append(f"core.nodes.{node}.emit")
+            nodes[node] = spec_exit
             continue
         spec: dict[str, Any] = {"type": node_type, "code": node}
         bindings = _bindings(p7, short, node, "INPUT")
@@ -527,11 +567,199 @@ def _event(m, code, short, summary, sub, p7, p8):
     }
 
 
+
+def _transport_rows(p7, code, direction):
+    """The `transport_bindings` rows for one boundary contract, in declared order."""
+    return [r for r in rows(p7, "transport_bindings")
+            if bare(cell(r, "Artifact")) == bare(code)
+            and cell(r, "Direction").upper() == direction]
+
+
+def _nest(target: dict, path: str, value: Any) -> None:
+    """Place `value` at a dotted `path`, creating the objects along the way.
+
+    A payload template mirrors the shape the workflow reads, and a workflow reads structure —
+    `$.payload.decided_actor_fields.state` is a value inside an object, not a key with a dot in its
+    name. One row per leaf keeps the mapping checkable; nesting is what makes it the payload.
+    """
+    *parents, leaf = path.split(".")
+    for key in parents:
+        node = target.get(key)
+        if not isinstance(node, dict):
+            node = {}
+            target[key] = node
+        target = node
+    target[leaf] = value
+
+
+def _bound_value(bound: str) -> Any:
+    """What a `Bound To` cell means: a substitution token, or the value itself.
+
+    `${input.KEY}` is the boundary's own substitution syntax and passes through untouched. Anything
+    else is a constant the design states — the rules an act requires and a caller must not send — and
+    it is read as YAML so that a list is a list and a flag is a flag. A constant written as prose
+    would reach the act as prose, which is how a template silently sends the word "constant".
+    """
+    import yaml
+
+    if _INPUT_TOKEN.match(bound):
+        return bound
+    try:
+        return yaml.safe_load(bound)
+    except yaml.YAMLError:
+        return bound
+
+
+def _transport_ingress(m, code, short, summary, sub, p7, p8, declared_empty=None):
+    """A boundary contract admitting a caller the composition does not control.
+
+    Its input contract is the artifact's own declared INPUT fields, exactly as an intent's is — the
+    boundary and the intent behind it state their surface the same way, and a second spelling would
+    let the two disagree about what a caller may send.
+    """
+    first = next(iter(_transport_rows(p7, code, "INGRESS")), {})
+    m["operation"] = cell(first, "Operation")
+    m["core"] = {"summary": summary}
+    m["input_contract"] = typed_fields(p7, code, "INPUT")
+    # Reserved in V0 and declared empty rather than omitted, so a measurement can tell a stated
+    # "nothing required" from a fact the design forgot. The emptiness is the contract's own — the
+    # version reserves it — so the builder declares it here rather than asking a design to state a
+    # fact no design owns.
+    m["context_requirements"] = []
+    if declared_empty is not None:
+        declared_empty.append("context_requirements")
+    handler: dict[str, Any] = {
+        "kind": cell(first, "Handler Kind"),
+        "workflow": cell(first, "Handler Target"),
+    }
+    template: dict[str, Any] = {}
+    for row in _transport_rows(p7, code, "INGRESS"):
+        field = cell(row, "Field")
+        if field:
+            _nest(template, field, _bound_value(cell(row, "Bound To")))
+    if template:
+        handler["payload_template"] = template
+    m["handler"] = handler
+
+
+def _transport_egress(m, code, short, summary, sub, p7, p8):
+    """A boundary contract shaping what a caller is told, and how a result status is classified.
+
+    The output contract is a list rather than a mapping because order is part of it: a client reads
+    the fields in the order the contract declares them.
+    """
+    first = next(iter(_transport_rows(p7, code, "EGRESS")), {})
+    m["operation"] = cell(first, "Operation")
+    m["core"] = {"summary": summary}
+    m["output_contract"] = [
+        {"field": cell(r, "Field"), "from": cell(r, "Bound To")}
+        for r in _transport_rows(p7, code, "EGRESS") if cell(r, "Field")
+    ]
+    classification = {cell(r, "Property").removeprefix("result_class."): cell(r, "Value")
+                      for r in rows(p7, "artifact_properties")
+                      if bare(cell(r, "Artifact")) == bare(code)
+                      and cell(r, "Property").startswith("result_class.")}
+    if classification:
+        m["result_classification"] = classification
+    for key in ("default_result_class", "evidence_policy"):
+        value = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
+                      if bare(cell(r, "Artifact")) == bare(code) and cell(r, "Property") == key), "")
+        m[key] = value
+
+
 _BUILDERS = {
     "IN": _intent, "WF": _workflow, "CC": _contract, "CT": _transform,
     "AC": _actor, "VOCAB": _vocabulary, "STRUCTURE": _structure, "RB": _binding_artifact,
-    "EV": _event,
+    "EV": _event, "TI": _transport_ingress, "TE": _transport_egress,
 }
+
+
+
+# The domain build manifest ---------------------------------------------------------------------
+#
+# Not an artifact any change request designs. Every field of it is compiler configuration — which
+# layers to search, how a namespace is matched, where projections are written — and a design that
+# restated them would be declaring something it does not own, exactly as it would by restating a
+# constitution. That is why no phase produces one, and why `STRUCTURE_BUILD_BOOK_LIBRARY_MGMT_
+# CONFIG_V0` is the single artifact the acceptance harness has always reported as rendering nothing.
+#
+# But hand-copying it per domain has failed visibly: the book library's manifest describes itself as
+# the AI governance domain and lists that domain's subdomains, because it was copied and never
+# corrected, and nothing governs it. So it is generated from the three facts that actually vary —
+# the domain, its subdomains, and the families it uses — all of which the mandate already declares.
+
+BUILD_PHASES = [
+    ("discover", "Discover {domain} artifacts via STRUCTURE"),
+    ("parse", "Parse artifacts into canonical machine form"),
+    ("normalize", "Resolve references ({domain} + imported governance surface)"),
+    ("validate", "Validate artifacts using compiler schema rules"),
+    ("assert", "Evaluate cross-artifact invariants"),
+    ("materialize", "Emit deterministic compiled artifacts ({domain} scope only)"),
+]
+
+
+def build_manifest(p7: dict, p8: dict) -> dict | None:
+    """The compiler's discovery manifest for the domain this mandate builds.
+
+    Returns None when the mandate schedules nothing, because a manifest for no artifacts would
+    declare a domain the composition has no reason to compile.
+    """
+    scheduled = [cell(r, "Code") for r in rows(p8, "build_order")]
+    if not scheduled:
+        return None
+    domain = norm(scheduled[0]).split("::")[0]
+    subdomains = sorted({cell(r, "Subdomain Field") for r in rows(p8, "field_declarations")
+                         if cell(r, "Subdomain Field")})
+    families = [f.code for f in FAMILIES if f.authorable]
+    layer = domain.upper()
+    return {
+        "fqdn": f"{domain}::STRUCTURE_BUILD_{layer}_CONFIG_V0",
+        "artifact_kind": "STRUCTURE",
+        "version": "V0",
+        "governed_by": BY_CODE["STRUCTURE"].constitution,
+        "structure_scope": domain,
+        "reuse_visibility": "business",
+        "core": {
+            "summary": f"Build-time STRUCTURE manifest ({domain} business-domain scope)",
+            "description": (
+                f"Compiles the {domain} domain's own artifacts, resolving governance and platform "
+                f"capability references against the imported compiled governance surface. Emits "
+                f"only {domain} artifacts. Self-describing: declares its own source layer and "
+                f"namespace rule additively. Subdomains: {', '.join(subdomains) or 'none declared'}."
+            ),
+        },
+        "layer_definitions": {
+            layer: {
+                "domain_subpath": "registry",
+                "registry_module": f"{domain}.registry",
+                "implementation_namespace":
+                    f"{domain}.implementation.capability_transforms.atoms",
+                "layer_category": "domain",
+            }
+        },
+        "identity_rules": [{"match": f"{domain}.registry", "namespace": domain}],
+        "artifact_discovery": {
+            "search_layers": [layer],
+            "import_surface": {"domain": "platform"},
+            "artifact_types": families,
+        },
+        "output_configuration": {
+            "artifacts": {"layer": "PROTOCOL_BUILD_ROOT", "subpath": "compiled/canonical"},
+            "vocabulary_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/vocabulary"},
+            "tokenized_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/tokenized"},
+            "evidence_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/evidence"},
+            "trust_attestation_path": {"layer": "GOVERNANCE", "subpath": "compiled/trust"},
+            "visualization_projection_path":
+                {"layer": "GOVERNANCE", "subpath": "compiled/visualization"},
+            "layer_outputs": {layer: {"layer": layer, "subpath": "compiled/canonical"}},
+            "bootstrap_search_roots": [{"layer": "GOVERNANCE", "subpath": "structure/structures"}],
+        },
+        "build_phases": [
+            {"phase": name, "description": text.format(domain=domain)}
+            | ({"target": "compiled/artifacts/"} if name == "materialize" else {})
+            for name, text in BUILD_PHASES
+        ],
+    }
 
 
 # Document rendering ---------------------------------------------------------------------------

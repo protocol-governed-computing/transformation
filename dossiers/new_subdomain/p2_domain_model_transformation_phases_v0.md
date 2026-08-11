@@ -29,13 +29,16 @@
 | Verdict | rules evaluated | How many rules were applied — every rule, always. | NOT_FOUND | S1 business_invariants #2 |
 | Finding | rule | The rule that produced the finding. | NOT_FOUND | S1 business_invariants #4 |
 | Rule Set | active version | The declared rules currently deciding admissibility. | NOT_FOUND | S1 lifecycle_states Rule Set |
+| Rule Set | sealed copy | The rules as carried in the phase's own compiled artifact, generated from the declaration rather than typed. | OBSERVED | S1 known_facts #14 |
+| Seed | carried form | The whole document, travelling with the request as text rather than as a location to be read. | NOT_FOUND | S1 known_facts #16 |
+| Verdict | reproducibility | A verdict is reproducible from what was judged, which is why nothing is read from a location at judging time. | NOT_FOUND | S1 known_facts #17 |
 
 ## 2. Business Processes
 
 <!-- register:business_processes business_language -->
 | Process | Initiator | Outcome | Evidence Status | Source Finding |
 |---------|-----------|---------|-----------------|----------------|
-| Judge a document | The author of record offering it | A verdict, with every failed rule reported | NOT_FOUND | S1 requested_outcomes #2 |
+| Judge a document | The author of record offering it | A verdict, with every failed rule reported, over the document text it was handed | NOT_FOUND | S1 requested_outcomes #2 |
 | Accept at a gate | The gate reviewer | The document may be consumed by the next phase | NOT_FOUND | S1 business_events Seed Accepted |
 
 <!-- register:process_steps business_language -->
@@ -84,6 +87,8 @@
 |-------------|----------|-----------------|----------------|
 | Judging and grounding are separable concerns: one reads a document, the other reads the composition. | transformation::CC_JUDGE_DOCUMENT_V0 performs the first and binds nothing. | VERIFIED | S2 gaps No governed call grounds a claim |
 | Observation is a side effect, not a transform: the same query answers differently against different compositions. | capability_side_effects::CS_SNAPSHOT_QUERY_V0 is declared read-only with a bound subject. | VERIFIED | S1 constraints A verdict must be reproducible |
+| A rule set held in the artifact that applies it can be compared against its declaration, so the two cannot drift unnoticed. | The seed settles that the sealed copy is generated rather than typed and that the two are compared on every run; nothing in the composition holds a rule set apart from the workflow that applies it. | OBSERVED | S1 known_facts #15 |
+| A phase handed the document itself observes nothing at judging time beyond what it was given. | transformation::CC_JUDGE_DOCUMENT_V0 parses a document and evaluates a declared rule set against it, and observes nothing; the seed settles that the document travels with the request. | OBSERVED | S1 known_facts #16 |
 
 ## 7. Discovery Concerns
 
