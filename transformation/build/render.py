@@ -722,13 +722,21 @@ _BUILDERS = {
 # Not an artifact any change request designs. Every field of it is compiler configuration — which
 # layers to search, how a namespace is matched, where projections are written — and a design that
 # restated them would be declaring something it does not own, exactly as it would by restating a
-# constitution. That is why no phase produces one, and why `STRUCTURE_BUILD_BOOK_LIBRARY_MGMT_
-# CONFIG_V0` is the single artifact the acceptance harness has always reported as rendering nothing.
+# constitution.
 #
-# But hand-copying it per domain has failed visibly: the book library's manifest describes itself as
-# the AI governance domain and lists that domain's subdomains, because it was copied and never
-# corrected, and nothing governs it. So it is generated from the three facts that actually vary —
-# the domain, its subdomains, and the families it uses — all of which the mandate already declares.
+# Hand-copying it per domain had failed visibly: the book library's manifest described itself as the
+# AI governance domain and listed that domain's subdomains, because it was copied and never
+# corrected, and nothing governed it. So it is derived from the three facts that actually vary — the
+# domain, its subdomains, and the families it uses — all of which the mandate already declares.
+#
+# **It is a generated artifact, and a design that touches it says so** rather than restating it. The
+# cost of the other reading was measured: a change adding a subdomain inventoried this as an EXTEND,
+# and because an amendment must state the artifact whole it was obliged to restate fifty-one derived
+# facts and invented a fifty-second — a `core.subdomain` the artifact does not carry — while the
+# only thing that actually varies with a subdomain is one sentence of the summary. Reached now by
+# invoking `build_manifest` through `build.generators`, which is also what the acceptance harness
+# compares, so the claim that this derives what the composition holds is checked rather than
+# asserted.
 
 BUILD_PHASES = [
     ("discover", "Discover {domain} artifacts via STRUCTURE"),
@@ -738,6 +746,16 @@ BUILD_PHASES = [
     ("assert", "Evaluate cross-artifact invariants"),
     ("materialize", "Emit deterministic compiled artifacts ({domain} scope only)"),
 ]
+
+
+def manifest_path(manifest: dict) -> str:
+    """Where a domain's build manifest lives, relative to the domain root.
+
+    One spelling, because two callers need it — the generator that writes the file and the check
+    that asks whether the file agrees — and a second spelling is how they would come to disagree
+    about which file they were talking about.
+    """
+    return f"registry/structures/{bare(manifest['fqdn'])}.md"
 
 
 def build_manifest(p7: dict, p8: dict) -> dict | None:

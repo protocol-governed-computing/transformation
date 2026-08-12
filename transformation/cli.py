@@ -29,12 +29,18 @@ from transformation.build.completeness import measure, narrowing
 from transformation.build.render import (
     bare,
     build_manifest,
+    manifest_path,
     generated,
     render_all,
-    render_document,
     render_documents,
 )
-from transformation.build.generators import Generator, UnknownGenerator, resolve as resolve_generator
+from transformation.build.generators import (
+    MANIFEST_GENERATOR,
+    Context as GeneratorContext,
+    Generator,
+    UnknownGenerator,
+    resolve as resolve_generator,
+)
 from transformation.design.emit import emit as emit_phase_workflows
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.meta import RULE_MODULES, verify as meta_verify
@@ -486,8 +492,12 @@ def construction() -> None:
 @click.option("--snapshot", "snapshot_root",
               type=click.Path(exists=True, file_okay=False, path_type=Path),
               help="Composition to compare amendments against, so none narrows what it replaces.")
+@click.option("--root", "domain_root",
+              type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="Domain repository, so generated artifacts can be compared with their generators.")
 def construction_check(dossier: Path, threshold: float, as_json: bool,
-                       snapshot_root: Path | None = None) -> None:
+                       snapshot_root: Path | None = None,
+                       domain_root: Path | None = None) -> None:
     """Measure whether a design uniquely determines the artifacts it specifies.
 
     `tc phase check` admits a document against a rule set; this admits a *design* to construction.
@@ -505,7 +515,8 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
     # habit, and a written obligation nobody must meet is indistinguishable from none. This has
     # already gone the way that hurts: a rule added after a workflow was emitted left the smaller
     # rule set sealed, and every run believed it.
-    disagreeing = _disagreeing(p7)
+    disagreeing, pending, unasked = _disagreeing(
+        p7, GeneratorContext(p7=p7, p8=p8, domain_root=domain_root))
 
     if as_json:
         click.echo(json.dumps({
@@ -514,6 +525,8 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
             "required": result.total,
             "undetermined": dict(result.undetermined),
             "disagreeing": [{"artifact": a, "generator": g} for g, a in disagreeing],
+            "pending": [{"artifact": a, "generator": g} for g, a in pending],
+            "unchecked_generators": unasked,
         }, indent=2))
     else:
         click.echo(f"{dossier.name} — {len(result.by_artifact)} artifact(s), "
@@ -541,6 +554,17 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
             sys.exit(1)
         for name, n in result.undetermined.most_common():
             click.echo(f"    {n:>3}  {name}")
+
+    if pending:
+        click.echo("\n  PENDING GENERATION — this design determines these and the composition does not "
+                   "hold them yet:")
+        for name, artifact in pending:
+            click.echo(f"      {artifact}   ← {name}")
+        click.echo("  Not a defect. `tc construction emit` invokes the generator and refuses if any "
+                   "still disagree.")
+
+    for name in unasked:
+        click.echo(f"  note: pass --root to check that {name} agrees with what it produced", err=True)
 
     if disagreeing:
         click.echo("\n  GENERATOR DISAGREES — these artifacts are stale copies of what produces them:",
@@ -573,15 +597,26 @@ def _generators(p7: dict) -> dict[str, Generator]:
     return out
 
 
-def _disagreeing(p7: dict) -> list[tuple[str, str]]:
-    """`(generator, artifact)` for every generated artifact that does not agree with its generator.
+def _disagreeing(p7: dict, ctx) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[str]]:
+    """What disagrees, what is merely not built yet, and what went unasked.
 
     The generator is authoritative, so a disagreement is not a difference of opinion — it is proof
     the artifact is a stale copy, and a build reading it reports confidently on the wrong thing.
+
+    A generator that writes into a domain cannot be questioned without one, and it is named in the
+    second list rather than answering nothing. An unasked question and a satisfied one produce the
+    same empty result, which is the difference this pipeline exists to keep visible.
     """
-    return [(gen.name, artifact)
-            for gen in _generators(p7).values()
-            for artifact in gen.stale()]
+    disagreeing: list[tuple[str, str]] = []
+    pending: list[tuple[str, str]] = []
+    unasked: list[str] = []
+    for gen in _generators(p7).values():
+        if gen.needs_root and ctx.domain_root is None:
+            unasked.append(gen.name)
+            continue
+        found = [(gen.name, artifact) for artifact in gen.stale(ctx)]
+        (pending if gen.derived_from_design else disagreeing).extend(found)
+    return disagreeing, pending, unasked
 
 
 def _dossier_registers(dossier: Path, phase_key: str) -> dict:
@@ -630,6 +665,7 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     # Resolved before the design is even measured: a generator construction may not invoke is a path
     # to an artifact that does not exist, and there is no point measuring a design that names one.
     generators = _generators(p7)
+    context = GeneratorContext(p7=p7, p8=p8, domain_root=domain_root)
 
     result = measure(p7, p8)
     if not result.meets(threshold):
@@ -640,12 +676,19 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
         sys.exit(1)
 
     documents = render_documents(p7, p8)
-    manifest = build_manifest(p7, p8)
     planned: list[tuple[Path, str]] = [(domain_root / d["path"], d["text"]) for d in documents]
-    if manifest is not None:
-        target = domain_root / "registry" / "structures" / f"{bare(manifest['fqdn'])}.md"
-        if not target.exists():
-            planned.append((target, render_document({"machine": manifest})))
+
+    # The domain's build manifest is generated, never rendered here. A domain founding itself has no
+    # manifest to amend and therefore no design that could declare provenance for one, so its first
+    # emission is part of founding the domain — invoked, not written, so that one producer owns it
+    # from the first copy onwards.
+    manifest = build_manifest(p7, p8)
+    founding = (manifest is not None
+                and not (domain_root / manifest_path(manifest)).exists()
+                and MANIFEST_GENERATOR not in generators)
+    if founding:
+        generators = dict(generators)
+        generators[MANIFEST_GENERATOR] = resolve_generator(MANIFEST_GENERATOR)
 
     clashes = [path for path, _ in planned if path.exists()]
     if clashes and not force:
@@ -667,9 +710,11 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     # it would still have decided what the file says. What construction does here is invoke, and the
     # generator remains the single producer.
     for name, gen in sorted(generators.items()):
-        gen.invoke()
+        written = gen.invoke(context)
         click.echo(f"\n  invoked {name}\n    → {gen.summary}")
-        stale = gen.stale()
+        for path in written:
+            click.echo(f"    {path.relative_to(domain_root) if domain_root in path.parents else path}")
+        stale = gen.stale(context)
         if stale:
             # A generator that has just run and left its artifacts disagreeing has not produced
             # them. Reporting success here would hand the composition a stale copy with a build's

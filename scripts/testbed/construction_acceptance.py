@@ -35,7 +35,7 @@ from pathlib import Path
 
 import yaml
 
-from transformation.build.render import render_all, bare
+from transformation.build.render import build_manifest, render_all, bare
 from transformation.design.read import read_seed
 
 REPO = Path(__file__).resolve().parents[2]
@@ -137,6 +137,18 @@ def main() -> int:
             code = bare(artifact["machine"]["fqdn"])
             rendered[code] = artifact
             determined_by[code] = dossier.name
+
+        # The domain build manifest is generated rather than rendered, so `render_all` correctly
+        # omits it and this harness reported it as MISS for as long as it has existed — the one
+        # artifact construction could not reproduce. It is reproducible; it was simply produced by a
+        # different callable. Comparing the generator's output here is what holds that claim: if
+        # `build_manifest` ever stops deriving what the composition holds, a design that names it as
+        # its generator would be pointing at something that does not produce the artifact.
+        manifest = build_manifest(p7, p8)
+        if manifest is not None:
+            code = bare(manifest["fqdn"])
+            rendered[code] = {"machine": manifest}
+            determined_by[code] = f"{dossier.name} (generated)"
 
     reference = built(registry)
     sequence = " -> ".join(d.name for d in dossiers)
