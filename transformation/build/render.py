@@ -135,6 +135,13 @@ def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
     # the generator, so that is the one fact measured.
     for code, (generator, srcs) in generated(p7).items():
         out.append((code, "<reached by generator>", bool(generator and srcs)))
+
+    # A replaced artifact is not rendered — there is nothing left to render it from — and so none of
+    # its facts were required and it vanished from the measurement entirely. A design could retire a
+    # workflow and be graded on everything except the retirement. What it owes is the successor, so
+    # that is the one fact measured, exactly as a generated artifact owes its generator.
+    for code, successors in retirements(p7).items():
+        out.append((code, "<superseded by>", bool(successors)))
     return out
 
 
@@ -171,6 +178,41 @@ def generated(p7: dict) -> dict[str, tuple[str, list[str]]]:
         srcs = [s.strip() for s in cell(row, "Generator Sources").split(",") if s.strip()]
         out[code] = (cell(row, "Generator"), srcs)
     return out
+
+
+def supersessions(p7: dict) -> dict[str, list[str]]:
+    """`retired code -> the codes that supersede it`, as the design states it.
+
+    Stated on the *successor*, because that is the artifact being authored and the one whose header
+    carries `Supersedes`. Read the other way — a column on the inventory row of the artifact going
+    away — the fact would live on a document construction never renders, which is how it came to
+    live only in prose.
+
+    Several successors for one predecessor is the ordinary case rather than an edge: a workflow split
+    into an accept and a reject path retires one artifact and authors two.
+    """
+    out: dict[str, list[str]] = {}
+    for row in rows(p7, "artifact_properties"):
+        if cell(row, "Property") != "supersedes":
+            continue
+        successor = bare(cell(row, "Artifact"))
+        for retired in (bare(v) for v in cell(row, "Value").split(",") if v.strip()):
+            if successor not in out.setdefault(retired, []):
+                out[retired].append(successor)
+    return out
+
+
+def retirements(p7: dict) -> dict[str, list[str]]:
+    """Every artifact this design replaces, and what stands in its place.
+
+    A REPLACE is not rendered. The design says the artifact is superseded, not that it is rewritten,
+    and construction has nothing to write it from — the inventory row carries no summary because
+    there is no artifact left to summarise. What construction does instead is mark it, so a reader
+    of the composition can see that it has been stood down and by what.
+    """
+    superseded = supersessions(p7)
+    return {bare(cell(r, "FQDN")): superseded.get(bare(cell(r, "FQDN")), [])
+            for r in rows(p7, "existing_inventory") if cell(r, "Action") == "REPLACE"}
 
 
 def _scheduled(p7: dict, p8: dict) -> list[tuple[str, str, str]]:
@@ -242,6 +284,13 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
     subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
                  for r in rows(p8, "field_declarations")}
 
+    # Read once, inverted: the design states supersession on the successor, and the successor is
+    # what is being rendered here.
+    supersedes: dict[str, list[str]] = {}
+    for retired, successors in supersessions(p7).items():
+        for successor in successors:
+            supersedes.setdefault(successor, []).append(retired)
+
     out = []
     for code, short, fam in _scheduled(p7, p8):
         if fam not in _BUILDERS:
@@ -254,6 +303,9 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
             "path": f"registry/{subdomain.get(short, '')}/{DIRECTORY[fam]}/{short}.md",
             "domain": domain,
             "machine": machine,
+            # Header, not Machine: what an artifact stands in for is a fact about the composition's
+            # history, and the compiler models none of it.
+            "supersedes": sorted(supersedes.get(short, ())),
             # Leaves the design deliberately left empty, so a measurement can tell a declared
             # "nothing here" from an omission.
             "declared_empty": declared_empty,
@@ -517,9 +569,18 @@ def _transform(m, code, short, summary, sub, p7, p8):
     }
 
 
+# Properties that describe the *document* rather than the artifact the compiler reads. Supersession
+# is a fact about which artifact stands in the composition, and the compiler models no such thing —
+# putting it in the Machine block would declare a key nothing reads, which is the shape of defect
+# this codebase keeps finding rather than one to add.
+HEADER_ONLY_PROPERTIES = {"supersedes"}
+
+
 def _properties(p7: dict, code: str) -> dict:
     return {cell(r, "Property"): _literal(cell(r, "Value"))
-            for r in rows(p7, "artifact_properties") if bare(cell(r, "Artifact")) == bare(code)}
+            for r in rows(p7, "artifact_properties")
+            if bare(cell(r, "Artifact")) == bare(code)
+            and cell(r, "Property") not in HEADER_ONLY_PROPERTIES}
 
 
 def _actor(m, code, short, summary, sub, p7, p8):
@@ -863,6 +924,10 @@ def render_document(artifact: dict) -> str:
 
     body = yaml.dump(machine, sort_keys=False, width=100, allow_unicode=True,
                      default_flow_style=False)
+    # `Supersedes` has been on every header since the first artifact and has said NONE on all of
+    # them. A design that retires an artifact names its successor, and this is where the successor
+    # says so — the field existed for exactly this and nothing had ever written it.
+    supersedes = ", ".join(artifact.get("supersedes") or ()) or "NONE"
     return (
         f"# {code}\n\n"
         "## Header (Mandatory)\n\n"
@@ -871,7 +936,7 @@ def render_document(artifact: dict) -> str:
         f"- **Governed By:** {constitution}\n"
         f"- **Version:** {machine.get('version', 'v0').upper()}\n"
         "- **Status:** draft\n"
-        "- **Supersedes:** NONE\n\n"
+        f"- **Supersedes:** {supersedes}\n\n"
         "---\n\n"
         "## 1. Intent\n\n"
         f"{summary}\n\n"
@@ -885,3 +950,45 @@ def render_document(artifact: dict) -> str:
 def render_documents(p7: dict, p8: dict) -> list[dict]:
     """Every scheduled artifact as `{path, text}` — what persistence is handed."""
     return [{"path": a["path"], "text": render_document(a)} for a in render_all(p7, p8)]
+
+
+# Retirement ------------------------------------------------------------------------------------
+#
+# The one act construction performs on an artifact it did not write. A replaced artifact is marked
+# rather than deleted: deleting is not construction's decision to make, and a composition that
+# silently loses a file tells a later reader nothing about why. Marked, the artifact says what stood
+# it down and a reader can follow the successor.
+#
+# Only the header is touched. The Machine block is what the compiler reads and it is not
+# construction's to rewrite here; the prose is human narrative no register determines. So this is a
+# header amendment and nothing else, and it is idempotent — running it twice leaves one marking.
+#
+# **What this does not do.** The compiler still discovers and compiles a marked artifact, because
+# nothing in the governance surface models supersession. The marking is the record, and excluding a
+# superseded artifact from a composition is a platform question that belongs with the platform.
+
+SUPERSEDED_STATUS = "superseded"
+
+
+def mark_superseded(text: str, successors: list[str]) -> str:
+    """An existing artifact's header, marked as stood down by its successors.
+
+    Fail-hard on a document whose header does not carry the fields it is meant to: a marking that
+    silently did nothing would leave the composition holding a live artifact the design believes is
+    retired, which is the failure this whole act exists to close.
+    """
+    named = ", ".join(successors) or "UNDECLARED"
+    lines = text.splitlines(keepends=True)
+
+    status = [i for i, line in enumerate(lines) if line.startswith("- **Status:**")]
+    if not status:
+        raise ValueError("artifact header carries no Status field; refusing to mark it superseded")
+    lines[status[0]] = f"- **Status:** {SUPERSEDED_STATUS}\n"
+
+    marker = "- **Superseded By:**"
+    existing = [i for i, line in enumerate(lines) if line.startswith(marker)]
+    if existing:
+        lines[existing[0]] = f"{marker} {named}\n"
+    else:
+        lines.insert(status[0] + 1, f"{marker} {named}\n")
+    return "".join(lines)

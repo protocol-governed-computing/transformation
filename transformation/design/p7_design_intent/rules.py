@@ -398,6 +398,26 @@ COMPLETENESS_RULES: list[Rule] = [
         },
         intent="a transform is the one family that points outside the composition; the path is designed, not discovered",
     ),
+    # A REPLACE says an artifact is superseded, and until now said it only in prose. Construction
+    # had no concept of the action at all — `_scheduled` admitted an amendment when its action was
+    # EXTEND and nothing else — so a design could retire a workflow, emit, and leave the retired one
+    # in place, compiled and dispatchable, with the build reporting success. The design must name
+    # what supersedes it, because "superseded" with no successor is a deletion wearing a softer word.
+    Rule(
+        id="REPLACED_ARTIFACT_WITHOUT_SUCCESSOR",
+        check="REGISTER_COVERS_REGISTER",
+        register="artifact_properties",
+        params={
+            "source_register": "existing_inventory",
+            "source_column": "FQDN",
+            "column": "Value",
+            "only_when_column": "Action",
+            "only_when_value": "REPLACE",
+            "covered_only_when_column": "Property",
+            "covered_only_when_value": "supersedes",
+        },
+        intent="an artifact this design replaces is named by whatever supersedes it",
+    ),
     Rule(
         id="VOCABULARY_WITHOUT_VALUES",
         check="REGISTER_COVERS_REGISTER",
@@ -468,6 +488,13 @@ INTERFACE_RULES: list[Rule] = [
             "observation": CAPABILITY_OBSERVATION,
         },
         intent="a binding reads a field the operation yields, never one it was hoped would exist",
+    ),
+    Rule(
+        id="STEP_NAMES_UNPUBLISHED_OPERATION",
+        check="STEP_OPERATION_PUBLISHED",
+        register="cc_composition",
+        params={"observation": CAPABILITY_OBSERVATION},
+        intent="a step invokes an operation the capability offers, never one it was assumed to have",
     ),
     Rule(
         id="STEP_CONSUMES_UNDECLARED_INPUT",

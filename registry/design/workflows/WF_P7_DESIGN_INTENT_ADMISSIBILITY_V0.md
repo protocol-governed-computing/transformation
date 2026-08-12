@@ -1131,6 +1131,18 @@ core:
             only_when_value: CT
           intent: a transform is the one family that points outside the composition; the path is designed, not
             discovered
+        - id: REPLACED_ARTIFACT_WITHOUT_SUCCESSOR
+          check: REGISTER_COVERS_REGISTER
+          register: artifact_properties
+          params:
+            source_register: existing_inventory
+            source_column: FQDN
+            column: Value
+            only_when_column: Action
+            only_when_value: REPLACE
+            covered_only_when_column: Property
+            covered_only_when_value: supersedes
+          intent: an artifact this design replaces is named by whatever supersedes it
         - id: VOCABULARY_WITHOUT_VALUES
           check: REGISTER_COVERS_REGISTER
           register: vocabulary_extensions
@@ -1174,6 +1186,12 @@ core:
             step_register: cc_composition
             observation: si.capability.surface
           intent: a binding reads a field the operation yields, never one it was hoped would exist
+        - id: STEP_NAMES_UNPUBLISHED_OPERATION
+          check: STEP_OPERATION_PUBLISHED
+          register: cc_composition
+          params:
+            observation: si.capability.surface
+          intent: a step invokes an operation the capability offers, never one it was assumed to have
         - id: STEP_CONSUMES_UNDECLARED_INPUT
           check: STEP_CONSUMES_PUBLISHED
           register: cc_composition

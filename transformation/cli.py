@@ -30,8 +30,10 @@ from transformation.build.render import (
     bare,
     build_manifest,
     manifest_path,
+    mark_superseded,
     generated,
     render_all,
+    retirements,
     render_documents,
 )
 from transformation.build.generators import (
@@ -555,6 +557,13 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
         for name, n in result.undetermined.most_common():
             click.echo(f"    {n:>3}  {name}")
 
+    retiring = retirements(p7)
+    if retiring:
+        click.echo("\n  SUPERSEDED — this design stands these down; construction marks them, never "
+                   "deletes them:")
+        for code, successors in sorted(retiring.items()):
+            click.echo(f"      {code}   ← {', '.join(successors) or 'NOTHING DECLARED'}")
+
     if pending:
         click.echo("\n  PENDING GENERATION — this design determines these and the composition does not "
                    "hold them yet:")
@@ -704,6 +713,25 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     click.echo(f"  emitted {len(planned)} file(s) under {domain_root}")
     for path, _ in planned:
         click.echo(f"    {path.relative_to(domain_root)}")
+
+    # A replaced artifact is stood down rather than rewritten. Construction has nothing to render it
+    # from — the inventory row carries no summary because there is no artifact left to summarise —
+    # so what it does is mark the header and leave the rest of the document alone. Deleting is not
+    # construction's decision, and a composition that silently loses a file explains nothing to
+    # whoever reads it next.
+    retiring = retirements(p7)
+    if retiring:
+        click.echo(f"\n  marked {len(retiring)} artifact(s) superseded")
+    for code, successors in sorted(retiring.items()):
+        matches = sorted(domain_root.rglob(f"{code}.md"))
+        if not matches:
+            click.echo(f"    REFUSED — {code} is declared replaced and is not in {domain_root}",
+                       err=True)
+            sys.exit(1)
+        for target in matches:
+            target.write_text(mark_superseded(target.read_text(encoding="utf-8"), successors),
+                              encoding="utf-8")
+            click.echo(f"    {target.relative_to(domain_root)}   ← {', '.join(successors)}")
 
     # A generated artifact is reached, not written. None of the paths above is one of them —
     # `render_all` never produced them, because a renderer that produced the file and then discarded
