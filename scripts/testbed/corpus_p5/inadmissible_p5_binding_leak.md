@@ -26,6 +26,13 @@ not govern who borrows the collection, what is ordered, or what is owed.
 |--------|----------------------------------|------------|
 | CR seed §0 Subdomain Purpose | REFINED | States what the subdomain owns and the three functions it does not govern. |
 
+### Purpose of every subdomain this change touches
+
+<!-- register:subdomain_purposes business_language=purpose -->
+| Subdomain | Purpose | Source Finding |
+|-----------|---------|----------------|
+| catalog | Governs the library's authoritative description of what it holds — the works it has cataloged and the physical copies it owns. | S1 cr_type #1 |
+
 ## 2. Scope Boundary
 
 <!-- register:scope_boundary business_language -->
@@ -88,29 +95,29 @@ not govern who borrows the collection, what is ordered, or what is owed.
 ## 7. Provisional Artifact Codes
 
 <!-- register:provisional_codes business_language=summary -->
-| Provisional Code | Family (AC, IN, WF, CC) | Summary | Source Finding |
-|------------------|--------------------------|---------|----------------|
-| AC_LIBRARY_STAFF_V0 | AC | The authorized staff member who performs a catalog operation | S4 actors Authorized staff member |
-| IN_REGISTER_BOOK_V0 | IN | A request to register a new book | S4 capability_graph Register a book |
-| IN_REGISTER_PHYSICAL_COPY_V0 | IN | A request to register a copy against a work | S4 capability_graph Register a physical copy against one work |
-| IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | IN | A request to update a registered work | S4 capability_graph Update bibliographic information |
-| IN_RETIRE_CATALOG_RECORD_V0 | IN | A request to retire an obsolete record | S4 capability_graph Retire an obsolete record |
-| IN_SEARCH_CATALOG_V0 | IN | A request to locate materials | S4 capability_graph Search the catalog |
-| IN_RETRIEVE_BOOK_DETAILS_V0 | IN | A request for the complete details of a book | S4 capability_graph Retrieve complete book details |
-| WF_REGISTER_BOOK_V0 | WF | Registering a book, end to end | S4 capability_graph Register a book |
-| WF_REGISTER_PHYSICAL_COPY_V0 | WF | Registering a copy against exactly one work | S4 capability_graph Register a physical copy against one work |
-| WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | WF | Updating the description of a registered work | S4 capability_graph Update bibliographic information |
-| WF_RETIRE_CATALOG_RECORD_V0 | WF | Retiring a record so it is no longer current | S4 capability_graph Retire an obsolete record |
-| WF_SEARCH_CATALOG_V0 | CC | Searching the catalog and recording that it happened | S4 capability_graph Search the catalog |
-| WF_RETRIEVE_BOOK_DETAILS_V0 | WF | Assembling a work with the copies belonging to it | S4 capability_graph Retrieve complete book details |
-| CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | Confirm the staff member may perform catalog operations | S4 capability_graph Confirm the staff member is authorized |
-| catalog::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | CC | Record a work as the catalog's authoritative description of it | S4 capability_graph Register a book |
-| CC_REGISTER_PHYSICAL_COPY_V0 | CC | Record a copy against exactly one work | S4 capability_graph Register a physical copy against one work |
-| CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | CC | Replace the descriptive content of a work's record | S4 capability_graph Update bibliographic information |
-| CC_RETIRE_CATALOG_RECORD_V0 | CC | Mark a record retired so it is no longer offered as current | S4 capability_graph Retire an obsolete record |
-| CC_SEARCH_CATALOG_V0 | CC | Select the current records matching the staff member's terms | S4 capability_graph Search the catalog |
-| CC_ASSEMBLE_BOOK_DETAILS_V0 | CC | Assemble a work's record with the copies belonging to it | S4 capability_graph Retrieve complete book details |
-| CC_APPEND_CATALOG_OPERATION_V0 | CC | Append a durable account of a performed catalog operation | S4 capability_graph Record that a catalog operation was performed |
+| Subdomain | Provisional Code | Family (AC, IN, WF, CC) | Summary | Source Finding |
+|-----------|------------------|--------------------------|---------|----------------|
+| catalog | AC_LIBRARY_STAFF_V0 | AC | The authorized staff member who performs a catalog operation | S4 actors Authorized staff member |
+| catalog | IN_REGISTER_BOOK_V0 | IN | A request to register a new book | S4 capability_graph Register a book |
+| catalog | IN_REGISTER_PHYSICAL_COPY_V0 | IN | A request to register a copy against a work | S4 capability_graph Register a physical copy against one work |
+| catalog | IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | IN | A request to update a registered work | S4 capability_graph Update bibliographic information |
+| catalog | IN_RETIRE_CATALOG_RECORD_V0 | IN | A request to retire an obsolete record | S4 capability_graph Retire an obsolete record |
+| catalog | IN_SEARCH_CATALOG_V0 | IN | A request to locate materials | S4 capability_graph Search the catalog |
+| catalog | IN_RETRIEVE_BOOK_DETAILS_V0 | IN | A request for the complete details of a book | S4 capability_graph Retrieve complete book details |
+| catalog | WF_REGISTER_BOOK_V0 | WF | Registering a book, end to end | S4 capability_graph Register a book |
+| catalog | WF_REGISTER_PHYSICAL_COPY_V0 | WF | Registering a copy against exactly one work | S4 capability_graph Register a physical copy against one work |
+| catalog | WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | WF | Updating the description of a registered work | S4 capability_graph Update bibliographic information |
+| catalog | WF_RETIRE_CATALOG_RECORD_V0 | WF | Retiring a record so it is no longer current | S4 capability_graph Retire an obsolete record |
+| catalog | WF_SEARCH_CATALOG_V0 | CC | Searching the catalog and recording that it happened | S4 capability_graph Search the catalog |
+| catalog | WF_RETRIEVE_BOOK_DETAILS_V0 | WF | Assembling a work with the copies belonging to it | S4 capability_graph Retrieve complete book details |
+| catalog | CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | Confirm the staff member may perform catalog operations | S4 capability_graph Confirm the staff member is authorized |
+| catalog | catalog::CC_REGISTER_BIBLIOGRAPHIC_WORK_V0 | CC | Record a work as the catalog's authoritative description of it | S4 capability_graph Register a book |
+| catalog | CC_REGISTER_PHYSICAL_COPY_V0 | CC | Record a copy against exactly one work | S4 capability_graph Register a physical copy against one work |
+| catalog | CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | CC | Replace the descriptive content of a work's record | S4 capability_graph Update bibliographic information |
+| catalog | CC_RETIRE_CATALOG_RECORD_V0 | CC | Mark a record retired so it is no longer offered as current | S4 capability_graph Retire an obsolete record |
+| catalog | CC_SEARCH_CATALOG_V0 | CC | Select the current records matching the staff member's terms | S4 capability_graph Search the catalog |
+| catalog | CC_ASSEMBLE_BOOK_DETAILS_V0 | CC | Assemble a work's record with the copies belonging to it | S4 capability_graph Retrieve complete book details |
+| catalog | CC_APPEND_CATALOG_OPERATION_V0 | CC | Append a durable account of a performed catalog operation | S4 capability_graph Record that a catalog operation was performed |
 
 ## 8. Cross-Subdomain References
 

@@ -13,9 +13,9 @@ from; P1 classifies and traces, it does not add. Business language only — noth
 ## 1. CR Type
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
-|----------------|-----------|----------------|
-| INVENTED_SUBDOMAIN | The pipeline that decides which changes are admissible is a distinct concern from the capabilities it admits, and needs its own governance boundary. It extends nothing that exists. | CR seed §1 CR Type |
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
+|-----------|----------------|-----------|----------------|
+| phases | INVENTED_SUBDOMAIN | The pipeline that decides which changes are admissible is a distinct concern from the capabilities it admits, and needs its own governance boundary. It extends nothing that exists. | CR seed §1 CR Type |
 
 ## 2. Business Vocabulary
 

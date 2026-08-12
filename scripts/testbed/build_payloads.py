@@ -54,7 +54,7 @@ CATALOG_P2 = (
 
 PAYLOADS = {
     "01_admissible_seed.json": (
-        "dossiers/new_subdomain/p0_seed_transformation_phases_v0.md"
+        "dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md"
     ),
     "02_admissible_reference.json": "scripts/testbed/corpus/admissible_blockchain_reference.md",
     "03_inadmissible_seven_violations.json": (
@@ -63,12 +63,12 @@ PAYLOADS = {
     "04_inadmissible_structural.json": "scripts/testbed/corpus/inadmissible_structural.md",
     "05_inadmissible_truncated.json": "scripts/testbed/corpus/inadmissible_truncated.md",
     "06_p1_admissible_register.json": (
-        "dossiers/new_subdomain/"
+        "dossiers/founding_design_bootstrap/"
         "p1_change_request_transformation_phases_v0.md"
     ),
     "07_p1_inadmissible_register.json": "scripts/testbed/corpus_p1/inadmissible_p1_register.md",
     "08_p2_admissible_register.json": (
-        "dossiers/new_subdomain/"
+        "dossiers/founding_design_bootstrap/"
         "p2_domain_model_transformation_phases_v0.md"
     ),
     "09_p2_inadmissible_register.json": "scripts/testbed/corpus_p2/inadmissible_p2_register.md",
@@ -221,9 +221,9 @@ PAYLOADS = {
 # only ever ran on a doctored document would never be shown to pass.
 PRIOR_SOURCES = {
     "08_p2_admissible_register.json": {
-        "p1": "dossiers/new_subdomain/p1_change_request_transformation_phases_v0.md"},
+        "p1": "dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md"},
     "09_p2_inadmissible_register.json": {
-        "p1": "dossiers/new_subdomain/p1_change_request_transformation_phases_v0.md"},
+        "p1": "dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md"},
     "12_p2_admissible_catalog_register.json": {"p1": CATALOG_P1},
     "13_p2_inadmissible_catalog_register.json": {"p1": CATALOG_P1},
     "26_p2_inadmissible_dropped_belief.json": {"p1": CATALOG_P1},
@@ -238,9 +238,9 @@ PRIOR_SOURCES = {
     "29_p8_inadmissible_undesigned_artifact.json": {"p7": CATALOG_P7},
     "35_p8_inadmissible_dropped_artifact.json": {"p7": CATALOG_P7},
     "06_p1_admissible_register.json": {
-        "p0": "dossiers/new_subdomain/p0_seed_transformation_phases_v0.md"},
+        "p0": "dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md"},
     "07_p1_inadmissible_register.json": {
-        "p0": "dossiers/new_subdomain/p0_seed_transformation_phases_v0.md"},
+        "p0": "dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md"},
     "11_p1_admissible_catalog_register.json": {"p0": CATALOG_P0},
     "30_p1_inadmissible_dropped_criterion.json": {"p0": CATALOG_P0},
     "22_p7_admissible_catalog_register.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
@@ -252,9 +252,12 @@ PRIOR_SOURCES = {
     "33_p7_inadmissible_dropped_reuse.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
     "36_p7_inadmissible_unrooted_source.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
     "37_p7_inadmissible_store_path.json": {"p5": CATALOG_P5, "p6": CATALOG_P6},
-    "20_p6_admissible_catalog_register.json": {"p5": CATALOG_P5},
-    "21_p6_inadmissible_catalog_register.json": {"p5": CATALOG_P5},
-    "34_p6_inadmissible_unplaced_scope.json": {"p5": CATALOG_P5},
+    # P6 reads the seed as well as P5: the classifications that say which subdomains a change
+    # touches are stated at P0, and a handoff that arrives without them is unchecked rather than
+    # clean — `TOUCHED_SUBDOMAIN_UNOWNED` says so rather than passing in silence.
+    "20_p6_admissible_catalog_register.json": {"p5": CATALOG_P5, "p0": CATALOG_P0},
+    "21_p6_inadmissible_catalog_register.json": {"p5": CATALOG_P5, "p0": CATALOG_P0},
+    "34_p6_inadmissible_unplaced_scope.json": {"p5": CATALOG_P5, "p0": CATALOG_P0},
 }
 
 # P0 offers a seed, P1 offers a register — the intent field differs, so the payload key does too.

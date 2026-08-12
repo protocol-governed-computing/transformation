@@ -24,9 +24,9 @@ the foundation that the rest of the blockchain system relies on.
 ## 1. CR Type
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
-|----------------|-----------|
-| INVENTED_SUBDOMAIN | The canonical ledger is a distinct concern from block proposal and needs its own governance boundary; it is not an extension of an existing subdomain. |
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
+|-----------|----------------|-----------|
+| chain | INVENTED_SUBDOMAIN | The canonical ledger is a distinct concern from block proposal and needs its own governance boundary; it is not an extension of an existing subdomain. |
 
 ## 2. Business Vocabulary
 

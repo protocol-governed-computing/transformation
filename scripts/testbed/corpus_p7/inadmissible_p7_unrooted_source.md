@@ -588,9 +588,21 @@ BACKEND_ERROR — is already admitted, so no vocabulary is extended.
 
 ---
 
+## 16. Generation Provenance
+
+*Every artifact this design schedules is authored: construction renders it from the registers
+above and it is its own source of truth. Nothing here is reached by invoking a generator.*
+
+<!-- register:generation_provenance optional -->
+| Artifact | Generator | Generator Sources | Source Finding |
+|----------|-----------|-------------------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |
 |-----------|--------|
 | **Consumes** ← Stage 6 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action · boundary_rules · governance_outcome |
-| **Emits** → Stage 8 | design_resolution · existing_inventory · new_artifacts · rb_declarations · execution_topology · cc_composition · step_bindings · interface_fields · implementation_bindings · vocabulary_extensions · runtime_policies · artifact_properties · structure_stores · artifact_summary |
+| **Emits** → Stage 8 | design_resolution · existing_inventory · new_artifacts · rb_declarations · execution_topology · cc_composition · step_bindings · interface_fields · implementation_bindings · vocabulary_extensions · runtime_policies · artifact_properties · structure_stores · artifact_summary · generation_provenance |
