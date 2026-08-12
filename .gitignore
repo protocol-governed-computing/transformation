@@ -2,8 +2,11 @@ __pycache__/
 *.pyc
 .DS_Store
 *.egg-info/
-build/
-dist/
+# Anchored. `build/` unanchored also matches `transformation/build/` — the Construction Compiler —
+# so a new module added there was ignored in silence while its neighbours stayed tracked, which is
+# the worst form of the failure: the package half-exists in the repo.
+/build/
+/dist/
 .venv/
 .idea/
 .vscode/
@@ -22,4 +25,9 @@ snapshot/
 # exclusion names what is generated and re-admits what is authored. A bare `dossiers/` would ignore
 # the authored dossier too, silently, the moment it moved here.
 /dossiers/*
-!/dossiers/new_subdomain/
+!/dossiers/founding_design_bootstrap/
+!/dossiers/rule_expressiveness/
+!/dossiers/rule_effectivity/
+!/dossiers/generated_artifacts/
+!/dossiers/register_coverage/
+!/dossiers/multi_emission/
