@@ -11,6 +11,22 @@
 
 ---
 
+## Generated Artifact
+
+This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
+the copy is never corrected directly: where this artifact and its generator disagree, this
+artifact is stale, and an edit here lasts until whoever next runs the emission.
+
+- **Generator:** `transformation.design.emit:emit_rule_sets`
+- **Generator sources** — one generator together, never separately:
+  - `templates/p7_design_intent_template_v0.md`
+  - `transformation/design/p7_design_intent/rules.py`
+
+To change what this phase judges, amend a source and invoke the generator.
+`tc phase emit --check` refuses a build in which the two disagree.
+
+---
+
 ## 1. Intent
 
 Phase 7 of the change pipeline: decide whether an offered Design Intent register is admissible.
@@ -147,6 +163,7 @@ core:
             - field_declarations
             - gap_register
             - gaps
+            - generation_provenance
             - governance_outcome
             - governance_scope
             - identity_and_sameness
@@ -842,6 +859,45 @@ core:
             - EXTEND
             - NEW
           intent: Action is a controlled vocabulary declared by the template
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: generation_provenance
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: generation_provenance
+          params:
+            columns:
+            - Artifact
+            - Generator
+            - Generator Sources
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: generation_provenance
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: generation_provenance
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: generation_provenance
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -1202,6 +1258,54 @@ core:
           params:
             bindings_register: step_bindings
           intent: a declared output no step emits gives every caller a name that resolves to nothing
+        - id: GENERATED_ARTIFACT_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: generation_provenance
+          params:
+            column: Artifact
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+            detail: provenance is stated about an artifact this design neither authors nor carries over — a generator
+              for something nothing schedules produces nothing
+          intent: provenance belongs to an artifact the design actually declares
+        - id: ARTIFACT_HAS_TWO_GENERATORS
+          check: COLUMN_VALUES_UNIQUE
+          register: generation_provenance
+          params:
+            column: Artifact
+            detail: '{value} is generated twice, first at row {first} — an artifact has exactly one producer,
+              and two producers of one truth drift'
+          intent: one artifact, one producer, so agreement with the generator means something
+        - id: GENERATOR_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: generation_provenance
+          params:
+            column: Generator
+            detail: artifact is declared generated and names no generator — construction has nothing to invoke
+              and no way to reach it
+          intent: a generated artifact names what produces it
+        - id: GENERATOR_UNREACHABLE
+          check: CELL_MATCHES
+          register: generation_provenance
+          params:
+            column: Generator
+            pattern: ^[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)*:[a-z_][a-z0-9_]*$
+            detail: generator {value!r} must be module:callable — construction imports its generator and a script
+              it can only shell out to is one nothing governs
+          intent: a generator is invocable from the composition, not only by a person at a terminal
+        - id: GENERATOR_SOURCES_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: generation_provenance
+          params:
+            column: Generator Sources
+            detail: generator names no sources — a template and the declaration read with it are one generator,
+              and naming neither permits regenerating from a stale pairing
+          intent: a generator is its sources together, so a change to either is a change to it
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

@@ -26,7 +26,16 @@ from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
 from transformation.build.completeness import measure, narrowing
-from transformation.build.render import bare, build_manifest, render_all, render_document, render_documents
+from transformation.build.render import (
+    bare,
+    build_manifest,
+    generated,
+    render_all,
+    render_document,
+    render_documents,
+)
+from transformation.build.generators import Generator, UnknownGenerator, resolve as resolve_generator
+from transformation.design.emit import emit as emit_phase_workflows
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.meta import RULE_MODULES, verify as meta_verify
 from transformation.design.oracle import evaluate
@@ -389,6 +398,36 @@ def phase_list() -> None:
         click.echo()
 
 
+@phase.command("emit")
+@click.option("--check", "check_only", is_flag=True,
+              help="Report disagreement without writing; exit 1 if any workflow is stale.")
+def phase_emit(check_only: bool) -> None:
+    """Bring each phase workflow into agreement with the generator that produces it.
+
+    A phase declares its rules once and its workflow carries a sealed copy, so that the rules travel
+    where they can be versioned and inspected. The copy is generated, never typed — and the
+    generator is authoritative: where the two disagree the workflow is stale, and correcting it by
+    hand would leave the generator still producing the old value.
+
+    `--check` is what a build runs. It answers the question without changing the answer, which is
+    the difference between an obligation and a habit: a rule added after a workflow was emitted once
+    left 52 rules sealed against 55 declared, and every run reported confidently on the smaller set.
+
+    Exit 0 if every workflow agrees (or was brought into agreement), 1 under `--check` if any did not.
+    """
+    results = emit_phase_workflows(check_only=check_only)
+    for e in results:
+        state = "OK      " if not e.drifted else ("STALE   " if check_only else "WROTE   ")
+        click.echo(f"  {state} {e.phase}  {e.rules:>3} rules  {e.filename}")
+
+    stale = [e for e in results if e.drifted]
+    if check_only and stale:
+        click.echo(f"\n  REFUSED — {len(stale)} workflow(s) do not agree with the generator that "
+                   f"produces them. Run `tc phase emit`.", err=True)
+        sys.exit(1)
+    sys.exit(0)
+
+
 def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
               dossier: Path = Path(".")) -> dict | None:
     """Facts each amended artifact would lose, or None when there is nothing to compare against.
@@ -461,6 +500,12 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
     p7 = _dossier_registers(dossier, "p7")
     p8 = _dossier_registers(dossier, "p8")
     result = measure(p7, p8)
+    # The agreement gate. A generated artifact's sealed copy is checked against what produced it,
+    # and a disagreement refuses the build — a check that exists and is required by nothing is a
+    # habit, and a written obligation nobody must meet is indistinguishable from none. This has
+    # already gone the way that hurts: a rule added after a workflow was emitted left the smaller
+    # rule set sealed, and every run believed it.
+    disagreeing = _disagreeing(p7)
 
     if as_json:
         click.echo(json.dumps({
@@ -468,6 +513,7 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
             "determined": result.determined,
             "required": result.total,
             "undetermined": dict(result.undetermined),
+            "disagreeing": [{"artifact": a, "generator": g} for g, a in disagreeing],
         }, indent=2))
     else:
         click.echo(f"{dossier.name} — {len(result.by_artifact)} artifact(s), "
@@ -496,7 +542,46 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
         for name, n in result.undetermined.most_common():
             click.echo(f"    {n:>3}  {name}")
 
+    if disagreeing:
+        click.echo("\n  GENERATOR DISAGREES — these artifacts are stale copies of what produces them:",
+                   err=True)
+        for name, artifact in disagreeing:
+            click.echo(f"      {artifact}   ← {name}", err=True)
+        click.echo("  The generator is authoritative. Invoke it; do not edit the artifact.", err=True)
+        sys.exit(1)
+
     sys.exit(0 if result.meets(threshold) else 1)
+
+
+def _generators(p7: dict) -> dict[str, Generator]:
+    """The admitted generators this design's artifacts are reached by, resolved before anything runs.
+
+    Resolved up front so an unknown one is a refusal rather than a partial build. A design naming a
+    generator construction may not invoke has named a path to its artifact that does not exist, and
+    finding that out after half the composition is written is finding out too late.
+    """
+    out: dict[str, Generator] = {}
+    for code, (name, _) in sorted(generated(p7).items()):
+        if not name:
+            raise click.ClickException(f"{code} is declared generated and names no generator")
+        if name in out:
+            continue
+        try:
+            out[name] = resolve_generator(name)
+        except UnknownGenerator as exc:
+            raise click.ClickException(str(exc.args[0])) from exc
+    return out
+
+
+def _disagreeing(p7: dict) -> list[tuple[str, str]]:
+    """`(generator, artifact)` for every generated artifact that does not agree with its generator.
+
+    The generator is authoritative, so a disagreement is not a difference of opinion — it is proof
+    the artifact is a stale copy, and a build reading it reports confidently on the wrong thing.
+    """
+    return [(gen.name, artifact)
+            for gen in _generators(p7).values()
+            for artifact in gen.stale()]
 
 
 def _dossier_registers(dossier: Path, phase_key: str) -> dict:
@@ -542,6 +627,10 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     p7 = _dossier_registers(dossier, "p7")
     p8 = _dossier_registers(dossier, "p8")
 
+    # Resolved before the design is even measured: a generator construction may not invoke is a path
+    # to an artifact that does not exist, and there is no point measuring a design that names one.
+    generators = _generators(p7)
+
     result = measure(p7, p8)
     if not result.meets(threshold):
         click.echo(f"REFUSED — Construction Completeness {result.percentage:.1f}% is below "
@@ -572,6 +661,25 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     click.echo(f"  emitted {len(planned)} file(s) under {domain_root}")
     for path, _ in planned:
         click.echo(f"    {path.relative_to(domain_root)}")
+
+    # A generated artifact is reached, not written. None of the paths above is one of them —
+    # `render_all` never produced them, because a renderer that produced the file and then discarded
+    # it would still have decided what the file says. What construction does here is invoke, and the
+    # generator remains the single producer.
+    for name, gen in sorted(generators.items()):
+        gen.invoke()
+        click.echo(f"\n  invoked {name}\n    → {gen.summary}")
+        stale = gen.stale()
+        if stale:
+            # A generator that has just run and left its artifacts disagreeing has not produced
+            # them. Reporting success here would hand the composition a stale copy with a build's
+            # word that it is current.
+            click.echo(f"  REFUSED — {len(stale)} artifact(s) still disagree after invoking "
+                       f"{name}.", err=True)
+            for artifact in stale:
+                click.echo(f"      {artifact}", err=True)
+            sys.exit(1)
+
     click.echo(f"\n  Construction Completeness {result.percentage:.1f}% "
                f"({result.determined}/{result.total} determined)")
 

@@ -129,7 +129,7 @@ one governing rule. Now judge a real document against phase 1's 189 rules:
 
 ```bash
 python -m transformation phase check --phase p1 \
-    dossiers/new_subdomain/p1_change_request_transformation_phases_v0.md \
+    dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md \
     --snapshot ../snapshot
 ```
 
@@ -145,7 +145,7 @@ phase it descends from and run it again:
 
 ```bash
 python -m transformation phase check --phase p1 <same document> \
-    --snapshot ../snapshot --prior p0=dossiers/new_subdomain/p0_seed_transformation_phases_v0.md
+    --snapshot ../snapshot --prior p0=dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md
 ```
 
 ```
@@ -214,9 +214,11 @@ transformation/
         p0_change_seed/ … p8_authoring_mandate/    one package per phase
         rules.py  oracle.py  checks.py             the deterministic judge
         derive.py project.py evaluate.py merit.py  projection and figure of merit
+        emit.py           the generator behind the nine phase workflows
     build/                the Construction Compiler
         completeness.py   does this design determine its artefacts?
         render.py         write them
+        generators.py     …except the ones that are reached, not written
 
 templates/                the required section structure, one per phase
 registry/                 this repo's own governance artefacts — design/ and build/
@@ -241,12 +243,17 @@ that governs change is declared in the same artefact language as the businesses 
    invention.
 8. **Phases are never called stages.**
 9. **The tool has no transport surface.** CLI only.
+10. **An artifact has one producer.** Where an artifact is generated, its generator is authoritative
+    and the artifact is never corrected directly — a disagreement is proof the copy is stale, and the
+    build refuses rather than reporting on it. Construction reaches such an artifact by invoking its
+    generator, never by writing it.
 
 ## 10. How to know it works
 
 ```bash
 python -m transformation phase meta          # the rule sets checked against themselves
 python -m transformation phase list          # every phase, with its declared rule count
+python -m transformation phase emit --check  # every workflow against the generator that made it
 ```
 
 `phase meta` is the one to trust. It verifies the **rules themselves** rather than any document —
@@ -254,7 +261,7 @@ that every declared rule resolves to a check that exists, and that every check i
 result reads:
 
 ```
-CONSISTENT — 751 rules across 9 phases resolve against 42 check kinds
+CONSISTENT — 772 rules across 9 phases resolve against 44 check kinds
 ```
 
 A pipeline whose rules are not themselves checkable is a pipeline that can quietly stop enforcing

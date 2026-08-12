@@ -5,6 +5,10 @@
 **Resolved by:** its own GAP-5 — delivery by hand, once, recorded
 **Do not:** author a partial P7, or amend the nine phase artifacts directly
 
+> **Delivered.** The by-hand delivery this document anticipated has been carried out and is recorded
+> in `delivery.md`. P7 is authorable from here on — the register that was missing exists — but not
+> for this change, which is complete at P6 by design. `THE_LAST_EXCEPTION` is spent.
+
 ---
 
 ## Why it stops, and why that is not a failure

@@ -16,6 +16,12 @@ Nothing here decides anything. Every value is read from a register or from a con
 default, and a fact the design does not state is a fact this module must not invent — an inventing
 generator is a second, ungoverned design authority. Where a value cannot be derived, the renderer
 omits it and the acceptance harness reports it as undetermined.
+
+**Some artifacts are not written here at all.** An artifact the design declares in
+`generation_provenance` is reached by invoking its generator, and this module renders none of it:
+rendering it would make construction a second producer of an artifact something else already
+produces, and two producers of one truth drift silently until something reads the stale one. The
+artifact is still scheduled and still measured — what the design owes for it is the generator.
 """
 
 from __future__ import annotations
@@ -121,6 +127,14 @@ def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
     # silently amounted to — let a design score 100% while naming an artifact that cannot be built.
     for code, fam in unrenderable(p7, p8):
         out.append((bare(code), f"<no builder for family {fam}>", False))
+
+    # A generated artifact is determined by its generator, not by this design, and construction
+    # renders none of its fields. It still has to appear in the measurement: an artifact that
+    # vanished from it would let a design schedule something and be graded on everything else, which
+    # is the same silence that let an unbuildable family read as no failure. What the design owes is
+    # the generator, so that is the one fact measured.
+    for code, (generator, srcs) in generated(p7).items():
+        out.append((code, "<reached by generator>", bool(generator and srcs)))
     return out
 
 
@@ -140,6 +154,25 @@ def _empty(value: Any) -> bool:
     return value is None or value == "" or value == {} or value == []
 
 
+def generated(p7: dict) -> dict[str, tuple[str, list[str]]]:
+    """`bare code → (generator, sources)` for every artifact the design says is reached, not written.
+
+    An artifact is generated or it is authored, and the difference is the whole of what construction
+    may do with it. Construction never writes a generated artifact: two producers of one truth drift,
+    and the drift is silent until something reads the stale one. So this is consulted before anything
+    is rendered rather than after — a renderer that produced the file and then discarded it would
+    still have decided what the file says.
+    """
+    out: dict[str, tuple[str, list[str]]] = {}
+    for row in rows(p7, "generation_provenance"):
+        code = bare(cell(row, "Artifact"))
+        if not code:
+            continue
+        srcs = [s.strip() for s in cell(row, "Generator Sources").split(",") if s.strip()]
+        out[code] = (cell(row, "Generator"), srcs)
+    return out
+
+
 def _scheduled(p7: dict, p8: dict) -> list[tuple[str, str, str]]:
     """Every `(code, short, family)` the mandate schedules or the design amends.
 
@@ -157,9 +190,18 @@ def _scheduled(p7: dict, p8: dict) -> list[tuple[str, str, str]]:
                if cell(r, "Action") == "EXTEND"]
     scheduled = [cell(r, "Code") for r in rows(p8, "build_order")]
 
+    # A generated artifact is scheduled like any other — the artifact is what enters the composition
+    # and what conformance judges, and a mandate scheduling a generator would schedule something that
+    # never appears in a snapshot. It is simply not construction's to write. Dropping it here rather
+    # than at the point of writing is what keeps `ONE_ARTIFACT_ONE_PRODUCER` true of the renderer and
+    # not only of the caller: nothing downstream is ever handed a rendering of it to be tempted by.
+    reached = generated(p7)
+
     out = []
     for code in scheduled + amended:
         short = bare(code)
+        if short in reached:
+            continue
         # A scheduled artifact declares its family; an amended one carries it in its own identity,
         # which is the only place it can, because the design assigns no new code for it.
         out.append((code, short, family.get(short) or short.split("_")[0]))

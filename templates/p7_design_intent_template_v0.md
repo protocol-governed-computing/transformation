@@ -357,6 +357,31 @@ per mapped field, so a mapping is checkable rather than a blob.*
 
 ---
 
+## 16. Generation Provenance
+
+*How an artifact is **reached**. Every other register says what an artifact must become; this one
+says what determines it, and it is the only register that can describe an artifact nobody types.*
+
+*An artifact listed here is produced by invoking its generator, and construction never writes it —
+two producers of one truth drift, and the drift is silent until something reads the stale one. The
+generator is authoritative: where the artifact and the generator disagree, the artifact is stale, and
+the build refuses rather than reporting on a copy.*
+
+*`Generator` is what construction invokes, as `module:callable`, and it must be importable from the
+composition rather than reached as a script. `Generator Sources` names everything the emission reads
+— a template and the declaration read with it are **one** generator, and naming either alone permits
+regenerating from a stale pairing.*
+
+*The artifact is still scheduled as an artifact. A design does not schedule a generator: the artifact
+is what enters the composition and what conformance judges, and a mandate scheduling a generator
+schedules something that never appears in a snapshot.*
+
+<!-- register:generation_provenance optional -->
+| Artifact | Generator | Generator Sources | Source Finding |
+|----------|-----------|-------------------|----------------|
+
+---
+
 ## Gate 1 — Design Approval
 
 **Gate 1 closes here.** The full dossier (Stages 0–7) is presented for review as a body. Any
@@ -397,4 +422,4 @@ keys match the register ids above exactly.*
 | **Consumes** ← Stage 5 | scope_boundary · invariants · actions · provisional_codes |
 | **Consumes** ← Stage 6 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |
 | **Emits** → Stage 7 | new_artifacts · existing_inventory · rb_declarations · execution_topology · artifact_summary |
-| **Emits** → Stage 8 (Build Sheet) | cc_composition |
+| **Emits** → Stage 8 (Build Sheet) | cc_composition · generation_provenance |

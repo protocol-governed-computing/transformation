@@ -1,0 +1,235 @@
+"""The generator behind every phase workflow — its sealed rule set, and the provenance saying so.
+
+A phase declares its rules once, in `transformation/design/pN_*/rules.py`, over the registers its
+template declares. The compiled workflow carries a *copy* of that declaration, because the rules
+travel in the artifact where they can be sealed, versioned and inspected. Two copies of one truth
+drift, and this one drifted silently: adding a rule after emitting a workflow left 52 rules sealed
+against 55 declared, and every run reported confidently on the smaller set.
+
+So the copy is generated, never typed, and this module is the generator. **A template and the
+declaration read with it are one generator** — neither determines the artifact alone, and naming
+either separately would permit regenerating from a stale pairing.
+
+Two things are emitted into each workflow, and they answer different questions. The `rule_set:`
+block is what the phase judges by. The `## Generated Artifact` section is what the artifact says
+about itself: that it is generated, by what, and from which sources. Provenance belongs to the
+artifact rather than to a list beside it, because a second statement of one truth can disagree with
+the thing it describes.
+
+**The generator is authoritative.** Where a workflow and this module disagree, the workflow is
+stale — a disagreement is not a difference of opinion. Correcting the artifact would leave the
+generator still producing the old value, so the fix would last until whoever next ran the emission.
+`check()` is what makes that enforceable rather than merely stated.
+
+This lives inside the package rather than under `scripts/` because construction must be able to
+*invoke* it: a generated artifact is reached by invoking its generator, and a generator only a
+person at a terminal can run is one nothing governs. `scripts/emit_rule_sets.py` remains as the
+terminal's way in.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+
+import yaml
+
+REPO = Path(__file__).resolve().parents[2]
+WORKFLOWS = REPO / "registry" / "design" / "workflows"
+
+# phase id → the workflow artifact carrying its sealed rule set.
+SEALED_IN = {
+    "p0": "WF_P0_SEED_ADMISSIBILITY_V0.md",
+    "p1": "WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0.md",
+    "p2": "WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0.md",
+    "p3": "WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0.md",
+    "p4": "WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0.md",
+    "p5": "WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0.md",
+    "p6": "WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0.md",
+    "p7": "WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0.md",
+    "p8": "WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0.md",
+}
+
+# How a design names this generator, and how construction reaches it. One spelling, read by the
+# provenance the artifacts carry and by the register a design states — the same string in both, or
+# the agreement check compares a design against a generator it did not name.
+GENERATOR = "transformation.design.emit:emit_rule_sets"
+
+RULE_SET_INDENT = 8
+
+PROVENANCE_HEADING = "## Generated Artifact"
+
+# The section is placed where a reader meets the artifact, before its narrative begins. Every one of
+# these workflows opens the same way, and an anchor that is not there is fail-hard rather than a
+# section quietly appended somewhere nobody looks.
+PROVENANCE_ANCHOR = "## 1. Intent"
+
+
+@dataclass(frozen=True)
+class Emission:
+    """What one workflow's generation produced, and whether it had drifted."""
+
+    phase: str
+    filename: str
+    rules: int
+    drifted: bool
+
+
+def sources(phase_id: str) -> list[str]:
+    """Everything the emission reads for one phase, as repo-relative paths.
+
+    The template declares the registers and their columns; the rule module declares what remains.
+    Both, together, are the generator — so both are named, and a change to either is a change to it.
+    P0 has no vendored template, being new in this rehost, so its declaration is the whole of it.
+    """
+    from transformation.design.catalog import phase as phase_spec
+    from transformation.design.meta import RULE_MODULES
+
+    out = []
+    template = phase_spec(phase_id).template
+    if template:
+        out.append(f"templates/{template}")
+    module_file = Path(RULE_MODULES[phase_id].__file__).resolve()
+    out.append(str(module_file.relative_to(REPO)))
+    return out
+
+
+def declared(phase_id: str) -> list[dict]:
+    """A phase's rule set as the plain data a workflow seals.
+
+    Both locators are emitted when a rule declares a register. `section_title` alone unbinds a
+    derived rule from the register it was derived for, and `register` alone loses the fallback P0
+    depends on — the failure mode is a rule that resolves to nothing and passes silently.
+    """
+    from transformation.design.meta import RULE_MODULES
+
+    out = []
+    for rule in RULE_MODULES[phase_id].rule_set():
+        entry: dict = {"id": rule.id, "check": rule.check}
+        if rule.register:
+            entry["register"] = rule.register
+        if rule.section_title and rule.section_title != rule.register:
+            entry["section_title"] = rule.section_title
+        if rule.params:
+            entry["params"] = rule.params
+        if rule.intent:
+            entry["intent"] = rule.intent
+        out.append(entry)
+    return out
+
+
+def render(rules: list[dict]) -> str:
+    """The rule set as it appears inside the workflow's `Machine` block.
+
+    Dumped with aliases left on: several phases repeat one large `known_registers` list across
+    dozens of rules, and expanding it every time would bury the declaration in its own boilerplate.
+    """
+    body = yaml.dump(rules, sort_keys=False, width=100, allow_unicode=True, default_flow_style=False)
+    pad = " " * RULE_SET_INDENT
+    return "".join(f"{pad}{line}\n" if line.strip() else "\n" for line in body.splitlines())
+
+
+def splice(text: str, rendered: str) -> str:
+    """Replace the `rule_set:` block in a workflow artifact, leaving everything else untouched.
+
+    The block runs from its key to the next line indented shallower than the key — the node's
+    `next:` routing. Rewriting the whole YAML document instead would reformat hand-written
+    structure and strip the comments that explain it.
+    """
+    lines = text.splitlines(keepends=True)
+    key = " " * RULE_SET_INDENT + "rule_set:"
+    starts = [i for i, line in enumerate(lines) if line.rstrip("\n") == key]
+    if len(starts) != 1:
+        raise SystemExit(f"expected exactly one {key!r} line, found {len(starts)}")
+    start = starts[0]
+
+    end = len(lines)
+    for i in range(start + 1, len(lines)):
+        stripped = lines[i].lstrip()
+        if not stripped:
+            continue
+        if len(lines[i]) - len(stripped) < RULE_SET_INDENT:
+            end = i
+            break
+
+    return "".join(lines[:start + 1]) + rendered + "".join(lines[end:])
+
+
+def provenance(phase_id: str) -> str:
+    """What the artifact says about how it was reached.
+
+    Prose, deliberately: the compiler reads the `## Machine` block and nothing else, so this states
+    the fact to the person who opens the file and to the review that would otherwise have to take
+    the generator's word for it. It is emitted rather than typed for the same reason the rule set
+    is — a hand-written provenance is a third copy, and the one nobody regenerates.
+    """
+    listed = "\n".join(f"  - `{path}`" for path in sources(phase_id))
+    return (
+        f"{PROVENANCE_HEADING}\n"
+        "\n"
+        "This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and\n"
+        "the copy is never corrected directly: where this artifact and its generator disagree, this\n"
+        "artifact is stale, and an edit here lasts until whoever next runs the emission.\n"
+        "\n"
+        f"- **Generator:** `{GENERATOR}`\n"
+        "- **Generator sources** — one generator together, never separately:\n"
+        f"{listed}\n"
+        "\n"
+        "To change what this phase judges, amend a source and invoke the generator.\n"
+        "`tc phase emit --check` refuses a build in which the two disagree.\n"
+        "\n"
+        "---\n"
+        "\n"
+    )
+
+
+def splice_provenance(text: str, block: str) -> str:
+    """Place the provenance section, replacing any the artifact already carries.
+
+    Replacing rather than appending is what keeps this idempotent — an emission that added a second
+    section every run would produce exactly the two-statements-of-one-truth this section exists to
+    refuse.
+    """
+    lines = text.splitlines(keepends=True)
+    heads = [i for i, line in enumerate(lines) if line.rstrip("\n") == PROVENANCE_HEADING]
+
+    if heads:
+        start = heads[0]
+        end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+        return "".join(lines[:start]) + block + "".join(lines[end:])
+
+    anchors = [i for i, line in enumerate(lines) if line.rstrip("\n") == PROVENANCE_ANCHOR]
+    if not anchors:
+        raise SystemExit(f"expected {PROVENANCE_ANCHOR!r} to place the provenance section before")
+    at = anchors[0]
+    return "".join(lines[:at]) + block + "".join(lines[at:])
+
+
+def emit(check_only: bool = False) -> list[Emission]:
+    """Bring every phase workflow into agreement with what its phase declares.
+
+    Under `check_only` nothing is written and the drift is reported instead, which is what a build
+    gate needs: the question "does the composition already agree with its generator" has to be
+    answerable without changing the answer.
+    """
+    out: list[Emission] = []
+    for phase_id, filename in SEALED_IN.items():
+        path = WORKFLOWS / filename
+        rules = declared(phase_id)
+        current = path.read_text(encoding="utf-8")
+        updated = splice_provenance(splice(current, render(rules)), provenance(phase_id))
+        drifted = updated != current
+        if drifted and not check_only:
+            path.write_text(updated, encoding="utf-8")
+        out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted))
+    return out
+
+
+def emit_rule_sets() -> list[Emission]:
+    """The generator, as a design names it and as construction invokes it."""
+    return emit(check_only=False)
+
+
+def check() -> list[Emission]:
+    """Every workflow that does not agree with its generator. Empty is the only passing answer."""
+    return [e for e in emit(check_only=True) if e.drifted]

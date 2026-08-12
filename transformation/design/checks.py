@@ -2030,3 +2030,28 @@ def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str,
                         f"binds {field!r} on {key[1]}, which its interface does not carry — it "
                         f"declares {', '.join(sorted(allowed)) or 'nothing'} in that direction"))
     return out
+
+
+@check("COLUMN_VALUES_UNIQUE")
+def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A column whose value identifies the row, so two rows may not carry the same one.
+
+    Every other register check asks whether a row says the right thing. This asks whether the
+    register says one thing about a subject at all: where a second row restates a subject the first
+    already settled, the two may disagree, and nothing downstream can tell which was meant. Reading
+    the first, the last, or refusing are three different behaviours and none of them is declared.
+
+    Compared on the bare identity, because a subject written once as `domain::CODE_V0` and once as
+    `CODE_V0` is one subject stated twice, and a comparison on the full string would call it two.
+    """
+    seen: dict[str, int] = {}
+    out: list[tuple[str, str]] = []
+    column = rule.params["column"]
+    for index, row in _rows(doc, rule):
+        value = _bare_identity(_cell(row, column))
+        if not value:
+            continue
+        first = seen.setdefault(value, index)
+        if first != index:
+            out.append((f"{_where(rule)} row {index}", rule.params["detail"].format(value=value, first=first)))
+    return out

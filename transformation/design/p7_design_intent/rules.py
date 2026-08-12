@@ -1,6 +1,6 @@
 """The P7 rule set — what makes a Design Intent register admissible.
 
-Eight registers, their columns, their vocabularies and their traceability come from
+Sixteen registers, their columns, their vocabularies and their traceability come from
 `templates/p7_design_intent_template_v0.md`. Declared here is what the template cannot express.
 
 P7 answers **HOW**, and it is where identity becomes binding. P5 assigned provisional codes, P6
@@ -29,6 +29,12 @@ string everywhere, because a spelling variant of the same concept does not read 
 creates a second, permanently misnamed artifact. So every code referenced in the topology, in a
 runtime binding, or in a composition must be declared: as new here, or as an existing artifact
 carried over. A reference to neither is a name nobody owns.
+
+The last thing P7 owns is how an artifact is **reached**, and it was the last thing it could not say.
+Every register describes what an artifact must become; a generated artifact's interesting fact is
+that its source of truth is elsewhere, and a design naming only the artifact schedules a copy that
+the next emission overwrites. `generation_provenance` names the generator and the sources read with
+it, and construction invokes that rather than becoming a second producer of the same artifact.
 """
 
 from __future__ import annotations
@@ -574,6 +580,91 @@ COMPOSITION_INTEGRITY_RULES: list[Rule] = [
 ]
 
 
+# A generator, as construction must be able to reach it: an importable module and the callable
+# inside it. A path to a script is not this — the composition imports, it does not shell out, and a
+# generator nothing can import is a generator only a person can run.
+GENERATOR_PATTERN = r"^[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)*:[a-z_][a-z0-9_]*$"
+
+
+# Every register above describes what an artifact must *become*. None of them says how it is
+# *reached*, and for an artifact nobody types that is the only interesting fact about it: its rules
+# live in a template and in code, the artifact carries a sealed copy, and a change meaning to alter
+# the rules must alter what generates them. A design with no way to say so cannot be built from — the
+# nine phase workflows were designed through six phases and stopped here, because the language they
+# exist to govern could not express the one thing that mattered about them.
+GENERATION_RULES: list[Rule] = [
+    Rule(
+        id="GENERATED_ARTIFACT_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="generation_provenance",
+        params={
+            "column": "Artifact",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": (
+                "provenance is stated about an artifact this design neither authors nor carries "
+                "over — a generator for something nothing schedules produces nothing"
+            ),
+        },
+        intent="provenance belongs to an artifact the design actually declares",
+    ),
+    Rule(
+        id="ARTIFACT_HAS_TWO_GENERATORS",
+        check="COLUMN_VALUES_UNIQUE",
+        register="generation_provenance",
+        params={
+            "column": "Artifact",
+            "detail": (
+                "{value} is generated twice, first at row {first} — an artifact has exactly one "
+                "producer, and two producers of one truth drift"
+            ),
+        },
+        intent="one artifact, one producer, so agreement with the generator means something",
+    ),
+    Rule(
+        id="GENERATOR_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="generation_provenance",
+        params={
+            "column": "Generator",
+            "detail": (
+                "artifact is declared generated and names no generator — construction has nothing "
+                "to invoke and no way to reach it"
+            ),
+        },
+        intent="a generated artifact names what produces it",
+    ),
+    Rule(
+        id="GENERATOR_UNREACHABLE",
+        check="CELL_MATCHES",
+        register="generation_provenance",
+        params={
+            "column": "Generator",
+            "pattern": GENERATOR_PATTERN,
+            "detail": (
+                "generator {value!r} must be module:callable — construction imports its generator "
+                "and a script it can only shell out to is one nothing governs"
+            ),
+        },
+        intent="a generator is invocable from the composition, not only by a person at a terminal",
+    ),
+    Rule(
+        id="GENERATOR_SOURCES_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="generation_provenance",
+        params={
+            "column": "Generator Sources",
+            "detail": (
+                "generator names no sources — a template and the declaration read with it are one "
+                "generator, and naming neither permits regenerating from a stale pairing"
+            ),
+        },
+        intent="a generator is its sources together, so a change to either is a change to it",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
     return (
@@ -583,6 +674,7 @@ def rule_set() -> list[Rule]:
         + COMPLETENESS_RULES
         + INTERFACE_RULES
         + COMPOSITION_INTEGRITY_RULES
+        + GENERATION_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()
