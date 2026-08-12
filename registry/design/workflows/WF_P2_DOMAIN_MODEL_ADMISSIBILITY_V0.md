@@ -207,6 +207,7 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results

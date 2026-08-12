@@ -124,52 +124,41 @@ core:
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: scope_boundary
+          register: subdomain_purposes
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: scope_boundary
+          register: subdomain_purposes
           params:
             columns:
-            - Capability
-            - Status
-            - Notes
+            - Subdomain
+            - Purpose
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: scope_boundary
+          register: subdomain_purposes
           intent: an empty required register asserts nothing
-        - id: CELL_NOT_IN_VOCABULARY
-          check: CELL_IN_VOCABULARY
-          register: scope_boundary
-          params:
-            column: Status
-            vocabulary:
-            - IN_SCOPE
-            - DEFERRED
-          intent: Status is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
-          register: scope_boundary
+          register: subdomain_purposes
           params:
             columns:
-            - capability
-            - notes
+            - purpose
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
-          register: scope_boundary
+          register: subdomain_purposes
           params:
             column: Source Finding
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
-          register: scope_boundary
+          register: subdomain_purposes
           params:
             column: Source Finding
             known_registers: &id001
@@ -253,10 +242,74 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results
             - vocabulary_extensions
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: subdomain_purposes
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: scope_boundary
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: scope_boundary
+          params:
+            columns:
+            - Capability
+            - Status
+            - Notes
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: REGISTER_EMPTY
+          check: TABLE_HAS_ROWS
+          register: scope_boundary
+          intent: an empty required register asserts nothing
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: scope_boundary
+          params:
+            column: Status
+            vocabulary:
+            - IN_SCOPE
+            - DEFERRED
+          intent: Status is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: scope_boundary
+          params:
+            columns:
+            - capability
+            - notes
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: scope_boundary
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: scope_boundary
+          params:
+            column: Source Finding
+            known_registers: *id001
             literal_sources:
             - CR seed
             - human decision
@@ -621,6 +674,14 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: PURPOSE_PROVENANCE_NOT_SINGULAR
+          check: TABLE_ROW_COUNT
+          register: purpose_provenance
+          params:
+            maximum: 1
+            detail: the register answers one question — whether this phase inherited the seed's purpose or refined
+              it — and two rows are two answers to it
+          intent: a register owing one answer may not carry several
         - id: PURPOSE_NOT_CARRIED_FROM_SEED
           check: PRIOR_PROSE_CARRIED
           register: purpose_provenance
@@ -643,6 +704,16 @@ core:
             detail: a refined purpose must state what it adds that the seed did not say; silence here is the silent
               replacement this register exists to prevent
           intent: superseding upstream content is allowed, doing it without saying so is not
+        - id: TOUCHED_SUBDOMAIN_WITHOUT_PURPOSE
+          check: PRIOR_IDENTITIES_COVERED
+          register: subdomain_purposes
+          params:
+            prior_phase: p0
+            prior_register: cr_type
+            prior_column: Subdomain
+            column: Subdomain
+            require: prior_in_here
+          intent: every subdomain a change touches has its purpose stated
         - id: PROVISIONAL_CODE_ALREADY_BOUND
           check: CELL_TOKEN_ABSENT
           register: provisional_codes

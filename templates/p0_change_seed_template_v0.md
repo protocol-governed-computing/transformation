@@ -85,8 +85,8 @@ rediscovered.*
 ## 1. CR Type
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
-|----------------|-----------|
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
+|-----------|----------------|-----------|
 
 ## 2. Business Vocabulary
 

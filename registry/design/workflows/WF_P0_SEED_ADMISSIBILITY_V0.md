@@ -84,6 +84,7 @@ core:
           register: cr_type
           params:
             columns:
+            - Subdomain
             - Classification
             - Rationale
           intent: downstream phases read these columns by name
@@ -107,6 +108,7 @@ core:
           register: cr_type
           params:
             columns:
+            - Subdomain
             - Classification
             - Rationale
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b

@@ -14,9 +14,9 @@ does not.
 ## 1. CR Type
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
-|-------------------------------------------------------------------|---------|--------------|
-| NEW_SUBDOMAIN | The pipeline that decides which changes are admissible is a distinct concern from the capabilities it admits, and needs its own governance boundary. It extends nothing that exists. | CR seed §1 CR Type #1 |
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
+|-----------|-------------------------------------------------------------------|---------|--------------|
+| design | NEW_SUBDOMAIN | The pipeline that decides which changes are admissible is a distinct concern from the capabilities it admits, and needs its own governance boundary. It extends nothing that exists. | CR seed §1 CR Type #1 |
 
 ---
 

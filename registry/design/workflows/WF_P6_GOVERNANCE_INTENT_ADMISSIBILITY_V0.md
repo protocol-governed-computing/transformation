@@ -206,6 +206,7 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results
@@ -566,6 +567,16 @@ core:
             column: Existing Artifact
             require: prior_in_here
           intent: a capability borrowed across a subdomain boundary is a dependency, declared as one
+        - id: TOUCHED_SUBDOMAIN_UNOWNED
+          check: PRIOR_IDENTITIES_COVERED
+          register: ownership
+          params:
+            prior_phase: p0
+            prior_register: cr_type
+            prior_column: Subdomain
+            column: Owner Subdomain
+            require: prior_in_here
+          intent: every subdomain a change touches has its owner declared
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:

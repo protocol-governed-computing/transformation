@@ -81,6 +81,7 @@ core:
           register: cr_type
           params:
             columns:
+            - Subdomain
             - Classification
             - Rationale
             - Source Finding
@@ -105,6 +106,7 @@ core:
           register: cr_type
           params:
             columns:
+            - Subdomain
             - Classification
             - Rationale
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
@@ -204,6 +206,7 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results

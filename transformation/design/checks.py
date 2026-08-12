@@ -206,6 +206,42 @@ def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return []
 
 
+@check("TABLE_ROW_COUNT")
+def _table_row_count(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """How many rows a register may carry.
+
+    `TABLE_HAS_ROWS` already asserts a floor — a declared register that is empty asserts nothing.
+    Nothing asserted a ceiling, so a register meant to carry one answer could carry three
+    contradictory ones and no rule anyone could write would notice. That is not a rule nobody
+    wrote; it is a rule nobody *could* write, which is why this is a way of judging rather than a
+    rule.
+
+    `maximum` is the half that was missing; `minimum` is accepted too so a register owing an exact
+    count can declare one thing rather than two rules that could disagree.
+
+    Adding this changes no verdict. A ceiling is a judgement about what a particular register
+    means, made per register, and this kind ships applied to none.
+    """
+    block = _block(doc, rule)
+    if block is None or block.table is None:
+        return []
+    rows = len(block.table.rows)
+    minimum = rule.params.get("minimum")
+    maximum = rule.params.get("maximum")
+    out = []
+    if minimum is not None and rows < int(minimum):
+        out.append((_where(rule), f"register carries {rows} row(s); at least {minimum} required"))
+    if maximum is not None and rows > int(maximum):
+        # A rule may say what its own ceiling means; a generic message cannot know why one row.
+        detail = rule.params.get("detail")
+        out.append((
+            _where(rule),
+            f"register carries {rows} row(s); at most {maximum} permitted"
+            + (f" — {detail}" if detail else ""),
+        ))
+    return out
+
+
 @check("COLUMN_ABSENT")
 def _column_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     block = _block(doc, rule)
@@ -547,10 +583,25 @@ def _source_finding_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             continue
         out.append((
             f"{_where(rule)} row {i}",
-            f"{value!r} contains no citation naming a declared register or recognised source",
+            f"{value!r} contains no citation naming a declared register or recognised source. "
+            f"A citation names a register this phase may cite — {_examples(known)} — "
+            f"or one of {', '.join(repr(x) for x in literal)}, "
+            f"or an artifact already in the baseline, by exact identity "
+            f"(e.g. 'blockchain::WF_REGISTER_ACTOR_V0'). "
+            f"A register may be named by its id ('known_facts #14') or, prefixed by its phase, "
+            f"by its section ('S1 §4 Known Facts #14'). Separate several citations with ';'",
         ))
     return out
 
+
+
+def _examples(known: set[str] | list[str], count: int = 3) -> str:
+    """A few register ids the author may actually cite, so a diagnostic teaches the grammar.
+
+    A rule that says only what is wrong makes an author read the checker to learn what is right.
+    """
+    shown = sorted(known)[:count]
+    return ", ".join(f"'{r} #1'" for r in shown) + (", …" if len(known) > count else "")
 
 
 @check("REUSE_CANDIDATE_ELIGIBLE")

@@ -54,6 +54,26 @@ artifacts record facts, never trigger execution.
 
 ---
 
+### Citing a prior row
+
+Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
+names one of:
+
+- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
+- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
+- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
+- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+
+Separate several citations with `;`. One resolvable citation grounds the row.
+
+**A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
+a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
+sentence while citing the row it came from is how a claim drifts from what was decided, so the rules
+treat a tidier synonym as a new claim and refuse it. Cite it as it stands, or change it in the phase
+that owns it.
+
+---
+
 ## 1. Subdomain Purpose
 
 *One short paragraph: what this subdomain governs, what authority it establishes, what lifecycle it
@@ -74,6 +94,18 @@ or supersede it in the open — never quietly replace it.*
 <!-- register:purpose_provenance business_language=refinement -->
 | Source | Disposition (INHERITED, REFINED) | Refinement |
 |--------|----------------------------------|------------|
+
+---
+
+### Purpose of every subdomain this change touches
+
+*The paragraph above is this document's own subdomain. A change may touch more than one — its
+classifications say which — and a subdomain changed with nothing said about what it governs is
+changed blindly. One row per subdomain the change touches, including this document's own.*
+
+<!-- register:subdomain_purposes business_language=purpose -->
+| Subdomain | Purpose | Source Finding |
+|-----------|---------|----------------|
 
 ---
 

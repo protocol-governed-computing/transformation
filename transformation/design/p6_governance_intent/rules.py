@@ -152,7 +152,11 @@ PLACEMENT_RULES: list[Rule] = [
 
 
 # P6 answers WHERE for what P5 said the change is. P5 is therefore the document it places against.
-PRIORS = ("p5",)
+# P6 reads P0 as well as P5. The span of a change — which subdomains it touches — is whatever its
+# classifications name, and the classifications are the seed's. P6 is where ownership is declared,
+# so it is where a touched subdomain with no owner has to be caught; it cannot be caught without
+# seeing the span. Nothing declares the span a second time for P6's convenience.
+PRIORS = ("p5", "p0")
 
 
 # Two obligations P5 creates and only P6 can discharge.
@@ -197,12 +201,33 @@ PLACEMENT_PRESERVATION: list[Rule] = [
 ]
 
 
+# Correction 4 of the rule_expressiveness change: an unowned subdomain is answerable to nobody.
+# Before the classification carried its subdomain there was nothing to check this against — a phase
+# cannot require an owner per touched subdomain while no phase knows which subdomains are touched.
+SPAN_RULES: list[Rule] = [
+    Rule(
+        id="TOUCHED_SUBDOMAIN_UNOWNED",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="ownership",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "cr_type",
+            "prior_column": "Subdomain",
+            "column": "Owner Subdomain",
+            "require": "prior_in_here",
+        },
+        intent="every subdomain a change touches has its owner declared",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """The complete declared P6 rule set: derived, placement, preservation, then the header."""
     return (
         derived_rules(TEMPLATE)
         + PLACEMENT_RULES
         + PLACEMENT_PRESERVATION
+        + SPAN_RULES
         + governed_hole_rules()
         + dossier_header_rules()
     )
