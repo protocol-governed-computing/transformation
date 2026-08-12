@@ -430,6 +430,19 @@ them again would create a second artifact under the same name.
 
 ---
 
+## 16. Generation Provenance
+
+*Every artifact this design schedules or amends is authored: construction renders each from the
+registers above and it is its own source of truth. Nothing here is reached by invoking a
+generator.*
+
+<!-- register:generation_provenance optional -->
+| Artifact | Generator | Generator Sources | Source Finding |
+|----------|-----------|-------------------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## Pipeline Provenance
 
 | Stage | Output | Status |

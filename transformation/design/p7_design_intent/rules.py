@@ -229,6 +229,23 @@ BINDING_RULES: list[Rule] = [
         },
         intent="the transform that turns an observation into a decision is itself governed",
     ),
+    # A vocabulary that extends nothing is a base vocabulary, which is a decision. Left blank it is
+    # indistinguishable from a design that forgot, and construction renders `extends: ''` either
+    # way — the same silence `declared_empty` exists to break everywhere else. So the design writes
+    # the none marker and construction reads it as the statement it is.
+    Rule(
+        id="VOCABULARY_WITHOUT_EXTENDS",
+        check="CELL_NOT_EMPTY",
+        register="vocabulary_extensions",
+        params={
+            "column": "Extends",
+            "detail": (
+                "vocabulary says nothing about what it extends — a base vocabulary declares that "
+                "with the none marker, because an empty cell and an omission render the same thing"
+            ),
+        },
+        intent="a vocabulary states what it extends, or states that it extends nothing",
+    ),
     Rule(
         id="STORE_WITHOUT_PROPOSED_PATH",
         check="CELL_NOT_EMPTY",

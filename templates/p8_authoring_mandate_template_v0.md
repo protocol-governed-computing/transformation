@@ -105,7 +105,13 @@ critical path.*
 
 ## 4. Subdomain Field Declarations
 
-*The `subdomain` field for every WF / CC / EV / RB artifact — governs trace routing and data-store path resolution. `code` is copied verbatim from a Stage 7 register.*
+*The `subdomain` field for every WF / CC / EV / RB artifact — governs trace routing and data-store
+path resolution. `code` is copied verbatim from a Stage 7 register.*
+
+*Scheduled **and amended** alike. An artifact this change extends or replaces is never a build step,
+so nothing in the build order names it, and a workflow whose subdomain went undeclared rendered an
+empty one while every rule passed. The artifact already sits in a subdomain; this states which,
+because construction has no view of the composition to read it from.*
 
 <!-- register:field_declarations -->
 | Code | Subdomain Field |

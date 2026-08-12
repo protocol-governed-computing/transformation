@@ -1204,8 +1204,17 @@ def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]
     # than on its presence. Absent the gate every prior row obliges, which is the prior behaviour.
     gate_column = rule.params.get("prior_only_when_column")
     gate_values = rule.params.get("prior_only_when_values")
+    # A family gate, where the obligation is about what kind of artifact a row names rather than
+    # what the row says about it. `existing_inventory` carries no Family column — an artifact
+    # carried over from the composition states its family in its own identity, which is the only
+    # place it can, because the design assigns it no new code. So the prefix is the family.
+    gate_prefixes = rule.params.get("prior_only_when_prefixes")
 
     def obliges(row) -> bool:
+        if gate_prefixes:
+            code = _cell(row, rule.params["prior_column"]).split("::")[-1]
+            if not any(code.startswith(prefix) for prefix in gate_prefixes):
+                return False
         if not gate_column:
             return True
         return _cell(row, gate_column) in gate_values

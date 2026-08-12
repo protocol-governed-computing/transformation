@@ -269,7 +269,7 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict
         "governed_by": GOVERNED_BY[fam],
     }
     builder = _BUILDERS[fam]
-    if fam in ("RB", "CC", "TI", "WF"):
+    if fam in ("RB", "CC", "TI", "WF", "VOCAB"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
@@ -527,11 +527,22 @@ def _actor(m, code, short, summary, sub, p7, p8):
                  "attributes": typed_fields(p7, code, "ATTRIBUTE")}
 
 
-def _vocabulary(m, code, short, summary, sub, p7, p8):
+def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None):
+    """A controlled vocabulary: what it admits, and what it builds on.
+
+    A base vocabulary extends nothing, and that is a decision rather than an omission. The design
+    says so with the none marker; rendered, the field is empty either way, so the measurement is told
+    which emptiness this is. Without that a vocabulary nobody finished and one deliberately rooted
+    look identical, and only one of them is designed.
+    """
     entries = [cell(r, "Value") for r in rows(p7, "vocabulary_extensions")
                if bare(cell(r, "Vocabulary Code")) == short]
     extends = next((cell(r, "Extends") for r in rows(p7, "vocabulary_extensions")
                     if bare(cell(r, "Vocabulary Code")) == short), "")
+    if extends in ("—", "-", "NONE"):
+        extends = ""
+        if declared_empty is not None:
+            declared_empty.append("extends")
     m.pop("core", None)
     m["extends"] = extends
     m["result_status"] = {"casing": "UPPER_SNAKE", "entries": entries}

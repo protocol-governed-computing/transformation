@@ -293,6 +293,10 @@ molecule.*
 `DENIED` needs `DENIED` to exist; the routing surface and the vocabulary that admits it are declared
 together or the composition compiles with a status nothing recognizes.*
 
+*`Extends` is required and the none marker is an answer. A vocabulary that builds on nothing is a
+base vocabulary, which is a decision; left blank it is indistinguishable from a design that never
+settled the question, and both render the same empty field.*
+
 <!-- register:vocabulary_extensions optional -->
 | Vocabulary Code | Extends | Value | Meaning | Source Finding |
 |-----------------|---------|-------|---------|----------------|

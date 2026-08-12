@@ -1038,6 +1038,14 @@ core:
             - FQDN
             detail: an interpreting transform is an artifact like any other, declared or carried over
           intent: the transform that turns an observation into a decision is itself governed
+        - id: VOCABULARY_WITHOUT_EXTENDS
+          check: CELL_NOT_EMPTY
+          register: vocabulary_extensions
+          params:
+            column: Extends
+            detail: vocabulary says nothing about what it extends — a base vocabulary declares that with the none
+              marker, because an empty cell and an omission render the same thing
+          intent: a vocabulary states what it extends, or states that it extends nothing
         - id: STORE_WITHOUT_PROPOSED_PATH
           check: CELL_NOT_EMPTY
           register: structure_stores

@@ -313,6 +313,26 @@ core:
             source_column: Code
             column: Code
           intent: every artifact the mandate schedules declares the subdomain it is built into
+        - id: AMENDED_ARTIFACT_UNPLACED
+          check: PRIOR_IDENTITIES_COVERED
+          register: field_declarations
+          params:
+            prior_phase: p7
+            prior_register: existing_inventory
+            prior_column: FQDN
+            column: Code
+            require: prior_in_here
+            match_on: bare_code
+            prior_only_when_column: Action
+            prior_only_when_values:
+            - EXTEND
+            - REPLACE
+            prior_only_when_prefixes:
+            - WF_
+            - CC_
+            - EV_
+            - RB_
+          intent: an artifact this change amends declares the subdomain it is placed in, as a scheduled one does
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:

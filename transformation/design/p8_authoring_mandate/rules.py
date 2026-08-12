@@ -188,6 +188,32 @@ COMPLETENESS_RULES: list[Rule] = [
         },
         intent="every artifact the mandate schedules declares the subdomain it is built into",
     ),
+    # The same obligation on the other half of what construction produces, and it was missing for
+    # the same reason placement completeness was missing before it: every rule judged the rows that
+    # were present. An amended artifact is never a build step — `BUILD_CODE_ALREADY_EXISTS` refuses
+    # to mandate authoring an identity the composition already holds — so nothing reached it, and a
+    # workflow this change extends rendered `subdomain: ''` while the design passed every rule.
+    #
+    # Gated to the families whose artifacts carry the field. A STRUCTURE does not, and the one this
+    # change amends is generated besides: obliging a subdomain for it would oblige a fact nothing
+    # reads and no design decides.
+    Rule(
+        id="AMENDED_ARTIFACT_UNPLACED",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="field_declarations",
+        params={
+            "prior_phase": "p7",
+            "prior_register": "existing_inventory",
+            "prior_column": "FQDN",
+            "column": "Code",
+            "require": "prior_in_here",
+            "match_on": "bare_code",
+            "prior_only_when_column": "Action",
+            "prior_only_when_values": ["EXTEND", "REPLACE"],
+            "prior_only_when_prefixes": ["WF_", "CC_", "EV_", "RB_"],
+        },
+        intent="an artifact this change amends declares the subdomain it is placed in, as a scheduled one does",
+    ),
 ]
 
 
