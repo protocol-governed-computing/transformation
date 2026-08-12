@@ -223,7 +223,9 @@ transformation/
 templates/                the required section structure, one per phase
 registry/                 this repo's own governance artefacts — design/ and build/
                           are compiled subdomains, like any domain's
-dossiers/                 this repo's own authored dossiers
+dossiers/                 this repo's own authored dossiers — every domain repo
+                          carries its own, platform included; a dossier lives with
+                          the domain it changes
 doc/                      the phase definitions and the compiler plan
 ```
 
