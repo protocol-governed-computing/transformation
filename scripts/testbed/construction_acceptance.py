@@ -42,7 +42,10 @@ REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
 # In order. A dossier appended here is a change that came after the ones above it, and the ordering
 # is the whole of what makes the composite meaningful.
-CR_DOSSIERS = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers"
+# The fixture dossiers, not the approved ones. A closed change request is evidence and is never
+# amended to satisfy a rule written after it was gated; a fixture is maintained against the
+# current rule set on purpose. See `fixture_dossiers/README.md`.
+CR_DOSSIERS = REPO / "scripts/testbed/fixture_dossiers"
 DOSSIERS = [CR_DOSSIERS / "cr_01_catalog", CR_DOSSIERS / "cr_02_catalog"]
 REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 

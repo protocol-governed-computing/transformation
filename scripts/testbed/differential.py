@@ -39,8 +39,10 @@ from transformation.design.p8_authoring_mandate.rules import rule_set as p8_rule
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
 
-# A business CR's dossier lives with the domain it changes, not with the pipeline that judges it.
-CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog"
+# The fixture dossiers, not the approved ones. A closed change request is evidence and is never
+# amended to satisfy a rule written after it was gated; a fixture is maintained against the
+# current rule set on purpose. See `fixture_dossiers/README.md`.
+CR_01 = REPO / "scripts/testbed/fixture_dossiers/cr_01_catalog"
 
 # A CR's dossier grounds against the composition it was designed against; judged against the live
 # one, the P7/P8 documents report collisions with their own output — true, and uninformative about

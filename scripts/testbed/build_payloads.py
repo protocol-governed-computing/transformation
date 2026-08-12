@@ -18,37 +18,40 @@ OUT = REPO / "testbed" / "phases" / "test_payloads"
 
 AUTHOR = "bachipeachy"
 
-# A source is resolved against the repo unless it names a workspace root. CR-0 is this repo's own
-# change request and its dossier lives here; a business CR's dossier lives with the domain it
-# changes, which is a sibling repo. Both are payload sources, so the map carries the root.
+# A source is resolved against the repo unless it names a workspace root. Every payload source is
+# now local — this repo's own dossiers, its corpus, and the fixture dossiers — but the map stays
+# because a payload cut from a sibling repo is a legitimate thing to want again.
 ROOTS = {"business_domains": WORKSPACE}
 
+# The fixture dossiers, not the approved ones. A closed change request is evidence and is never
+# amended to satisfy a rule written after it was gated; a fixture is maintained against the
+# current rule set on purpose. See `fixture_dossiers/README.md`.
 CATALOG_P1 = (
-    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "scripts/testbed/fixture_dossiers/cr_01_catalog/"
     "p1_change_request_book_library_mgmt_catalog_v0.md"
 )
 CATALOG_P0 = (
-    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "scripts/testbed/fixture_dossiers/cr_01_catalog/"
     "p0_seed_book_library_mgmt_catalog_v0.md"
 )
 CATALOG_P3 = (
-    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "scripts/testbed/fixture_dossiers/cr_01_catalog/"
     "p3_analysis_loop_book_library_mgmt_catalog_v0.md"
 )
 CATALOG_P6 = (
-    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "scripts/testbed/fixture_dossiers/cr_01_catalog/"
     "p6_governance_intent_book_library_mgmt_catalog_v0.md"
 )
 CATALOG_P5 = (
-    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "scripts/testbed/fixture_dossiers/cr_01_catalog/"
     "p5_business_intent_book_library_mgmt_catalog_v0.md"
 )
 CATALOG_P7 = (
-    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "scripts/testbed/fixture_dossiers/cr_01_catalog/"
     "p7_design_intent_book_library_mgmt_catalog_v0.md"
 )
 CATALOG_P2 = (
-    "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+    "scripts/testbed/fixture_dossiers/cr_01_catalog/"
     "p2_domain_model_book_library_mgmt_catalog_v0.md"
 )
 
@@ -76,15 +79,15 @@ PAYLOADS = {
     # cannot exercise a phase against business content; these three carry the same phases over a
     # library catalog instead.
     "10_p0_admissible_catalog_seed.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p0_seed_book_library_mgmt_catalog_v0.md"
     ),
     "11_p1_admissible_catalog_register.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p1_change_request_book_library_mgmt_catalog_v0.md"
     ),
     "12_p2_admissible_catalog_register.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p2_domain_model_book_library_mgmt_catalog_v0.md"
     ),
     # The catalog register with three defects introduced. Without it the evidence that the rules
@@ -97,7 +100,7 @@ PAYLOADS = {
     # pipeline capability and a conformance workload: the exact confusion the reuse ruling exists
     # to prevent, and one no amount of reading the document could catch.
     "14_p3_admissible_catalog_register.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p3_analysis_loop_book_library_mgmt_catalog_v0.md"
     ),
     "15_p3_inadmissible_catalog_register.json": (
@@ -107,7 +110,7 @@ PAYLOADS = {
     # inadmissible case points a capability and a scope entry at gaps nobody declared, leaves a
     # gap unowned, and depends on an artifact in the wrong namespace.
     "16_p4_admissible_catalog_register.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p4_business_model_book_library_mgmt_catalog_v0.md"
     ),
     "17_p4_inadmissible_catalog_register.json": (
@@ -117,7 +120,7 @@ PAYLOADS = {
     # files a code under the wrong family, borrows a capability that is not there, and leaks a
     # binding expression into intent.
     "18_p5_admissible_catalog_register.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p5_business_intent_book_library_mgmt_catalog_v0.md"
     ),
     "19_p5_inadmissible_catalog_register.json": (
@@ -127,7 +130,7 @@ PAYLOADS = {
     # capability satisfied with nothing to show, gives a boundary one side, and reaches an outcome
     # for a capability nobody placed.
     "20_p6_admissible_catalog_register.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p6_governance_intent_book_library_mgmt_catalog_v0.md"
     ),
     "21_p6_inadmissible_catalog_register.json": (
@@ -137,7 +140,7 @@ PAYLOADS = {
     # exists, omits a namespace, references a spelling variant nobody declared, and leaves a store
     # with nowhere to live.
     "22_p7_admissible_catalog_register.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p7_design_intent_book_library_mgmt_catalog_v0.md"
     ),
     "23_p7_inadmissible_catalog_register.json": (
@@ -147,7 +150,7 @@ PAYLOADS = {
     # the thing that needs it, and routes the critical path through a step nobody scheduled — three
     # defects that exist between rows rather than in any one of them.
     "24_p8_admissible_catalog_mandate.json": (
-        "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog/"
+        "scripts/testbed/fixture_dossiers/cr_01_catalog/"
         "p8_authoring_mandate_book_library_mgmt_catalog_v0.md"
     ),
     "25_p8_inadmissible_catalog_mandate.json": (

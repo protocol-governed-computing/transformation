@@ -23,7 +23,10 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
-CR_01 = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog"
+# The fixture dossiers, not the approved ones. A closed change request is evidence and is never
+# amended to satisfy a rule written after it was gated; a fixture is maintained against the
+# current rule set on purpose. See `fixture_dossiers/README.md`.
+CR_01 = REPO / "scripts/testbed/fixture_dossiers/cr_01_catalog"
 CORPUS = REPO / "scripts/testbed"
 
 P0 = CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"
