@@ -567,6 +567,7 @@ core:
           register: provisional_codes
           params:
             columns:
+            - Subdomain
             - Provisional Code
             - Family
             - Summary
@@ -714,6 +715,20 @@ core:
             column: Subdomain
             require: prior_in_here
           intent: every subdomain a change touches has its purpose stated
+        - id: TOUCHED_SUBDOMAIN_AUTHORS_NOTHING
+          check: PRIOR_IDENTITIES_COVERED
+          register: provisional_codes
+          params:
+            prior_phase: p0
+            prior_register: cr_type
+            prior_column: Subdomain
+            column: Subdomain
+            require: prior_in_here
+            prior_only_when_column: Classification
+            prior_only_when_values:
+            - NEW_SUBDOMAIN
+            - EXTEND_SUBDOMAIN
+          intent: a subdomain a change authors into names the artifacts it authors
         - id: PROVISIONAL_CODE_ALREADY_BOUND
           check: CELL_TOKEN_ABSENT
           register: provisional_codes

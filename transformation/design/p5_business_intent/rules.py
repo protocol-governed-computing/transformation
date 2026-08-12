@@ -210,6 +210,27 @@ SPAN_RULES: list[Rule] = [
         },
         intent="every subdomain a change touches has its purpose stated",
     ),
+    Rule(
+        id="TOUCHED_SUBDOMAIN_AUTHORS_NOTHING",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="provisional_codes",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "cr_type",
+            "prior_column": "Subdomain",
+            "column": "Subdomain",
+            "require": "prior_in_here",
+            # Gated on the classification: a subdomain this change creates, extends or modifies
+            # authors something in it. One merely read is named in a dependency, not here, and a
+            # retirement may author nothing at all. MODIFY is outside the gate too: a change may
+            # amend an existing artifact without authoring one, and rule_expressiveness is the
+            # standing counterexample. Catching a MODIFY that authors without intent needs P7's
+            # inventory, where amendment and authoring are both stated.
+            "prior_only_when_column": "Classification",
+            "prior_only_when_values": ["NEW_SUBDOMAIN", "EXTEND_SUBDOMAIN"],
+        },
+        intent="a subdomain a change authors into names the artifacts it authors",
+    ),
 ]
 
 

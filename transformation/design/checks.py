@@ -1199,10 +1199,21 @@ def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]
         raise KeyError(f"{rule.id}: 'match_on' must be exact or bare_code, not {match_on!r}")
     normalise = (lambda v: v.split("::")[-1]) if match_on == "bare_code" else (lambda v: v)
 
+    # A prior row may not oblige anything. A subdomain a change merely reads is named upstream and
+    # authors nothing, so the obligation is gated on what the upstream row says about itself rather
+    # than on its presence. Absent the gate every prior row obliges, which is the prior behaviour.
+    gate_column = rule.params.get("prior_only_when_column")
+    gate_values = rule.params.get("prior_only_when_values")
+
+    def obliges(row) -> bool:
+        if not gate_column:
+            return True
+        return _cell(row, gate_column) in gate_values
+
     there = {
         normalise(identity): ordinal
         for ordinal, row in prior_rows
-        if (identity := _cell(row, rule.params["prior_column"]))
+        if obliges(row) and (identity := _cell(row, rule.params["prior_column"]))
     }
     here = {
         normalise(identity): i
