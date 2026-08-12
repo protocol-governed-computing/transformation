@@ -194,9 +194,16 @@ COMPLETENESS_RULES: list[Rule] = [
     # to mandate authoring an identity the composition already holds — so nothing reached it, and a
     # workflow this change extends rendered `subdomain: ''` while the design passed every rule.
     #
-    # Gated to the families whose artifacts carry the field. A STRUCTURE does not, and the one this
-    # change amends is generated besides: obliging a subdomain for it would oblige a fact nothing
-    # reads and no design decides.
+    # Gated to the families construction renders into a subdomain, which is wider than the families
+    # that carry a `subdomain` field. The path an artifact is written to is `registry/<subdomain>/…`,
+    # so an amended boundary contract with no declared subdomain was rendered to `registry//transport/`
+    # — a second copy at a path nobody reads, while the artifact it was meant to amend stayed as it
+    # was and kept routing to a workflow that had been stood down.
+    #
+    # EXTEND only, and STRUCTURE stays out — both for one reason. The obligation follows what
+    # construction *renders*. A replaced artifact is marked superseded where it already sits and is
+    # never written, and a generated one is reached by invoking its generator. Neither has a path
+    # for a subdomain to resolve, so obliging one would oblige a fact nothing reads.
     Rule(
         id="AMENDED_ARTIFACT_UNPLACED",
         check="PRIOR_IDENTITIES_COVERED",
@@ -209,8 +216,8 @@ COMPLETENESS_RULES: list[Rule] = [
             "require": "prior_in_here",
             "match_on": "bare_code",
             "prior_only_when_column": "Action",
-            "prior_only_when_values": ["EXTEND", "REPLACE"],
-            "prior_only_when_prefixes": ["WF_", "CC_", "EV_", "RB_"],
+            "prior_only_when_values": ["EXTEND"],
+            "prior_only_when_prefixes": ["AC_", "IN_", "WF_", "CC_", "CT_", "EV_", "RB_", "VOCAB_", "TI_", "TE_"],
         },
         intent="an artifact this change amends declares the subdomain it is placed in, as a scheduled one does",
     ),

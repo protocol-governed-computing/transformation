@@ -753,6 +753,11 @@ def _transport_ingress(m, code, short, summary, sub, p7, p8, declared_empty=None
             _nest(template, field, _bound_value(cell(row, "Bound To")))
     if template:
         handler["payload_template"] = template
+        if declared_empty is not None:
+            # A payload leaf the design wrote as empty is determined, not missing. A rule refusing a
+            # value equal to the empty string states that emptiness as its subject — measured as an
+            # omission, the design would be told to supply the very thing it is forbidding.
+            declared_empty.extend(_declared_empty_leaves(template, "handler.payload_template"))
     m["handler"] = handler
 
 
