@@ -46,7 +46,10 @@ from transformation.build.generators import (
 from transformation.design.emit import emit as emit_phase_workflows
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.meta import RULE_MODULES, verify as meta_verify
+from transformation.design.emit import workflow_fqdn
+from transformation.design.evaluate import DeclaredRule
 from transformation.design.oracle import evaluate
+from transformation.design.sealed import sealed_rule_set
 from transformation.design.project import PROJECTIONS
 from transformation.design.read import read_seed
 from transformation.design import catalog
@@ -121,12 +124,16 @@ _PHASE_OPTION = click.option(
     metavar="PHASE=PATH",
     help="An upstream phase document this one is judged against, e.g. --prior p1=<path>.",
 )
+@click.option("--rules", "rules_source", type=click.Choice(["sealed", "declared"]), default="sealed",
+              show_default=True,
+              help="Judge by the rule set sealed in --snapshot, or by the working tree's declaration.")
 @click.option("--json", "as_json", is_flag=True, help="Emit the verdict as JSON.")
 def phase_check(
     doc_path: Path,
     phase_key: str,
     snapshot_root: Path | None,
     prior_args: tuple[str, ...],
+    rules_source: str,
     as_json: bool,
 ) -> None:
     """Judge a phase document against that phase's structural oracle.
@@ -188,7 +195,27 @@ def phase_check(
             err=True,
         )
 
-    verdict = evaluate(doc, rules_mod.rule_set())
+    # Which rule set judges this document, and why it is the pinned one by default.
+    #
+    # A dossier pins the composition it is validated against, and every phase's rule set is sealed
+    # inside that composition's workflow — so the pin already names the rules. Reading them from the
+    # working tree instead judged an approved document by rules written after it was approved, which
+    # is how one added column turned every dossier ever written red. The composition a document is
+    # grounded against is the composition whose rules judge it; anything else grounds a claim in one
+    # world and rules on it from another.
+    #
+    # Which set ran is always printed. A verdict that does not say what judged it is a verdict whose
+    # meaning depends on a flag the reader cannot see.
+    rules, judged_by = rules_mod.rule_set(), "the working tree's declaration"
+    if rules_source == "sealed":
+        if snapshot_root:
+            sealed = sealed_rule_set(workflow_fqdn(phase_key), str(snapshot_root))
+            rules = [DeclaredRule.from_mapping(entry) for entry in sealed]
+            judged_by = f"the rule set sealed in {snapshot_root}"
+        else:
+            judged_by = "the working tree's declaration — no --snapshot to read a sealed one from"
+
+    verdict = evaluate(doc, rules)
     # Admissibility and quality are separate axes: the rule set decides the verdict, the figure of
     # merit says how good the document is. A document may be admissible and imperfect, or
     # inadmissible over one misspelling while otherwise strong.
@@ -200,6 +227,7 @@ def phase_check(
 
     if as_json:
         payload = verdict.as_dict()
+        payload["judged_by"] = judged_by
         payload["merit"] = None if merit is None else {
             "rating": merit.rating,
             "maximum": merit.maximum,
@@ -214,8 +242,9 @@ def phase_check(
         for finding in verdict.findings:
             click.echo(f"  {finding}")
         click.echo(
-            f"  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} declared rules"
+            f"  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} rules"
         )
+        click.echo(f"  judged by {judged_by}")
         click.echo()
         click.echo(f"  Status            {verdict.verdict}")
         if merit is None:

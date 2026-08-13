@@ -55,6 +55,16 @@ SEALED_IN = {
 # the agreement check compares a design against a generator it did not name.
 GENERATOR = "transformation.design.emit:emit_rule_sets"
 
+def workflow_fqdn(phase_id: str) -> str:
+    """The identity of the artifact carrying a phase's sealed rule set.
+
+    Derived from the one map above rather than restated, because a second spelling of which workflow
+    belongs to which phase is a second thing to get wrong — and the thing it would get wrong is which
+    rules a document is judged by.
+    """
+    return f"transformation::{SEALED_IN[phase_id][:-len('.md')]}"
+
+
 RULE_SET_INDENT = 8
 
 PROVENANCE_HEADING = "## Generated Artifact"

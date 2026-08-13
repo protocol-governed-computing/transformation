@@ -61,10 +61,15 @@ CAPABILITY_OBSERVATION = "si.capability.surface"
 
 TRANSFORM_OBSERVATION = "si.capability.surface#transforms"
 
+# What a capability contract requires. A reused contract declares nothing in the design —
+# it already exists — so the only place its interface can be read is the composition.
+CONTRACT_OBSERVATION = "si.capability.surface#contracts"
+
 OBSERVATIONS = {
     OBSERVATION_OPERATION: "artifacts",
     CAPABILITY_OBSERVATION: "capabilities",
     TRANSFORM_OBSERVATION: "transforms",
+    CONTRACT_OBSERVATION: "contracts",
 }
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
@@ -514,6 +519,31 @@ INTERFACE_RULES: list[Rule] = [
         intent="a declared implementation says where it lives",
     ),
     Rule(
+        id="IMPLEMENTATION_MODULE_MISPLACED",
+        check="IMPLEMENTATION_MODULE_CONFORMS",
+        register="implementation_bindings",
+        params={
+            "code_column": "CT Code",
+            "module_column": "Module",
+            "namespace_template": "{domain}.implementation.capability_transforms.atoms",
+        },
+        intent="a transform's module is where its domain resolves implementations, named for the artifact",
+    ),
+    Rule(
+        id="IMPLEMENTATION_CALLABLE_UNCONVENTIONAL",
+        check="CELL_MATCHES",
+        register="implementation_bindings",
+        params={
+            "column": "Callable",
+            "pattern": r"^execute$",
+            "detail": (
+                "callable is {value!r}; every transform in the composition is entered through "
+                "`execute`, and a loader given another name finds nothing"
+            ),
+        },
+        intent="a transform is entered the one way every transform is entered",
+    ),
+    Rule(
         id="BINDING_WITHOUT_SOURCE",
         check="CELL_NOT_EMPTY",
         register="step_bindings",
@@ -548,6 +578,7 @@ INTERFACE_RULES: list[Rule] = [
         params={
             "topology_register": "execution_topology",
             "fields_register": "interface_fields",
+            "observation": CONTRACT_OBSERVATION,
         },
         intent="a workflow hands a contract everything that contract says it requires",
     ),

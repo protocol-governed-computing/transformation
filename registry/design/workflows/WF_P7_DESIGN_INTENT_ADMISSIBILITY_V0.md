@@ -1205,6 +1205,23 @@ core:
             column: Module
             detail: transform names no module — an implementation nobody can locate is not designed
           intent: a declared implementation says where it lives
+        - id: IMPLEMENTATION_MODULE_MISPLACED
+          check: IMPLEMENTATION_MODULE_CONFORMS
+          register: implementation_bindings
+          params:
+            code_column: CT Code
+            module_column: Module
+            namespace_template: '{domain}.implementation.capability_transforms.atoms'
+          intent: a transform's module is where its domain resolves implementations, named for the artifact
+        - id: IMPLEMENTATION_CALLABLE_UNCONVENTIONAL
+          check: CELL_MATCHES
+          register: implementation_bindings
+          params:
+            column: Callable
+            pattern: ^execute$
+            detail: callable is {value!r}; every transform in the composition is entered through `execute`, and
+              a loader given another name finds nothing
+          intent: a transform is entered the one way every transform is entered
         - id: BINDING_WITHOUT_SOURCE
           check: CELL_NOT_EMPTY
           register: step_bindings
@@ -1242,6 +1259,7 @@ core:
           params:
             topology_register: execution_topology
             fields_register: interface_fields
+            observation: si.capability.surface#contracts
           intent: a workflow hands a contract everything that contract says it requires
         - id: BINDING_SOURCE_UNREACHABLE
           check: BINDING_SOURCE_REACHABLE

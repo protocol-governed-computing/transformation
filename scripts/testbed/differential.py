@@ -26,6 +26,9 @@ from transformation.implementation.capability_transforms.atoms import (
 )
 from transformation.design.oracle import evaluate
 from transformation.design.read import read_seed
+# One implementation, shared with `tc phase check`. Two readers of the sealed rule set
+# would be two answers to "what judged this document".
+from transformation.design.sealed import sealed_rule_set
 from transformation.design.p0_change_seed.rules import rule_set as p0_rule_set
 from transformation.design.p1_change_request.rules import rule_set as p1_rule_set
 from transformation.design.p2_domain_model.rules import rule_set as p2_rule_set
@@ -155,33 +158,6 @@ PHASES = {
         ],
     },
 }
-
-
-def _find_rule_set(obj):
-    if isinstance(obj, dict):
-        for key, value in obj.items():
-            if key == "rule_set":
-                return value
-            found = _find_rule_set(value)
-            if found is not None:
-                return found
-    elif isinstance(obj, list):
-        for value in obj:
-            found = _find_rule_set(value)
-            if found is not None:
-                return found
-    return None
-
-
-def sealed_rule_set(wf: str, snapshot_root: str) -> list[dict]:
-    """The rule set as it exists in the composition — no Python declaration consulted."""
-    status, artifact = api.query("si.artifact.show", {"artifact": wf}, snapshot_root)
-    if status != "SUCCESS":
-        raise RuntimeError(f"{wf} not readable from {snapshot_root}: {status}")
-    rules = _find_rule_set(artifact)
-    if rules is None:
-        raise RuntimeError(f"{wf} carries no rule_set — the governance did not survive compilation")
-    return rules
 
 
 def observation(operations: dict | None, snapshot_root: str) -> dict:

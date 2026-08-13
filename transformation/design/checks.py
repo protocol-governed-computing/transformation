@@ -943,6 +943,25 @@ def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             continue
         declared.setdefault(_bare_identity(_cell(row, "Artifact")), set()).add(_cell(row, "Field"))
 
+    # A contract this design authors declares its interface above. One it *reuses* declares nothing —
+    # the contract already exists, so there is nothing for the design to restate — and that silence
+    # was read as "requires nothing". Every instance of this defect has been the same shape: a
+    # workflow reusing another subdomain's contract and handing it nothing, admissible over the full
+    # rule set, complete at 100%, and discovered only when the act ran and the contract received
+    # nulls. Three of them in one change.
+    #
+    # Unioned rather than overridden. A design extending a contract states the input it adds while
+    # the composition still requires the ones it had, and both must be bound; requiring too much is
+    # a finding an author can answer, requiring too little is one nobody sees.
+    observation = rule.params.get("observation")
+    for entry in (doc.observed.get(observation) or []) if observation else []:
+        if not isinstance(entry, dict):
+            continue
+        required = {name for name, spec in (entry.get("inputs") or {}).items()
+                    if isinstance(spec, dict) and spec.get("required")}
+        if required:
+            declared.setdefault(_bare_identity(str(entry.get("contract"))), set()).update(required)
+
     bound: dict[tuple[str, str], set[str]] = {}
     for _, row in _rows(doc, rule):
         if _cell(row, "Direction").upper() != "INPUT":
@@ -2098,6 +2117,45 @@ def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str,
             out.append((f"{_where(rule)} row {index}",
                         f"binds {field!r} on {key[1]}, which its interface does not carry — it "
                         f"declares {', '.join(sorted(allowed)) or 'nothing'} in that direction"))
+    return out
+
+
+@check("IMPLEMENTATION_MODULE_CONFORMS")
+def _implementation_module_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A transform's implementation sits where its domain says implementations live.
+
+    A capability transform is the one family whose artifact points outside the composition, and the
+    module path is the whole of that pointer. `IMPLEMENTATION_WITHOUT_MODULE` asks only whether the
+    cell is filled, so a path that is filled and wrong passed every rule, compiled, verified and
+    attested — and failed at execution, where the loader looked in a namespace the domain does not
+    use and found nothing.
+
+    The expected path is derived from the artifact's own identity rather than declared, because it
+    already is: the domain's build manifest resolves implementations under
+    `<domain>.implementation.capability_transforms.atoms`, and the module is named for the artifact it
+    implements. Asking a design to restate a path the composition already determines would invite it
+    to restate it differently, which is exactly what happened.
+    """
+    template = rule.params["namespace_template"]
+    code_column = rule.params["code_column"]
+    module_column = rule.params["module_column"]
+
+    out = []
+    for i, row in _rows(doc, rule):
+        code, module = _cell(row, code_column), _cell(row, module_column)
+        # Presence is another rule's business, and so is the shape of the identity. This one has an
+        # opinion only when there is both a well-formed code and a path to compare against it.
+        if not code or not module or "::" not in code:
+            continue
+        domain, _, bare = code.partition("::")
+        expected = f"{template.format(domain=domain)}.{bare.lower()}"
+        if module != expected:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"implementation is declared at {module!r}; {domain} resolves transforms at "
+                f"{expected!r}. A module the loader does not look for is a transform that does not "
+                f"run, and nothing below this notices until it is invoked",
+            ))
     return out
 
 
