@@ -78,6 +78,11 @@ CONTRACTS = REPO / "registry" / "design" / "capability_contracts"
 
 OBSERVED_INDENT = 6
 
+# The step that reads every observation, and therefore the one every observing step must precede.
+# Named once: the emission places steps relative to it, and a second spelling would place them
+# somewhere the runtime has already passed.
+OBSERVATION_CONSUMER = "evaluate_rules"
+
 PROVENANCE_HEADING = "## Generated Artifact"
 
 # The section is placed where a reader meets the artifact, before its narrative begins. Every one of
@@ -135,6 +140,69 @@ def render_observed(text: str) -> str:
             )
         lines.append(f"{pad}  {key}: $.results.{step}.capability_result.result.{field}\n")
     return "".join(lines)
+
+
+def step_name(operation: str) -> str:
+    """The step that performs an operation, named from the operation itself.
+
+    Derived so that adding an observation is one line in a phase's rule module. Naming the step by
+    hand would put the operation in the declaration and the step in the contract, which is the pair
+    that has to be kept in step — the same pair the `observed` map was generated to stop copying.
+    """
+    return "observe_" + operation.split("#", 1)[0].replace("si.", "", 1).replace(".", "_")
+
+
+def render_observing_step(operation: str) -> str:
+    """One pipeline step asking the bound snapshot capability one question.
+
+    The step is the last hand-kept copy of a declaration that already lives in a phase's rule
+    module. Generated, an observation a phase declares reaches the rules that read it; hand-written,
+    the emission could only report that it was missing — which it did, correctly, and then left
+    somebody to write the step themselves.
+    """
+    return (
+        f"  - step: {step_name(operation)}\n"
+        f"    side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0\n"
+        f"    op: QUERY\n"
+        f"    inputs:\n"
+        f"      operation: {operation}\n"
+        f"      params: {{}}\n"
+        f"    outputs: {{}}\n"
+        f"    result_surface:\n"
+        f"    - SUCCESS\n"
+        f"    - VIOLATION\n"
+        f"    - BACKEND_ERROR\n"
+        f"    on_result:\n"
+        f"      SUCCESS: continue\n"
+        f"      VIOLATION: exit\n"
+        f"      BACKEND_ERROR: exit\n"
+    )
+
+
+def splice_observing_steps(text: str) -> str:
+    """Place a step for every declared observation the contract does not already perform.
+
+    Inserted before the step that reads them, because the runtime chains by result and a step
+    consuming an observation produced after it reads nothing. Only the missing ones are written: a
+    step already there is the contract's own, and regenerating it would discard whatever a reviewer
+    put in its comments.
+    """
+    have = observing_steps(text)
+    missing = [op for op in sorted({k.split("#", 1)[0] for k in observations()})
+               if op not in have]
+    if not missing:
+        return text
+    lines = text.splitlines(keepends=True)
+    anchor = [i for i, line in enumerate(lines)
+              if line.rstrip("\n") == f"  - step: {OBSERVATION_CONSUMER}"]
+    if len(anchor) != 1:
+        raise SystemExit(
+            f"expected exactly one {OBSERVATION_CONSUMER!r} step in {JUDGE_CONTRACT} to place an "
+            f"observing step before, found {len(anchor)}"
+        )
+    at = anchor[0]
+    return "".join(lines[:at]) + "".join(render_observing_step(op) for op in missing) \
+        + "".join(lines[at:])
 
 
 def splice_observed(text: str, rendered: str) -> str:
@@ -307,7 +375,8 @@ def emit_contract(check_only: bool = False) -> Emission:
     """
     path = REPO / JUDGE_CONTRACT
     current = path.read_text(encoding="utf-8")
-    updated = splice_observed(current, render_observed(current))
+    stepped = splice_observing_steps(current)
+    updated = splice_observed(stepped, render_observed(stepped))
     drifted = updated != current
     if drifted and not check_only:
         path.write_text(updated, encoding="utf-8")

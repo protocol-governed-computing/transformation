@@ -158,6 +158,7 @@ core:
             - cross_subdomain_deps
             - cross_subdomain_notes
             - cross_subdomain_refs
+            - declared_reach
             - dependency_discoveries
             - dependency_graph
             - design_decisions

@@ -402,6 +402,19 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
         nodes[node] = spec
 
     m["runtime_binding"] = binding
+    # The reach the design declared, emitted onto the act that declared it. Omitted where none is
+    # declared, which is most acts — the schema admits its absence and reads a present-but-empty
+    # list as a claim that the act consults nothing, which is a different statement.
+    #
+    # This is the half without which the register is decoration: a reach a reviewer approved and
+    # construction dropped would leave the act to be finished by hand, and a reach added by hand
+    # works, passes every check, and is one no reviewer saw.
+    consults = [cell(r, "Consults") for r in rows(p7, "declared_reach")
+                if bare(cell(r, "Act")) == short]
+    named = sorted({n for value in consults for n in
+                    (p.strip() for p in value.split(",")) if n and n not in ("—", "-")})
+    if named:
+        m["consults"] = named
     m["subdomain"] = sub
     m["structure"] = WORKFLOW_STRUCTURE
     m["core"] = {"summary": summary, "actor_context": actor, "start_node": start, "nodes": nodes}

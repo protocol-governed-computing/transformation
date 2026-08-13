@@ -64,6 +64,12 @@ artifact correctly and leaves that path unstated is admissible and still cannot 
 - **`—` in either column is a declaration, not a blank.** It says the step's output is data and the
   branches are the operation's own. It is the right answer for most steps and refused wherever the
   routing names an outcome the operation cannot produce.
+- **`Store` and `Consumes` take the same dash and it says something different in each.** In `Store`
+  it declares that the step addresses no store, which is true exactly when its capability keeps no
+  records — a clock and every transform. In `Consumes` it declares that the step hands the operation
+  nothing, which is true exactly when the operation takes no input. Both are checked against what the
+  composition publishes, so a storage step addressing nothing and a read consuming nothing are each
+  refused where they read as a design that works.
 - **Routing closure.** Every workflow branch is backed by the whole chain:
 
 ```
@@ -396,6 +402,32 @@ schedules something that never appears in a snapshot.*
 <!-- register:generation_provenance optional -->
 | Artifact | Generator | Generator Sources | Source Finding |
 |----------|-----------|-------------------|----------------|
+
+---
+
+## 17. Declared Reach
+
+*The bindings an act **consults** — the records another subdomain of its own domain owns, which this
+act reads and never writes. Ownership is §4 and is exactly one; reach is here and may be several,
+and the two are separate registers rather than one with a column telling them apart, because a
+column would put them a typo apart with nothing between them but the rule that reads it.*
+
+*`Act` is the workflow's binding FQDN; `Consults` names the binding, comma-separated for several,
+and **never the records behind it**. Which records a binding covers is the owning subdomain's own
+declaration, and restating it here is a second copy kept by someone other than whoever answers for
+it. The rules read the composition for that half.*
+
+*Every declared reach is used by a read the act performs, and every read the act's own binding does
+not cover is declared here. Neither half is a rule alone: the first permits a reserve, the second
+permits a silent reach.*
+
+*An act that reads only what it owns declares none, which is most acts.*
+
+<!-- register:declared_reach optional -->
+| Act | Consults | Source Finding |
+|-----|----------|----------------|
+
+---
 
 ---
 

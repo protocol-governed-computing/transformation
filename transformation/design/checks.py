@@ -2376,6 +2376,262 @@ def _interpretation_transform_refuses(doc: ParsedDocument, rule) -> list[tuple[s
     return out
 
 
+@check("STORE_GROUNDED_IN_CAPABILITY")
+def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A step names a store when its capability keeps one, and does not when it does not.
+
+    `Store` is the third em-dash column in the step register and the only one no check read at all:
+    88 of 155 steps in the corpus declare `—` there, and the column reached the register-columns
+    check and stopped. So both halves were unstated — a storage step that named nothing, and a
+    clock step that named a store — and neither could be told from a step that was right.
+
+    The dash is the same kind of declaration `Interpreted By`'s is: it says this step addresses no
+    store. What decides whether that is true is the capability's `category`, published per
+    capability and authored on the artifact rather than inferred from the name. `storage` keeps
+    records; `external` and `inspection` do not, and a capability transform keeps none by being one.
+
+    An unknown capability is `COMPOSITION_STEP_UNDECLARED`'s finding and an unknown operation is
+    `STEP_NAMES_UNPUBLISHED_OPERATION`'s; neither is restated here.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(
+            _where(rule),
+            "no capability surface was observed — whether a step addresses a store cannot be "
+            "checked against capabilities nobody published",
+        )]
+
+    storage, known = set(), set()
+    for entry in observed:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("capability") is not None:
+            identity = _bare_identity(str(entry["capability"]))
+            known.add(identity)
+            if str(entry.get("category") or "").lower() == rule.params["storage_category"]:
+                storage.add(identity)
+        elif entry.get("transform") is not None:
+            known.add(_bare_identity(str(entry["transform"])))
+
+    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
+    out = []
+    for i, row in _rows(doc, rule):
+        capability = _bare_identity(_cell(row, rule.params["capability_column"]))
+        if capability not in known:
+            continue
+        keeps_records = capability in storage
+        if (_cell(row, rule.params["column"]) not in none_markers) == keeps_records:
+            continue
+        detail = rule.params["detail_missing"] if keeps_records else rule.params["detail_spurious"]
+        out.append((f"{_where(rule)} row {i}", detail.format(capability=capability)))
+    return out
+
+
+@check("CONSUMPTION_GROUNDED_IN_OPERATION")
+def _consumption_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A step consuming nothing must invoke an operation that takes nothing.
+
+    `STEP_CONSUMES_UNDECLARED_INPUT` holds every named field to the published surface and skips the
+    em-dash, which is the half that says a step hands the operation nothing at all. Nine steps in
+    the corpus declare it, and until now the claim was unexamined: a `READ` consuming `—` addresses
+    no key, and the operation receives null for the one input it has.
+
+    Grounded in the operation's published `input`, so the dash is admissible exactly when there is
+    nothing to hand over — `NOW` and `SELECT` take none, and both are in the corpus.
+
+    CS steps only, for the reason the binding check gives: on a transform step the column carries
+    domain-side names against the transform's own formals, so comparing them reports a defect where
+    a mapping exists.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(
+            _where(rule),
+            "no capability surface was observed — whether a step hands an operation nothing cannot "
+            "be checked against operations nobody published",
+        )]
+
+    inputs = {(_bare_identity(str(c.get("capability"))), op.upper()): list(spec.get("input") or [])
+              for c in observed if isinstance(c, dict)
+              for op, spec in (c.get("operations") or {}).items()}
+
+    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
+    out = []
+    for i, row in _rows(doc, rule):
+        if _cell(row, rule.params["kind_column"]).upper() != rule.params["kind_value"]:
+            continue
+        operation = _cell(row, "Operation").upper()
+        declared = inputs.get((_bare_identity(_cell(row, rule.params["capability_column"])), operation))
+        if not declared:
+            continue
+        if _cell(row, rule.params["column"]) not in none_markers:
+            continue
+        out.append((
+            f"{_where(rule)} row {i}",
+            rule.params["detail"].format(
+                operation=operation,
+                accepts=", ".join(sorted(declared)),
+            ),
+        ))
+    return out
+
+
+def _binding_stores(observed: list) -> dict[str, set[str]]:
+    """`binding -> the store keys it covers`, inverted from the surface that answers every store.
+
+    The surface is keyed by store because that is what it lists; the question a reach asks is keyed
+    by binding. Inverting here rather than publishing it inverted keeps the projection a projection.
+    """
+    out: dict[str, set[str]] = {}
+    for entry in observed:
+        if not isinstance(entry, dict):
+            continue
+        key = str(entry.get("key") or "")
+        for binding in entry.get("bindings") or []:
+            out.setdefault(_bare_identity(str(binding)), set()).add(key)
+    return out
+
+
+def _store_keys(observed: list) -> dict[str, str]:
+    """`bare store name -> its one key`, and nothing for a name two domains both declare.
+
+    A design names a store by its bare name. Where that name is ambiguous the design has not said
+    which store it means, and guessing would attribute a read to the wrong domain — so the name
+    resolves to nothing and the rules that need it stay silent about it.
+    """
+    seen: dict[str, list[str]] = {}
+    for entry in observed:
+        if isinstance(entry, dict) and entry.get("store"):
+            seen.setdefault(str(entry["store"]), []).append(str(entry.get("key") or ""))
+    return {name: keys[0] for name, keys in seen.items() if len(keys) == 1}
+
+
+def _act_stores(doc: ParsedDocument, rule, keys: dict[str, str]) -> dict[str, set[str]]:
+    """`act -> the store keys the steps it runs address`.
+
+    Read from the composition for a contract that already exists and from the design's own
+    composition for one it authors, because an act's reads are what the change is judged on and half
+    of them may not be built yet.
+    """
+    contracts: dict[str, set[str]] = {}
+    for entry in doc.observed.get(rule.params["contract_observation"]) or []:
+        if not isinstance(entry, dict):
+            continue
+        stores = {keys[s] for step in entry.get("steps") or []
+                  if (s := str(step.get("store") or "")) in keys}
+        contracts[_bare_identity(str(entry.get("contract")))] = stores
+
+    for (owner, _), row in _composition_steps(doc, rule.params["composition_register"]).items():
+        store = _cell(row, "Store")
+        if store in keys:
+            contracts.setdefault(owner, set()).add(keys[store])
+
+    out: dict[str, set[str]] = {}
+    block = doc.register(rule.params["topology_register"])
+    for _, row in _content_rows(block) if block is not None else []:
+        act = _bare_identity(_cell(row, "Workflow"))
+        node = _bare_identity(_cell(row, "Node"))
+        if node in contracts:
+            out.setdefault(act, set()).update(contracts[node])
+    return out
+
+
+def _declared_reach(doc: ParsedDocument, rule) -> dict[str, set[str]]:
+    """`act -> the bindings its design says it consults`."""
+    out: dict[str, set[str]] = {}
+    block = doc.register(rule.params["register"])
+    for _, row in _content_rows(block) if block is not None else []:
+        act = _bare_identity(_cell(row, "Act"))
+        for binding in _named(_cell(row, "Consults")):
+            out.setdefault(act, set()).add(_bare_identity(binding))
+    return out
+
+
+def _own_binding(doc: ParsedDocument, rule) -> dict[str, str]:
+    """`act -> the binding it owns`, from the declarations that bind one to each workflow."""
+    out: dict[str, str] = {}
+    block = doc.register(rule.params["rb_register"])
+    for _, row in _content_rows(block) if block is not None else []:
+        out[_bare_identity(_cell(row, "Binds WF"))] = _bare_identity(_cell(row, "RB Code"))
+    return out
+
+
+@check("REACH_IS_USED")
+def _reach_is_used(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A declared reach must be read by something the act does.
+
+    Half of one statement, and the half that alone permits a reserve: an act may declare a reach to
+    records it never touches, and nothing would say so. The other half — refusing an undeclared read
+    — permits the opposite, a read nobody declared. Together the declared set and the used set are
+    the same set, which is the whole of what the business asked for.
+
+    A binding the composition does not publish is not judged here. The reach that matters consults
+    another subdomain's existing binding, which is always published; one this design authors has no
+    stores in the composition yet, and refusing it would refuse the design for being new.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(_where(rule),
+                 "no store surface was observed — whether a declared reach is read cannot be "
+                 "checked against stores nobody published")]
+
+    covers = _binding_stores(observed)
+    reads = _act_stores(doc, rule, _store_keys(observed))
+
+    out = []
+    for act, bindings in sorted(_declared_reach(doc, rule).items()):
+        for binding in sorted(bindings):
+            stores = covers.get(binding)
+            if stores is None:
+                continue
+            if stores & reads.get(act, set()):
+                continue
+            out.append((
+                f"{_where(rule)} {act}",
+                rule.params["detail"].format(
+                    binding=binding,
+                    stores=", ".join(sorted(s.split("::")[-1] for s in stores)) or "no records",
+                ),
+            ))
+    return out
+
+
+@check("READ_IS_DECLARED")
+def _read_is_declared(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An act reads nothing it did not declare a reach to.
+
+    The other half. A step addressing records that neither the act's own binding nor any reach it
+    declared covers is reaching, and the design does not say so — which is exactly the state the
+    blocked change was in, and it was invisible until the act ran.
+
+    An act whose own binding does not resolve is left alone: what it owns is undecided, so what it
+    reaches cannot be told apart from it.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(_where(rule),
+                 "no store surface was observed — whether an act reads what it declared cannot be "
+                 "checked against stores nobody published")]
+
+    covers = _binding_stores(observed)
+    reads = _act_stores(doc, rule, _store_keys(observed))
+    reach = _declared_reach(doc, rule)
+
+    out = []
+    for act, owned in sorted(_own_binding(doc, rule).items()):
+        if owned not in covers:
+            continue
+        permitted = set(covers[owned])
+        for binding in reach.get(act, set()):
+            permitted |= covers.get(binding, set())
+        for store in sorted(reads.get(act, set()) - permitted):
+            out.append((
+                f"{_where(rule)} {act}",
+                rule.params["detail"].format(store=store, binding=owned),
+            ))
+    return out
+
+
 @check("COLUMN_VALUES_UNIQUE")
 def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """A column whose value identifies the row, so two rows may not carry the same one.

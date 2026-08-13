@@ -443,6 +443,15 @@ generator.*
 
 ---
 
+## 17. Declared Reach
+
+<!-- register:declared_reach optional -->
+| Act | Consults | Source Finding |
+|-----|----------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## Pipeline Provenance
 
 | Stage | Output | Status |

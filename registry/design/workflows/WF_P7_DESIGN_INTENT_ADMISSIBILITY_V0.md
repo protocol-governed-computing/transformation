@@ -150,6 +150,7 @@ core:
             - cross_subdomain_deps
             - cross_subdomain_notes
             - cross_subdomain_refs
+            - declared_reach
             - dependency_discoveries
             - dependency_graph
             - design_decisions
@@ -899,6 +900,44 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: declared_reach
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: declared_reach
+          params:
+            columns:
+            - Act
+            - Consults
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: declared_reach
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: declared_reach
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: declared_reach
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -1057,6 +1096,58 @@ core:
               outcome routed on is an interpretation's, and the workflow branch it feeds has nothing declared
               to route on
           intent: an interpretation names the outcome it yields, closing the route
+        - id: STORE_UNGROUNDED_IN_CAPABILITY
+          check: STORE_GROUNDED_IN_CAPABILITY
+          register: cc_composition
+          params:
+            column: Store
+            capability_column: Capability
+            storage_category: storage
+            observation: si.capability.surface
+            detail_missing: names no store on {capability}, which keeps records — a storage step that addresses
+              nothing is a read or a write with no subject
+            detail_spurious: names a store on {capability}, which keeps none — the step addresses records that
+              capability has no way to hold
+          intent: a step addresses a store exactly when its capability keeps one
+        - id: STEP_CONSUMES_NOTHING_FROM_OPERATION_WITH_INPUT
+          check: CONSUMPTION_GROUNDED_IN_OPERATION
+          register: cc_composition
+          params:
+            column: Consumes
+            capability_column: Capability
+            kind_column: Kind
+            kind_value: CS
+            observation: si.capability.surface
+            detail: consumes nothing and invokes {operation}, which accepts {accepts} — the operation receives
+              no value for what it takes, and the step reports success on having addressed nothing
+          intent: a step consuming nothing invokes an operation that takes nothing
+        - id: DECLARED_REACH_UNUSED
+          check: REACH_IS_USED
+          register: declared_reach
+          params:
+            register: declared_reach
+            topology_register: execution_topology
+            composition_register: cc_composition
+            observation: si.store.list
+            contract_observation: si.capability.surface#contracts
+            detail: declares a reach to {binding} and reads nothing it covers — that binding answers for {stores},
+              and no step this act runs addresses any of them. A permission granted for nothing is one whose purpose
+              nobody reviewed
+          intent: every reach an act declares is used by a read that act performs
+        - id: UNDECLARED_REACH_READ
+          check: READ_IS_DECLARED
+          register: execution_topology
+          params:
+            register: declared_reach
+            rb_register: rb_declarations
+            topology_register: execution_topology
+            composition_register: cc_composition
+            observation: si.store.list
+            contract_observation: si.capability.surface#contracts
+            detail: reads {store}, which {binding} does not cover and no declared reach names — the act reaches
+              records another part of the business owns and its design does not say so, which is invisible until
+              the act runs
+          intent: an act reads nothing it did not declare a reach to
         - id: CROSS_SUBDOMAIN_WRITE
           check: CROSS_SUBDOMAIN_REACH_READ_ONLY
           register: execution_topology

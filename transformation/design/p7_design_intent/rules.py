@@ -65,11 +65,18 @@ TRANSFORM_OBSERVATION = "si.capability.surface#transforms"
 # it already exists — so the only place its interface can be read is the composition.
 CONTRACT_OBSERVATION = "si.capability.surface#contracts"
 
+# Which records each binding covers. A design names a binding and never the records behind it, so
+# the reach it declares is checkable only against a surface that answers the other half — and this
+# is the surface that answers it for every store at once, which is the only shape a fixed pipeline
+# can ask for.
+STORE_OBSERVATION = "si.store.list"
+
 OBSERVATIONS = {
     OBSERVATION_OPERATION: "artifacts",
     CAPABILITY_OBSERVATION: "capabilities",
     TRANSFORM_OBSERVATION: "transforms",
     CONTRACT_OBSERVATION: "contracts",
+    STORE_OBSERVATION: "stores",
 }
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
@@ -275,6 +282,89 @@ BINDING_RULES: list[Rule] = [
             ),
         },
         intent="an interpretation names the outcome it yields, closing the route",
+    ),
+    # The other two em-dash columns, grounded the same way. `Store` was read by nothing at all, and
+    # `Consumes` was read only where it named something — so a step addressing no store and a step
+    # handing an operation nothing were both unexamined declarations. What decides each is published:
+    # a capability's category, and an operation's inputs.
+    Rule(
+        id="STORE_UNGROUNDED_IN_CAPABILITY",
+        check="STORE_GROUNDED_IN_CAPABILITY",
+        register="cc_composition",
+        params={
+            "column": "Store",
+            "capability_column": "Capability",
+            "storage_category": "storage",
+            "observation": CAPABILITY_OBSERVATION,
+            "detail_missing": (
+                "names no store on {capability}, which keeps records — a storage step that "
+                "addresses nothing is a read or a write with no subject"
+            ),
+            "detail_spurious": (
+                "names a store on {capability}, which keeps none — the step addresses records "
+                "that capability has no way to hold"
+            ),
+        },
+        intent="a step addresses a store exactly when its capability keeps one",
+    ),
+    Rule(
+        id="STEP_CONSUMES_NOTHING_FROM_OPERATION_WITH_INPUT",
+        check="CONSUMPTION_GROUNDED_IN_OPERATION",
+        register="cc_composition",
+        params={
+            "column": "Consumes",
+            "capability_column": "Capability",
+            "kind_column": "Kind",
+            "kind_value": "CS",
+            "observation": CAPABILITY_OBSERVATION,
+            "detail": (
+                "consumes nothing and invokes {operation}, which accepts {accepts} — the "
+                "operation receives no value for what it takes, and the step reports success on "
+                "having addressed nothing"
+            ),
+        },
+        intent="a step consuming nothing invokes an operation that takes nothing",
+    ),
+    # The two halves of one statement, and neither is a rule alone: refusing an unused reach permits
+    # a read nobody declared, and refusing an undeclared read permits a reach held in reserve. Both
+    # read the binding a design names and derive the records from the composition, because a design
+    # that restated them would be the second copy this change exists beside.
+    Rule(
+        id="DECLARED_REACH_UNUSED",
+        check="REACH_IS_USED",
+        register="declared_reach",
+        params={
+            "register": "declared_reach",
+            "topology_register": "execution_topology",
+            "composition_register": "cc_composition",
+            "observation": STORE_OBSERVATION,
+            "contract_observation": CONTRACT_OBSERVATION,
+            "detail": (
+                "declares a reach to {binding} and reads nothing it covers — that binding answers "
+                "for {stores}, and no step this act runs addresses any of them. A permission "
+                "granted for nothing is one whose purpose nobody reviewed"
+            ),
+        },
+        intent="every reach an act declares is used by a read that act performs",
+    ),
+    Rule(
+        id="UNDECLARED_REACH_READ",
+        check="READ_IS_DECLARED",
+        register="execution_topology",
+        params={
+            "register": "declared_reach",
+            "rb_register": "rb_declarations",
+            "topology_register": "execution_topology",
+            "composition_register": "cc_composition",
+            "observation": STORE_OBSERVATION,
+            "contract_observation": CONTRACT_OBSERVATION,
+            "detail": (
+                "reads {store}, which {binding} does not cover and no declared reach names — the "
+                "act reaches records another part of the business owns and its design does not say "
+                "so, which is invisible until the act runs"
+            ),
+        },
+        intent="an act reads nothing it did not declare a reach to",
     ),
     Rule(
         id="CROSS_SUBDOMAIN_WRITE",

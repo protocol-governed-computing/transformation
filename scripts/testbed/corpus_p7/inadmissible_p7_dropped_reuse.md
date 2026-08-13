@@ -599,6 +599,15 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 
 ---
 
+## 17. Declared Reach
+
+<!-- register:declared_reach optional -->
+| Act | Consults | Source Finding |
+|-----|----------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |
