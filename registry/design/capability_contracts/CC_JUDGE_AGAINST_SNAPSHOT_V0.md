@@ -193,6 +193,26 @@ core:
       VIOLATION: exit
       BACKEND_ERROR: exit
 
+  # What each domain declares about being drawn on. A phase deciding whether an artifact may be
+  # reused needs the owning domain's own statement, and inferring relevance from a namespace is
+  # reserved to the author. Declared by P3 and observed by nothing until the observed map was
+  # generated, at which point the omission became a build failure instead of a quiet degradation.
+  - step: observe_reuse_visibility
+    side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
+    op: QUERY
+    inputs:
+      operation: si.snapshot.summary
+      params: {}
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    - BACKEND_ERROR
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:
@@ -205,6 +225,9 @@ core:
       observed:
         si.artifact.list: $.results.observe_composition.capability_result.result.artifacts
         si.capability.surface: $.results.observe_capabilities.capability_result.result.capabilities
+        si.capability.surface#contracts: $.results.observe_capabilities.capability_result.result.contracts
+        si.capability.surface#transforms: $.results.observe_capabilities.capability_result.result.transforms
+        si.snapshot.summary: $.results.observe_reuse_visibility.capability_result.result.reuse_visibility
       # Keyed by the phase that produced it, for the same reason.
       priors: $.results.parse_priors.capability_result.priors
     outputs:

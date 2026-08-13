@@ -1024,6 +1024,16 @@ core:
             detail: a step that reads external state names no semantic status — the workflow branch it feeds has
               nothing declared to route on
           intent: an interpretation names the outcome it yields, closing the route
+        - id: CROSS_SUBDOMAIN_WRITE
+          check: CROSS_SUBDOMAIN_REACH_READ_ONLY
+          register: execution_topology
+          params:
+            topology_register: execution_topology
+            new_register: new_artifacts
+            artifact_observation: si.artifact.list
+            capability_observation: si.capability.surface
+            contract_observation: si.capability.surface#contracts
+          intent: an act reaching into another subdomain reads what it holds and never changes it
         - id: INTERPRETATION_TRANSFORM_UNDECLARED
           check: CELL_RESOLVES_IN_REGISTER
           register: cc_composition

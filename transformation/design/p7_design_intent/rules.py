@@ -222,6 +222,19 @@ BINDING_RULES: list[Rule] = [
         intent="an interpretation names the outcome it yields, closing the route",
     ),
     Rule(
+        id="CROSS_SUBDOMAIN_WRITE",
+        check="CROSS_SUBDOMAIN_REACH_READ_ONLY",
+        register="execution_topology",
+        params={
+            "topology_register": "execution_topology",
+            "new_register": "new_artifacts",
+            "artifact_observation": OBSERVATION_OPERATION,
+            "capability_observation": CAPABILITY_OBSERVATION,
+            "contract_observation": CONTRACT_OBSERVATION,
+        },
+        intent="an act reaching into another subdomain reads what it holds and never changes it",
+    ),
+    Rule(
         id="INTERPRETATION_TRANSFORM_UNDECLARED",
         check="CELL_RESOLVES_IN_REGISTER",
         register="cc_composition",

@@ -30,6 +30,7 @@ terminal's way in.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import pathlib
 from pathlib import Path
 
 import yaml
@@ -67,12 +68,93 @@ def workflow_fqdn(phase_id: str) -> str:
 
 RULE_SET_INDENT = 8
 
+# The contract every phase workflow invokes, and the one place a phase's observations are handed to
+# the evaluator. Its `observed` map was hand-authored while `OBSERVATIONS` declared the same thing in
+# Python, and the two drifted exactly as two copies of one truth do: the map passed two keys where
+# four were declared, so a rule reading the transform surface found nothing and returned nothing, and
+# had been doing so through the compiled path since it was written.
+JUDGE_CONTRACT = "registry/design/capability_contracts/CC_JUDGE_AGAINST_SNAPSHOT_V0.md"
+CONTRACTS = REPO / "registry" / "design" / "capability_contracts"
+
+OBSERVED_INDENT = 6
+
 PROVENANCE_HEADING = "## Generated Artifact"
 
 # The section is placed where a reader meets the artifact, before its narrative begins. Every one of
 # these workflows opens the same way, and an anchor that is not there is fail-hard rather than a
 # section quietly appended somewhere nobody looks.
 PROVENANCE_ANCHOR = "## 1. Intent"
+
+
+def observations() -> dict[str, str]:
+    """Every observation any phase declares, as `key -> the field its result carries`.
+
+    The union across phases, because one contract judges all of them and its pipeline observes the
+    same operations whatever phase invoked it. A phase that does not read a key is handed it and
+    ignores it, which costs nothing; a phase that reads a key nobody passed is the defect this
+    exists to prevent.
+    """
+    from transformation.design.meta import RULE_MODULES
+
+    out: dict[str, str] = {}
+    for module in RULE_MODULES.values():
+        for key, field in (getattr(module, "OBSERVATIONS", {}) or {}).items():
+            out[key] = field
+    return dict(sorted(out.items()))
+
+
+def observing_steps(text: str) -> dict[str, str]:
+    """`operation -> the step that performs it`, read out of the contract's own pipeline.
+
+    Derived rather than declared here. Which step observes which operation is a fact the contract
+    already states, and restating it would create the second copy this whole change is removing.
+    """
+    steps: dict[str, str] = {}
+    current = ""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- step: "):
+            current = stripped[len("- step: "):].strip()
+        elif stripped.startswith("operation: ") and current:
+            steps[stripped[len("operation: "):].strip()] = current
+    return steps
+
+
+def render_observed(text: str) -> str:
+    """The `observed` map as the contract carries it, one line per declared observation."""
+    steps = observing_steps(text)
+    pad = " " * OBSERVED_INDENT
+    lines = [f"{pad}observed:\n"]
+    for key, field in observations().items():
+        operation = key.split("#", 1)[0]
+        step = steps.get(operation)
+        if step is None:
+            raise SystemExit(
+                f"{JUDGE_CONTRACT} observes no {operation!r}, which a phase declares it reads. "
+                f"A key nobody produces is a rule that cannot see its subject"
+            )
+        lines.append(f"{pad}  {key}: $.results.{step}.capability_result.result.{field}\n")
+    return "".join(lines)
+
+
+def splice_observed(text: str, rendered: str) -> str:
+    """Replace the `observed:` block, leaving the rest of the contract untouched."""
+    lines = text.splitlines(keepends=True)
+    key = " " * OBSERVED_INDENT + "observed:"
+    starts = [i for i, line in enumerate(lines) if line.rstrip("\n") == key]
+    if len(starts) != 1:
+        raise SystemExit(f"expected exactly one {key!r} line, found {len(starts)}")
+    start = starts[0]
+
+    end = len(lines)
+    for i in range(start + 1, len(lines)):
+        stripped = lines[i].lstrip()
+        if not stripped:
+            continue
+        if len(lines[i]) - len(stripped) <= OBSERVED_INDENT:
+            end = i
+            break
+    return "".join(lines[:start]) + rendered + "".join(lines[end:])
 
 
 @dataclass(frozen=True)
@@ -215,6 +297,24 @@ def splice_provenance(text: str, block: str) -> str:
     return "".join(lines[:at]) + block + "".join(lines[at:])
 
 
+def emit_contract(check_only: bool = False) -> Emission:
+    """Bring the judging contract's `observed` map into agreement with what the phases declare.
+
+    The map is generated for the same reason the rule sets are: it is a copy of a declaration that
+    lives elsewhere, and the two drifted the moment anyone added an observation. Generated, adding
+    one to a phase is enough — and an observation no step produces is a build failure rather than a
+    rule that silently sees nothing.
+    """
+    path = REPO / JUDGE_CONTRACT
+    current = path.read_text(encoding="utf-8")
+    updated = splice_observed(current, render_observed(current))
+    drifted = updated != current
+    if drifted and not check_only:
+        path.write_text(updated, encoding="utf-8")
+    return Emission(phase="cc", filename=pathlib.Path(JUDGE_CONTRACT).name,
+                    rules=len(observations()), drifted=drifted)
+
+
 def emit(check_only: bool = False) -> list[Emission]:
     """Bring every phase workflow into agreement with what its phase declares.
 
@@ -232,6 +332,7 @@ def emit(check_only: bool = False) -> list[Emission]:
         if drifted and not check_only:
             path.write_text(updated, encoding="utf-8")
         out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted))
+    out.append(emit_contract(check_only))
     return out
 
 
