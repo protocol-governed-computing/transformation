@@ -358,3 +358,43 @@ it cannot author. `REUSE` and `REVIEW` are unaffected: reading a constitution an
 every design does. What is refused is `EXTEND` or `REPLACE` on a family the renderer has no builder
 for, which would schedule a governing document to be rewritten from registers that never held its
 content.
+
+---
+
+## 8. Ruling — a change that never entered the composition is deleted, not superseded
+
+Supersession is a claim about two things that both existed. An artifact stood down by a successor is
+marked rather than removed, because a composition that silently loses a file tells a later reader
+nothing about why. That reasoning is sound and it does not reach a change request that never became
+part of anything.
+
+**The test is delivery, not lifecycle position.** A change request that never entered the delivered
+composition — never pinned, never released, owning nothing that survives — has no successor
+relationship to record. Marking it superseded asserts a lineage that does not exist, and leaves a
+complete dossier on disk whose gates read CLOSED and whose design claims to be the whole declaration
+of an artifact it no longer describes. That is not a record; it is a hazard a reader can act on.
+
+**So it is deleted, and it leaves no trace.** Being built once, or executed once, does not qualify
+it: what decides is whether any of it survives in the composition that matters. Where a later change
+has re-emitted the same artifacts, nothing of the earlier one does.
+
+**With one condition, which is the whole of the care this needs.**
+
+> A change request that never entered the delivered composition leaves no trace on deletion —
+> **provided nothing cites it.** Where something does, re-ground the citation first, then delete.
+
+A dossier can be evidence for another dossier while delivering nothing itself. Evidence-value and
+delivery-value are independent, and it is the first that a deletion can quietly break: a verified
+belief grounded on a path that is no longer there is worse than the dossier it pointed at. Re-ground
+it on something that survives and says the same thing, then delete freely.
+
+**Why this is the right boundary.** The alternative — keeping every dossier that was ever authored —
+accumulates records faster than the changes they describe, and each one looks live until a reader
+opens it. In-flight work is allowed to be consolidated and re-authored precisely so that one artifact
+has one design of record. A change absorbed into another has no separate story to tell, and keeping
+it invites a reader to believe it does.
+
+**What this does not license.** A delivered change is never deleted, however wrong it turned out to
+be. Its artifacts are in a composition somebody ran, its dossier is the evidence of an approval that
+happened, and correcting it is a new change request. The line is delivery, and it is not negotiable
+in either direction.
