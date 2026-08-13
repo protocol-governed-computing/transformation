@@ -190,33 +190,45 @@ BINDING_RULES: list[Rule] = [
         },
         intent="a step invokes a capability that is declared new or carried over, never invented inline",
     ),
+    # The em-dash in either column is a declaration: the step's output is data, and the branches
+    # are the operation's own statuses. Asked as "is the cell filled?", both of these were
+    # satisfied by that dash on all 62 CS steps in the corpus, so neither had ever bound a design.
+    # Grounded instead in what the operation answers, they bite exactly where the doctrine means
+    # them to — a branch the store cannot produce, with nothing named that produces it.
     Rule(
         id="OBSERVATION_WITHOUT_INTERPRETATION",
-        check="CELL_NOT_EMPTY",
+        check="OUTCOME_GROUNDED_IN_OPERATION",
         register="cc_composition",
         params={
             "column": "Interpreted By",
-            "only_when_column": "Kind",
-            "only_when_value": "CS",
+            "kind_column": "Kind",
+            "kind_value": "CS",
+            "routing_column": "Routing",
+            "status_column": "Semantic Status",
+            "observation": CAPABILITY_OBSERVATION,
             "detail": (
-                "a step that reads external state names no interpreting transform — a raw "
-                "observation cannot drive business routing, because the status it carries says "
-                "the store answered, not what it found"
+                "branches on {outcomes}, which {operation} does not answer — it answers "
+                "{answers}. An outcome the store cannot produce comes from an interpretation, and "
+                "this step names none, so the branch is a decision nothing makes"
             ),
         },
-        intent="every read of external state declares how its output becomes a decision",
+        intent="an outcome the operation cannot answer names the transform that produces it",
     ),
     Rule(
         id="OBSERVATION_WITHOUT_SEMANTIC_STATUS",
-        check="CELL_NOT_EMPTY",
+        check="OUTCOME_GROUNDED_IN_OPERATION",
         register="cc_composition",
         params={
             "column": "Semantic Status",
-            "only_when_column": "Kind",
-            "only_when_value": "CS",
+            "kind_column": "Kind",
+            "kind_value": "CS",
+            "routing_column": "Routing",
+            "status_column": "Semantic Status",
+            "observation": CAPABILITY_OBSERVATION,
             "detail": (
-                "a step that reads external state names no semantic status — the workflow branch "
-                "it feeds has nothing declared to route on"
+                "routes on {outcomes} and declares no semantic status — {operation} answers "
+                "{answers}, so the outcome routed on is an interpretation's, and the workflow "
+                "branch it feeds has nothing declared to route on"
             ),
         },
         intent="an interpretation names the outcome it yields, closing the route",

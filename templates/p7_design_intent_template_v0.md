@@ -56,9 +56,14 @@ artifact correctly and leaves that path unstated is admissible and still cannot 
 - **No implicit truthiness.** `exists`, `matched`, `authorized` and every other boolean a capability
   returns is an **observation**, never a decision. A step that reads external state cannot drive
   business routing directly.
-- **Every read declares its interpretation.** A `CS` step whose operation reads state MUST name the
-  transform that interprets its output (`Interpreted By`) and the status that interpretation yields
-  (`Semantic Status`). A read with neither is an observation pretending to be a decision.
+- **A step branches on what its operation answers, or says what produced the rest.** Every
+  operation publishes its `result_status_values`. A `CS` step routing on one of those — a registry
+  claim exiting on `ALREADY_EXISTS`, a read exiting on `NOT_FOUND` — is routing on the store's own
+  answer, and interprets nothing. A step routing on anything else MUST name the transform that
+  produces that outcome (`Interpreted By`) and the outcome itself (`Semantic Status`).
+- **`—` in either column is a declaration, not a blank.** It says the step's output is data and the
+  branches are the operation's own. It is the right answer for most steps and refused wherever the
+  routing names an outcome the operation cannot produce.
 - **Routing closure.** Every workflow branch is backed by the whole chain:
 
 ```
@@ -69,7 +74,8 @@ CS result  →  CT interpretation  →  semantic outcome  →  WF transition
 
 An interpretation transform expresses its decision the only way the execution contract allows: a
 `CT` step yields `SUCCESS` when it returns and `VIOLATION` when it raises. A transform that returns
-a boolean for both answers has interpreted nothing, however it is named.
+a boolean for both answers has interpreted nothing, however it is named — which is why a transform
+named here must declare `refusal: raises` in §9.
 
 ### Capability Composition discipline (the oracle enforces these)
 
