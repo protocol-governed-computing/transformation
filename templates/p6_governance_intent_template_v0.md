@@ -117,6 +117,20 @@ that owns it.
 
 ---
 
+### A platform change acts only on the platform
+
+A platform dossier may **cite** a domain artifact — as a belief verified at P2, as impact at P3, as
+what was observed in the composition it was validated against. It may not **act** on one. A domain
+artifact in §3 or §4 is a platform change scheduling work inside a domain it does not own, and a
+dependency declared *from* a platform subdomain *to* a business one points the arrow backwards: a
+capability does not depend on the domains that reach it.
+
+The distinction is what makes a platform dossier age. A composition selects its domains; a citation
+becomes history when one is not selected, and a scheduled action becomes a claim on something that
+is not there.
+
+---
+
 ## 4. PPS Artifacts Requiring Action
 
 *Existing PPS artifacts that must be reviewed or replaced as part of this CR. `fqdn` is the existing artifact. Action ∈ REPLACE | REVIEW | REUSE | EXTEND — Stage 7's inventory already admits EXTEND, and an

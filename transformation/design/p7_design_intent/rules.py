@@ -39,7 +39,7 @@ it, and construction invokes that rather than becoming a second producer of the 
 
 from __future__ import annotations
 
-from transformation.design.families import binding_fqdn_pattern
+from transformation.design.families import authorable_fqdn_pattern, binding_fqdn_pattern
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
     event_naming_rules,
@@ -77,6 +77,9 @@ ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 # A binding FQDN: domain-qualified, family-prefixed, explicitly versioned.
 BINDING_FQDN_PATTERN = binding_fqdn_pattern()
 
+# An identity a design may amend, which is narrower than one it may cite.
+AUTHORABLE_FQDN_PATTERN = authorable_fqdn_pattern()
+
 
 BINDING_RULES: list[Rule] = [
     Rule(
@@ -111,6 +114,46 @@ BINDING_RULES: list[Rule] = [
             "observation": OBSERVATION_OPERATION,
         },
         intent="an artifact carried over from the composition must really be in it",
+    ),
+    # A design amends by re-rendering whole, so it may only amend what it could have authored. The
+    # governance surface has no family and no builder: a constitution's content is argument, and a
+    # register that determined it would have to carry the argument. So a governance change is
+    # authored by a person under a governed dossier and its dossier is complete at P6 — the ruling
+    # is in `doc/THE_SHAPE_OF_A_CHANGE_V0.md` §7. Citing one of these is untouched; three dossiers
+    # reached P6 before the boundary was stated, and none of them could be told it here.
+    Rule(
+        id="AMENDED_ARTIFACT_NOT_AUTHORABLE",
+        check="CELL_MATCHES",
+        register="existing_inventory",
+        params={
+            "column": "FQDN",
+            "pattern": AUTHORABLE_FQDN_PATTERN,
+            "only_when_column": "Action",
+            "only_when_value": "EXTEND",
+            "detail": (
+                "amends {value!r}, whose family this design cannot author — an amended artifact is "
+                "rendered whole, so this schedules a document to be rewritten from registers that "
+                "never held its content. The governance surface is authored, not constructed: cite "
+                "it with REUSE or REVIEW, and deliver the change by authoring it"
+            ),
+        },
+        intent="a design amends only what it could have authored",
+    ),
+    Rule(
+        id="REPLACED_ARTIFACT_NOT_AUTHORABLE",
+        check="CELL_MATCHES",
+        register="existing_inventory",
+        params={
+            "column": "FQDN",
+            "pattern": AUTHORABLE_FQDN_PATTERN,
+            "only_when_column": "Action",
+            "only_when_value": "REPLACE",
+            "detail": (
+                "replaces {value!r}, whose family this design cannot author — a replacement is a "
+                "rendering like any other. The governance surface is authored, not constructed"
+            ),
+        },
+        intent="a design replaces only what it could have authored",
     ),
     Rule(
         id="TOPOLOGY_WORKFLOW_UNDECLARED",

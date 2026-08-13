@@ -278,3 +278,58 @@ it can be judged on its own merits.
   work from becoming a single unreviewable change. One cause, three deliveries.
 - **Do not retrofit A or D onto closed dossiers.** They are evidence. C is what makes that
   sustainable, which is why C comes before the next template change and not after it.
+
+---
+
+## 7. Ruling — the governance surface is authored, not constructed
+
+**The pipeline's authority over a governance-surface change ends at P6.** A constitution, an
+invariant and a schema are written by a person under a governed dossier; they are not scheduled by a
+mandate and not rendered by construction. A dossier whose deliverables are governance artifacts is
+therefore **complete at P6**, not halted before P7.
+
+### Why this is a boundary and not a gap
+
+Three dossiers reached P6 and stopped, and the third made the reason legible. A design authors an
+artifact by giving it a family, and the families are `AC IN WF CC CT EV RB VOCAB STRUCTURE TI TE`,
+with `CS` present as substrate a change reuses and never writes. There is no family for a
+constitution or an invariant, and the renderer has a builder for each of the eleven and for nothing
+else.
+
+That absence was read twice as something missing. It is not. **A constitution's content is
+argument** — it says what must hold and why the alternative was rejected — and a register that
+determined it would have to carry the argument, which makes the register the constitution and the
+document its rendering. The design language exists to make an artifact's *content* derivable from
+declared facts. Where the content is the reasoning, there is nothing to derive it from.
+
+The same is true one step down. An invariant states what may never happen, and its worth is in the
+statement, not in a field a generator could fill.
+
+### What the pipeline still governs
+
+Everything except the rendering, which is most of it:
+
+- **P0–P6 are unchanged and are not optional.** The problem, the beliefs and their verification, the
+  gaps, the capabilities, the invariants, the ownership, the boundary rules and Gate 1 all apply. A
+  governance change is judged exactly as any other change is judged, up to the point where an
+  artifact would be rendered.
+- **The dossier is the record of authority.** A clause that appears in a constitution with no dossier
+  behind it is an ungoverned change, and that is now a statement with a place to point.
+- **The domain half is an ordinary CR.** Where a governance change enables something in a business
+  domain, that half has families, is designed at P7 and is constructed. The platform half being
+  authored does not make the domain half authored.
+
+### What it costs, stated
+
+Delivery of a governance artifact is not mechanically reproducible from its dossier. Construction
+acceptance cannot re-render it and compare, so nothing catches a document that drifts from the design
+that argued for it. That is the price of the ruling and it is accepted: the alternative was a
+generator inventing the argument, and an argument nobody made is worse than one nobody re-derived.
+
+### The rule that holds it
+
+`AMENDED_ARTIFACT_NOT_AUTHORABLE` — a design may not name, as an artifact it amends, one whose family
+it cannot author. `REUSE` and `REVIEW` are unaffected: reading a constitution and citing it are what
+every design does. What is refused is `EXTEND` or `REPLACE` on a family the renderer has no builder
+for, which would schedule a governing document to be rewritten from registers that never held its
+content.

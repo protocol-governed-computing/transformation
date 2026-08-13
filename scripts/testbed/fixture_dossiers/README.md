@@ -42,7 +42,19 @@ Do not touch `business_domains` to make a test pass.
 
 The reverse obligation also holds: an amendment that makes the fixture pass while changing what it
 designs is a defect. Run `construction_acceptance.py` after any edit — no field differences is the
-bar, and the one standing MISS is the build manifest, which no phase designs.
+bar.
+
+### Where the copy and the original now differ, and why
+
+`cr_01_catalog` inventories `capability_side_effects::CS_MUTABLE_JSON_V0` as **REVIEW** here and as
+**EXTEND** in the approved original. The capability did gain an operation for that change — but it is
+a platform artifact, and `AMENDED_ARTIFACT_NOT_AUTHORABLE` now refuses a design that claims to amend
+one whose family it cannot author. The governance surface is authored, not constructed, so the
+extension was a platform act and belongs to a platform dossier rather than to a business change
+request that consumed it.
+
+The original stays as approved. It records a change that crossed an authority boundary before that
+boundary was stated, which is worth keeping visible rather than editing away.
 
 ## When this goes away
 

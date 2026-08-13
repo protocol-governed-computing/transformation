@@ -923,6 +923,30 @@ core:
             pattern: '[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+'
             observation: si.artifact.list
           intent: an artifact carried over from the composition must really be in it
+        - id: AMENDED_ARTIFACT_NOT_AUTHORABLE
+          check: CELL_MATCHES
+          register: existing_inventory
+          params:
+            column: FQDN
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
+            only_when_column: Action
+            only_when_value: EXTEND
+            detail: 'amends {value!r}, whose family this design cannot author — an amended artifact is rendered
+              whole, so this schedules a document to be rewritten from registers that never held its content.
+              The governance surface is authored, not constructed: cite it with REUSE or REVIEW, and deliver the
+              change by authoring it'
+          intent: a design amends only what it could have authored
+        - id: REPLACED_ARTIFACT_NOT_AUTHORABLE
+          check: CELL_MATCHES
+          register: existing_inventory
+          params:
+            column: FQDN
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
+            only_when_column: Action
+            only_when_value: REPLACE
+            detail: replaces {value!r}, whose family this design cannot author — a replacement is a rendering
+              like any other. The governance surface is authored, not constructed
+          intent: a design replaces only what it could have authored
         - id: TOPOLOGY_WORKFLOW_UNDECLARED
           check: CELL_RESOLVES_IN_REGISTER
           register: execution_topology

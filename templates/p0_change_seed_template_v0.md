@@ -27,6 +27,23 @@ declared, never inferred from a blank register.
 
 **Gate 0** — a person confirms the seed says what they meant, before any governed phase consumes it.
 
+### A platform seed states a platform problem
+
+A change to the platform is stated in the platform's own terms — an act, a subdomain, a record, a
+capability — and never in the terms of a business domain that happens to be in the composition. A
+platform is a **composition**: the domains present today are selected, another profile selects
+others, and a problem statement that only reads as a problem when one particular domain exists has
+made itself true of one composition rather than of the platform.
+
+Name the instance anyway. An instance is what shows the problem occurred rather than being
+anticipated, and it is the difference between a requirement and a worry. **Mark it as an instance**:
+state the problem generically first, then give the case, and say plainly that the domain it comes
+from is one the platform does not require and a later composition may not contain.
+
+This applies to `p0_business_problem_statement.md` and to the seed. It does *not* apply to the
+grounding phases — P2 verifies beliefs against a real composition and must cite exact identities,
+because a generic citation grounds nothing.
+
 ---
 
 ### The three-way split (the heart of P0)

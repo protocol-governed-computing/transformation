@@ -34,7 +34,7 @@ Every binding names a field the capability declares, read from the pinned baseli
 <!-- register:existing_inventory -->
 | FQDN | Action (REPLACE, REUSE, EXTEND, REVIEW) | Summary | Reason | Source Finding |
 |------|------------------------------------------|---------|--------|----------------|
-| capability_side_effects::CS_MUTABLE_JSON_V0 | EXTEND | Writes, reads, selects, lists, updates in place and deletes durable records | Extended with an operation that publishes the records themselves, so a search can select among them by content; the implementation behind it already returned them. | S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0 |
+| capability_side_effects::CS_MUTABLE_JSON_V0 | REVIEW | Writes, reads, selects, lists, updates in place and deletes durable records | Extended with an operation that publishes the records themselves, so a search can select among them by content; the implementation behind it already returned them. | S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0 |
 | capability_side_effects::CS_REGISTRY_V0 | REUSE |  | Register-if-absent gives the atomic claim duplicate prevention needs, on a key the catalog forms. | S6 ownership Claim a value once so a second claim on it fails |
 | capability_side_effects::CS_APPENDONLY_JSONL_V0 | REUSE |  | Appends an entry to a trail that cannot be amended. | S6 ownership Append an entry to a trail that cannot be amended |
 | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 | REUSE |  | Assembles a durable record from supplied values. | S6 ownership Assemble a durable record from supplied values |
