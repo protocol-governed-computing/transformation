@@ -328,12 +328,19 @@ generator inventing the argument, and an argument nobody made is worse than one 
 
 ### What this ruling leaves open, and should not be read as settling
 
-**Both approval gates live in phases these dossiers do not reach.** Gate 1 is a section of the P7
-document — *the full dossier is presented for review as a body* — and Gate 2 sits in P8. A dossier
-terminal at P6 closes neither, so the ruling as stated ends the phase run without the human approval
-that ends every other change. That is a gap, not a feature, and it wants one of two answers: Gate 1
-moves to P6 for a governance change, or a governance change closes a gate of its own. Until one is
-ruled, "complete at P6" means *the phases are exhausted*, not *the change is approved*.
+**Ruled: Gate 1 moves to P6 for a governance change.** The gate that reviews a dossier as a body
+belongs at the end of the dossier, wherever that end is, and for a governance change the end is P6.
+Stages 0 through 6 are presented as a body, and approval authorizes the authoring of the clauses and
+rules the dossier argues for.
+
+**Gate 2 does not follow it, because it has no subject.** Gate 2 locks a mandate before artifact
+authoring begins; a change that schedules no artifacts drafts no mandate and has nothing to lock.
+What it protects for a domain change — scope frozen before anyone writes an artifact — is carried
+here by Gate 1 being the last word rather than the second-to-last. The P6 template carries the gate
+and says so.
+
+**"Complete at P6" therefore means the phases are exhausted and the gate is presented.** Approval
+remains the reviewer's act: a dossier that has reached P6 is approvable, not approved.
 
 **Identity assignment is ungoverned for these artifacts.** P7 assigns a binding FQDN and
 collision-checks it against the composition; a new invariant authored under a P6-terminal dossier is

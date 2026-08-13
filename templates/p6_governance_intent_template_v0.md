@@ -162,6 +162,23 @@ artifact amended to admit a case it did not is extended at both rungs or at neit
 
 ---
 
+## Gate 1 — Design Approval, where a change ends here
+
+**A governance-surface change closes Gate 1 at this stage.** The governance surface is authored, not
+constructed, so such a dossier is terminal at P6 — and the gate that reviews a dossier as a body
+belongs at the end of the dossier, wherever that end is. The full dossier (Stages 0–6) is presented
+for review as a body, and approval authorizes the authoring of the clauses and rules it argues for.
+
+**Gate 2 has no subject here and does not apply.** It exists to lock a mandate before artifact
+authoring begins; a change that schedules no artifacts has no mandate to lock. What Gate 2 protects
+for a domain change — that scope is frozen before anyone writes an artifact — is carried by Gate 1
+being the last word rather than the second-to-last.
+
+**For a change that continues to P7, this section is not used.** Gate 1 closes there, as it always
+has, over a dossier that includes a design.
+
+---
+
 ## Pipeline Provenance
 
 | Stage | Output | Status |
