@@ -326,12 +326,17 @@ core:
             prior_only_when_column: Action
             prior_only_when_values:
             - EXTEND
-            - REPLACE
             prior_only_when_prefixes:
+            - AC_
+            - IN_
             - WF_
             - CC_
+            - CT_
             - EV_
             - RB_
+            - VOCAB_
+            - TI_
+            - TE_
           intent: an artifact this change amends declares the subdomain it is placed in, as a scheduled one does
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
