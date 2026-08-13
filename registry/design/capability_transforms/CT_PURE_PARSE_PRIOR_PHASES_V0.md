@@ -53,6 +53,7 @@ version: v0
 governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
 core:
   summary: Parse the upstream phase documents a phase is judged against
+  refusal: never
   description: |
     Parses each supplied prior with the same reader the judged document uses, so a cross-phase rule
     and a same-phase rule cannot disagree about what a register contains. Raises CTExecutionError

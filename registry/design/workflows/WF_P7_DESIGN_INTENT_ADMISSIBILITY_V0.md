@@ -574,6 +574,7 @@ core:
             - Operation
             - Kind (atom, molecule)
             - Purity (ct_pure, ct_impure)
+            - Refusal (raises, returns, never)
             - Source Finding
           intent: downstream phases read these columns by name
         - id: ROW_WITHOUT_SOURCE_FINDING
@@ -1223,6 +1224,34 @@ core:
             module_column: Module
             namespace_template: '{domain}.implementation.capability_transforms.atoms'
           intent: a transform's module is where its domain resolves implementations, named for the artifact
+        - id: IMPLEMENTATION_WITHOUT_REFUSAL
+          check: CELL_NOT_EMPTY
+          register: implementation_bindings
+          params:
+            column: Refusal
+            detail: transform declares no refusal — whether a judgement is raised or returned is the one fact
+              that says if a step routing on it can ever fail, and both look the same from outside
+          intent: a transform says how it expresses a judgement about its subject
+        - id: IMPLEMENTATION_REFUSAL_UNKNOWN
+          check: CELL_MATCHES
+          register: implementation_bindings
+          params:
+            column: Refusal
+            pattern: ^(raises|returns|never)$
+            detail: refusal is {value!r}; a transform raises its judgement, returns it, or makes none, and the
+              schema admits nothing else
+          intent: refusal is one of the three the composition can act on
+        - id: INTERPRETATION_TRANSFORM_CANNOT_REFUSE
+          check: INTERPRETATION_TRANSFORM_REFUSES
+          register: cc_composition
+          params:
+            column: Interpreted By
+            status_column: Semantic Status
+            observation: si.capability.surface#transforms
+            design_register: implementation_bindings
+            design_code_column: CT Code
+            design_refusal_column: Refusal
+          intent: an interpretation can fail, or the branch it feeds is unreachable
         - id: IMPLEMENTATION_CALLABLE_UNCONVENTIONAL
           check: CELL_MATCHES
           register: implementation_bindings

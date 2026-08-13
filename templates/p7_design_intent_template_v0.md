@@ -281,9 +281,16 @@ declared once, at design time, never discovered later.*
 *`operation` is the CT's declared operation name; `purity` ∈ ct_pure | ct_impure; `kind` ∈ atom |
 molecule.*
 
+*`refusal` says how the transform expresses a judgement about its subject: `raises` refuses, which
+the execution contract reads as VIOLATION; `returns` yields the judgement as an output, so the step
+succeeds whatever it found; `never` judges nothing. It is about the subject, never the inputs —
+every transform raises on a missing input, so that would make the fact uniform and therefore empty.
+A transform named as an interpretation must declare `raises`, because a judgement the step cannot
+fail on is a branch nothing reaches.*
+
 <!-- register:implementation_bindings optional -->
-| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Source Finding |
-|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------|
+| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Refusal (raises, returns, never) | Source Finding |
+|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------------------------|----------------|
 
 ---
 

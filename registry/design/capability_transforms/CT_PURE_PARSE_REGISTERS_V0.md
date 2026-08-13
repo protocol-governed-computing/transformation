@@ -39,6 +39,7 @@ version: v0
 governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
 core:
   summary: Parse phase document text into structured registers
+  refusal: never
   description: |
     Splits a phase document into its header fields, its numbered sections, and its registers.
 

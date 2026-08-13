@@ -46,6 +46,7 @@ version: v0
 governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
 core:
   summary: Evaluate a declared rule set against parsed registers
+  refusal: returns
   description: |
     Iterates the declared rule set, dispatching each rule to its check kind and collecting findings.
     Raises CTExecutionError on an unknown check kind; the runtime maps any CT exception to

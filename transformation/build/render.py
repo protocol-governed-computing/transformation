@@ -571,6 +571,11 @@ def _transform(m, code, short, summary, sub, p7, p8):
     row = next((r for r in rows(p7, "implementation_bindings") if bare(cell(r, "CT Code")) == short), {})
     m["core"] = {
         "summary": summary,
+        # How the transform expresses a judgement, which the schema requires and no other register
+        # carries. Rendered from the design rather than inferred from the implementation: the
+        # implementation is what the module path points at, and reading behaviour out of it here
+        # would make construction a second authority on what the transform does.
+        "refusal": cell(row, "Refusal"),
         "inputs": typed_fields(p7, code, "INPUT"),
         "outputs": typed_fields(p7, code, "OUTPUT"),
     }

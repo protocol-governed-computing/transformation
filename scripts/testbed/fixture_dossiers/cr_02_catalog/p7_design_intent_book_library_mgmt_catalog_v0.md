@@ -362,11 +362,11 @@ them again would create a second artifact under the same name.
 ## 9. Implementation Bindings
 
 <!-- register:implementation_bindings optional -->
-| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Source Finding |
-|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------|
-| book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_form_work_identity_key_v0 | execute | PURE_FORM_WORK_IDENTITY_KEY | atom | ct_pure | S7 new_artifacts CT_PURE_FORM_WORK_IDENTITY_KEY_V0 |
-| book_library_mgmt::CT_PURE_SELECT_RECORDS_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_select_records_v0 | execute | PURE_SELECT_RECORDS | atom | ct_pure | S7 new_artifacts CT_PURE_SELECT_RECORDS_V0 |
-| book_library_mgmt::CT_PURE_GROUP_RECORDS_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_group_records_v0 | execute | PURE_GROUP_RECORDS | atom | ct_pure | S7 new_artifacts CT_PURE_GROUP_RECORDS_V0 |
+| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Refusal (raises, returns, never) | Source Finding |
+| --------- | -------- | ---------- | ----------- | ----------------------- | ----------------------------- | -------------------------------- | ---------------- |
+| book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_form_work_identity_key_v0 | execute | PURE_FORM_WORK_IDENTITY_KEY | atom | ct_pure | never | S7 new_artifacts CT_PURE_FORM_WORK_IDENTITY_KEY_V0 |
+| book_library_mgmt::CT_PURE_SELECT_RECORDS_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_select_records_v0 | execute | PURE_SELECT_RECORDS | atom | ct_pure | never | S7 new_artifacts CT_PURE_SELECT_RECORDS_V0 |
+| book_library_mgmt::CT_PURE_GROUP_RECORDS_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_group_records_v0 | execute | PURE_GROUP_RECORDS | atom | ct_pure | never | S7 new_artifacts CT_PURE_GROUP_RECORDS_V0 |
 
 ---
 
