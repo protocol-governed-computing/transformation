@@ -180,8 +180,11 @@ def generated(p7: dict) -> dict[str, tuple[str, list[str]]]:
     return out
 
 
-def supersessions(p7: dict) -> dict[str, list[str]]:
-    """`retired code -> the codes that supersede it`, as the design states it.
+def supersessions(p7: dict) -> dict[str, tuple[str, list[str]]]:
+    """`retired bare code -> (its identity as authored, the identities superseding it)`.
+
+    Addressed by bare code because that is how the topology and the inventory name an artifact, and
+    carrying the authored identity alongside because closure is asserted over exact FQDNs.
 
     Stated on the *successor*, because that is the artifact being authored and the one whose header
     carries `Supersedes`. Read the other way — a column on the inventory row of the artifact going
@@ -191,14 +194,18 @@ def supersessions(p7: dict) -> dict[str, list[str]]:
     Several successors for one predecessor is the ordinary case rather than an edge: a workflow split
     into an accept and a reject path retires one artifact and authors two.
     """
-    out: dict[str, list[str]] = {}
+    out: dict[str, tuple[str, list[str]]] = {}
     for row in rows(p7, "artifact_properties"):
         if cell(row, "Property") != "supersedes":
             continue
-        successor = bare(cell(row, "Artifact"))
-        for retired in (bare(v) for v in cell(row, "Value").split(",") if v.strip()):
-            if successor not in out.setdefault(retired, []):
-                out[retired].append(successor)
+        # Keyed by the bare code, because that is how the topology and the inventory address an
+        # artifact. The *value* stays the identity as authored: closure is asserted over an exact
+        # FQDN, and baring it here would emit a short name into the one place short names are refused.
+        successor = norm(cell(row, "Artifact"))
+        for retired in (norm(v) for v in cell(row, "Value").split(",") if v.strip()):
+            out.setdefault(bare(retired), (retired, []))
+            if successor not in out[bare(retired)][1]:
+                out[bare(retired)][1].append(successor)
     return out
 
 
@@ -211,7 +218,7 @@ def retirements(p7: dict) -> dict[str, list[str]]:
     of the composition can see that it has been stood down and by what.
     """
     superseded = supersessions(p7)
-    return {bare(cell(r, "FQDN")): superseded.get(bare(cell(r, "FQDN")), [])
+    return {bare(cell(r, "FQDN")): superseded.get(bare(cell(r, "FQDN")), ("", []))[1]
             for r in rows(p7, "existing_inventory") if cell(r, "Action") == "REPLACE"}
 
 
@@ -287,9 +294,9 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
     # Read once, inverted: the design states supersession on the successor, and the successor is
     # what is being rendered here.
     supersedes: dict[str, list[str]] = {}
-    for retired, successors in supersessions(p7).items():
+    for retired_fqdn, successors in supersessions(p7).values():
         for successor in successors:
-            supersedes.setdefault(successor, []).append(retired)
+            supersedes.setdefault(bare(successor), []).append(retired_fqdn)
 
     out = []
     for code, short, fam in _scheduled(p7, p8):
@@ -297,7 +304,7 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
             continue
         declared_empty: list[str] = []
         machine = _render(fam, code, short, summary.get(short, ""), subdomain.get(short, ""),
-                          p7, p8, declared_empty)
+                          p7, p8, declared_empty, sorted(supersedes.get(short, ())))
         domain = norm(code).split("::")[0]
         out.append({
             "path": f"registry/{subdomain.get(short, '')}/{DIRECTORY[fam]}/{short}.md",
@@ -313,13 +320,19 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
     return out
 
 
-def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict:
+def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
+            supersedes: list[str] | None = None) -> dict:
     machine: dict[str, Any] = {
         "fqdn": code,
         "artifact_kind": KIND[fam],
         "version": "v0",
         "governed_by": GOVERNED_BY[fam],
     }
+    # In the Machine block, not the header. It was a header fact for as long as nothing read it; the
+    # compiler now asserts referential closure over it, so it is governed content and belongs where
+    # governed content lives. The header line is rendered from here, so there is still one copy.
+    if supersedes:
+        machine["supersedes"] = supersedes[0] if len(supersedes) == 1 else list(supersedes)
     builder = _BUILDERS[fam]
     if fam in ("RB", "CC", "TI", "WF", "VOCAB"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
@@ -976,24 +989,45 @@ SUPERSEDED_STATUS = "superseded"
 
 
 def mark_superseded(text: str, successors: list[str]) -> str:
-    """An existing artifact's header, marked as stood down by its successors.
+    """An existing artifact's Machine block, marked as stood down by its successors.
 
-    Fail-hard on a document whose header does not carry the fields it is meant to: a marking that
+    The block rather than the header, because `INVARIANT_SUPERSEDED_NOT_REFERENCED_V0` reads it. The
+    compiler sees the Machine block and nothing else, so a marking in the header was a marking
+    nothing could enforce — true of this act from the day it was written until the invariant existed.
+    The header line is rewritten to match, derived from the block rather than stated beside it.
+
+    Fail-hard on a document with no block to mark, and on a marking with no successor. A marking that
     silently did nothing would leave the composition holding a live artifact the design believes is
-    retired, which is the failure this whole act exists to close.
+    retired, which is the failure this act exists to close; and "superseded" by nothing is a deletion,
+    which is a human act and not one a design declares.
     """
-    named = ", ".join(successors) or "UNDECLARED"
+    if not successors:
+        raise ValueError("refusing to mark an artifact superseded by nothing — that is a deletion")
+
     lines = text.splitlines(keepends=True)
+    anchors = [i for i, line in enumerate(lines) if line.startswith("fqdn:")]
+    if not anchors:
+        raise ValueError("artifact carries no Machine block; refusing to mark it superseded")
 
-    status = [i for i, line in enumerate(lines) if line.startswith("- **Status:**")]
-    if not status:
-        raise ValueError("artifact header carries no Status field; refusing to mark it superseded")
-    lines[status[0]] = f"- **Status:** {SUPERSEDED_STATUS}\n"
-
-    marker = "- **Superseded By:**"
-    existing = [i for i, line in enumerate(lines) if line.startswith(marker)]
+    block = ["superseded_by:\n"] + [f"- {s}\n" for s in successors]
+    existing = [i for i, line in enumerate(lines) if line.startswith("superseded_by:")]
     if existing:
-        lines[existing[0]] = f"{marker} {named}\n"
+        start = existing[0]
+        end = next((i for i in range(start + 1, len(lines))
+                    if not lines[i].startswith("- ")), len(lines))
+        lines[start:end] = block
     else:
-        lines.insert(status[0] + 1, f"{marker} {named}\n")
+        lines[anchors[0] + 1:anchors[0] + 1] = block
+
+    named = ", ".join(successors)
+    for i, line in enumerate(lines):
+        if line.startswith("- **Status:**"):
+            lines[i] = f"- **Status:** {SUPERSEDED_STATUS}\n"
+        elif line.startswith("- **Superseded By:**"):
+            lines[i] = f"- **Superseded By:** {named}\n"
+    if not any(line.startswith("- **Superseded By:**") for line in lines):
+        for i, line in enumerate(lines):
+            if line.startswith("- **Status:**"):
+                lines.insert(i + 1, f"- **Superseded By:** {named}\n")
+                break
     return "".join(lines)
