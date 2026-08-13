@@ -310,7 +310,7 @@ statement, not in a field a generator could fill.
 Everything except the rendering, which is most of it:
 
 - **P0–P6 are unchanged and are not optional.** The problem, the beliefs and their verification, the
-  gaps, the capabilities, the invariants, the ownership, the boundary rules and Gate 1 all apply. A
+  gaps, the capabilities, the invariants, the ownership and the boundary rules all apply. A
   governance change is judged exactly as any other change is judged, up to the point where an
   artifact would be rendered.
 - **The dossier is the record of authority.** A clause that appears in a constitution with no dossier
@@ -325,6 +325,24 @@ Delivery of a governance artifact is not mechanically reproducible from its doss
 acceptance cannot re-render it and compare, so nothing catches a document that drifts from the design
 that argued for it. That is the price of the ruling and it is accepted: the alternative was a
 generator inventing the argument, and an argument nobody made is worse than one nobody re-derived.
+
+### What this ruling leaves open, and should not be read as settling
+
+**Both approval gates live in phases these dossiers do not reach.** Gate 1 is a section of the P7
+document — *the full dossier is presented for review as a body* — and Gate 2 sits in P8. A dossier
+terminal at P6 closes neither, so the ruling as stated ends the phase run without the human approval
+that ends every other change. That is a gap, not a feature, and it wants one of two answers: Gate 1
+moves to P6 for a governance change, or a governance change closes a gate of its own. Until one is
+ruled, "complete at P6" means *the phases are exhausted*, not *the change is approved*.
+
+**Identity assignment is ungoverned for these artifacts.** P7 assigns a binding FQDN and
+collision-checks it against the composition; a new invariant authored under a P6-terminal dossier is
+named by whoever writes it. That was equally true before this ruling and is not a regression, but the
+ruling is the moment it became a deliberate arrangement rather than an oversight.
+
+**Nothing re-renders and compares.** Construction acceptance can render a domain artifact from its
+design and diff it against what the registry holds; a governance artifact has no such check, so drift
+between the clause and the dossier that argued for it is caught by reading, or not at all.
 
 ### The rule that holds it
 
