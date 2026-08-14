@@ -46,7 +46,8 @@ WORKSPACE = REPO.parent
 # amended to satisfy a rule written after it was gated; a fixture is maintained against the
 # current rule set on purpose. See `fixture_dossiers/README.md`.
 CR_DOSSIERS = REPO / "scripts/testbed/fixture_dossiers"
-DOSSIERS = [CR_DOSSIERS / "cr_01_catalog", CR_DOSSIERS / "cr_02_catalog"]
+DOSSIERS = [CR_DOSSIERS / "cr_01_catalog", CR_DOSSIERS / "cr_02_catalog",
+            CR_DOSSIERS / "cr_03_catalog"]
 REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 
 MACHINE = re.compile(r"```yaml\n(.*?)\n```", re.S)

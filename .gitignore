@@ -31,3 +31,5 @@ snapshot/
 !/dossiers/generated_artifacts/
 !/dossiers/register_coverage/
 !/dossiers/multi_emission/
+!/dossiers/declared_reach/
+!/dossiers/refusal_discharge/
