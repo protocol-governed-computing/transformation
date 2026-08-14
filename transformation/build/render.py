@@ -382,11 +382,23 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
             # renderer produced therefore declared events it could never fire, while every
             # hand-authored domain fired them: the field that worked was the one nothing wrote.
             spec_exit: dict[str, Any] = {"type": "EXIT"}
-            event = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
-                          if bare(cell(r, "Artifact")) == short
-                          and cell(r, "Property") == f"emit.{node}"), "")
-            if event:
-                spec_exit["emit"] = event
+            # An act may complete several moments at one ending and announces each of them, in the
+            # order the design states. A design says so by writing them comma-separated in one
+            # property, or by declaring `emit.<node>` more than once — rows are read in document
+            # order, so the order a reader sees is the order the act announces.
+            #
+            # One moment is rendered as one name rather than a list of one, because that is what
+            # every act announcing today carries and rewriting them would be a change to artifacts
+            # this design does not touch. The platform reads either.
+            announced = [m for r in rows(p7, "artifact_properties")
+                         if bare(cell(r, "Artifact")) == short
+                         and cell(r, "Property") == f"emit.{node}"
+                         for m in (p.strip() for p in cell(r, "Value").split(","))
+                         if m and m not in ("—", "-")]
+            if len(announced) == 1:
+                spec_exit["emit"] = announced[0]
+            elif announced:
+                spec_exit["emit"] = announced
             elif declared_empty is not None:
                 # An exit that announces nothing is a design decision, not an omission — most
                 # refusal exits announce nothing — so it is declared rather than left to measure
