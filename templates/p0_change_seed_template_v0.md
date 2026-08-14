@@ -9,6 +9,13 @@
 
 ## Document Contract
 
+**Before authoring a seed, ask whether this is a new change at all.** If its subject touches an
+artifact a dossier still in flight declares, it is not a new change request — it belongs to that
+dossier, whose problem statement is revisited and re-authored from P0. A change request is expensive
+and re-authoring one is cheap, and two in-flight dossiers declaring one artifact are two designs of
+record where each silently reverts the other. Only a subject touching nothing another in-flight
+dossier declares gets a seed of its own.
+
 **Input:** `0_business_problem_statement.md` — free-form business prose, written by a person.
 **Output:** this document — the same content, reorganized into governed registers.
 
