@@ -79,6 +79,11 @@ Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing adde
 **Gate 2 closes here**, and it freezes scope before authoring begins. After it, any departure is an
 Approved Deviation recorded in the authoring manifest — never a silent change.
 
+**Status: CLOSED.** Approved by the business author against the composition `6e1e571dbbb8…`, the one
+`baseline.json` pins. Construction Completeness is not cited because it does not apply: §3 records
+zero NEW, and the three EXTEND artifacts are re-emitted by their generator rather than rendered from
+a register.
+
 What is frozen is the amendment set and the way it is reached: three artifacts, none authored, all
 three re-emitted by the generator §16 declares. What reaches them is two registers appended to the
 design intent template, five rules in that phase's rule module, two check kinds, one existing check
@@ -90,6 +95,13 @@ kind added without a rule that uses it.
 corpus states a discharge, so each would report clean on its first run while checking nothing. One
 probe per rule, each built to fail, is part of what this mandate schedules — not a follow-up someone
 may decide the green has made unnecessary.
+
+**Declaring a prior is not free, and what it costs is frozen here too.** The six existing P7 payloads
+in the phase testbed carry `p5` and `p6`. Adding the seed to the phase's declared priors makes every
+one of them a run missing a prior it declares, which the phase reports as an unchecked handoff rather
+than passing quietly. Supplying `p0` to those six is inside this mandate: it authors nothing, changes
+no rule and alters no verdict that was correct before. **A payload whose verdict changes is not
+covered by this paragraph** — that is a rule firing on an existing document, and it is a finding.
 
 ---
 

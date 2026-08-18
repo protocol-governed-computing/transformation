@@ -179,11 +179,24 @@ HOW. Binding FQDNs are assigned here; business facts and placement decisions are
 **Gate 1 closes here.** Stages 0 through 7 are presented for review as a body — a unified review of
 the complete design, not a per-stage approval. Approval authorizes Stage 8, the Authoring Mandate.
 
+**Status: CLOSED.** Approved by the business author, as a body, against the composition
+`6e1e571dbbb8…` — the composition `baseline.json` pins and every grounded register was read against.
+What the approval authorizes is the amendment of the three artifacts §2 marks EXTEND, each
+re-emitted by the generator §16 declares, and nothing else. No register of this design names an
+artifact to author, and §15 states that plainly: three EXTEND, zero NEW.
+
 **This is the last design that will not have to account for its own refusals.** The seed of this
 change declares four, and under the rule set in the pinned composition nothing asks what carries any
 of them out — which is the defect, stated by the dossier that removes it. Each of the four is
 discharged by a rule this change authors, and where they are stated is §1, because the register that
 would hold them does not exist until this change delivers it.
+
+**What this approval does not have that the last one had.** cr_03 was gated after Construction
+Completeness read 100%, and that figure is the evidence a design uniquely determines its artifacts.
+There is no such figure here: nothing in this change is rendered from a design register, so
+Construction Completeness has nothing to read. The equivalent evidence arrives later and from
+elsewhere — `emit_rule_sets --check` agreeing after the rules are written, and five probes each
+built to fail. Approving this design is approving that substitution.
 
 ---
 

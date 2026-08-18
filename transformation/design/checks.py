@@ -1308,6 +1308,13 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
     Loss is the silent half: a change request missing an acceptance criterion is a perfectly
     well-formed change request, and that criterion is what the finished composition is later
     validated against.
+
+    Coverage may be owed to several registers at once rather than one. A declared refusal is
+    accounted for by being discharged *or* by being deferred, and the two are separate registers
+    because a discharge names a place in the topology and a deferral names a person — so a rule
+    reading either alone would report every deferred refusal as uncovered. `registers` is that list
+    and defaults to the single register the rule governs, exactly as `CELL_RESOLVES_IN_REGISTER`
+    already accepts `target_registers`: every rule that does not pass it is judged as it was before.
     """
     prior_rows, unavailable = _prior_rows(doc, rule)
     if unavailable:
@@ -1324,7 +1331,22 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
     gate_column = rule.params.get("prior_only_when_column")
     gate_value = rule.params.get("prior_only_when_value")
 
-    here = {_claim(row, key) for _, row in _rows(doc, rule)}
+    # The register this rule governs, unless it declares the several a row may be covered by. A
+    # second register is read with the same key columns: it answers the same question about the same
+    # upstream row, which is what makes it an alternative rather than a different check.
+    covering = rule.params.get("registers")
+    if covering:
+        here = {
+            _claim(row, key)
+            for name in covering
+            for _, row in _content_rows(doc.register(name))
+        }
+        where = "in " + " or ".join(covering)
+    else:
+        here = {_claim(row, key) for _, row in _rows(doc, rule)}
+        # "here" and not the register's name, because that is what every rule using this kind
+        # already reports and a widened kind must not reword a finding it did not change.
+        where = "here"
 
     out = []
     total = len(prior_rows)
@@ -1336,7 +1358,7 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
             continue
         out.append((
             _where(rule),
-            f"{phase} {register} #{ordinal} of {total} is restated nowhere here: {claim!r}",
+            f"{phase} {register} #{ordinal} of {total} is restated nowhere {where}: {claim!r}",
         ))
     return out
 
@@ -1614,6 +1636,146 @@ def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             f"states what {phase} {register} does not: {claim!r} — this phase restates business "
             f"content, so a new claim belongs upstream where a person owns it",
         ))
+    return out
+
+
+def _routing(cell: str) -> dict[str, str]:
+    """A topology node's routing, read as outcome → destination.
+
+    The cell is `SUCCESS -> …::CC_NEXT_V0; VIOLATION -> EXIT_REJECTED`, and a terminal node routes
+    nowhere and says so with a dash. Malformed segments are dropped rather than reported: the
+    routing grammar is `TOPOLOGY_ROUTING_WELL_FORMED`'s to enforce, and a second rule reporting the
+    same broken cell would make one defect look like two.
+    """
+    out: dict[str, str] = {}
+    for segment in cell.split(";"):
+        outcome, sep, destination = segment.partition("->")
+        if not sep:
+            continue
+        outcome = outcome.strip()
+        if outcome:
+            out[outcome] = destination.strip()
+    return out
+
+
+def _topology(doc: ParsedDocument, rule):
+    """The design's own topology, indexed by (workflow, node).
+
+    Both discharge kinds read it, and both read it the same way: a discharge is grounded in the
+    design that states it, never in the composition. Nothing here observes a snapshot.
+    """
+    register = rule.params.get("topology_register", "execution_topology")
+    workflow_column = rule.params.get("workflow_column", "Workflow")
+    node_column = rule.params.get("node_column", "Node")
+    return {
+        (_cell(row, workflow_column), _cell(row, node_column)): row
+        for _, row in _content_rows(doc.register(register))
+    }
+
+
+@check("DISCHARGE_GROUNDED_IN_TOPOLOGY")
+def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A stated discharge must name a step the act really has, and an outcome that step reports.
+
+    A register read only for presence documents intent and enforces nothing. The seed says the
+    business refuses an operation under a condition; this register says where that refusal happens;
+    and until something holds the second to the first, a design may name a step no act has and be
+    admissible for saying so — which is a refusal that stops nothing, written in the language of one
+    that does.
+
+    Act, step and outcome are checked together and reported once. They are three cells of one claim:
+    a step that is not in the act has no outcomes to check, and splitting the claim across rules
+    would report a single wrong row two or three times over.
+
+    The topology is the design's own, read from the same document. No composition fact is observed —
+    a design is judged on whether it is internally answerable, and an act it is authoring exists
+    nowhere else yet.
+    """
+    topology = _topology(doc, rule)
+    act_column = rule.params.get("act_column", "Act")
+    step_column = rule.params.get("step_column", "Step")
+    outcome_column = rule.params.get("outcome_column", "Outcome")
+    routing_column = rule.params.get("routing_column", "Routing")
+
+    out = []
+    for i, row in _rows(doc, rule):
+        act = _cell(row, act_column)
+        step = _cell(row, step_column)
+        outcome = _cell(row, outcome_column)
+        if not act or not step or not outcome:
+            # An empty cell is `CELL_NOT_EMPTY`'s finding. Grounding a blank would report the same
+            # omission a second time, in worse words.
+            continue
+        node = topology.get((act, step))
+        if node is None:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{step!r} is no step of {act} — the discharge names a place in an act that has "
+                f"no such place, so nothing carries the refusal out",
+            ))
+            continue
+        reported = _routing(_cell(node, routing_column))
+        if outcome not in reported:
+            known = ", ".join(sorted(reported)) or "nothing"
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{step.split('::')[-1]} does not report {outcome!r} — it reports {known}, and a "
+                f"discharge on an outcome the step never returns never happens",
+            ))
+    return out
+
+
+@check("DISCHARGE_OUTCOME_REFUSES")
+def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """The outcome a discharge names must route to an ending that refuses.
+
+    The separate claim, and the one the other kind cannot make: a step may report exactly the
+    outcome the register names and route it onward to the next step. The act then completes, having
+    performed the operation the business said it refuses, and every cell of the discharge row was
+    accurate.
+
+    A refusing ending is one the topology types `EXIT`; a completing one is typed `EXIT_SUCCESS`.
+    The type is what is read, never the node's name — a name is a convention anybody can break by
+    calling an exit something reassuring, and `EXIT_REJECTED` is a spelling rather than a
+    declaration.
+
+    A row this rule cannot resolve is left to `DISCHARGE_GROUNDED_IN_TOPOLOGY`, which is the rule
+    that says so.
+    """
+    topology = _topology(doc, rule)
+    act_column = rule.params.get("act_column", "Act")
+    step_column = rule.params.get("step_column", "Step")
+    outcome_column = rule.params.get("outcome_column", "Outcome")
+    routing_column = rule.params.get("routing_column", "Routing")
+    type_column = rule.params.get("type_column", "Node Type")
+    refusing = rule.params.get("refusing_type", "EXIT")
+
+    out = []
+    for i, row in _rows(doc, rule):
+        act = _cell(row, act_column)
+        step = _cell(row, step_column)
+        outcome = _cell(row, outcome_column)
+        node = topology.get((act, step))
+        if node is None:
+            continue
+        destination = _routing(_cell(node, routing_column)).get(outcome)
+        if not destination:
+            continue
+        ending = topology.get((act, destination))
+        if ending is None:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{outcome!r} routes to {destination!r} and {act.split('::')[-1]} declares no such "
+                f"node — an ending the topology does not state is one nothing can be said about",
+            ))
+            continue
+        node_type = _cell(ending, type_column).strip().upper()
+        if node_type != refusing:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{outcome!r} routes to {destination!r}, typed {node_type or 'nothing'} — a "
+                f"discharge must reach an ending typed {refusing}, and this one does not refuse",
+            ))
     return out
 
 

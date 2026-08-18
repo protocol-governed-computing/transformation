@@ -188,7 +188,7 @@ CASES = [
     # Judged against the design-time baseline — the composition CR-1 was designed against, not the
     # one containing its own output. Getting this wrong makes every assigned identity collide.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 152, 5, "design"),
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 167, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
          # The fixture renames an authored artifact, which leaves the renamed one traceable to no
@@ -209,7 +209,7 @@ CASES = [
          "STORE_WITHOUT_PROPOSED_PATH",
          "TOPOLOGY_NODE_UNDECLARED",
          "TOPOLOGY_NODE_UNDECLARED",
-     ], 152, 4, "design"),
+     ], 167, 4, "design"),
     # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
     # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
     # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
@@ -256,7 +256,7 @@ CASES = [
          "INTERFACE_ARTIFACT_UNDECLARED",
          "INTERFACE_ARTIFACT_UNDECLARED",
          "PROVISIONAL_CODE_NEVER_BOUND",
-     ], 152, 4, "design"),
+     ], 167, 4, "design"),
     # The last two handoffs. P4's consolidation loses a decision P3 committed to; P7 drops a reused
     # artifact P6 declared a dependency satisfied by. The second fires two rules on one edit — an
     # artifact that is inventoried is also composed, so removing it is visible from both directions.
@@ -269,7 +269,7 @@ CASES = [
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "33_p7_inadmissible_dropped_reuse.json", "INADMISSIBLE", [
          "COMPOSITION_STEP_UNDECLARED",
-     ], 152, 4, "design"),
+     ], 167, 4, "design"),
     # The defect that reached execution: a source naming a place execution does not offer. Every
     # layer beneath read it as a literal and reported success — the design rules are the only place
     # it can be refused, because a binding determined to be a literal is still determined and
@@ -281,13 +281,13 @@ CASES = [
          # fire. They are different statements: one says the reference escapes the declared
          # roots, the other that it is not a reference the runtime can follow at all.
          "BINDING_SOURCE_MALFORMED",
-     ], 152, 4, "design"),
+     ], 167, 4, "design"),
     # A store whose name advertises a format its capability does not write. Nothing below the design
     # can catch it: the runtime opens the path it is handed and never reads the suffix.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "37_p7_inadmissible_store_path.json", "INADMISSIBLE", [
          "STORE_PATH_FORMAT_MISMATCH",
-     ], 152, 4, "design"),
+     ], 167, 4, "design"),
     # The other face of reconciliation: an artifact the design declared that the mandate schedules
     # nowhere. CR-1's own mandate carried this defect until the dossier was completed, so the
     # corpus has to carry it now — it is the one the P7↔P8 rule was built for.
@@ -306,6 +306,31 @@ CASES = [
          "IN_SCOPE_CAPABILITY_UNPLACED",
          "OUTCOME_CAPABILITY_UNPLACED",
      ], 53, 4),
+    # The five probes. Each new rule is authored against a corpus in which no document stated a
+    # discharge, so each would report clean on its first run while checking nothing. One probe per
+    # rule, each built to fail it, is what turns a clean report into evidence.
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "39_p7_inadmissible_refusal_unaccounted.json", "INADMISSIBLE", [
+         "REFUSAL_UNACCOUNTED",
+     ], 167, 4, "design"),
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "40_p7_inadmissible_discharge_undeclared.json", "INADMISSIBLE", [
+         "DISCHARGE_UNDECLARED_REFUSAL",
+     ], 167, 4, "design"),
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "41_p7_inadmissible_deferral_undeclared.json", "INADMISSIBLE", [
+         "DEFERRAL_UNDECLARED_REFUSAL",
+     ], 167, 4, "design"),
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "42_p7_inadmissible_discharge_ungrounded.json", "INADMISSIBLE", [
+         "DISCHARGE_NOT_IN_TOPOLOGY",
+     ], 167, 4, "design"),
+    # Every cell of the row is accurate and the act completes anyway — the defect no rule reading
+    # the register alone can see.
+    ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+     "43_p7_inadmissible_discharge_completes.json", "INADMISSIBLE", [
+         "DISCHARGE_DOES_NOT_REFUSE",
+     ], 167, 4, "design"),
 ]
 
 

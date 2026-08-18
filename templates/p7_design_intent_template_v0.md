@@ -429,6 +429,46 @@ permits a silent reach.*
 
 ---
 
+## 18. Refusal Discharge
+
+*What carries out an operation the business said it refuses. The seed states the refusal and the
+condition; this register states the act, the step and the outcome that stop it — and it is the only
+place a design says so, because a refusal nothing discharges is a refusal in prose.*
+
+*`Operation` and `Refused When` are the seed's own wording, taken from its `operation_refusals`
+register: the pair identifies which declared refusal this row answers, and a row naming a pair the
+seed does not state is answering for a refusal nobody approved.*
+
+*`Act` is the workflow's binding FQDN and `Step` is a step of that workflow, both resolved against
+§5. `Outcome` is one the step reports, and it must route to a node typed `EXIT` — an ending that
+refuses. An outcome routing anywhere else does not stop the operation, however plainly this register
+says it does.*
+
+*A refusal this change does not carry out belongs in §19, not here and not nowhere.*
+
+<!-- register:refusal_discharge optional -->
+| Operation | Refused When | Act | Step | Outcome | Source Finding |
+|-----------|--------------|-----|------|---------|----------------|
+
+---
+
+## 19. Refusal Deferrals
+
+*A refusal the business declared and this design does not discharge, with the owner who will. The
+two registers are read together for coverage and apart for everything else: a discharge names a
+place in the topology, a deferral names a person and a condition, and one table holding both would
+leave half its cells empty on every row — where a blank meaning "not applicable" is indistinguishable
+from one meaning "unanswered".*
+
+*`Deferred To` is who owns it and must not be blank; a deferral with no owner is a refusal dropped
+in language that sounds like a plan. `Until` is the condition that ends the deferral.*
+
+<!-- register:refusal_deferrals optional -->
+| Operation | Refused When | Deferred To | Until | Source Finding |
+|-----------|--------------|-------------|-------|----------------|
+
+---
+
 ---
 
 ## Gate 1 — Design Approval

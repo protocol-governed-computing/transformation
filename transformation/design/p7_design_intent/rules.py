@@ -424,7 +424,13 @@ BINDING_RULES: list[Rule] = [
 
 # P7 is where the purity ladder is paid off. P5 names capabilities the business asked for and is
 # forbidden to bind them; P7 binds. The design document it must be judged against is therefore P5's.
-PRIORS = ("p5", "p6")
+# The seed joins them for the refusals. P7 must refuse a design that leaves a declared refusal
+# unaccounted for, and it cannot refuse what it cannot see: the register lives in the seed, and P5
+# and P6 neither carry it nor should. Carrying it forward instead would mean a register and a carry
+# rule in each intermediate phase, restating what the seed already says and free to drift from it —
+# and P5 and P6 already declare `p0` directly, so this is the mechanism the pipeline has rather than
+# a new one.
+PRIORS = ("p5", "p6", "p0")
 
 
 # One direction only, and the asymmetry is the point.
@@ -940,6 +946,71 @@ GENERATION_RULES: list[Rule] = [
 ]
 
 
+# The pair of cells that identifies a declared refusal. The seed states it in business language and
+# the design answers it in the same words: there is no code for a refusal, and inventing one would
+# put a business fact behind an identity only this pipeline can read.
+REFUSAL_KEY = ["Operation", "Refused When"]
+
+# Twelve rules across P0 and P1 guard the refusal register's arrival and, until these five, none
+# guarded its consequence. A refusal was declared by the business, restated by the change request,
+# and then carried unread through six phases into a composition where nothing performed it.
+REFUSAL_RULES: list[Rule] = [
+    Rule(
+        id="REFUSAL_UNACCOUNTED",
+        check="PRIOR_ROWS_PRESENT_BY_KEY",
+        register="refusal_discharge",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+            # Accounted for is discharged *or* deferred. Reading one register alone would report
+            # every deferral as an omission and make the deferral register unusable by existing.
+            "registers": ["refusal_discharge", "refusal_deferrals"],
+        },
+        intent="every refusal the business declared is carried out here or owned by someone else",
+    ),
+    Rule(
+        id="DISCHARGE_UNDECLARED_REFUSAL",
+        check="ROWS_CONFINED_TO_PRIOR",
+        register="refusal_discharge",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+        },
+        intent="a discharge answers a refusal the business declared, never one the design invented",
+    ),
+    Rule(
+        id="DEFERRAL_UNDECLARED_REFUSAL",
+        check="ROWS_CONFINED_TO_PRIOR",
+        register="refusal_deferrals",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+        },
+        intent="a deferral hands on a refusal the business declared, never one nobody approved",
+    ),
+    Rule(
+        id="DISCHARGE_NOT_IN_TOPOLOGY",
+        check="DISCHARGE_GROUNDED_IN_TOPOLOGY",
+        register="refusal_discharge",
+        params={},
+        intent="a discharge names a step the act has and an outcome that step reports",
+    ),
+    Rule(
+        id="DISCHARGE_DOES_NOT_REFUSE",
+        check="DISCHARGE_OUTCOME_REFUSES",
+        register="refusal_discharge",
+        params={},
+        intent="the outcome a discharge names stops the act rather than continuing it",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
     return (
@@ -950,6 +1021,7 @@ def rule_set() -> list[Rule]:
         + INTERFACE_RULES
         + COMPOSITION_INTEGRITY_RULES
         + GENERATION_RULES
+        + REFUSAL_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()

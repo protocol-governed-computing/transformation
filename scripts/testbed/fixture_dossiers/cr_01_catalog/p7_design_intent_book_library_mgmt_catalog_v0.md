@@ -609,6 +609,38 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 
 ---
 
+## 18. Refusal Discharge
+
+<!-- register:refusal_discharge optional -->
+| Operation | Refused When | Act | Step | Outcome | Source Finding |
+|-----------|--------------|-----|------|---------|----------------|
+| Register a book | Its title, author and publication year match a registered book. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | ALREADY_EXISTS | S0 operation_refusals #1 |
+| Register a book | No physical copy is offered with it. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #2 |
+| Register a book | It carries no subject. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #3 |
+| Register a physical copy | The book it names is not registered. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | NOT_FOUND | S0 operation_refusals #4 |
+| Register a physical copy | Its barcode matches a copy the library already owns. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | ALREADY_EXISTS | S0 operation_refusals #5 |
+| Update bibliographic information | The changed title, author and publication year would match another registered book. | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | VIOLATION | S0 operation_refusals #6 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_SEARCH_CATALOG_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+
+---
+
+## 19. Refusal Deferrals
+
+<!-- register:refusal_deferrals optional -->
+| Operation | Refused When | Deferred To | Until | Source Finding |
+|-----------|--------------|-------------|-------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |

@@ -191,6 +191,8 @@ core:
             - provisional_codes
             - purpose_provenance
             - rb_declarations
+            - refusal_deferrals
+            - refusal_discharge
             - relationships
             - requested_outcomes
             - resources
@@ -938,6 +940,87 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: refusal_discharge
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: refusal_discharge
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Act
+            - Step
+            - Outcome
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: refusal_discharge
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: refusal_discharge
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: refusal_discharge
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: refusal_deferrals
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: refusal_deferrals
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Deferred To
+            - Until
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: refusal_deferrals
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: refusal_deferrals
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: refusal_deferrals
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -1512,6 +1595,46 @@ core:
             detail: generator names no sources — a template and the declaration read with it are one generator,
               and naming neither permits regenerating from a stale pairing
           intent: a generator is its sources together, so a change to either is a change to it
+        - id: REFUSAL_UNACCOUNTED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: refusal_discharge
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: &id002
+            - Operation
+            - Refused When
+            key_column: *id002
+            registers:
+            - refusal_discharge
+            - refusal_deferrals
+          intent: every refusal the business declared is carried out here or owned by someone else
+        - id: DISCHARGE_UNDECLARED_REFUSAL
+          check: ROWS_CONFINED_TO_PRIOR
+          register: refusal_discharge
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: *id002
+            key_column: *id002
+          intent: a discharge answers a refusal the business declared, never one the design invented
+        - id: DEFERRAL_UNDECLARED_REFUSAL
+          check: ROWS_CONFINED_TO_PRIOR
+          register: refusal_deferrals
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: *id002
+            key_column: *id002
+          intent: a deferral hands on a refusal the business declared, never one nobody approved
+        - id: DISCHARGE_NOT_IN_TOPOLOGY
+          check: DISCHARGE_GROUNDED_IN_TOPOLOGY
+          register: refusal_discharge
+          intent: a discharge names a step the act has and an outcome that step reports
+        - id: DISCHARGE_DOES_NOT_REFUSE
+          check: DISCHARGE_OUTCOME_REFUSES
+          register: refusal_discharge
+          intent: the outcome a discharge names stops the act rather than continuing it
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

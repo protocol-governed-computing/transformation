@@ -81,7 +81,7 @@ Every binding names a field the capability declares, read from the pinned baseli
 | Mark a copy retired so the library no longer holds it | CC | book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0 | Mark a copy retired so the library no longer holds it | catalog | NEW | S5 provisional_codes CC_RETIRE_PHYSICAL_COPY_V0 |
 | Mark a retired book record registered again | CC | book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0 | Mark a retired book record registered again | catalog | NEW | S5 provisional_codes CC_REINSTATE_BOOK_RECORD_V0 |
 | Mark a retired copy registered again | CC | book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0 | Mark a retired copy registered again | catalog | NEW | S5 provisional_codes CC_REINSTATE_PHYSICAL_COPY_V0 |
-| Select the registered books matching a subject or title, excluding retired ones | CC | CC_SEARCH_UNQUALIFIED_V0 | Select the registered books matching a subject or title, excluding retired ones | catalog | NEW | S5 provisional_codes CC_SEARCH_CATALOG_V0 |
+| Select the registered books matching a subject or title, excluding retired ones | CC | book_library_mgmt::CC_SEARCH_CATALOG_V0 | Select the registered books matching a subject or title, excluding retired ones | catalog | NEW | S5 provisional_codes CC_SEARCH_CATALOG_V0 |
 | Assemble a book's record with the copies recorded against it | CC | book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 | Assemble a book's record with the copies recorded against it | catalog | NEW | S5 provisional_codes CC_ASSEMBLE_BOOK_DETAILS_V0 |
 | Append a durable account of a performed operation to the catalog's own trail | CC | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | Append a durable account of a performed operation to the catalog's own trail | catalog | NEW | S5 provisional_codes CC_APPEND_CATALOG_OPERATION_V0 |
 | Form one identity key from a book's title, author and publication year | CT | book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | Forms the single key the registry claims from the three identifying attributes | catalog | NEW | S3 authoring_decisions Enforce that one book exists per title, author and publication year |
@@ -121,7 +121,7 @@ Every binding names a field the capability declares, read from the pinned baseli
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | CC | SUCCESS -> book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0; VIOLATION -> EXIT_REJECTED | S7 new_artifacts CC_CONFIRM_STAFF_AUTHORIZED_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | CC | SUCCESS -> book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0; VIOLATION -> EXIT_REJECTED | S7 new_artifacts CC_VALIDATE_BOOK_SUBMISSION_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | CC | SUCCESS -> book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0; ALREADY_EXISTS -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CLAIM_BOOK_IDENTITY_V0 |
-| book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_REGISTR_BOOK_V0 | CC | SUCCESS -> book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_REGISTER_BOOK_V0 |
+| book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_REGISTER_BOOK_V0 | CC | SUCCESS -> book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_REGISTER_BOOK_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | CC | SUCCESS -> book_library_mgmt::CC_REGISTER_BOOK_V0; ALREADY_EXISTS -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_CLAIM_COPY_BARCODE_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | CC | SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_REGISTER_PHYSICAL_COPY_V0 |
 | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | CC | SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED | S7 new_artifacts CC_APPEND_CATALOG_OPERATION_V0 |
@@ -563,7 +563,7 @@ BACKEND_ERROR — is already admitted, so no vocabulary is extended.
 <!-- register:structure_stores optional -->
 | Store Name | Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0) | Proposed Path | Used By | Source Finding |
 |------------|-----------------------------------------------------------|---------------|---------|----------------|
-| BOOKS | CS_MUTABLE_JSON_V0 |  | book_library_mgmt::CC_REGISTER_BOOK_V0 | S6 storage_governance A durable record of every book the library catalogs |
+| BOOKS | CS_MUTABLE_JSON_V0 | book_library_mgmt/catalog/books.json | book_library_mgmt::CC_REGISTER_BOOK_V0 | S6 storage_governance A durable record of every book the library catalogs |
 | PHYSICAL_COPIES | CS_MUTABLE_JSON_V0 | book_library_mgmt/catalog/physical_copies.json | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | S6 storage_governance A durable record of every physical copy the library owns |
 | CATALOG_OPERATIONS | CS_APPENDONLY_JSONL_V0 | book_library_mgmt/catalog/catalog_operations.jsonl | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | S6 storage_governance A trail of performed operations that cannot be amended |
 | BOOK_IDENTITY_REGISTRY | CS_REGISTRY_V0 | book_library_mgmt/catalog/book_identity_registry.jsonl | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | S6 storage_governance A claim on each book's identity, held once |
@@ -614,7 +614,7 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 <!-- register:refusal_discharge optional -->
 | Operation | Refused When | Act | Step | Outcome | Source Finding |
 |-----------|--------------|-----|------|---------|----------------|
-| Register a book | Its title, author and publication year match a registered book. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | ALREADY_EXISTS | S0 operation_refusals #1 |
+| Register a book | Its title, author and publication year match a registered book. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 | SUCCESS | S0 operation_refusals #1 |
 | Register a book | No physical copy is offered with it. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #2 |
 | Register a book | It carries no subject. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #3 |
 | Register a physical copy | The book it names is not registered. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | NOT_FOUND | S0 operation_refusals #4 |

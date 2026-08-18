@@ -215,6 +215,8 @@ core:
             - provisional_codes
             - purpose_provenance
             - rb_declarations
+            - refusal_deferrals
+            - refusal_discharge
             - relationships
             - requested_outcomes
             - resources
