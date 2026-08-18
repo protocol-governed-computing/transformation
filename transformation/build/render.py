@@ -32,6 +32,19 @@ from typing import Any
 
 from transformation.design.families import BY_CODE, FAMILIES
 
+# Where a `Machine` block begins and ends. One spelling, because there were three and two of them
+# disagreed: a pattern missing the trailing newline captures a block ending one character later, and
+# on a block whose last line is not newline-terminated the two read different content while both
+# parsing as valid YAML. This module renders machine blocks, so it owns the definition of one.
+MACHINE_BLOCK = re.compile(r"```yaml\n(.*?)\n```", re.S)
+
+
+def machine_block(text: str) -> str | None:
+    """The YAML source of a document's `Machine` block, or None where there is none."""
+    found = MACHINE_BLOCK.search(text)
+    return found.group(1) if found else None
+
+
 # Constitution, compiled kind and registry directory per family — all three derived from the one
 # declaration in `design.families`, because they were three hand-kept copies of it and the copies
 # had already drifted. A design that restated them would be declaring something it does not own.

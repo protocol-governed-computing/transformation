@@ -35,6 +35,9 @@ from pathlib import Path
 
 import yaml
 
+# `MACHINE_BLOCK` is one spelling of where a machine block ends, owned by the module
+# that renders them — there were three spellings and two of them disagreed.
+from transformation.build.render import MACHINE_BLOCK as MACHINE
 from transformation.build.render import build_manifest, render_all, bare
 from transformation.design.read import read_seed
 
@@ -69,9 +72,6 @@ def sequence(root: Path) -> list[Path]:
 
 
 DOSSIERS = sequence(CR_DOSSIERS)
-
-MACHINE = re.compile(r"```yaml\n(.*?)\n```", re.S)
-
 
 def registers(path: Path) -> dict[str, list[dict]]:
     doc = read_seed(path)

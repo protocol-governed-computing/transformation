@@ -26,14 +26,18 @@ from typing import Callable
 
 import yaml
 
-from transformation.build.render import build_manifest, manifest_path, render_document
+from transformation.build.render import (
+    MACHINE_BLOCK,
+    build_manifest,
+    manifest_path,
+    render_document,
+)
 from transformation.design import emit as phase_emit
 
 # How a design names the manifest generator, and how construction reaches it. One spelling,
 # read by the provenance a design states and by the founding emission below.
 MANIFEST_GENERATOR = "transformation.build.render:build_manifest"
 
-_MACHINE = re.compile(r"```yaml\n(.*?)\n```", re.S)
 
 
 @dataclass(frozen=True)
@@ -130,7 +134,7 @@ def _build_manifest_stale(ctx: Context) -> list[str]:
         return []
     if not path.is_file():
         return [path.name]
-    found = _MACHINE.search(path.read_text(encoding="utf-8"))
+    found = MACHINE_BLOCK.search(path.read_text(encoding="utf-8"))
     built = yaml.safe_load(found.group(1)) if found else None
     return [] if built == manifest else [path.name]
 

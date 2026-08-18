@@ -174,91 +174,19 @@ def observation(operations: dict | None, snapshot_root: str) -> dict:
 # Which upstream document each judged document is handed — **derived, not restated**.
 #
 # This was a literal table: every corpus document, every prior it reads, by hand. It was wrong twice
-# in one session. Adding the seed to P7's declared priors made all six existing P7 entries incomplete
-# and each had to be edited; every probe added after that needed its own row, and a document with no
-# row silently stopped exercising the rule it was written for. It is the third instance of the
-# pattern this repo keeps meeting — the last hand-kept copy is the one that fails — and the other
-# two were derived in the same session.
-#
-# Two facts already exist and neither was being read. **Which phases a document is judged against**
-# is `PRIORS` in that phase's rule module, which is also what the compiled workflow declares. **Which
-# dossier supplies them** is the document's own `CR:` header, which every dossier document carries
-# because P1 is the Change Request phase whatever domain it runs against.
-#
-# So a new probe now needs nothing: cut it from a fixture, and it is judged against that fixture's
-# priors because it says so in its own header.
+# in one session. `scripts/testbed/priors.py` now derives it from the phase's declared `PRIORS` and
+# the document's own `CR:` header, and both this harness and the payload builder read it from there
+# rather than each keeping a copy.
 
-CR_HEADER = re.compile(r"^\*\*CR:\*\*\s*(?P<cr>.+?)\s*$", re.M)
-
-# Where a dossier that can supply priors may live. A directory is one if it carries a seed — the
-# document P0 produces — rather than because it was listed here.
-DOSSIER_ROOTS = (
-    REPO / "scripts/testbed/fixture_dossiers",
-    REPO / "dossiers",
-)
-
-
-def _cr_of(path: Path) -> str | None:
-    match = CR_HEADER.search(path.read_text(encoding="utf-8"))
-    return match.group("cr") if match else None
-
-
-def dossiers_by_cr() -> dict[str, Path]:
-    """`CR:` value → the dossier that declares it, read from each dossier's own seed.
-
-    The seed is the authority for what a dossier is called, and it is not always the directory name:
-    `dossiers/founding_design_bootstrap` declares `new_subdomain`. Reading the header rather than
-    mapping the two keeps the one place a rename has to happen inside the dossier.
-    """
-    out: dict[str, Path] = {}
-    for root in DOSSIER_ROOTS:
-        for seed in sorted(root.glob("*/p0_seed_*.md")):
-            cr = _cr_of(seed)
-            if cr and cr not in out:
-                out[cr] = seed.parent
-    return out
-
-
-DOSSIERS_BY_CR = dossiers_by_cr()
-
-
-def prior_paths(dossier: Path, phase_id: str) -> Path:
-    """The document a dossier offers for one phase.
-
-    P0's prior is the **seed**, never `p0_business_problem_statement.md` — the seed is what P1
-    consumes, and handing the problem statement instead would judge a handoff that never happened.
-    """
-    pattern = "p0_seed_*.md" if phase_id == "p0" else f"{phase_id}_*.md"
-    found = sorted(dossier.glob(pattern))
-    if not found:
-        raise SystemExit(f"{dossier.name} offers no {phase_id} document, and one is declared a prior")
-    return found[0]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from priors import prior_paths   # noqa: E402
 
 
 def prior_texts(doc_path: Path, declared_priors: tuple[str, ...]) -> dict:
-    """The upstream documents this document is judged against, as text a workflow is handed.
-
-    A document that cannot say which dossier it belongs to is a hard failure rather than an
-    unchecked handoff: the corpus is discovered by glob, and a fixture judged against no prior at
-    all would quietly stop exercising every cross-phase rule while still reporting a verdict.
-    """
-    if not declared_priors:
-        return {}
-    cr = _cr_of(doc_path)
-    if cr is None:
-        raise SystemExit(
-            f"{doc_path.name} is judged by a phase with cross-phase rules and carries no **CR:** "
-            f"header, so nothing says which dossier supplies its priors"
-        )
-    dossier = DOSSIERS_BY_CR.get(cr)
-    if dossier is None:
-        raise SystemExit(
-            f"{doc_path.name} declares CR {cr!r} and no dossier under "
-            f"{', '.join(str(r.name) for r in DOSSIER_ROOTS)} carries a seed declaring it"
-        )
+    """The upstream documents this document is judged against, as text a workflow is handed."""
     return {
-        phase_id: prior_paths(dossier, phase_id).read_text(encoding="utf-8")
-        for phase_id in declared_priors
+        phase_id: path.read_text(encoding="utf-8")
+        for phase_id, path in prior_paths(doc_path, declared_priors).items()
     }
 
 

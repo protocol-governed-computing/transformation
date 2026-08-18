@@ -94,5 +94,3 @@ def evaluate(doc: ParsedDocument, rules: list[Rule]) -> Verdict:
     )
 
 
-def judge_path(path: Path, rules: list[Rule]) -> Verdict:
-    return evaluate(read_seed(path), rules)

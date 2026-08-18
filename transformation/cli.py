@@ -28,6 +28,7 @@ from inspector import api as inspector_api
 from transformation.build.completeness import measure, narrowing
 from transformation.build.render import (
     bare,
+    machine_block,
     build_manifest,
     manifest_path,
     mark_superseded,
@@ -503,10 +504,9 @@ def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
                 continue
             # The machine block, read out of the canonical artifact the composition holds. It is the
             # same shape construction renders, which is what makes the two comparable at all.
-            block = re.search(r"```yaml\n(.*?)```",
-                              (result.get("canonical") or {}).get("content", ""), re.S)
-            if block:
-                existing[fqdn.split("::")[-1]] = yaml.safe_load(block.group(1)) or {}
+            block = machine_block((result.get("canonical") or {}).get("content", ""))
+            if block is not None:
+                existing[fqdn.split("::")[-1]] = yaml.safe_load(block) or {}
     return narrowing(render_all(p7, p8), existing)
 
 
