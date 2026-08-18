@@ -252,6 +252,7 @@ core:
             - rb_declarations
             - refusal_deferrals
             - refusal_discharge
+            - refusal_governance_discharge
             - relationships
             - requested_outcomes
             - resources

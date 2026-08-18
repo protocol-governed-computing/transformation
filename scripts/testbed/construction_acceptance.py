@@ -46,9 +46,29 @@ WORKSPACE = REPO.parent
 # amended to satisfy a rule written after it was gated; a fixture is maintained against the
 # current rule set on purpose. See `fixture_dossiers/README.md`.
 CR_DOSSIERS = REPO / "scripts/testbed/fixture_dossiers"
-DOSSIERS = [CR_DOSSIERS / "cr_01_catalog", CR_DOSSIERS / "cr_02_catalog",
-            CR_DOSSIERS / "cr_03_catalog"]
 REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
+
+# The sequence used to be a literal list, and a delivered dossier that re-rendered an artifact an
+# earlier one rendered had to be appended by hand. Miss the step and the harness compares a built
+# artifact against a design that is no longer its design of record, then reports the difference as
+# a field difference — which reads like a construction defect rather than a stale corpus. cr_03
+# cost 12 such differences before anyone thought to look at the list.
+#
+# A business-domain dossier is numbered, and the number *is* the sequence: `cr_NN_<subject>` is the
+# form, declared in `transformation/CLAUDE.md`. So the ordering is read from the name rather than
+# restated beside it. A directory that is not numbered that way is not part of a sequence and is
+# not silently swept in.
+SEQUENCED = re.compile(r"^cr_(\d+)_")
+
+
+def sequence(root: Path) -> list[Path]:
+    """The delivered dossiers of one domain, in the order they were delivered."""
+    numbered = [(int(m.group(1)), p) for p in root.iterdir()
+                if p.is_dir() and (m := SEQUENCED.match(p.name))]
+    return [p for _, p in sorted(numbered)]
+
+
+DOSSIERS = sequence(CR_DOSSIERS)
 
 MACHINE = re.compile(r"```yaml\n(.*?)\n```", re.S)
 

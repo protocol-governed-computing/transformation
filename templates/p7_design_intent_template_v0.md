@@ -469,6 +469,39 @@ in language that sounds like a plan. `Until` is the condition that ends the defe
 
 ---
 
+## 20. Refusal — Governance-Surface Discharge
+
+*A refusal carried out by the design language itself, rather than by a step of this domain's own
+acts. The business refuses an operation; no act performs it and none omits it; what refuses it is a
+rule of the pipeline, which makes the declaration inadmissible before anything runs.*
+
+*Three places a declared refusal can be carried out, and a design states each in its own register:
+§18 when an act is attempted and refuses, §19 when someone else will carry it out later, and here
+when the governance surface refuses the declaration outright. A fourth case — the domain simply
+never offering the operation — is stated nowhere yet.*
+
+*`Phase` is the phase whose rule set holds the rule, written `p0` through `p8` — the phase spelling,
+never a stage number. It is required and not inferred: rule identifiers are **not** unique across
+phases — every derived one, `REGISTER_MISSING`
+among them, is declared by all nine — so a rule named without its phase names nine different rules.*
+
+*`Governing Rule` is the rule's identifier, never a check kind. A check kind is a mechanism and can
+be bound to any register with any parameters; it says how a check runs and cannot say what is
+governed. The rule is the binding, and the binding is what refuses.*
+
+*The rule must be **active in that phase's sealed rule set** — in the composition this design is
+pinned to, not in somebody's working tree. Two consequences worth meeting here rather than
+discovering later. **A design cannot discharge a refusal by citing a rule its own change is adding**:
+the rule does not exist in the pinned composition, and the citation resolves to nothing. And
+**resolution is not coverage** — that the cited rule exists and is enforced is checkable; that it
+actually refuses the condition stated in `Refused When` is not, and it is what Gate 1 is reading for.*
+
+<!-- register:refusal_governance_discharge optional -->
+| Operation | Refused When | Phase | Governing Rule | Source Finding |
+|-----------|--------------|-------|----------------|----------------|
+
+---
+
 ---
 
 ## Gate 1 — Design Approval

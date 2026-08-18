@@ -640,6 +640,15 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 
 ---
 
+## 20. Refusal — Governance-Surface Discharge
+
+<!-- register:refusal_governance_discharge optional -->
+| Operation | Refused When | Phase | Governing Rule | Source Finding |
+|-----------|--------------|-------|----------------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |

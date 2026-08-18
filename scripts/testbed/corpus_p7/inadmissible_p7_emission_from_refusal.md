@@ -555,6 +555,7 @@ BACKEND_ERROR — is already admitted, so no vocabulary is extended.
 | Artifact | Property | Value | Source Finding |
 |----------|----------|-------|----------------|
 | book_library_mgmt::AC_LIBRARY_STAFF_V0 | type | ENDUSER | S5 provisional_codes AC_LIBRARY_STAFF_V0 |
+| book_library_mgmt::WF_REGISTER_BOOK_V0 | emit.EXIT_REJECTED | book_library_mgmt::EV_BOOK_REGISTERED_V0 | S7 new_artifacts EV_BOOK_REGISTERED_V0 |
 
 ---
 
@@ -637,7 +638,7 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 <!-- register:refusal_deferrals optional -->
 | Operation | Refused When | Deferred To | Until | Source Finding |
 |-----------|--------------|-------------|-------|----------------|
-| Lend a book | The borrower owes a fine. | The circulation change request | Circulation is designed | S0 operation_refusals #4 |
+| NONE IDENTIFIED |
 
 ---
 

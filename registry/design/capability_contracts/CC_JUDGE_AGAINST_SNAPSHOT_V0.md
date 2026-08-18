@@ -228,6 +228,21 @@ core:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+  - step: observe_rule_set_list
+    side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
+    op: QUERY
+    inputs:
+      operation: si.rule_set.list
+      params: {}
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    - BACKEND_ERROR
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+      BACKEND_ERROR: exit
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:
@@ -242,6 +257,7 @@ core:
         si.capability.surface: $.results.observe_capabilities.capability_result.result.capabilities
         si.capability.surface#contracts: $.results.observe_capabilities.capability_result.result.contracts
         si.capability.surface#transforms: $.results.observe_capabilities.capability_result.result.transforms
+        si.rule_set.list: $.results.observe_rule_set_list.capability_result.result.carriers
         si.snapshot.summary: $.results.observe_reuse_visibility.capability_result.result.reuse_visibility
         si.store.list: $.results.observe_store_list.capability_result.result.stores
       # Keyed by the phase that produced it, for the same reason.

@@ -617,7 +617,6 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 | Register a book | Its title, author and publication year match a registered book. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | ALREADY_EXISTS | S0 operation_refusals #1 |
 | Register a book | No physical copy is offered with it. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #2 |
 | Register a book | It carries no subject. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #3 |
-| Register a physical copy | The book it names is not registered. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | NOT_FOUND | S0 operation_refusals #4 |
 | Register a physical copy | Its barcode matches a copy the library already owns. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | ALREADY_EXISTS | S0 operation_refusals #5 |
 | Update bibliographic information | The changed title, author and publication year would match another registered book. | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | VIOLATION | S0 operation_refusals #6 |
 | Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
@@ -637,7 +636,7 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 <!-- register:refusal_deferrals optional -->
 | Operation | Refused When | Deferred To | Until | Source Finding |
 |-----------|--------------|-------------|-------|----------------|
-| Lend a book | The borrower owes a fine. | The circulation change request | Circulation is designed | S0 operation_refusals #4 |
+| Register a physical copy | The book it names is not registered. |   | The copy function is designed | S0 operation_refusals #4 |
 
 ---
 

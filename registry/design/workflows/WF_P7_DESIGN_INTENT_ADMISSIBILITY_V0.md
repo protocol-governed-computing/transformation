@@ -193,6 +193,7 @@ core:
             - rb_declarations
             - refusal_deferrals
             - refusal_discharge
+            - refusal_governance_discharge
             - relationships
             - requested_outcomes
             - resources
@@ -1021,6 +1022,46 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: refusal_governance_discharge
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: refusal_governance_discharge
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Phase
+            - Governing Rule
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: refusal_governance_discharge
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: refusal_governance_discharge
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: refusal_governance_discharge
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -1608,6 +1649,7 @@ core:
             registers:
             - refusal_discharge
             - refusal_deferrals
+            - refusal_governance_discharge
           intent: every refusal the business declared is carried out here or owned by someone else
         - id: DISCHARGE_UNDECLARED_REFUSAL
           check: ROWS_CONFINED_TO_PRIOR
@@ -1627,6 +1669,56 @@ core:
             prior_key_column: *id002
             key_column: *id002
           intent: a deferral hands on a refusal the business declared, never one nobody approved
+        - id: DEFERRAL_OWNER_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: refusal_deferrals
+          params:
+            column: Deferred To
+            detail: names no owner — a refusal handed on to nobody is a refusal dropped in language that sounds
+              like a plan
+          intent: a deferred refusal names who will carry it out
+        - id: GOVERNANCE_DISCHARGE_UNDECLARED_REFUSAL
+          check: ROWS_CONFINED_TO_PRIOR
+          register: refusal_governance_discharge
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: *id002
+            key_column: *id002
+          intent: the governance surface is cited for a refusal the business declared, never for one it did not
+        - id: GOVERNING_RULE_PHASE_MALFORMED
+          check: CELL_MATCHES
+          register: refusal_governance_discharge
+          params:
+            column: Phase
+            pattern: ^p[0-8]$
+            detail: '{value!r} is not a phase — a rule is named by its phase and its identifier together, written
+              p0 through p8, because an identifier alone names nine rules'
+          intent: a cited rule is located in the phase whose rule set holds it
+        - id: GOVERNING_RULE_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: refusal_governance_discharge
+          params:
+            column: Governing Rule
+            detail: cites no rule — a refusal said to be carried out by the governance surface and naming nothing
+              there is prose, and prose refuses nothing
+          intent: a governance-surface discharge names the rule that refuses
+        - id: GOVERNING_RULE_NOT_IN_FORCE
+          check: GOVERNING_RULE_IN_SEALED_SET
+          register: refusal_governance_discharge
+          params:
+            observation: si.rule_set.list
+            phase_workflows:
+              p0: transformation::WF_P0_SEED_ADMISSIBILITY_V0
+              p1: transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0
+              p2: transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0
+              p3: transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0
+              p4: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0
+              p5: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0
+              p6: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
+              p7: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
+              p8: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0
+          intent: a rule said to carry out a refusal is really in force where the design is pinned
         - id: DISCHARGE_NOT_IN_TOPOLOGY
           check: DISCHARGE_GROUNDED_IN_TOPOLOGY
           register: refusal_discharge
@@ -1635,6 +1727,28 @@ core:
           check: DISCHARGE_OUTCOME_REFUSES
           register: refusal_discharge
           intent: the outcome a discharge names stops the act rather than continuing it
+        - id: EMISSION_NOT_FROM_COMPLETING_ENDING
+          check: EMISSION_GROUNDED_IN_ENDING
+          register: artifact_properties
+          params:
+            property_prefix: emit.
+          intent: a moment is announced from an ending the act has, and one that completes it
+        - id: EMITTED_EVENT_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: artifact_properties
+          params:
+            column: Value
+            only_when_column: Property
+            only_when_prefix: emit.
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+            detail: an announced moment must be an identity this design declares
+          intent: an act announces a moment that exists, never one nothing declares
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

@@ -708,6 +708,11 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
 
     only_when_column = rule.params.get("only_when_column")
     only_when_value = rule.params.get("only_when_value")
+    # A register may key its rows by a *family* of values rather than one. `artifact_properties`
+    # holds every scalar an artifact declares and an emission is `emit.<ending>` — one property per
+    # ending, so there is no single value to match on and an equality gate cannot select them. The
+    # prefix is what they have in common, and it is what the register names them by.
+    only_when_prefix = rule.params.get("only_when_prefix")
     # A declared "nothing here" is an answer, not a dangling reference — the same distinction
     # `DEPENDENCY_PRECEDES` draws for a step that depends on nothing.
     none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", "N/A"])}
@@ -716,7 +721,10 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
     for i, row in _rows(doc, rule):
         if only_when_column:
             gate = _cell(row, only_when_column)
-            if gate.strip().upper() != str(only_when_value).upper():
+            if only_when_prefix:
+                if not gate.strip().startswith(only_when_prefix):
+                    continue
+            elif gate.strip().upper() != str(only_when_value).upper():
                 continue
         value = _cell(row, rule.params["column"])
         if not value or value.strip() in none_markers:
@@ -1775,6 +1783,134 @@ def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str
                 f"{_where(rule)} row {i}",
                 f"{outcome!r} routes to {destination!r}, typed {node_type or 'nothing'} — a "
                 f"discharge must reach an ending typed {refusing}, and this one does not refuse",
+            ))
+    return out
+
+
+@check("EMISSION_GROUNDED_IN_ENDING")
+def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An announcement must be attached to an ending the act has, and one that completes it.
+
+    A moment names something that happened. Announcing one from an ending that refuses the act
+    states something untrue — the business declared exactly that refusal, and nothing read it: no
+    rule in the pipeline read an `emit.` property at all, so a design could announce a completion
+    from a rejection and be admissible for it.
+
+    Both facts were already declared and neither was joined to the other. `artifact_properties`
+    states the site as `emit.<ending>`, and `execution_topology` types every node. **No register is
+    added for this** — a second place to state the emission site would be a second producer of one
+    truth, and the drift between them would be silent until something read the stale one.
+
+    Site and type are one traversal of one row and are reported once. A property naming an ending
+    the act does not have has no type to check, so splitting them would report one wrong row twice.
+    That is the same reasoning that keeps act, step and outcome together in
+    `DISCHARGE_GROUNDED_IN_TOPOLOGY`, and the reason the discharge's *destination* check is separate
+    there is that it reads a different row. This one does not.
+
+    The completing type is read from the topology, never from the ending's name: a name is a
+    convention anybody can break by calling an exit something reassuring.
+    """
+    prefix = rule.params.get("property_prefix", "emit.")
+    artifact_column = rule.params.get("artifact_column", "Artifact")
+    property_column = rule.params.get("property_column", "Property")
+    type_column = rule.params.get("type_column", "Node Type")
+    completing = rule.params.get("completing_type", "EXIT_SUCCESS")
+
+    topology = _topology(doc, rule)
+
+    out = []
+    for i, row in _rows(doc, rule):
+        prop = _cell(row, property_column).strip()
+        if not prop.startswith(prefix):
+            continue
+        act = _cell(row, artifact_column)
+        ending = prop[len(prefix):].strip()
+        if not ending:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{prop!r} names no ending — an announcement with no site is emitted from nowhere",
+            ))
+            continue
+        node = topology.get((act, ending))
+        if node is None:
+            declared = sorted(n for a, n in topology if a == act)
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{ending!r} is no node of {act.split('::')[-1]} — it declares "
+                f"{', '.join(declared) or 'no nodes'}, and a moment cannot be announced from a "
+                f"place the act does not have",
+            ))
+            continue
+        node_type = _cell(node, type_column).strip().upper()
+        if node_type != completing:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{ending!r} is typed {node_type or 'nothing'} — a moment names something that "
+                f"happened, so it is announced only from an ending typed {completing}",
+            ))
+    return out
+
+
+@check("GOVERNING_RULE_IN_SEALED_SET")
+def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A cited rule must really be in force, in the composition this design is pinned to.
+
+    The register that names it exists so a refusal carried out by the governance surface can be
+    stated. Stated and unchecked, it is the failure the refusal work was done to end: a citation
+    nobody resolves documents intent and enforces nothing, and prose refuses nothing.
+
+    So the rule is looked up in the **sealed** rule set — the one the composition carries, which is
+    what a pin names and what actually judged a document — never in a working tree. Two consequences
+    follow and both are stated in the template rather than left to be discovered. **A design cannot
+    discharge a refusal by citing a rule its own change is adding**: the rule is not in the pinned
+    composition, so the citation resolves to nothing and this rule says so. And a rule retired by a
+    later change stops discharging anything, which is the point of asking every time rather than
+    once.
+
+    **Resolution is not coverage.** That the cited rule exists and is in force is checkable here;
+    that it refuses the condition stated beside it is not, and no rule can check it. That judgment
+    is Gate 1's, and this rule deliberately does not pretend to make it.
+
+    The phase is read from its own column because rule identifiers are not unique across phases —
+    every derived one is declared by all nine — so an identifier alone names nine rules and resolves
+    against whichever happened to be looked at first.
+    """
+    observed = (doc.observed or {}).get(rule.params["observation"]) or []
+    # Which workflow carries which phase is the design compiler's own naming, declared with the
+    # rule rather than inferred here: the snapshot publishes identities and knows nothing of phases.
+    workflows = rule.params["phase_workflows"]
+    in_force = {
+        carrier.get("artifact"): set(carrier.get("rules") or ())
+        for carrier in observed
+        if isinstance(carrier, dict)
+    }
+
+    phase_column = rule.params.get("phase_column", "Phase")
+    rule_column = rule.params.get("rule_column", "Governing Rule")
+
+    out = []
+    for i, row in _rows(doc, rule):
+        phase = _cell(row, phase_column).strip()
+        cited = _cell(row, rule_column).strip()
+        if not phase or not cited or phase not in workflows:
+            # A malformed phase and an empty citation are each another rule's finding. Reporting
+            # them again here would make one wrong row look like two defects.
+            continue
+        wf = workflows[phase]
+        declared = in_force.get(wf)
+        if declared is None:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{wf.split('::')[-1]} carries no sealed rule set in the pinned composition — "
+                f"nothing there can be discharging anything",
+            ))
+            continue
+        if cited not in declared:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{cited!r} is not in force at {phase} — the composition this design is pinned to "
+                f"declares no such rule, so the refusal is carried out by nothing. A design cannot "
+                f"discharge a refusal by citing a rule its own change is adding",
             ))
     return out
 

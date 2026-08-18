@@ -14,6 +14,7 @@ Run:  python scripts/testbed/differential.py [snapshot_root]
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -28,6 +29,7 @@ from transformation.design.oracle import evaluate
 from transformation.design.read import read_seed
 # One implementation, shared with `tc phase check`. Two readers of the sealed rule set
 # would be two answers to "what judged this document".
+from transformation.design.meta import RULE_MODULES
 from transformation.design.sealed import sealed_rule_set
 from transformation.design.p0_change_seed.rules import rule_set as p0_rule_set
 from transformation.design.p1_change_request.rules import rule_set as p1_rule_set
@@ -46,6 +48,9 @@ WORKSPACE = REPO.parent
 # amended to satisfy a rule written after it was gated; a fixture is maintained against the
 # current rule set on purpose. See `fixture_dossiers/README.md`.
 CR_01 = REPO / "scripts/testbed/fixture_dossiers/cr_01_catalog"
+# CR-3 is the only design in the corpus that announces anything, so it is the only one the
+# emission guard and the governance-surface discharge can be probed against.
+CR_03 = REPO / "scripts/testbed/fixture_dossiers/cr_03_catalog"
 
 # A CR's dossier grounds against the composition it was designed against; judged against the live
 # one, the P7/P8 documents report collisions with their own output — true, and uninformative about
@@ -71,7 +76,6 @@ PHASES = {
     "P1": {
         "wf": "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
         "rules": p1_rule_set,
-        "priors": True,
         "corpus": [
             REPO / "dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
             CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md",
@@ -86,8 +90,6 @@ PHASES = {
         # perfectly while exercising none of the grounding.
         "observes": {"si.artifact.list": "artifacts"},
         # Cross-phase rules read an upstream document, and which one is a property of the
-        # document being judged, not of the phase — see PRIORS_BY_DOCUMENT.
-        "priors": True,
         "corpus": [
             REPO / "dossiers/founding_design_bootstrap/p2_domain_model_transformation_phases_v0.md",
             CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md",
@@ -101,7 +103,6 @@ PHASES = {
         # domain be drawn on at all. A differential that supplied only the first would agree with
         # itself perfectly while leaving the reuse ruling unexercised.
         "observes": {"si.artifact.list": "artifacts", "si.snapshot.summary": "reuse_visibility"},
-        "priors": True,
         "corpus": [
             CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p3").glob("*.md")),
@@ -111,7 +112,6 @@ PHASES = {
         "wf": "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
         "rules": p4_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
-        "priors": True,
         "corpus": [
             CR_01 / "p4_business_model_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p4").glob("*.md")),
@@ -121,7 +121,6 @@ PHASES = {
         "wf": "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
         "rules": p5_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
-        "priors": True,
         "corpus": [
             CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p5").glob("*.md")),
@@ -131,7 +130,6 @@ PHASES = {
         "wf": "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
         "rules": p6_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
-        "priors": True,
         "corpus": [
             CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p6").glob("*.md")),
@@ -141,7 +139,6 @@ PHASES = {
         "wf": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
         "rules": p7_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
-        "priors": True,
         "corpus": [
             CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p7").glob("*.md")),
@@ -151,7 +148,6 @@ PHASES = {
         "wf": "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
         "rules": p8_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
-        "priors": True,
         "corpus": [
             CR_01 / "p8_authoring_mandate_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p8").glob("*.md")),
@@ -175,86 +171,94 @@ def observation(operations: dict | None, snapshot_root: str) -> dict:
     return gathered
 
 
-# Which upstream document each judged document was handed. Keyed per document, not per phase: the
-# P2 corpus holds pages from two different change requests, and judging CR-0's domain model against
-# CR-1's change request reports eight confident findings about a handoff that never happened. Both
-# paths agreed on every one of them, which is how a differential passes while proving nothing.
+# Which upstream document each judged document is handed — **derived, not restated**.
 #
-# So a phase that declares cross-phase rules must declare a prior for every document it judges. An
-# unmapped document is a hard failure rather than an unchecked handoff — the corpus is discovered by
-# glob, and a fixture dropped in without one would quietly stop exercising the rule.
-CR_00 = REPO / "dossiers/founding_design_bootstrap"
+# This was a literal table: every corpus document, every prior it reads, by hand. It was wrong twice
+# in one session. Adding the seed to P7's declared priors made all six existing P7 entries incomplete
+# and each had to be edited; every probe added after that needed its own row, and a document with no
+# row silently stopped exercising the rule it was written for. It is the third instance of the
+# pattern this repo keeps meeting — the last hand-kept copy is the one that fails — and the other
+# two were derived in the same session.
+#
+# Two facts already exist and neither was being read. **Which phases a document is judged against**
+# is `PRIORS` in that phase's rule module, which is also what the compiled workflow declares. **Which
+# dossier supplies them** is the document's own `CR:` header, which every dossier document carries
+# because P1 is the Change Request phase whatever domain it runs against.
+#
+# So a new probe now needs nothing: cut it from a fixture, and it is judged against that fixture's
+# priors because it says so in its own header.
 
-PRIORS_BY_DOCUMENT = {
-    "p2_domain_model_transformation_phases_v0.md": {
-        "p1": CR_00 / "p1_change_request_transformation_phases_v0.md"},
-    "inadmissible_p2_register.md": {
-        "p1": CR_00 / "p1_change_request_transformation_phases_v0.md"},
-    "p2_domain_model_book_library_mgmt_catalog_v0.md": {
-        "p1": CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p2_catalog_register.md": {
-        "p1": CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p2_dropped_belief.md": {
-        "p1": CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md"},
-    "p3_analysis_loop_book_library_mgmt_catalog_v0.md": {
-        "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p3_ineligible_reuse.md": {
-        "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p3_restated_result.md": {
-        "p2": CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md"},
-    "p8_authoring_mandate_book_library_mgmt_catalog_v0.md": {
-        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p8_broken_order.md": {
-        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
-    "admissible_p8_reconciled_mandate.md": {
-        "p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p8_undesigned_artifact.md": {"p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p8_dropped_artifact.md": {"p7": CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md"},
-    "p1_change_request_transformation_phases_v0.md": {
-        "p0": CR_00 / "p0_seed_transformation_phases_v0.md"},
-    "inadmissible_p1_register.md": {
-        "p0": CR_00 / "p0_seed_transformation_phases_v0.md"},
-    "p1_change_request_book_library_mgmt_catalog_v0.md": {
-        "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p1_dropped_criterion.md": {
-        "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "p7_design_intent_book_library_mgmt_catalog_v0.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_collision.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_unbound_code.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_dropped_reuse.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_unrooted_source.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_store_path.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_refusal_unaccounted.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_discharge_undeclared.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_deferral_undeclared.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_discharge_ungrounded.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p7_discharge_completes.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md", "p6": CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md", "p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "p6_governance_intent_book_library_mgmt_catalog_v0.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p6_unplaced.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p6_unplaced_scope.md": {"p5": CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md"},
-    "p4_business_model_book_library_mgmt_catalog_v0.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p4_broken_consolidation.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p4_dropped_decision.md": {"p3": CR_01 / "p3_analysis_loop_book_library_mgmt_catalog_v0.md"},
-    # P5 reads the seed, not P4: the subdomain purpose is authored at P0 and has no register to
-    # travel in between, so P5 is where it reappears and where the substitution has to be declared.
-    "p5_business_intent_book_library_mgmt_catalog_v0.md": {"p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-    "inadmissible_p5_binding_leak.md": {"p0": CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md"},
-}
+CR_HEADER = re.compile(r"^\*\*CR:\*\*\s*(?P<cr>.+?)\s*$", re.M)
+
+# Where a dossier that can supply priors may live. A directory is one if it carries a seed — the
+# document P0 produces — rather than because it was listed here.
+DOSSIER_ROOTS = (
+    REPO / "scripts/testbed/fixture_dossiers",
+    REPO / "dossiers",
+)
 
 
-def prior_texts(doc_path: Path, reads_priors: bool) -> dict:
-    """The upstream documents this document is judged against, as text a workflow is handed."""
-    if not reads_priors:
+def _cr_of(path: Path) -> str | None:
+    match = CR_HEADER.search(path.read_text(encoding="utf-8"))
+    return match.group("cr") if match else None
+
+
+def dossiers_by_cr() -> dict[str, Path]:
+    """`CR:` value → the dossier that declares it, read from each dossier's own seed.
+
+    The seed is the authority for what a dossier is called, and it is not always the directory name:
+    `dossiers/founding_design_bootstrap` declares `new_subdomain`. Reading the header rather than
+    mapping the two keeps the one place a rename has to happen inside the dossier.
+    """
+    out: dict[str, Path] = {}
+    for root in DOSSIER_ROOTS:
+        for seed in sorted(root.glob("*/p0_seed_*.md")):
+            cr = _cr_of(seed)
+            if cr and cr not in out:
+                out[cr] = seed.parent
+    return out
+
+
+DOSSIERS_BY_CR = dossiers_by_cr()
+
+
+def prior_paths(dossier: Path, phase_id: str) -> Path:
+    """The document a dossier offers for one phase.
+
+    P0's prior is the **seed**, never `p0_business_problem_statement.md` — the seed is what P1
+    consumes, and handing the problem statement instead would judge a handoff that never happened.
+    """
+    pattern = "p0_seed_*.md" if phase_id == "p0" else f"{phase_id}_*.md"
+    found = sorted(dossier.glob(pattern))
+    if not found:
+        raise SystemExit(f"{dossier.name} offers no {phase_id} document, and one is declared a prior")
+    return found[0]
+
+
+def prior_texts(doc_path: Path, declared_priors: tuple[str, ...]) -> dict:
+    """The upstream documents this document is judged against, as text a workflow is handed.
+
+    A document that cannot say which dossier it belongs to is a hard failure rather than an
+    unchecked handoff: the corpus is discovered by glob, and a fixture judged against no prior at
+    all would quietly stop exercising every cross-phase rule while still reporting a verdict.
+    """
+    if not declared_priors:
         return {}
-    declared = PRIORS_BY_DOCUMENT.get(doc_path.name)
-    if declared is None:
+    cr = _cr_of(doc_path)
+    if cr is None:
         raise SystemExit(
-            f"{doc_path.name} is judged by a phase with cross-phase rules and declares no prior; "
-            f"add it to PRIORS_BY_DOCUMENT"
+            f"{doc_path.name} is judged by a phase with cross-phase rules and carries no **CR:** "
+            f"header, so nothing says which dossier supplies its priors"
+        )
+    dossier = DOSSIERS_BY_CR.get(cr)
+    if dossier is None:
+        raise SystemExit(
+            f"{doc_path.name} declares CR {cr!r} and no dossier under "
+            f"{', '.join(str(r.name) for r in DOSSIER_ROOTS)} carries a seed declaring it"
         )
     return {
-        phase_id: path.read_text(encoding="utf-8")
-        for phase_id, path in declared.items()
+        phase_id: prior_paths(dossier, phase_id).read_text(encoding="utf-8")
+        for phase_id in declared_priors
     }
 
 
@@ -324,7 +328,9 @@ def main() -> int:
         print("  identical")
 
         observed = observation(spec.get("observes"), root)
-        reads_priors = bool(spec.get("priors"))
+        # Which phases this one is judged against, read from the module that declares them rather
+        # than from a flag beside the corpus. A phase reads priors exactly when it declares some.
+        declared_priors = tuple(getattr(RULE_MODULES[phase.lower()], "PRIORS", ()))
         corpus = [p for p in spec["corpus"] if p.is_file()]
         if not corpus:
             print(f"  NO DOCUMENTS — a differential over an empty corpus is not evidence")
@@ -334,7 +340,7 @@ def main() -> int:
         for doc_path in corpus:
             total += 1
             text = doc_path.read_text(encoding="utf-8")
-            priors = prior_texts(doc_path, reads_priors)
+            priors = prior_texts(doc_path, declared_priors)
             g_verdict, g_findings = genesis_verdict(doc_path, declared, observed, priors)
             c_verdict, c_findings = compiled_verdict(text, sealed, observed, priors)
             agree = g_verdict == c_verdict and sorted(g_findings) == sorted(c_findings)

@@ -16,6 +16,15 @@ from transformation.design.emit import emit
 
 
 def main() -> int:
+    # The default action writes, so an argument this script does not understand must stop it rather
+    # than fall through to the default. `--help` used to re-emit every workflow and report it as
+    # work done, which is the wrong way round for a flag whose whole meaning is "do nothing yet".
+    unknown = [a for a in sys.argv[1:] if a != "--check"]
+    if unknown:
+        print(__doc__.strip())
+        print(f"\nunrecognised argument(s): {' '.join(unknown)}")
+        return 2
+
     check_only = "--check" in sys.argv
     results = emit(check_only=check_only)
 

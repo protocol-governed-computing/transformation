@@ -345,7 +345,7 @@ HOW. Binding FQDNs are assigned here; business facts and placement decisions are
 <!-- register:refusal_governance_discharge optional -->
 | Operation | Refused When | Phase | Governing Rule | Source Finding |
 |-----------|--------------|-------|----------------|----------------|
-| Announcing a moment | The act it names did not complete | p7 | EMISSION_NOT_FROM_COMPLETING_ENDING | S0 operation_refusals #1 |
+| Announcing a moment | The act it names did not complete | p7 | ANNOUNCEMENT_STATES_A_COMPLETION | S0 operation_refusals #1 |
 
 ---
 

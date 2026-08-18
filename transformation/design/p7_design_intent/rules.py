@@ -71,13 +71,31 @@ CONTRACT_OBSERVATION = "si.capability.surface#contracts"
 # can ask for.
 STORE_OBSERVATION = "si.store.list"
 
+# Which rules are in force, and in which artifact. A refusal may be carried out by a rule of the
+# pipeline rather than by a step of the domain's own acts, and a citation nobody resolves documents
+# intent and enforces nothing. The sealed set is what a pin names, so it is what is asked.
+RULE_SET_OBSERVATION = "si.rule_set.list"
+
 OBSERVATIONS = {
     OBSERVATION_OPERATION: "artifacts",
     CAPABILITY_OBSERVATION: "capabilities",
     TRANSFORM_OBSERVATION: "transforms",
     CONTRACT_OBSERVATION: "contracts",
     STORE_OBSERVATION: "stores",
+    RULE_SET_OBSERVATION: "carriers",
 }
+
+
+def _phase_workflows() -> dict[str, str]:
+    """phase id → the artifact carrying its sealed rule set.
+
+    Declared with the rule rather than inferred in the check: the snapshot publishes identities and
+    knows nothing of phases, and it should stay that way. `emit` already owns the mapping because it
+    is the generator that writes those artifacts, so this reads it rather than keeping a second copy.
+    """
+    from transformation.design.emit import SEALED_IN, workflow_fqdn
+
+    return {phase: workflow_fqdn(phase) for phase in SEALED_IN}
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
@@ -964,9 +982,13 @@ REFUSAL_RULES: list[Rule] = [
             "prior_register": "operation_refusals",
             "prior_key_column": REFUSAL_KEY,
             "key_column": REFUSAL_KEY,
-            # Accounted for is discharged *or* deferred. Reading one register alone would report
-            # every deferral as an omission and make the deferral register unusable by existing.
-            "registers": ["refusal_discharge", "refusal_deferrals"],
+            # Accounted for is discharged, deferred, or refused by the governance surface. Reading
+            # one register alone would report the other two as omissions and make them unusable by
+            # existing. The three are separate registers because they answer with different facts —
+            # a place in the topology, a person and a condition, a rule of the pipeline — and one
+            # table holding all three would leave most of its cells empty on every row.
+            "registers": ["refusal_discharge", "refusal_deferrals",
+                          "refusal_governance_discharge"],
         },
         intent="every refusal the business declared is carried out here or owned by someone else",
     ),
@@ -995,6 +1017,68 @@ REFUSAL_RULES: list[Rule] = [
         intent="a deferral hands on a refusal the business declared, never one nobody approved",
     ),
     Rule(
+        id="DEFERRAL_OWNER_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="refusal_deferrals",
+        params={
+            "column": "Deferred To",
+            "detail": (
+                "names no owner — a refusal handed on to nobody is a refusal dropped in language "
+                "that sounds like a plan"
+            ),
+        },
+        intent="a deferred refusal names who will carry it out",
+    ),
+    Rule(
+        id="GOVERNANCE_DISCHARGE_UNDECLARED_REFUSAL",
+        check="ROWS_CONFINED_TO_PRIOR",
+        register="refusal_governance_discharge",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+        },
+        intent="the governance surface is cited for a refusal the business declared, never for one it did not",
+    ),
+    Rule(
+        id="GOVERNING_RULE_PHASE_MALFORMED",
+        check="CELL_MATCHES",
+        register="refusal_governance_discharge",
+        params={
+            "column": "Phase",
+            "pattern": r"^p[0-8]$",
+            "detail": (
+                "{value!r} is not a phase — a rule is named by its phase and its identifier "
+                "together, written p0 through p8, because an identifier alone names nine rules"
+            ),
+        },
+        intent="a cited rule is located in the phase whose rule set holds it",
+    ),
+    Rule(
+        id="GOVERNING_RULE_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="refusal_governance_discharge",
+        params={
+            "column": "Governing Rule",
+            "detail": (
+                "cites no rule — a refusal said to be carried out by the governance surface and "
+                "naming nothing there is prose, and prose refuses nothing"
+            ),
+        },
+        intent="a governance-surface discharge names the rule that refuses",
+    ),
+    Rule(
+        id="GOVERNING_RULE_NOT_IN_FORCE",
+        check="GOVERNING_RULE_IN_SEALED_SET",
+        register="refusal_governance_discharge",
+        params={
+            "observation": RULE_SET_OBSERVATION,
+            "phase_workflows": _phase_workflows(),
+        },
+        intent="a rule said to carry out a refusal is really in force where the design is pinned",
+    ),
+    Rule(
         id="DISCHARGE_NOT_IN_TOPOLOGY",
         check="DISCHARGE_GROUNDED_IN_TOPOLOGY",
         register="refusal_discharge",
@@ -1011,6 +1095,42 @@ REFUSAL_RULES: list[Rule] = [
 ]
 
 
+# An announcement was declared and ungoverned. `multi_emission` gave an act the ability to announce
+# several moments at one ending and left open that nothing counted an announcement; six acts then
+# announced eight moments and no rule read one. These two are what read them, and they add no
+# register: the site is already in `artifact_properties` and the ending is already typed in
+# `execution_topology`.
+EMISSION_PROPERTY_PREFIX = "emit."
+
+EMISSION_RULES: list[Rule] = [
+    Rule(
+        id="EMISSION_NOT_FROM_COMPLETING_ENDING",
+        check="EMISSION_GROUNDED_IN_ENDING",
+        register="artifact_properties",
+        params={"property_prefix": EMISSION_PROPERTY_PREFIX},
+        intent="a moment is announced from an ending the act has, and one that completes it",
+    ),
+    Rule(
+        id="EMITTED_EVENT_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="artifact_properties",
+        params={
+            "column": "Value",
+            "only_when_column": "Property",
+            "only_when_prefix": EMISSION_PROPERTY_PREFIX,
+            # An announced moment is authored by this design or carried from the composition, and a
+            # design that extends an act announces moments it did not author — so both registers
+            # answer, exactly as they do for a code assigned at P7.
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": "an announced moment must be an identity this design declares",
+        },
+        intent="an act announces a moment that exists, never one nothing declares",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
     return (
@@ -1022,6 +1142,7 @@ def rule_set() -> list[Rule]:
         + COMPOSITION_INTEGRITY_RULES
         + GENERATION_RULES
         + REFUSAL_RULES
+        + EMISSION_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()

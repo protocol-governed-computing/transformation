@@ -728,6 +728,19 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
         generators = dict(generators)
         generators[MANIFEST_GENERATOR] = resolve_generator(MANIFEST_GENERATOR)
 
+    # `--root` takes a *domain* root, and a wrong one used to succeed. Passing the repository
+    # (`business_domains`) rather than the domain (`business_domains/book_library_mgmt`) wrote a
+    # complete registry tree at the repository root, reported every file emitted and exited 0. The
+    # artifacts were correct and in a place nothing in the composition would ever read, and only
+    # `git status` showed it. What identifies a domain root is the build config the compiler
+    # discovers it by — so that is what is asked for, except when this emission is the one founding
+    # it, where its absence is the whole point.
+    if not founding and not list(domain_root.glob("registry/structures/STRUCTURE_BUILD_*_CONFIG_V*.md")):
+        click.echo(f"REFUSED — {domain_root} carries no STRUCTURE_BUILD_*_CONFIG_V*.md, so it is "
+                   f"not a domain root the compiler can discover. Nothing written.", err=True)
+        click.echo(f"    --root takes the domain, not the repository that holds it.", err=True)
+        sys.exit(1)
+
     clashes = [path for path, _ in planned if path.exists()]
     if clashes and not force:
         click.echo(f"REFUSED — {len(clashes)} artifact(s) already exist; pass --force to "
