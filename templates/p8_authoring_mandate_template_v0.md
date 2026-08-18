@@ -48,6 +48,26 @@ INVALID OUTPUT:
 
 ---
 
+### Citing a prior row
+
+Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
+names one of:
+
+- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
+- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
+- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
+- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+
+Separate several citations with `;`. One resolvable citation grounds the row.
+
+**A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
+a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
+sentence while citing the row it came from is how a claim drifts from what was decided, so the rules
+treat a tidier synonym as a new claim and refuse it. Cite it as it stands, or change it in the phase
+that owns it.
+
+---
+
 ## 1. Build Dependency Order
 
 *Topological sort of Stage 7's `new_artifacts` over the dependencies in `execution_topology` /
@@ -85,7 +105,13 @@ critical path.*
 
 ## 4. Subdomain Field Declarations
 
-*The `subdomain` field for every WF / CC / EV / RB artifact — governs trace routing and data-store path resolution. `code` is copied verbatim from a Stage 7 register.*
+*The `subdomain` field for every WF / CC / EV / RB artifact — governs trace routing and data-store
+path resolution. `code` is copied verbatim from a Stage 7 register.*
+
+*Scheduled **and amended** alike. An artifact this change extends or replaces is never a build step,
+so nothing in the build order names it, and a workflow whose subdomain went undeclared rendered an
+empty one while every rule passed. The artifact already sits in a subdomain; this states which,
+because construction has no view of the composition to read it from.*
 
 <!-- register:field_declarations -->
 | Code | Subdomain Field |

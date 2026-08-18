@@ -49,6 +49,7 @@ version: v0
 governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
 core:
   summary: Render every artifact a mandate schedules from the design that determines it
+  refusal: raises
   description: |
     Emits one entry per scheduled artifact, each carrying the path it belongs at and the Machine
     block that governs it. Raises when the mandate schedules nothing this design declares, because a

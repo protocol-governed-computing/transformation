@@ -11,6 +11,22 @@
 
 ---
 
+## Generated Artifact
+
+This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
+the copy is never corrected directly: where this artifact and its generator disagree, this
+artifact is stale, and an edit here lasts until whoever next runs the emission.
+
+- **Generator:** `transformation.design.emit:emit_rule_sets`
+- **Generator sources** — one generator together, never separately:
+  - `templates/p8_authoring_mandate_template_v0.md`
+  - `transformation/design/p8_authoring_mandate/rules.py`
+
+To change what this phase judges, amend a source and invoke the generator.
+`tc phase emit --check` refuses a build in which the two disagree.
+
+---
+
 ## 1. Intent
 
 Phase 8 of the change pipeline: decide whether an offered Authoring Mandate is admissible.
@@ -297,6 +313,31 @@ core:
             source_column: Code
             column: Code
           intent: every artifact the mandate schedules declares the subdomain it is built into
+        - id: AMENDED_ARTIFACT_UNPLACED
+          check: PRIOR_IDENTITIES_COVERED
+          register: field_declarations
+          params:
+            prior_phase: p7
+            prior_register: existing_inventory
+            prior_column: FQDN
+            column: Code
+            require: prior_in_here
+            match_on: bare_code
+            prior_only_when_column: Action
+            prior_only_when_values:
+            - EXTEND
+            prior_only_when_prefixes:
+            - AC_
+            - IN_
+            - WF_
+            - CC_
+            - CT_
+            - EV_
+            - RB_
+            - VOCAB_
+            - TI_
+            - TE_
+          intent: an artifact this change amends declares the subdomain it is placed in, as a scheduled one does
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:

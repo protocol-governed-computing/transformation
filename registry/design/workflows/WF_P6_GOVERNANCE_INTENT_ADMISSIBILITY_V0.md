@@ -11,6 +11,22 @@
 
 ---
 
+## Generated Artifact
+
+This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
+the copy is never corrected directly: where this artifact and its generator disagree, this
+artifact is stale, and an edit here lasts until whoever next runs the emission.
+
+- **Generator:** `transformation.design.emit:emit_rule_sets`
+- **Generator sources** — one generator together, never separately:
+  - `templates/p6_governance_intent_template_v0.md`
+  - `transformation/design/p6_governance_intent/rules.py`
+
+To change what this phase judges, amend a source and invoke the generator.
+`tc phase emit --check` refuses a build in which the two disagree.
+
+---
+
 ## 1. Intent
 
 Phase 6 of the change pipeline: decide whether an offered Governance Intent register is admissible.
@@ -157,6 +173,7 @@ core:
             - cross_subdomain_deps
             - cross_subdomain_notes
             - cross_subdomain_refs
+            - declared_reach
             - dependency_discoveries
             - dependency_graph
             - design_decisions
@@ -170,6 +187,7 @@ core:
             - field_declarations
             - gap_register
             - gaps
+            - generation_provenance
             - governance_outcome
             - governance_scope
             - identity_and_sameness
@@ -196,6 +214,9 @@ core:
             - provisional_codes
             - purpose_provenance
             - rb_declarations
+            - refusal_deferrals
+            - refusal_discharge
+            - refusal_governance_discharge
             - relationships
             - requested_outcomes
             - resources
@@ -206,6 +227,7 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results
@@ -566,6 +588,16 @@ core:
             column: Existing Artifact
             require: prior_in_here
           intent: a capability borrowed across a subdomain boundary is a dependency, declared as one
+        - id: TOUCHED_SUBDOMAIN_UNOWNED
+          check: PRIOR_IDENTITIES_COVERED
+          register: ownership
+          params:
+            prior_phase: p0
+            prior_register: cr_type
+            prior_column: Subdomain
+            column: Owner Subdomain
+            require: prior_in_here
+          intent: every subdomain a change touches has its owner declared
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:

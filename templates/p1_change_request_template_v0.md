@@ -100,13 +100,33 @@ INVALID: "WF_REGISTER_VALIDATOR_V0 exists"
 
 ---
 
+### Citing a prior row
+
+Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
+names one of:
+
+- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
+- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
+- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
+- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+
+Separate several citations with `;`. One resolvable citation grounds the row.
+
+**A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
+a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
+sentence while citing the row it came from is how a claim drifts from what was decided, so the rules
+treat a tidier synonym as a new claim and refuse it. Cite it as it stands, or change it in the phase
+that owns it.
+
+---
+
 ## 1. CR Type
 
 *The classification of this change.*
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
-|----------------|-----------|----------------|
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
+|-----------|----------------|-----------|----------------|
 
 ---
 

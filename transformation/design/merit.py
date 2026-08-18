@@ -26,6 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from transformation.design.checks import is_sentinel
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import Verdict
 
@@ -90,7 +91,12 @@ def _row_hits(doc: ParsedDocument, spec: dict[str, Any]) -> int:
         block = doc.register(register)
         if block is None or block.table is None:
             continue
-        hits += sum(1 for row in block.table.rows if any(str(v).strip() for v in row.values()))
+        # `| NONE IDENTIFIED |` is a considered answer, not an open question. Counting any non-empty
+        # row scored a register whose author correctly said there was nothing to report as one
+        # outstanding item, so a document was marked down for being complete. `checks.py` already
+        # owns what the marker is; reading it there keeps one spelling of emptiness.
+        hits += sum(1 for row in block.table.rows
+                    if not is_sentinel(row) and any(str(v).strip() for v in row.values()))
 
     for entry in doc.registers:
         block = doc.register(entry["id"] if isinstance(entry, dict) else entry.id)

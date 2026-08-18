@@ -11,6 +11,22 @@
 
 ---
 
+## Generated Artifact
+
+This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
+the copy is never corrected directly: where this artifact and its generator disagree, this
+artifact is stale, and an edit here lasts until whoever next runs the emission.
+
+- **Generator:** `transformation.design.emit:emit_rule_sets`
+- **Generator sources** — one generator together, never separately:
+  - `templates/p1_change_request_template_v0.md`
+  - `transformation/design/p1_change_request/rules.py`
+
+To change what this phase judges, amend a source and invoke the generator.
+`tc phase emit --check` refuses a build in which the two disagree.
+
+---
+
 ## 1. Intent
 
 Phase 1 of the change pipeline: decide whether an offered Change Request register is admissible.
@@ -81,6 +97,7 @@ core:
           register: cr_type
           params:
             columns:
+            - Subdomain
             - Classification
             - Rationale
             - Source Finding
@@ -105,6 +122,7 @@ core:
           register: cr_type
           params:
             columns:
+            - Subdomain
             - Classification
             - Rationale
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
@@ -155,6 +173,7 @@ core:
             - cross_subdomain_deps
             - cross_subdomain_notes
             - cross_subdomain_refs
+            - declared_reach
             - dependency_discoveries
             - dependency_graph
             - design_decisions
@@ -168,6 +187,7 @@ core:
             - field_declarations
             - gap_register
             - gaps
+            - generation_provenance
             - governance_outcome
             - governance_scope
             - identity_and_sameness
@@ -194,6 +214,9 @@ core:
             - provisional_codes
             - purpose_provenance
             - rb_declarations
+            - refusal_deferrals
+            - refusal_discharge
+            - refusal_governance_discharge
             - relationships
             - requested_outcomes
             - resources
@@ -204,6 +227,7 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results

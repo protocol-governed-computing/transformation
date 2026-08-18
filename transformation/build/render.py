@@ -16,6 +16,12 @@ Nothing here decides anything. Every value is read from a register or from a con
 default, and a fact the design does not state is a fact this module must not invent — an inventing
 generator is a second, ungoverned design authority. Where a value cannot be derived, the renderer
 omits it and the acceptance harness reports it as undetermined.
+
+**Some artifacts are not written here at all.** An artifact the design declares in
+`generation_provenance` is reached by invoking its generator, and this module renders none of it:
+rendering it would make construction a second producer of an artifact something else already
+produces, and two producers of one truth drift silently until something reads the stale one. The
+artifact is still scheduled and still measured — what the design owes for it is the generator.
 """
 
 from __future__ import annotations
@@ -25,6 +31,19 @@ import re
 from typing import Any
 
 from transformation.design.families import BY_CODE, FAMILIES
+
+# Where a `Machine` block begins and ends. One spelling, because there were three and two of them
+# disagreed: a pattern missing the trailing newline captures a block ending one character later, and
+# on a block whose last line is not newline-terminated the two read different content while both
+# parsing as valid YAML. This module renders machine blocks, so it owns the definition of one.
+MACHINE_BLOCK = re.compile(r"```yaml\n(.*?)\n```", re.S)
+
+
+def machine_block(text: str) -> str | None:
+    """The YAML source of a document's `Machine` block, or None where there is none."""
+    found = MACHINE_BLOCK.search(text)
+    return found.group(1) if found else None
+
 
 # Constitution, compiled kind and registry directory per family — all three derived from the one
 # declaration in `design.families`, because they were three hand-kept copies of it and the copies
@@ -121,6 +140,21 @@ def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
     # silently amounted to — let a design score 100% while naming an artifact that cannot be built.
     for code, fam in unrenderable(p7, p8):
         out.append((bare(code), f"<no builder for family {fam}>", False))
+
+    # A generated artifact is determined by its generator, not by this design, and construction
+    # renders none of its fields. It still has to appear in the measurement: an artifact that
+    # vanished from it would let a design schedule something and be graded on everything else, which
+    # is the same silence that let an unbuildable family read as no failure. What the design owes is
+    # the generator, so that is the one fact measured.
+    for code, (generator, srcs) in generated(p7).items():
+        out.append((code, "<reached by generator>", bool(generator and srcs)))
+
+    # A replaced artifact is not rendered — there is nothing left to render it from — and so none of
+    # its facts were required and it vanished from the measurement entirely. A design could retire a
+    # workflow and be graded on everything except the retirement. What it owes is the successor, so
+    # that is the one fact measured, exactly as a generated artifact owes its generator.
+    for code, successors in retirements(p7).items():
+        out.append((code, "<superseded by>", bool(successors)))
     return out
 
 
@@ -140,6 +174,67 @@ def _empty(value: Any) -> bool:
     return value is None or value == "" or value == {} or value == []
 
 
+def generated(p7: dict) -> dict[str, tuple[str, list[str]]]:
+    """`bare code → (generator, sources)` for every artifact the design says is reached, not written.
+
+    An artifact is generated or it is authored, and the difference is the whole of what construction
+    may do with it. Construction never writes a generated artifact: two producers of one truth drift,
+    and the drift is silent until something reads the stale one. So this is consulted before anything
+    is rendered rather than after — a renderer that produced the file and then discarded it would
+    still have decided what the file says.
+    """
+    out: dict[str, tuple[str, list[str]]] = {}
+    for row in rows(p7, "generation_provenance"):
+        code = bare(cell(row, "Artifact"))
+        if not code:
+            continue
+        srcs = [s.strip() for s in cell(row, "Generator Sources").split(",") if s.strip()]
+        out[code] = (cell(row, "Generator"), srcs)
+    return out
+
+
+def supersessions(p7: dict) -> dict[str, tuple[str, list[str]]]:
+    """`retired bare code -> (its identity as authored, the identities superseding it)`.
+
+    Addressed by bare code because that is how the topology and the inventory name an artifact, and
+    carrying the authored identity alongside because closure is asserted over exact FQDNs.
+
+    Stated on the *successor*, because that is the artifact being authored and the one whose header
+    carries `Supersedes`. Read the other way — a column on the inventory row of the artifact going
+    away — the fact would live on a document construction never renders, which is how it came to
+    live only in prose.
+
+    Several successors for one predecessor is the ordinary case rather than an edge: a workflow split
+    into an accept and a reject path retires one artifact and authors two.
+    """
+    out: dict[str, tuple[str, list[str]]] = {}
+    for row in rows(p7, "artifact_properties"):
+        if cell(row, "Property") != "supersedes":
+            continue
+        # Keyed by the bare code, because that is how the topology and the inventory address an
+        # artifact. The *value* stays the identity as authored: closure is asserted over an exact
+        # FQDN, and baring it here would emit a short name into the one place short names are refused.
+        successor = norm(cell(row, "Artifact"))
+        for retired in (norm(v) for v in cell(row, "Value").split(",") if v.strip()):
+            out.setdefault(bare(retired), (retired, []))
+            if successor not in out[bare(retired)][1]:
+                out[bare(retired)][1].append(successor)
+    return out
+
+
+def retirements(p7: dict) -> dict[str, list[str]]:
+    """Every artifact this design replaces, and what stands in its place.
+
+    A REPLACE is not rendered. The design says the artifact is superseded, not that it is rewritten,
+    and construction has nothing to write it from — the inventory row carries no summary because
+    there is no artifact left to summarise. What construction does instead is mark it, so a reader
+    of the composition can see that it has been stood down and by what.
+    """
+    superseded = supersessions(p7)
+    return {bare(cell(r, "FQDN")): superseded.get(bare(cell(r, "FQDN")), ("", []))[1]
+            for r in rows(p7, "existing_inventory") if cell(r, "Action") == "REPLACE"}
+
+
 def _scheduled(p7: dict, p8: dict) -> list[tuple[str, str, str]]:
     """Every `(code, short, family)` the mandate schedules or the design amends.
 
@@ -157,9 +252,18 @@ def _scheduled(p7: dict, p8: dict) -> list[tuple[str, str, str]]:
                if cell(r, "Action") == "EXTEND"]
     scheduled = [cell(r, "Code") for r in rows(p8, "build_order")]
 
+    # A generated artifact is scheduled like any other — the artifact is what enters the composition
+    # and what conformance judges, and a mandate scheduling a generator would schedule something that
+    # never appears in a snapshot. It is simply not construction's to write. Dropping it here rather
+    # than at the point of writing is what keeps `ONE_ARTIFACT_ONE_PRODUCER` true of the renderer and
+    # not only of the caller: nothing downstream is ever handed a rendering of it to be tempted by.
+    reached = generated(p7)
+
     out = []
     for code in scheduled + amended:
         short = bare(code)
+        if short in reached:
+            continue
         # A scheduled artifact declares its family; an amended one carries it in its own identity,
         # which is the only place it can, because the design assigns no new code for it.
         out.append((code, short, family.get(short) or short.split("_")[0]))
@@ -200,18 +304,28 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
     subdomain = {bare(cell(r, "Code")): cell(r, "Subdomain Field")
                  for r in rows(p8, "field_declarations")}
 
+    # Read once, inverted: the design states supersession on the successor, and the successor is
+    # what is being rendered here.
+    supersedes: dict[str, list[str]] = {}
+    for retired_fqdn, successors in supersessions(p7).values():
+        for successor in successors:
+            supersedes.setdefault(bare(successor), []).append(retired_fqdn)
+
     out = []
     for code, short, fam in _scheduled(p7, p8):
         if fam not in _BUILDERS:
             continue
         declared_empty: list[str] = []
         machine = _render(fam, code, short, summary.get(short, ""), subdomain.get(short, ""),
-                          p7, p8, declared_empty)
+                          p7, p8, declared_empty, sorted(supersedes.get(short, ())))
         domain = norm(code).split("::")[0]
         out.append({
             "path": f"registry/{subdomain.get(short, '')}/{DIRECTORY[fam]}/{short}.md",
             "domain": domain,
             "machine": machine,
+            # Header, not Machine: what an artifact stands in for is a fact about the composition's
+            # history, and the compiler models none of it.
+            "supersedes": sorted(supersedes.get(short, ())),
             # Leaves the design deliberately left empty, so a measurement can tell a declared
             # "nothing here" from an omission.
             "declared_empty": declared_empty,
@@ -219,15 +333,21 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
     return out
 
 
-def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None) -> dict:
+def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
+            supersedes: list[str] | None = None) -> dict:
     machine: dict[str, Any] = {
         "fqdn": code,
         "artifact_kind": KIND[fam],
         "version": "v0",
         "governed_by": GOVERNED_BY[fam],
     }
+    # In the Machine block, not the header. It was a header fact for as long as nothing read it; the
+    # compiler now asserts referential closure over it, so it is governed content and belongs where
+    # governed content lives. The header line is rendered from here, so there is still one copy.
+    if supersedes:
+        machine["supersedes"] = supersedes[0] if len(supersedes) == 1 else list(supersedes)
     builder = _BUILDERS[fam]
-    if fam in ("RB", "CC", "TI", "WF"):
+    if fam in ("RB", "CC", "TI", "WF", "VOCAB"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
@@ -275,11 +395,23 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
             # renderer produced therefore declared events it could never fire, while every
             # hand-authored domain fired them: the field that worked was the one nothing wrote.
             spec_exit: dict[str, Any] = {"type": "EXIT"}
-            event = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
-                          if bare(cell(r, "Artifact")) == short
-                          and cell(r, "Property") == f"emit.{node}"), "")
-            if event:
-                spec_exit["emit"] = event
+            # An act may complete several moments at one ending and announces each of them, in the
+            # order the design states. A design says so by writing them comma-separated in one
+            # property, or by declaring `emit.<node>` more than once — rows are read in document
+            # order, so the order a reader sees is the order the act announces.
+            #
+            # One moment is rendered as one name rather than a list of one, because that is what
+            # every act announcing today carries and rewriting them would be a change to artifacts
+            # this design does not touch. The platform reads either.
+            announced = [m for r in rows(p7, "artifact_properties")
+                         if bare(cell(r, "Artifact")) == short
+                         and cell(r, "Property") == f"emit.{node}"
+                         for m in (p.strip() for p in cell(r, "Value").split(","))
+                         if m and m not in ("—", "-")]
+            if len(announced) == 1:
+                spec_exit["emit"] = announced[0]
+            elif announced:
+                spec_exit["emit"] = announced
             elif declared_empty is not None:
                 # An exit that announces nothing is a design decision, not an omission — most
                 # refusal exits announce nothing — so it is declared rather than left to measure
@@ -295,6 +427,19 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
         nodes[node] = spec
 
     m["runtime_binding"] = binding
+    # The reach the design declared, emitted onto the act that declared it. Omitted where none is
+    # declared, which is most acts — the schema admits its absence and reads a present-but-empty
+    # list as a claim that the act consults nothing, which is a different statement.
+    #
+    # This is the half without which the register is decoration: a reach a reviewer approved and
+    # construction dropped would leave the act to be finished by hand, and a reach added by hand
+    # works, passes every check, and is one no reviewer saw.
+    consults = [cell(r, "Consults") for r in rows(p7, "declared_reach")
+                if bare(cell(r, "Act")) == short]
+    named = sorted({n for value in consults for n in
+                    (p.strip() for p in value.split(",")) if n and n not in ("—", "-")})
+    if named:
+        m["consults"] = named
     m["subdomain"] = sub
     m["structure"] = WORKFLOW_STRUCTURE
     m["core"] = {"summary": summary, "actor_context": actor, "start_node": start, "nodes": nodes}
@@ -464,6 +609,11 @@ def _transform(m, code, short, summary, sub, p7, p8):
     row = next((r for r in rows(p7, "implementation_bindings") if bare(cell(r, "CT Code")) == short), {})
     m["core"] = {
         "summary": summary,
+        # How the transform expresses a judgement, which the schema requires and no other register
+        # carries. Rendered from the design rather than inferred from the implementation: the
+        # implementation is what the module path points at, and reading behaviour out of it here
+        # would make construction a second authority on what the transform does.
+        "refusal": cell(row, "Refusal"),
         "inputs": typed_fields(p7, code, "INPUT"),
         "outputs": typed_fields(p7, code, "OUTPUT"),
     }
@@ -475,9 +625,18 @@ def _transform(m, code, short, summary, sub, p7, p8):
     }
 
 
+# Properties that describe the *document* rather than the artifact the compiler reads. Supersession
+# is a fact about which artifact stands in the composition, and the compiler models no such thing —
+# putting it in the Machine block would declare a key nothing reads, which is the shape of defect
+# this codebase keeps finding rather than one to add.
+HEADER_ONLY_PROPERTIES = {"supersedes"}
+
+
 def _properties(p7: dict, code: str) -> dict:
     return {cell(r, "Property"): _literal(cell(r, "Value"))
-            for r in rows(p7, "artifact_properties") if bare(cell(r, "Artifact")) == bare(code)}
+            for r in rows(p7, "artifact_properties")
+            if bare(cell(r, "Artifact")) == bare(code)
+            and cell(r, "Property") not in HEADER_ONLY_PROPERTIES}
 
 
 def _actor(m, code, short, summary, sub, p7, p8):
@@ -485,11 +644,22 @@ def _actor(m, code, short, summary, sub, p7, p8):
                  "attributes": typed_fields(p7, code, "ATTRIBUTE")}
 
 
-def _vocabulary(m, code, short, summary, sub, p7, p8):
+def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None):
+    """A controlled vocabulary: what it admits, and what it builds on.
+
+    A base vocabulary extends nothing, and that is a decision rather than an omission. The design
+    says so with the none marker; rendered, the field is empty either way, so the measurement is told
+    which emptiness this is. Without that a vocabulary nobody finished and one deliberately rooted
+    look identical, and only one of them is designed.
+    """
     entries = [cell(r, "Value") for r in rows(p7, "vocabulary_extensions")
                if bare(cell(r, "Vocabulary Code")) == short]
     extends = next((cell(r, "Extends") for r in rows(p7, "vocabulary_extensions")
                     if bare(cell(r, "Vocabulary Code")) == short), "")
+    if extends in ("—", "-", "NONE"):
+        extends = ""
+        if declared_empty is not None:
+            declared_empty.append("extends")
     m.pop("core", None)
     m["extends"] = extends
     m["result_status"] = {"casing": "UPPER_SNAKE", "entries": entries}
@@ -639,6 +809,11 @@ def _transport_ingress(m, code, short, summary, sub, p7, p8, declared_empty=None
             _nest(template, field, _bound_value(cell(row, "Bound To")))
     if template:
         handler["payload_template"] = template
+        if declared_empty is not None:
+            # A payload leaf the design wrote as empty is determined, not missing. A rule refusing a
+            # value equal to the empty string states that emptiness as its subject — measured as an
+            # omission, the design would be told to supply the very thing it is forbidding.
+            declared_empty.extend(_declared_empty_leaves(template, "handler.payload_template"))
     m["handler"] = handler
 
 
@@ -680,13 +855,21 @@ _BUILDERS = {
 # Not an artifact any change request designs. Every field of it is compiler configuration — which
 # layers to search, how a namespace is matched, where projections are written — and a design that
 # restated them would be declaring something it does not own, exactly as it would by restating a
-# constitution. That is why no phase produces one, and why `STRUCTURE_BUILD_BOOK_LIBRARY_MGMT_
-# CONFIG_V0` is the single artifact the acceptance harness has always reported as rendering nothing.
+# constitution.
 #
-# But hand-copying it per domain has failed visibly: the book library's manifest describes itself as
-# the AI governance domain and lists that domain's subdomains, because it was copied and never
-# corrected, and nothing governs it. So it is generated from the three facts that actually vary —
-# the domain, its subdomains, and the families it uses — all of which the mandate already declares.
+# Hand-copying it per domain had failed visibly: the book library's manifest described itself as the
+# AI governance domain and listed that domain's subdomains, because it was copied and never
+# corrected, and nothing governed it. So it is derived from the three facts that actually vary — the
+# domain, its subdomains, and the families it uses — all of which the mandate already declares.
+#
+# **It is a generated artifact, and a design that touches it says so** rather than restating it. The
+# cost of the other reading was measured: a change adding a subdomain inventoried this as an EXTEND,
+# and because an amendment must state the artifact whole it was obliged to restate fifty-one derived
+# facts and invented a fifty-second — a `core.subdomain` the artifact does not carry — while the
+# only thing that actually varies with a subdomain is one sentence of the summary. Reached now by
+# invoking `build_manifest` through `build.generators`, which is also what the acceptance harness
+# compares, so the claim that this derives what the composition holds is checked rather than
+# asserted.
 
 BUILD_PHASES = [
     ("discover", "Discover {domain} artifacts via STRUCTURE"),
@@ -696,6 +879,16 @@ BUILD_PHASES = [
     ("assert", "Evaluate cross-artifact invariants"),
     ("materialize", "Emit deterministic compiled artifacts ({domain} scope only)"),
 ]
+
+
+def manifest_path(manifest: dict) -> str:
+    """Where a domain's build manifest lives, relative to the domain root.
+
+    One spelling, because two callers need it — the generator that writes the file and the check
+    that asks whether the file agrees — and a second spelling is how they would come to disagree
+    about which file they were talking about.
+    """
+    return f"registry/structures/{bare(manifest['fqdn'])}.md"
 
 
 def build_manifest(p7: dict, p8: dict) -> dict | None:
@@ -792,6 +985,10 @@ def render_document(artifact: dict) -> str:
 
     body = yaml.dump(machine, sort_keys=False, width=100, allow_unicode=True,
                      default_flow_style=False)
+    # `Supersedes` has been on every header since the first artifact and has said NONE on all of
+    # them. A design that retires an artifact names its successor, and this is where the successor
+    # says so — the field existed for exactly this and nothing had ever written it.
+    supersedes = ", ".join(artifact.get("supersedes") or ()) or "NONE"
     return (
         f"# {code}\n\n"
         "## Header (Mandatory)\n\n"
@@ -800,7 +997,7 @@ def render_document(artifact: dict) -> str:
         f"- **Governed By:** {constitution}\n"
         f"- **Version:** {machine.get('version', 'v0').upper()}\n"
         "- **Status:** draft\n"
-        "- **Supersedes:** NONE\n\n"
+        f"- **Supersedes:** {supersedes}\n\n"
         "---\n\n"
         "## 1. Intent\n\n"
         f"{summary}\n\n"
@@ -814,3 +1011,66 @@ def render_document(artifact: dict) -> str:
 def render_documents(p7: dict, p8: dict) -> list[dict]:
     """Every scheduled artifact as `{path, text}` — what persistence is handed."""
     return [{"path": a["path"], "text": render_document(a)} for a in render_all(p7, p8)]
+
+
+# Retirement ------------------------------------------------------------------------------------
+#
+# The one act construction performs on an artifact it did not write. A replaced artifact is marked
+# rather than deleted: deleting is not construction's decision to make, and a composition that
+# silently loses a file tells a later reader nothing about why. Marked, the artifact says what stood
+# it down and a reader can follow the successor.
+#
+# Only the header is touched. The Machine block is what the compiler reads and it is not
+# construction's to rewrite here; the prose is human narrative no register determines. So this is a
+# header amendment and nothing else, and it is idempotent — running it twice leaves one marking.
+#
+# **What this does not do.** The compiler still discovers and compiles a marked artifact, because
+# nothing in the governance surface models supersession. The marking is the record, and excluding a
+# superseded artifact from a composition is a platform question that belongs with the platform.
+
+SUPERSEDED_STATUS = "superseded"
+
+
+def mark_superseded(text: str, successors: list[str]) -> str:
+    """An existing artifact's Machine block, marked as stood down by its successors.
+
+    The block rather than the header, because `INVARIANT_SUPERSEDED_NOT_REFERENCED_V0` reads it. The
+    compiler sees the Machine block and nothing else, so a marking in the header was a marking
+    nothing could enforce — true of this act from the day it was written until the invariant existed.
+    The header line is rewritten to match, derived from the block rather than stated beside it.
+
+    Fail-hard on a document with no block to mark, and on a marking with no successor. A marking that
+    silently did nothing would leave the composition holding a live artifact the design believes is
+    retired, which is the failure this act exists to close; and "superseded" by nothing is a deletion,
+    which is a human act and not one a design declares.
+    """
+    if not successors:
+        raise ValueError("refusing to mark an artifact superseded by nothing — that is a deletion")
+
+    lines = text.splitlines(keepends=True)
+    anchors = [i for i, line in enumerate(lines) if line.startswith("fqdn:")]
+    if not anchors:
+        raise ValueError("artifact carries no Machine block; refusing to mark it superseded")
+
+    block = ["superseded_by:\n"] + [f"- {s}\n" for s in successors]
+    existing = [i for i, line in enumerate(lines) if line.startswith("superseded_by:")]
+    if existing:
+        start = existing[0]
+        end = next((i for i in range(start + 1, len(lines))
+                    if not lines[i].startswith("- ")), len(lines))
+        lines[start:end] = block
+    else:
+        lines[anchors[0] + 1:anchors[0] + 1] = block
+
+    named = ", ".join(successors)
+    for i, line in enumerate(lines):
+        if line.startswith("- **Status:**"):
+            lines[i] = f"- **Status:** {SUPERSEDED_STATUS}\n"
+        elif line.startswith("- **Superseded By:**"):
+            lines[i] = f"- **Superseded By:** {named}\n"
+    if not any(line.startswith("- **Superseded By:**") for line in lines):
+        for i, line in enumerate(lines):
+            if line.startswith("- **Status:**"):
+                lines.insert(i + 1, f"- **Superseded By:** {named}\n")
+                break
+    return "".join(lines)

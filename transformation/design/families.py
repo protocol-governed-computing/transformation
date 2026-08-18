@@ -82,3 +82,15 @@ def binding_fqdn_pattern() -> str:
 def artifact_token_pattern() -> str:
     """A bare artifact code anywhere in prose — what a business-language cell must not contain."""
     return r"\b(?:" + alternation(CITABLE) + r")_[A-Z0-9_]+_V\d+\b"
+
+
+def authorable_fqdn_pattern() -> str:
+    """An identity a design may amend: one whose family the renderer can build.
+
+    A design amends an artifact by re-rendering it whole, so it may only amend what it could have
+    authored. A constitution, an invariant and a schema have no family here and no builder there —
+    the governance surface is authored by a person under a governed dossier, and the pipeline's
+    authority over it ends at P6. Citing one is untouched; scheduling one to be rewritten from
+    registers that never held its content is what this refuses.
+    """
+    return r"^[a-z][a-z0-9_.]*::(?:" + alternation(AUTHORABLE) + r")_[A-Z0-9_]+_V\d+$"

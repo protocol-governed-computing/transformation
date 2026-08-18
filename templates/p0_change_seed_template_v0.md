@@ -9,6 +9,13 @@
 
 ## Document Contract
 
+**Before authoring a seed, ask whether this is a new change at all.** If its subject touches an
+artifact a dossier still in flight declares, it is not a new change request — it belongs to that
+dossier, whose problem statement is revisited and re-authored from P0. A change request is expensive
+and re-authoring one is cheap, and two in-flight dossiers declaring one artifact are two designs of
+record where each silently reverts the other. Only a subject touching nothing another in-flight
+dossier declares gets a seed of its own.
+
 **Input:** `0_business_problem_statement.md` — free-form business prose, written by a person.
 **Output:** this document — the same content, reorganized into governed registers.
 
@@ -26,6 +33,23 @@ A required register with no rows MUST render as a single `| NONE IDENTIFIED |` r
 declared, never inferred from a blank register.
 
 **Gate 0** — a person confirms the seed says what they meant, before any governed phase consumes it.
+
+### A platform seed states a platform problem
+
+A change to the platform is stated in the platform's own terms — an act, a subdomain, a record, a
+capability — and never in the terms of a business domain that happens to be in the composition. A
+platform is a **composition**: the domains present today are selected, another profile selects
+others, and a problem statement that only reads as a problem when one particular domain exists has
+made itself true of one composition rather than of the platform.
+
+Name the instance anyway. An instance is what shows the problem occurred rather than being
+anticipated, and it is the difference between a requirement and a worry. **Mark it as an instance**:
+state the problem generically first, then give the case, and say plainly that the domain it comes
+from is one the platform does not require and a later composition may not contain.
+
+This applies to `p0_business_problem_statement.md` and to the seed. It does *not* apply to the
+grounding phases — P2 verifies beliefs against a real composition and must cite exact identities,
+because a generic citation grounds nothing.
 
 ---
 
@@ -85,8 +109,8 @@ rediscovered.*
 ## 1. CR Type
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
-|----------------|-----------|
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
+|-----------|----------------|-----------|
 
 ## 2. Business Vocabulary
 

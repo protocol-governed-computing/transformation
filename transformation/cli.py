@@ -26,10 +26,31 @@ from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
 from transformation.build.completeness import measure, narrowing
-from transformation.build.render import bare, build_manifest, render_all, render_document, render_documents
+from transformation.build.render import (
+    bare,
+    machine_block,
+    build_manifest,
+    manifest_path,
+    mark_superseded,
+    generated,
+    render_all,
+    retirements,
+    render_documents,
+)
+from transformation.build.generators import (
+    MANIFEST_GENERATOR,
+    Context as GeneratorContext,
+    Generator,
+    UnknownGenerator,
+    resolve as resolve_generator,
+)
+from transformation.design.emit import emit as emit_phase_workflows
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.meta import RULE_MODULES, verify as meta_verify
+from transformation.design.emit import workflow_fqdn
+from transformation.design.evaluate import DeclaredRule
 from transformation.design.oracle import evaluate
+from transformation.design.sealed import sealed_rule_set
 from transformation.design.project import PROJECTIONS
 from transformation.design.read import read_seed
 from transformation.design import catalog
@@ -104,12 +125,16 @@ _PHASE_OPTION = click.option(
     metavar="PHASE=PATH",
     help="An upstream phase document this one is judged against, e.g. --prior p1=<path>.",
 )
+@click.option("--rules", "rules_source", type=click.Choice(["sealed", "declared"]), default="sealed",
+              show_default=True,
+              help="Judge by the rule set sealed in --snapshot, or by the working tree's declaration.")
 @click.option("--json", "as_json", is_flag=True, help="Emit the verdict as JSON.")
 def phase_check(
     doc_path: Path,
     phase_key: str,
     snapshot_root: Path | None,
     prior_args: tuple[str, ...],
+    rules_source: str,
     as_json: bool,
 ) -> None:
     """Judge a phase document against that phase's structural oracle.
@@ -171,7 +196,27 @@ def phase_check(
             err=True,
         )
 
-    verdict = evaluate(doc, rules_mod.rule_set())
+    # Which rule set judges this document, and why it is the pinned one by default.
+    #
+    # A dossier pins the composition it is validated against, and every phase's rule set is sealed
+    # inside that composition's workflow — so the pin already names the rules. Reading them from the
+    # working tree instead judged an approved document by rules written after it was approved, which
+    # is how one added column turned every dossier ever written red. The composition a document is
+    # grounded against is the composition whose rules judge it; anything else grounds a claim in one
+    # world and rules on it from another.
+    #
+    # Which set ran is always printed. A verdict that does not say what judged it is a verdict whose
+    # meaning depends on a flag the reader cannot see.
+    rules, judged_by = rules_mod.rule_set(), "the working tree's declaration"
+    if rules_source == "sealed":
+        if snapshot_root:
+            sealed = sealed_rule_set(workflow_fqdn(phase_key), str(snapshot_root))
+            rules = [DeclaredRule.from_mapping(entry) for entry in sealed]
+            judged_by = f"the rule set sealed in {snapshot_root}"
+        else:
+            judged_by = "the working tree's declaration — no --snapshot to read a sealed one from"
+
+    verdict = evaluate(doc, rules)
     # Admissibility and quality are separate axes: the rule set decides the verdict, the figure of
     # merit says how good the document is. A document may be admissible and imperfect, or
     # inadmissible over one misspelling while otherwise strong.
@@ -183,6 +228,7 @@ def phase_check(
 
     if as_json:
         payload = verdict.as_dict()
+        payload["judged_by"] = judged_by
         payload["merit"] = None if merit is None else {
             "rating": merit.rating,
             "maximum": merit.maximum,
@@ -197,8 +243,9 @@ def phase_check(
         for finding in verdict.findings:
             click.echo(f"  {finding}")
         click.echo(
-            f"  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} declared rules"
+            f"  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} rules"
         )
+        click.echo(f"  judged by {judged_by}")
         click.echo()
         click.echo(f"  Status            {verdict.verdict}")
         if merit is None:
@@ -389,6 +436,36 @@ def phase_list() -> None:
         click.echo()
 
 
+@phase.command("emit")
+@click.option("--check", "check_only", is_flag=True,
+              help="Report disagreement without writing; exit 1 if any workflow is stale.")
+def phase_emit(check_only: bool) -> None:
+    """Bring each phase workflow into agreement with the generator that produces it.
+
+    A phase declares its rules once and its workflow carries a sealed copy, so that the rules travel
+    where they can be versioned and inspected. The copy is generated, never typed — and the
+    generator is authoritative: where the two disagree the workflow is stale, and correcting it by
+    hand would leave the generator still producing the old value.
+
+    `--check` is what a build runs. It answers the question without changing the answer, which is
+    the difference between an obligation and a habit: a rule added after a workflow was emitted once
+    left 52 rules sealed against 55 declared, and every run reported confidently on the smaller set.
+
+    Exit 0 if every workflow agrees (or was brought into agreement), 1 under `--check` if any did not.
+    """
+    results = emit_phase_workflows(check_only=check_only)
+    for e in results:
+        state = "OK      " if not e.drifted else ("STALE   " if check_only else "WROTE   ")
+        click.echo(f"  {state} {e.phase}  {e.rules:>3} rules  {e.filename}")
+
+    stale = [e for e in results if e.drifted]
+    if check_only and stale:
+        click.echo(f"\n  REFUSED — {len(stale)} workflow(s) do not agree with the generator that "
+                   f"produces them. Run `tc phase emit`.", err=True)
+        sys.exit(1)
+    sys.exit(0)
+
+
 def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
               dossier: Path = Path(".")) -> dict | None:
     """Facts each amended artifact would lose, or None when there is nothing to compare against.
@@ -427,10 +504,9 @@ def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
                 continue
             # The machine block, read out of the canonical artifact the composition holds. It is the
             # same shape construction renders, which is what makes the two comparable at all.
-            block = re.search(r"```yaml\n(.*?)```",
-                              (result.get("canonical") or {}).get("content", ""), re.S)
-            if block:
-                existing[fqdn.split("::")[-1]] = yaml.safe_load(block.group(1)) or {}
+            block = machine_block((result.get("canonical") or {}).get("content", ""))
+            if block is not None:
+                existing[fqdn.split("::")[-1]] = yaml.safe_load(block) or {}
     return narrowing(render_all(p7, p8), existing)
 
 
@@ -447,8 +523,12 @@ def construction() -> None:
 @click.option("--snapshot", "snapshot_root",
               type=click.Path(exists=True, file_okay=False, path_type=Path),
               help="Composition to compare amendments against, so none narrows what it replaces.")
+@click.option("--root", "domain_root",
+              type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="Domain repository, so generated artifacts can be compared with their generators.")
 def construction_check(dossier: Path, threshold: float, as_json: bool,
-                       snapshot_root: Path | None = None) -> None:
+                       snapshot_root: Path | None = None,
+                       domain_root: Path | None = None) -> None:
     """Measure whether a design uniquely determines the artifacts it specifies.
 
     `tc phase check` admits a document against a rule set; this admits a *design* to construction.
@@ -461,6 +541,13 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
     p7 = _dossier_registers(dossier, "p7")
     p8 = _dossier_registers(dossier, "p8")
     result = measure(p7, p8)
+    # The agreement gate. A generated artifact's sealed copy is checked against what produced it,
+    # and a disagreement refuses the build — a check that exists and is required by nothing is a
+    # habit, and a written obligation nobody must meet is indistinguishable from none. This has
+    # already gone the way that hurts: a rule added after a workflow was emitted left the smaller
+    # rule set sealed, and every run believed it.
+    disagreeing, pending, unasked = _disagreeing(
+        p7, GeneratorContext(p7=p7, p8=p8, domain_root=domain_root))
 
     if as_json:
         click.echo(json.dumps({
@@ -468,6 +555,9 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
             "determined": result.determined,
             "required": result.total,
             "undetermined": dict(result.undetermined),
+            "disagreeing": [{"artifact": a, "generator": g} for g, a in disagreeing],
+            "pending": [{"artifact": a, "generator": g} for g, a in pending],
+            "unchecked_generators": unasked,
         }, indent=2))
     else:
         click.echo(f"{dossier.name} — {len(result.by_artifact)} artifact(s), "
@@ -496,7 +586,75 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
         for name, n in result.undetermined.most_common():
             click.echo(f"    {n:>3}  {name}")
 
+    retiring = retirements(p7)
+    if retiring:
+        click.echo("\n  SUPERSEDED — this design stands these down; construction marks them, never "
+                   "deletes them:")
+        for code, successors in sorted(retiring.items()):
+            click.echo(f"      {code}   ← {', '.join(successors) or 'NOTHING DECLARED'}")
+
+    if pending:
+        click.echo("\n  PENDING GENERATION — this design determines these and the composition does not "
+                   "hold them yet:")
+        for name, artifact in pending:
+            click.echo(f"      {artifact}   ← {name}")
+        click.echo("  Not a defect. `tc construction emit` invokes the generator and refuses if any "
+                   "still disagree.")
+
+    for name in unasked:
+        click.echo(f"  note: pass --root to check that {name} agrees with what it produced", err=True)
+
+    if disagreeing:
+        click.echo("\n  GENERATOR DISAGREES — these artifacts are stale copies of what produces them:",
+                   err=True)
+        for name, artifact in disagreeing:
+            click.echo(f"      {artifact}   ← {name}", err=True)
+        click.echo("  The generator is authoritative. Invoke it; do not edit the artifact.", err=True)
+        sys.exit(1)
+
     sys.exit(0 if result.meets(threshold) else 1)
+
+
+def _generators(p7: dict) -> dict[str, Generator]:
+    """The admitted generators this design's artifacts are reached by, resolved before anything runs.
+
+    Resolved up front so an unknown one is a refusal rather than a partial build. A design naming a
+    generator construction may not invoke has named a path to its artifact that does not exist, and
+    finding that out after half the composition is written is finding out too late.
+    """
+    out: dict[str, Generator] = {}
+    for code, (name, _) in sorted(generated(p7).items()):
+        if not name:
+            raise click.ClickException(f"{code} is declared generated and names no generator")
+        if name in out:
+            continue
+        try:
+            out[name] = resolve_generator(name)
+        except UnknownGenerator as exc:
+            raise click.ClickException(str(exc.args[0])) from exc
+    return out
+
+
+def _disagreeing(p7: dict, ctx) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[str]]:
+    """What disagrees, what is merely not built yet, and what went unasked.
+
+    The generator is authoritative, so a disagreement is not a difference of opinion — it is proof
+    the artifact is a stale copy, and a build reading it reports confidently on the wrong thing.
+
+    A generator that writes into a domain cannot be questioned without one, and it is named in the
+    second list rather than answering nothing. An unasked question and a satisfied one produce the
+    same empty result, which is the difference this pipeline exists to keep visible.
+    """
+    disagreeing: list[tuple[str, str]] = []
+    pending: list[tuple[str, str]] = []
+    unasked: list[str] = []
+    for gen in _generators(p7).values():
+        if gen.needs_root and ctx.domain_root is None:
+            unasked.append(gen.name)
+            continue
+        found = [(gen.name, artifact) for artifact in gen.stale(ctx)]
+        (pending if gen.derived_from_design else disagreeing).extend(found)
+    return disagreeing, pending, unasked
 
 
 def _dossier_registers(dossier: Path, phase_key: str) -> dict:
@@ -542,6 +700,11 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     p7 = _dossier_registers(dossier, "p7")
     p8 = _dossier_registers(dossier, "p8")
 
+    # Resolved before the design is even measured: a generator construction may not invoke is a path
+    # to an artifact that does not exist, and there is no point measuring a design that names one.
+    generators = _generators(p7)
+    context = GeneratorContext(p7=p7, p8=p8, domain_root=domain_root)
+
     result = measure(p7, p8)
     if not result.meets(threshold):
         click.echo(f"REFUSED — Construction Completeness {result.percentage:.1f}% is below "
@@ -551,12 +714,32 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
         sys.exit(1)
 
     documents = render_documents(p7, p8)
-    manifest = build_manifest(p7, p8)
     planned: list[tuple[Path, str]] = [(domain_root / d["path"], d["text"]) for d in documents]
-    if manifest is not None:
-        target = domain_root / "registry" / "structures" / f"{bare(manifest['fqdn'])}.md"
-        if not target.exists():
-            planned.append((target, render_document({"machine": manifest})))
+
+    # The domain's build manifest is generated, never rendered here. A domain founding itself has no
+    # manifest to amend and therefore no design that could declare provenance for one, so its first
+    # emission is part of founding the domain — invoked, not written, so that one producer owns it
+    # from the first copy onwards.
+    manifest = build_manifest(p7, p8)
+    founding = (manifest is not None
+                and not (domain_root / manifest_path(manifest)).exists()
+                and MANIFEST_GENERATOR not in generators)
+    if founding:
+        generators = dict(generators)
+        generators[MANIFEST_GENERATOR] = resolve_generator(MANIFEST_GENERATOR)
+
+    # `--root` takes a *domain* root, and a wrong one used to succeed. Passing the repository
+    # (`business_domains`) rather than the domain (`business_domains/book_library_mgmt`) wrote a
+    # complete registry tree at the repository root, reported every file emitted and exited 0. The
+    # artifacts were correct and in a place nothing in the composition would ever read, and only
+    # `git status` showed it. What identifies a domain root is the build config the compiler
+    # discovers it by — so that is what is asked for, except when this emission is the one founding
+    # it, where its absence is the whole point.
+    if not founding and not list(domain_root.glob("registry/structures/STRUCTURE_BUILD_*_CONFIG_V*.md")):
+        click.echo(f"REFUSED — {domain_root} carries no STRUCTURE_BUILD_*_CONFIG_V*.md, so it is "
+                   f"not a domain root the compiler can discover. Nothing written.", err=True)
+        click.echo(f"    --root takes the domain, not the repository that holds it.", err=True)
+        sys.exit(1)
 
     clashes = [path for path, _ in planned if path.exists()]
     if clashes and not force:
@@ -572,6 +755,46 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     click.echo(f"  emitted {len(planned)} file(s) under {domain_root}")
     for path, _ in planned:
         click.echo(f"    {path.relative_to(domain_root)}")
+
+    # A replaced artifact is stood down rather than rewritten. Construction has nothing to render it
+    # from — the inventory row carries no summary because there is no artifact left to summarise —
+    # so what it does is mark the header and leave the rest of the document alone. Deleting is not
+    # construction's decision, and a composition that silently loses a file explains nothing to
+    # whoever reads it next.
+    retiring = retirements(p7)
+    if retiring:
+        click.echo(f"\n  marked {len(retiring)} artifact(s) superseded")
+    for code, successors in sorted(retiring.items()):
+        matches = sorted(domain_root.rglob(f"{code}.md"))
+        if not matches:
+            click.echo(f"    REFUSED — {code} is declared replaced and is not in {domain_root}",
+                       err=True)
+            sys.exit(1)
+        for target in matches:
+            target.write_text(mark_superseded(target.read_text(encoding="utf-8"), successors),
+                              encoding="utf-8")
+            click.echo(f"    {target.relative_to(domain_root)}   ← {', '.join(successors)}")
+
+    # A generated artifact is reached, not written. None of the paths above is one of them —
+    # `render_all` never produced them, because a renderer that produced the file and then discarded
+    # it would still have decided what the file says. What construction does here is invoke, and the
+    # generator remains the single producer.
+    for name, gen in sorted(generators.items()):
+        written = gen.invoke(context)
+        click.echo(f"\n  invoked {name}\n    → {gen.summary}")
+        for path in written:
+            click.echo(f"    {path.relative_to(domain_root) if domain_root in path.parents else path}")
+        stale = gen.stale(context)
+        if stale:
+            # A generator that has just run and left its artifacts disagreeing has not produced
+            # them. Reporting success here would hand the composition a stale copy with a build's
+            # word that it is current.
+            click.echo(f"  REFUSED — {len(stale)} artifact(s) still disagree after invoking "
+                       f"{name}.", err=True)
+            for artifact in stale:
+                click.echo(f"      {artifact}", err=True)
+            sys.exit(1)
+
     click.echo(f"\n  Construction Completeness {result.percentage:.1f}% "
                f"({result.determined}/{result.total} determined)")
 

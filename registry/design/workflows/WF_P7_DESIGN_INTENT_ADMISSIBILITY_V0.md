@@ -11,6 +11,22 @@
 
 ---
 
+## Generated Artifact
+
+This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
+the copy is never corrected directly: where this artifact and its generator disagree, this
+artifact is stale, and an edit here lasts until whoever next runs the emission.
+
+- **Generator:** `transformation.design.emit:emit_rule_sets`
+- **Generator sources** — one generator together, never separately:
+  - `templates/p7_design_intent_template_v0.md`
+  - `transformation/design/p7_design_intent/rules.py`
+
+To change what this phase judges, amend a source and invoke the generator.
+`tc phase emit --check` refuses a build in which the two disagree.
+
+---
+
 ## 1. Intent
 
 Phase 7 of the change pipeline: decide whether an offered Design Intent register is admissible.
@@ -134,6 +150,7 @@ core:
             - cross_subdomain_deps
             - cross_subdomain_notes
             - cross_subdomain_refs
+            - declared_reach
             - dependency_discoveries
             - dependency_graph
             - design_decisions
@@ -147,6 +164,7 @@ core:
             - field_declarations
             - gap_register
             - gaps
+            - generation_provenance
             - governance_outcome
             - governance_scope
             - identity_and_sameness
@@ -173,6 +191,9 @@ core:
             - provisional_codes
             - purpose_provenance
             - rb_declarations
+            - refusal_deferrals
+            - refusal_discharge
+            - refusal_governance_discharge
             - relationships
             - requested_outcomes
             - resources
@@ -183,6 +204,7 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results
@@ -556,6 +578,7 @@ core:
             - Operation
             - Kind (atom, molecule)
             - Purity (ct_pure, ct_impure)
+            - Refusal (raises, returns, never)
             - Source Finding
           intent: downstream phases read these columns by name
         - id: ROW_WITHOUT_SOURCE_FINDING
@@ -841,6 +864,204 @@ core:
             - EXTEND
             - NEW
           intent: Action is a controlled vocabulary declared by the template
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: generation_provenance
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: generation_provenance
+          params:
+            columns:
+            - Artifact
+            - Generator
+            - Generator Sources
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: generation_provenance
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: generation_provenance
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: generation_provenance
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: declared_reach
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: declared_reach
+          params:
+            columns:
+            - Act
+            - Consults
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: declared_reach
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: declared_reach
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: declared_reach
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: refusal_discharge
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: refusal_discharge
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Act
+            - Step
+            - Outcome
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: refusal_discharge
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: refusal_discharge
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: refusal_discharge
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: refusal_deferrals
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: refusal_deferrals
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Deferred To
+            - Until
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: refusal_deferrals
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: refusal_deferrals
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: refusal_deferrals
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: refusal_governance_discharge
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: refusal_governance_discharge
+          params:
+            columns:
+            - Operation
+            - Refused When
+            - Phase
+            - Governing Rule
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: refusal_governance_discharge
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: refusal_governance_discharge
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: refusal_governance_discharge
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -865,6 +1086,30 @@ core:
             pattern: '[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+'
             observation: si.artifact.list
           intent: an artifact carried over from the composition must really be in it
+        - id: AMENDED_ARTIFACT_NOT_AUTHORABLE
+          check: CELL_MATCHES
+          register: existing_inventory
+          params:
+            column: FQDN
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
+            only_when_column: Action
+            only_when_value: EXTEND
+            detail: 'amends {value!r}, whose family this design cannot author — an amended artifact is rendered
+              whole, so this schedules a document to be rewritten from registers that never held its content.
+              The governance surface is authored, not constructed: cite it with REUSE or REVIEW, and deliver the
+              change by authoring it'
+          intent: a design amends only what it could have authored
+        - id: REPLACED_ARTIFACT_NOT_AUTHORABLE
+          check: CELL_MATCHES
+          register: existing_inventory
+          params:
+            column: FQDN
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
+            only_when_column: Action
+            only_when_value: REPLACE
+            detail: replaces {value!r}, whose family this design cannot author — a replacement is a rendering
+              like any other. The governance surface is authored, not constructed
+          intent: a design replaces only what it could have authored
         - id: TOPOLOGY_WORKFLOW_UNDECLARED
           check: CELL_RESOLVES_IN_REGISTER
           register: execution_topology
@@ -948,25 +1193,95 @@ core:
             - FQDN
           intent: a step invokes a capability that is declared new or carried over, never invented inline
         - id: OBSERVATION_WITHOUT_INTERPRETATION
-          check: CELL_NOT_EMPTY
+          check: OUTCOME_GROUNDED_IN_OPERATION
           register: cc_composition
           params:
             column: Interpreted By
-            only_when_column: Kind
-            only_when_value: CS
-            detail: a step that reads external state names no interpreting transform — a raw observation cannot
-              drive business routing, because the status it carries says the store answered, not what it found
-          intent: every read of external state declares how its output becomes a decision
+            kind_column: Kind
+            kind_value: CS
+            routing_column: Routing
+            status_column: Semantic Status
+            observation: si.capability.surface
+            detail: branches on {outcomes}, which {operation} does not answer — it answers {answers}. An outcome
+              the store cannot produce comes from an interpretation, and this step names none, so the branch is
+              a decision nothing makes
+          intent: an outcome the operation cannot answer names the transform that produces it
         - id: OBSERVATION_WITHOUT_SEMANTIC_STATUS
-          check: CELL_NOT_EMPTY
+          check: OUTCOME_GROUNDED_IN_OPERATION
           register: cc_composition
           params:
             column: Semantic Status
-            only_when_column: Kind
-            only_when_value: CS
-            detail: a step that reads external state names no semantic status — the workflow branch it feeds has
-              nothing declared to route on
+            kind_column: Kind
+            kind_value: CS
+            routing_column: Routing
+            status_column: Semantic Status
+            observation: si.capability.surface
+            detail: routes on {outcomes} and declares no semantic status — {operation} answers {answers}, so the
+              outcome routed on is an interpretation's, and the workflow branch it feeds has nothing declared
+              to route on
           intent: an interpretation names the outcome it yields, closing the route
+        - id: STORE_UNGROUNDED_IN_CAPABILITY
+          check: STORE_GROUNDED_IN_CAPABILITY
+          register: cc_composition
+          params:
+            column: Store
+            capability_column: Capability
+            storage_category: storage
+            observation: si.capability.surface
+            detail_missing: names no store on {capability}, which keeps records — a storage step that addresses
+              nothing is a read or a write with no subject
+            detail_spurious: names a store on {capability}, which keeps none — the step addresses records that
+              capability has no way to hold
+          intent: a step addresses a store exactly when its capability keeps one
+        - id: STEP_CONSUMES_NOTHING_FROM_OPERATION_WITH_INPUT
+          check: CONSUMPTION_GROUNDED_IN_OPERATION
+          register: cc_composition
+          params:
+            column: Consumes
+            capability_column: Capability
+            kind_column: Kind
+            kind_value: CS
+            observation: si.capability.surface
+            detail: consumes nothing and invokes {operation}, which accepts {accepts} — the operation receives
+              no value for what it takes, and the step reports success on having addressed nothing
+          intent: a step consuming nothing invokes an operation that takes nothing
+        - id: DECLARED_REACH_UNUSED
+          check: REACH_IS_USED
+          register: declared_reach
+          params:
+            register: declared_reach
+            topology_register: execution_topology
+            composition_register: cc_composition
+            observation: si.store.list
+            contract_observation: si.capability.surface#contracts
+            detail: declares a reach to {binding} and reads nothing it covers — that binding answers for {stores},
+              and no step this act runs addresses any of them. A permission granted for nothing is one whose purpose
+              nobody reviewed
+          intent: every reach an act declares is used by a read that act performs
+        - id: UNDECLARED_REACH_READ
+          check: READ_IS_DECLARED
+          register: execution_topology
+          params:
+            register: declared_reach
+            rb_register: rb_declarations
+            topology_register: execution_topology
+            composition_register: cc_composition
+            observation: si.store.list
+            contract_observation: si.capability.surface#contracts
+            detail: reads {store}, which {binding} does not cover and no declared reach names — the act reaches
+              records another part of the business owns and its design does not say so, which is invisible until
+              the act runs
+          intent: an act reads nothing it did not declare a reach to
+        - id: CROSS_SUBDOMAIN_WRITE
+          check: CROSS_SUBDOMAIN_REACH_READ_ONLY
+          register: execution_topology
+          params:
+            topology_register: execution_topology
+            new_register: new_artifacts
+            artifact_observation: si.artifact.list
+            capability_observation: si.capability.surface
+            contract_observation: si.capability.surface#contracts
+          intent: an act reaching into another subdomain reads what it holds and never changes it
         - id: INTERPRETATION_TRANSFORM_UNDECLARED
           check: CELL_RESOLVES_IN_REGISTER
           register: cc_composition
@@ -981,6 +1296,14 @@ core:
             - FQDN
             detail: an interpreting transform is an artifact like any other, declared or carried over
           intent: the transform that turns an observation into a decision is itself governed
+        - id: VOCABULARY_WITHOUT_EXTENDS
+          check: CELL_NOT_EMPTY
+          register: vocabulary_extensions
+          params:
+            column: Extends
+            detail: vocabulary says nothing about what it extends — a base vocabulary declares that with the none
+              marker, because an empty cell and an omission render the same thing
+          intent: a vocabulary states what it extends, or states that it extends nothing
         - id: STORE_WITHOUT_PROPOSED_PATH
           check: CELL_NOT_EMPTY
           register: structure_stores
@@ -1066,6 +1389,18 @@ core:
             only_when_value: CT
           intent: a transform is the one family that points outside the composition; the path is designed, not
             discovered
+        - id: REPLACED_ARTIFACT_WITHOUT_SUCCESSOR
+          check: REGISTER_COVERS_REGISTER
+          register: artifact_properties
+          params:
+            source_register: existing_inventory
+            source_column: FQDN
+            column: Value
+            only_when_column: Action
+            only_when_value: REPLACE
+            covered_only_when_column: Property
+            covered_only_when_value: supersedes
+          intent: an artifact this design replaces is named by whatever supersedes it
         - id: VOCABULARY_WITHOUT_VALUES
           check: REGISTER_COVERS_REGISTER
           register: vocabulary_extensions
@@ -1109,6 +1444,12 @@ core:
             step_register: cc_composition
             observation: si.capability.surface
           intent: a binding reads a field the operation yields, never one it was hoped would exist
+        - id: STEP_NAMES_UNPUBLISHED_OPERATION
+          check: STEP_OPERATION_PUBLISHED
+          register: cc_composition
+          params:
+            observation: si.capability.surface
+          intent: a step invokes an operation the capability offers, never one it was assumed to have
         - id: STEP_CONSUMES_UNDECLARED_INPUT
           check: STEP_CONSUMES_PUBLISHED
           register: cc_composition
@@ -1122,6 +1463,51 @@ core:
             column: Module
             detail: transform names no module — an implementation nobody can locate is not designed
           intent: a declared implementation says where it lives
+        - id: IMPLEMENTATION_MODULE_MISPLACED
+          check: IMPLEMENTATION_MODULE_CONFORMS
+          register: implementation_bindings
+          params:
+            code_column: CT Code
+            module_column: Module
+            namespace_template: '{domain}.implementation.capability_transforms.atoms'
+          intent: a transform's module is where its domain resolves implementations, named for the artifact
+        - id: IMPLEMENTATION_WITHOUT_REFUSAL
+          check: CELL_NOT_EMPTY
+          register: implementation_bindings
+          params:
+            column: Refusal
+            detail: transform declares no refusal — whether a judgement is raised or returned is the one fact
+              that says if a step routing on it can ever fail, and both look the same from outside
+          intent: a transform says how it expresses a judgement about its subject
+        - id: IMPLEMENTATION_REFUSAL_UNKNOWN
+          check: CELL_MATCHES
+          register: implementation_bindings
+          params:
+            column: Refusal
+            pattern: ^(raises|returns|never)$
+            detail: refusal is {value!r}; a transform raises its judgement, returns it, or makes none, and the
+              schema admits nothing else
+          intent: refusal is one of the three the composition can act on
+        - id: INTERPRETATION_TRANSFORM_CANNOT_REFUSE
+          check: INTERPRETATION_TRANSFORM_REFUSES
+          register: cc_composition
+          params:
+            column: Interpreted By
+            status_column: Semantic Status
+            observation: si.capability.surface#transforms
+            design_register: implementation_bindings
+            design_code_column: CT Code
+            design_refusal_column: Refusal
+          intent: an interpretation can fail, or the branch it feeds is unreachable
+        - id: IMPLEMENTATION_CALLABLE_UNCONVENTIONAL
+          check: CELL_MATCHES
+          register: implementation_bindings
+          params:
+            column: Callable
+            pattern: ^execute$
+            detail: callable is {value!r}; every transform in the composition is entered through `execute`, and
+              a loader given another name finds nothing
+          intent: a transform is entered the one way every transform is entered
         - id: BINDING_WITHOUT_SOURCE
           check: CELL_NOT_EMPTY
           register: step_bindings
@@ -1159,6 +1545,7 @@ core:
           params:
             topology_register: execution_topology
             fields_register: interface_fields
+            observation: si.capability.surface#contracts
           intent: a workflow hands a contract everything that contract says it requires
         - id: BINDING_SOURCE_UNREACHABLE
           check: BINDING_SOURCE_REACHABLE
@@ -1201,6 +1588,167 @@ core:
           params:
             bindings_register: step_bindings
           intent: a declared output no step emits gives every caller a name that resolves to nothing
+        - id: GENERATED_ARTIFACT_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: generation_provenance
+          params:
+            column: Artifact
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+            detail: provenance is stated about an artifact this design neither authors nor carries over — a generator
+              for something nothing schedules produces nothing
+          intent: provenance belongs to an artifact the design actually declares
+        - id: ARTIFACT_HAS_TWO_GENERATORS
+          check: COLUMN_VALUES_UNIQUE
+          register: generation_provenance
+          params:
+            column: Artifact
+            detail: '{value} is generated twice, first at row {first} — an artifact has exactly one producer,
+              and two producers of one truth drift'
+          intent: one artifact, one producer, so agreement with the generator means something
+        - id: GENERATOR_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: generation_provenance
+          params:
+            column: Generator
+            detail: artifact is declared generated and names no generator — construction has nothing to invoke
+              and no way to reach it
+          intent: a generated artifact names what produces it
+        - id: GENERATOR_UNREACHABLE
+          check: CELL_MATCHES
+          register: generation_provenance
+          params:
+            column: Generator
+            pattern: ^[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)*:[a-z_][a-z0-9_]*$
+            detail: generator {value!r} must be module:callable — construction imports its generator and a script
+              it can only shell out to is one nothing governs
+          intent: a generator is invocable from the composition, not only by a person at a terminal
+        - id: GENERATOR_SOURCES_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: generation_provenance
+          params:
+            column: Generator Sources
+            detail: generator names no sources — a template and the declaration read with it are one generator,
+              and naming neither permits regenerating from a stale pairing
+          intent: a generator is its sources together, so a change to either is a change to it
+        - id: REFUSAL_UNACCOUNTED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: refusal_discharge
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: &id002
+            - Operation
+            - Refused When
+            key_column: *id002
+            registers:
+            - refusal_discharge
+            - refusal_deferrals
+            - refusal_governance_discharge
+          intent: every refusal the business declared is carried out here or owned by someone else
+        - id: DISCHARGE_UNDECLARED_REFUSAL
+          check: ROWS_CONFINED_TO_PRIOR
+          register: refusal_discharge
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: *id002
+            key_column: *id002
+          intent: a discharge answers a refusal the business declared, never one the design invented
+        - id: DEFERRAL_UNDECLARED_REFUSAL
+          check: ROWS_CONFINED_TO_PRIOR
+          register: refusal_deferrals
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: *id002
+            key_column: *id002
+          intent: a deferral hands on a refusal the business declared, never one nobody approved
+        - id: DEFERRAL_OWNER_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: refusal_deferrals
+          params:
+            column: Deferred To
+            detail: names no owner — a refusal handed on to nobody is a refusal dropped in language that sounds
+              like a plan
+          intent: a deferred refusal names who will carry it out
+        - id: GOVERNANCE_DISCHARGE_UNDECLARED_REFUSAL
+          check: ROWS_CONFINED_TO_PRIOR
+          register: refusal_governance_discharge
+          params:
+            prior_phase: p0
+            prior_register: operation_refusals
+            prior_key_column: *id002
+            key_column: *id002
+          intent: the governance surface is cited for a refusal the business declared, never for one it did not
+        - id: GOVERNING_RULE_PHASE_MALFORMED
+          check: CELL_MATCHES
+          register: refusal_governance_discharge
+          params:
+            column: Phase
+            pattern: ^p[0-8]$
+            detail: '{value!r} is not a phase — a rule is named by its phase and its identifier together, written
+              p0 through p8, because an identifier alone names nine rules'
+          intent: a cited rule is located in the phase whose rule set holds it
+        - id: GOVERNING_RULE_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: refusal_governance_discharge
+          params:
+            column: Governing Rule
+            detail: cites no rule — a refusal said to be carried out by the governance surface and naming nothing
+              there is prose, and prose refuses nothing
+          intent: a governance-surface discharge names the rule that refuses
+        - id: GOVERNING_RULE_NOT_IN_FORCE
+          check: GOVERNING_RULE_IN_SEALED_SET
+          register: refusal_governance_discharge
+          params:
+            observation: si.rule_set.list
+            phase_workflows:
+              p0: transformation::WF_P0_SEED_ADMISSIBILITY_V0
+              p1: transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0
+              p2: transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0
+              p3: transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0
+              p4: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0
+              p5: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0
+              p6: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
+              p7: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
+              p8: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0
+          intent: a rule said to carry out a refusal is really in force where the design is pinned
+        - id: DISCHARGE_NOT_IN_TOPOLOGY
+          check: DISCHARGE_GROUNDED_IN_TOPOLOGY
+          register: refusal_discharge
+          intent: a discharge names a step the act has and an outcome that step reports
+        - id: DISCHARGE_DOES_NOT_REFUSE
+          check: DISCHARGE_OUTCOME_REFUSES
+          register: refusal_discharge
+          intent: the outcome a discharge names stops the act rather than continuing it
+        - id: EMISSION_NOT_FROM_COMPLETING_ENDING
+          check: EMISSION_GROUNDED_IN_ENDING
+          register: artifact_properties
+          params:
+            property_prefix: emit.
+          intent: a moment is announced from an ending the act has, and one that completes it
+        - id: EMITTED_EVENT_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: artifact_properties
+          params:
+            column: Value
+            only_when_column: Property
+            only_when_prefix: emit.
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+            detail: an announced moment must be an identity this design declares
+          intent: an act announces a moment that exists, never one nothing declares
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

@@ -60,6 +60,19 @@ PROVISIONAL_CODE_PATTERN = (
 
 PURPOSE_RULES: list[Rule] = [
     Rule(
+        id="PURPOSE_PROVENANCE_NOT_SINGULAR",
+        check="TABLE_ROW_COUNT",
+        register="purpose_provenance",
+        params={
+            "maximum": 1,
+            "detail": (
+                "the register answers one question — whether this phase inherited the seed's "
+                "purpose or refined it — and two rows are two answers to it"
+            ),
+        },
+        intent="a register owing one answer may not carry several",
+    ),
+    Rule(
         id="PURPOSE_NOT_CARRIED_FROM_SEED",
         check="PRIOR_PROSE_CARRIED",
         register="purpose_provenance",
@@ -181,11 +194,52 @@ PURITY_RULES: list[Rule] = [
 ]
 
 
+# Correction 3 of the rule_expressiveness change: a subdomain changed with nothing said about what
+# it governs is changed blindly. Checkable only once the classification carries its subdomain.
+SPAN_RULES: list[Rule] = [
+    Rule(
+        id="TOUCHED_SUBDOMAIN_WITHOUT_PURPOSE",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="subdomain_purposes",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "cr_type",
+            "prior_column": "Subdomain",
+            "column": "Subdomain",
+            "require": "prior_in_here",
+        },
+        intent="every subdomain a change touches has its purpose stated",
+    ),
+    Rule(
+        id="TOUCHED_SUBDOMAIN_AUTHORS_NOTHING",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="provisional_codes",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "cr_type",
+            "prior_column": "Subdomain",
+            "column": "Subdomain",
+            "require": "prior_in_here",
+            # Gated on the classification: a subdomain this change creates, extends or modifies
+            # authors something in it. One merely read is named in a dependency, not here, and a
+            # retirement may author nothing at all. MODIFY is outside the gate too: a change may
+            # amend an existing artifact without authoring one, and rule_expressiveness is the
+            # standing counterexample. Catching a MODIFY that authors without intent needs P7's
+            # inventory, where amendment and authoring are both stated.
+            "prior_only_when_column": "Classification",
+            "prior_only_when_values": ["NEW_SUBDOMAIN", "EXTEND_SUBDOMAIN"],
+        },
+        intent="a subdomain a change authors into names the artifacts it authors",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """The complete declared P5 rule set: derived, then purity, then the dossier header."""
     return (
         derived_rules(TEMPLATE)
         + PURPOSE_RULES
+        + SPAN_RULES
         + PURITY_RULES
         + event_naming_rules("provisional_codes", "Provisional Code")
         + governed_hole_rules()

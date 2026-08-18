@@ -11,6 +11,22 @@
 
 ---
 
+## Generated Artifact
+
+This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
+the copy is never corrected directly: where this artifact and its generator disagree, this
+artifact is stale, and an edit here lasts until whoever next runs the emission.
+
+- **Generator:** `transformation.design.emit:emit_rule_sets`
+- **Generator sources** — one generator together, never separately:
+  - `templates/p3_analysis_loop_template_v0.md`
+  - `transformation/design/p3_analysis_loop/rules.py`
+
+To change what this phase judges, amend a source and invoke the generator.
+`tc phase emit --check` refuses a build in which the two disagree.
+
+---
+
 ## 1. Intent
 
 Phase 3 of the change pipeline: decide whether an offered Analysis Loop register is admissible.
@@ -185,6 +201,7 @@ core:
             column: Disposition
             vocabulary:
             - EXISTING
+            - EXTEND
             - REUSE
             - AUTHOR_NEW
             - INVESTIGATE
@@ -290,6 +307,7 @@ core:
             - cross_subdomain_deps
             - cross_subdomain_notes
             - cross_subdomain_refs
+            - declared_reach
             - dependency_discoveries
             - dependency_graph
             - design_decisions
@@ -303,6 +321,7 @@ core:
             - field_declarations
             - gap_register
             - gaps
+            - generation_provenance
             - governance_outcome
             - governance_scope
             - identity_and_sameness
@@ -329,6 +348,9 @@ core:
             - provisional_codes
             - purpose_provenance
             - rb_declarations
+            - refusal_deferrals
+            - refusal_discharge
+            - refusal_governance_discharge
             - relationships
             - requested_outcomes
             - resources
@@ -339,6 +361,7 @@ core:
             - storage_governance
             - structure_stores
             - subdomain_purpose
+            - subdomain_purposes
             - system_beliefs
             - transport_bindings
             - verification_results

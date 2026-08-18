@@ -43,6 +43,7 @@ version: v0
 governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
 core:
   summary: Measure Construction Completeness and refuse a design that does not determine its artifacts
+  refusal: raises
   description: |
     Derives the requirement list from the renderer, compares the design against it, and raises when
     completeness is below the declared threshold. A verdict of "complete" is an ordinary return; a

@@ -206,6 +206,42 @@ def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return []
 
 
+@check("TABLE_ROW_COUNT")
+def _table_row_count(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """How many rows a register may carry.
+
+    `TABLE_HAS_ROWS` already asserts a floor — a declared register that is empty asserts nothing.
+    Nothing asserted a ceiling, so a register meant to carry one answer could carry three
+    contradictory ones and no rule anyone could write would notice. That is not a rule nobody
+    wrote; it is a rule nobody *could* write, which is why this is a way of judging rather than a
+    rule.
+
+    `maximum` is the half that was missing; `minimum` is accepted too so a register owing an exact
+    count can declare one thing rather than two rules that could disagree.
+
+    Adding this changes no verdict. A ceiling is a judgement about what a particular register
+    means, made per register, and this kind ships applied to none.
+    """
+    block = _block(doc, rule)
+    if block is None or block.table is None:
+        return []
+    rows = len(block.table.rows)
+    minimum = rule.params.get("minimum")
+    maximum = rule.params.get("maximum")
+    out = []
+    if minimum is not None and rows < int(minimum):
+        out.append((_where(rule), f"register carries {rows} row(s); at least {minimum} required"))
+    if maximum is not None and rows > int(maximum):
+        # A rule may say what its own ceiling means; a generic message cannot know why one row.
+        detail = rule.params.get("detail")
+        out.append((
+            _where(rule),
+            f"register carries {rows} row(s); at most {maximum} permitted"
+            + (f" — {detail}" if detail else ""),
+        ))
+    return out
+
+
 @check("COLUMN_ABSENT")
 def _column_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     block = _block(doc, rule)
@@ -547,10 +583,25 @@ def _source_finding_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             continue
         out.append((
             f"{_where(rule)} row {i}",
-            f"{value!r} contains no citation naming a declared register or recognised source",
+            f"{value!r} contains no citation naming a declared register or recognised source. "
+            f"A citation names a register this phase may cite — {_examples(known)} — "
+            f"or one of {', '.join(repr(x) for x in literal)}, "
+            f"or an artifact already in the baseline, by exact identity "
+            f"(e.g. 'blockchain::WF_REGISTER_ACTOR_V0'). "
+            f"A register may be named by its id ('known_facts #14') or, prefixed by its phase, "
+            f"by its section ('S1 §4 Known Facts #14'). Separate several citations with ';'",
         ))
     return out
 
+
+
+def _examples(known: set[str] | list[str], count: int = 3) -> str:
+    """A few register ids the author may actually cite, so a diagnostic teaches the grammar.
+
+    A rule that says only what is wrong makes an author read the checker to learn what is right.
+    """
+    shown = sorted(known)[:count]
+    return ", ".join(f"'{r} #1'" for r in shown) + (", …" if len(known) > count else "")
 
 
 @check("REUSE_CANDIDATE_ELIGIBLE")
@@ -657,6 +708,11 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
 
     only_when_column = rule.params.get("only_when_column")
     only_when_value = rule.params.get("only_when_value")
+    # A register may key its rows by a *family* of values rather than one. `artifact_properties`
+    # holds every scalar an artifact declares and an emission is `emit.<ending>` — one property per
+    # ending, so there is no single value to match on and an equality gate cannot select them. The
+    # prefix is what they have in common, and it is what the register names them by.
+    only_when_prefix = rule.params.get("only_when_prefix")
     # A declared "nothing here" is an answer, not a dangling reference — the same distinction
     # `DEPENDENCY_PRECEDES` draws for a step that depends on nothing.
     none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", "N/A"])}
@@ -665,7 +721,10 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
     for i, row in _rows(doc, rule):
         if only_when_column:
             gate = _cell(row, only_when_column)
-            if gate.strip().upper() != str(only_when_value).upper():
+            if only_when_prefix:
+                if not gate.strip().startswith(only_when_prefix):
+                    continue
+            elif gate.strip().upper() != str(only_when_value).upper():
                 continue
         value = _cell(row, rule.params["column"])
         if not value or value.strip() in none_markers:
@@ -891,6 +950,25 @@ def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
                 or _cell(row, "Required").upper() != "YES"):
             continue
         declared.setdefault(_bare_identity(_cell(row, "Artifact")), set()).add(_cell(row, "Field"))
+
+    # A contract this design authors declares its interface above. One it *reuses* declares nothing —
+    # the contract already exists, so there is nothing for the design to restate — and that silence
+    # was read as "requires nothing". Every instance of this defect has been the same shape: a
+    # workflow reusing another subdomain's contract and handing it nothing, admissible over the full
+    # rule set, complete at 100%, and discovered only when the act ran and the contract received
+    # nulls. Three of them in one change.
+    #
+    # Unioned rather than overridden. A design extending a contract states the input it adds while
+    # the composition still requires the ones it had, and both must be bound; requiring too much is
+    # a finding an author can answer, requiring too little is one nobody sees.
+    observation = rule.params.get("observation")
+    for entry in (doc.observed.get(observation) or []) if observation else []:
+        if not isinstance(entry, dict):
+            continue
+        required = {name for name, spec in (entry.get("inputs") or {}).items()
+                    if isinstance(spec, dict) and spec.get("required")}
+        if required:
+            declared.setdefault(_bare_identity(str(entry.get("contract"))), set()).update(required)
 
     bound: dict[tuple[str, str], set[str]] = {}
     for _, row in _rows(doc, rule):
@@ -1148,10 +1226,30 @@ def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]
         raise KeyError(f"{rule.id}: 'match_on' must be exact or bare_code, not {match_on!r}")
     normalise = (lambda v: v.split("::")[-1]) if match_on == "bare_code" else (lambda v: v)
 
+    # A prior row may not oblige anything. A subdomain a change merely reads is named upstream and
+    # authors nothing, so the obligation is gated on what the upstream row says about itself rather
+    # than on its presence. Absent the gate every prior row obliges, which is the prior behaviour.
+    gate_column = rule.params.get("prior_only_when_column")
+    gate_values = rule.params.get("prior_only_when_values")
+    # A family gate, where the obligation is about what kind of artifact a row names rather than
+    # what the row says about it. `existing_inventory` carries no Family column — an artifact
+    # carried over from the composition states its family in its own identity, which is the only
+    # place it can, because the design assigns it no new code. So the prefix is the family.
+    gate_prefixes = rule.params.get("prior_only_when_prefixes")
+
+    def obliges(row) -> bool:
+        if gate_prefixes:
+            code = _cell(row, rule.params["prior_column"]).split("::")[-1]
+            if not any(code.startswith(prefix) for prefix in gate_prefixes):
+                return False
+        if not gate_column:
+            return True
+        return _cell(row, gate_column) in gate_values
+
     there = {
         normalise(identity): ordinal
         for ordinal, row in prior_rows
-        if (identity := _cell(row, rule.params["prior_column"]))
+        if obliges(row) and (identity := _cell(row, rule.params["prior_column"]))
     }
     here = {
         normalise(identity): i
@@ -1218,6 +1316,13 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
     Loss is the silent half: a change request missing an acceptance criterion is a perfectly
     well-formed change request, and that criterion is what the finished composition is later
     validated against.
+
+    Coverage may be owed to several registers at once rather than one. A declared refusal is
+    accounted for by being discharged *or* by being deferred, and the two are separate registers
+    because a discharge names a place in the topology and a deferral names a person — so a rule
+    reading either alone would report every deferred refusal as uncovered. `registers` is that list
+    and defaults to the single register the rule governs, exactly as `CELL_RESOLVES_IN_REGISTER`
+    already accepts `target_registers`: every rule that does not pass it is judged as it was before.
     """
     prior_rows, unavailable = _prior_rows(doc, rule)
     if unavailable:
@@ -1234,7 +1339,22 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
     gate_column = rule.params.get("prior_only_when_column")
     gate_value = rule.params.get("prior_only_when_value")
 
-    here = {_claim(row, key) for _, row in _rows(doc, rule)}
+    # The register this rule governs, unless it declares the several a row may be covered by. A
+    # second register is read with the same key columns: it answers the same question about the same
+    # upstream row, which is what makes it an alternative rather than a different check.
+    covering = rule.params.get("registers")
+    if covering:
+        here = {
+            _claim(row, key)
+            for name in covering
+            for _, row in _content_rows(doc.register(name))
+        }
+        where = "in " + " or ".join(covering)
+    else:
+        here = {_claim(row, key) for _, row in _rows(doc, rule)}
+        # "here" and not the register's name, because that is what every rule using this kind
+        # already reports and a widened kind must not reword a finding it did not change.
+        where = "here"
 
     out = []
     total = len(prior_rows)
@@ -1246,7 +1366,7 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
             continue
         out.append((
             _where(rule),
-            f"{phase} {register} #{ordinal} of {total} is restated nowhere here: {claim!r}",
+            f"{phase} {register} #{ordinal} of {total} is restated nowhere {where}: {claim!r}",
         ))
     return out
 
@@ -1280,9 +1400,18 @@ def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]
     gate_value = rule.params.get("only_when_value")
     source_column = rule.params["source_column"]
 
+    # A gate on the covering side too, because a register may account for several kinds of fact in
+    # one table. `artifact_properties` carries every scalar an artifact declares, so a rule asking
+    # "is this artifact named as superseded" must read only the rows that say so — otherwise any
+    # cell whose value happened to match would answer for it, and the rule would pass on a
+    # coincidence.
+    covered_gate_column = rule.params.get("covered_only_when_column")
+    covered_gate_value = rule.params.get("covered_only_when_value")
+
     covered = {
         _bare_identity(_cell(row, rule.params["column"]))
         for _, row in _rows(doc, rule)
+        if not covered_gate_column or _cell(row, covered_gate_column) == covered_gate_value
     }
 
     out = []
@@ -1518,6 +1647,274 @@ def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return out
 
 
+def _routing(cell: str) -> dict[str, str]:
+    """A topology node's routing, read as outcome → destination.
+
+    The cell is `SUCCESS -> …::CC_NEXT_V0; VIOLATION -> EXIT_REJECTED`, and a terminal node routes
+    nowhere and says so with a dash. Malformed segments are dropped rather than reported: the
+    routing grammar is `TOPOLOGY_ROUTING_WELL_FORMED`'s to enforce, and a second rule reporting the
+    same broken cell would make one defect look like two.
+    """
+    out: dict[str, str] = {}
+    for segment in cell.split(";"):
+        outcome, sep, destination = segment.partition("->")
+        if not sep:
+            continue
+        outcome = outcome.strip()
+        if outcome:
+            out[outcome] = destination.strip()
+    return out
+
+
+def _topology(doc: ParsedDocument, rule):
+    """The design's own topology, indexed by (workflow, node).
+
+    Both discharge kinds read it, and both read it the same way: a discharge is grounded in the
+    design that states it, never in the composition. Nothing here observes a snapshot.
+    """
+    register = rule.params.get("topology_register", "execution_topology")
+    workflow_column = rule.params.get("workflow_column", "Workflow")
+    node_column = rule.params.get("node_column", "Node")
+    return {
+        (_cell(row, workflow_column), _cell(row, node_column)): row
+        for _, row in _content_rows(doc.register(register))
+    }
+
+
+@check("DISCHARGE_GROUNDED_IN_TOPOLOGY")
+def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A stated discharge must name a step the act really has, and an outcome that step reports.
+
+    A register read only for presence documents intent and enforces nothing. The seed says the
+    business refuses an operation under a condition; this register says where that refusal happens;
+    and until something holds the second to the first, a design may name a step no act has and be
+    admissible for saying so — which is a refusal that stops nothing, written in the language of one
+    that does.
+
+    Act, step and outcome are checked together and reported once. They are three cells of one claim:
+    a step that is not in the act has no outcomes to check, and splitting the claim across rules
+    would report a single wrong row two or three times over.
+
+    The topology is the design's own, read from the same document. No composition fact is observed —
+    a design is judged on whether it is internally answerable, and an act it is authoring exists
+    nowhere else yet.
+    """
+    topology = _topology(doc, rule)
+    act_column = rule.params.get("act_column", "Act")
+    step_column = rule.params.get("step_column", "Step")
+    outcome_column = rule.params.get("outcome_column", "Outcome")
+    routing_column = rule.params.get("routing_column", "Routing")
+
+    out = []
+    for i, row in _rows(doc, rule):
+        act = _cell(row, act_column)
+        step = _cell(row, step_column)
+        outcome = _cell(row, outcome_column)
+        if not act or not step or not outcome:
+            # An empty cell is `CELL_NOT_EMPTY`'s finding. Grounding a blank would report the same
+            # omission a second time, in worse words.
+            continue
+        node = topology.get((act, step))
+        if node is None:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{step!r} is no step of {act} — the discharge names a place in an act that has "
+                f"no such place, so nothing carries the refusal out",
+            ))
+            continue
+        reported = _routing(_cell(node, routing_column))
+        if outcome not in reported:
+            known = ", ".join(sorted(reported)) or "nothing"
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{step.split('::')[-1]} does not report {outcome!r} — it reports {known}, and a "
+                f"discharge on an outcome the step never returns never happens",
+            ))
+    return out
+
+
+@check("DISCHARGE_OUTCOME_REFUSES")
+def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """The outcome a discharge names must route to an ending that refuses.
+
+    The separate claim, and the one the other kind cannot make: a step may report exactly the
+    outcome the register names and route it onward to the next step. The act then completes, having
+    performed the operation the business said it refuses, and every cell of the discharge row was
+    accurate.
+
+    A refusing ending is one the topology types `EXIT`; a completing one is typed `EXIT_SUCCESS`.
+    The type is what is read, never the node's name — a name is a convention anybody can break by
+    calling an exit something reassuring, and `EXIT_REJECTED` is a spelling rather than a
+    declaration.
+
+    A row this rule cannot resolve is left to `DISCHARGE_GROUNDED_IN_TOPOLOGY`, which is the rule
+    that says so.
+    """
+    topology = _topology(doc, rule)
+    act_column = rule.params.get("act_column", "Act")
+    step_column = rule.params.get("step_column", "Step")
+    outcome_column = rule.params.get("outcome_column", "Outcome")
+    routing_column = rule.params.get("routing_column", "Routing")
+    type_column = rule.params.get("type_column", "Node Type")
+    refusing = rule.params.get("refusing_type", "EXIT")
+
+    out = []
+    for i, row in _rows(doc, rule):
+        act = _cell(row, act_column)
+        step = _cell(row, step_column)
+        outcome = _cell(row, outcome_column)
+        node = topology.get((act, step))
+        if node is None:
+            continue
+        destination = _routing(_cell(node, routing_column)).get(outcome)
+        if not destination:
+            continue
+        ending = topology.get((act, destination))
+        if ending is None:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{outcome!r} routes to {destination!r} and {act.split('::')[-1]} declares no such "
+                f"node — an ending the topology does not state is one nothing can be said about",
+            ))
+            continue
+        node_type = _cell(ending, type_column).strip().upper()
+        if node_type != refusing:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{outcome!r} routes to {destination!r}, typed {node_type or 'nothing'} — a "
+                f"discharge must reach an ending typed {refusing}, and this one does not refuse",
+            ))
+    return out
+
+
+@check("EMISSION_GROUNDED_IN_ENDING")
+def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An announcement must be attached to an ending the act has, and one that completes it.
+
+    A moment names something that happened. Announcing one from an ending that refuses the act
+    states something untrue — the business declared exactly that refusal, and nothing read it: no
+    rule in the pipeline read an `emit.` property at all, so a design could announce a completion
+    from a rejection and be admissible for it.
+
+    Both facts were already declared and neither was joined to the other. `artifact_properties`
+    states the site as `emit.<ending>`, and `execution_topology` types every node. **No register is
+    added for this** — a second place to state the emission site would be a second producer of one
+    truth, and the drift between them would be silent until something read the stale one.
+
+    Site and type are one traversal of one row and are reported once. A property naming an ending
+    the act does not have has no type to check, so splitting them would report one wrong row twice.
+    That is the same reasoning that keeps act, step and outcome together in
+    `DISCHARGE_GROUNDED_IN_TOPOLOGY`, and the reason the discharge's *destination* check is separate
+    there is that it reads a different row. This one does not.
+
+    The completing type is read from the topology, never from the ending's name: a name is a
+    convention anybody can break by calling an exit something reassuring.
+    """
+    prefix = rule.params.get("property_prefix", "emit.")
+    artifact_column = rule.params.get("artifact_column", "Artifact")
+    property_column = rule.params.get("property_column", "Property")
+    type_column = rule.params.get("type_column", "Node Type")
+    completing = rule.params.get("completing_type", "EXIT_SUCCESS")
+
+    topology = _topology(doc, rule)
+
+    out = []
+    for i, row in _rows(doc, rule):
+        prop = _cell(row, property_column).strip()
+        if not prop.startswith(prefix):
+            continue
+        act = _cell(row, artifact_column)
+        ending = prop[len(prefix):].strip()
+        if not ending:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{prop!r} names no ending — an announcement with no site is emitted from nowhere",
+            ))
+            continue
+        node = topology.get((act, ending))
+        if node is None:
+            declared = sorted(n for a, n in topology if a == act)
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{ending!r} is no node of {act.split('::')[-1]} — it declares "
+                f"{', '.join(declared) or 'no nodes'}, and a moment cannot be announced from a "
+                f"place the act does not have",
+            ))
+            continue
+        node_type = _cell(node, type_column).strip().upper()
+        if node_type != completing:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{ending!r} is typed {node_type or 'nothing'} — a moment names something that "
+                f"happened, so it is announced only from an ending typed {completing}",
+            ))
+    return out
+
+
+@check("GOVERNING_RULE_IN_SEALED_SET")
+def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A cited rule must really be in force, in the composition this design is pinned to.
+
+    The register that names it exists so a refusal carried out by the governance surface can be
+    stated. Stated and unchecked, it is the failure the refusal work was done to end: a citation
+    nobody resolves documents intent and enforces nothing, and prose refuses nothing.
+
+    So the rule is looked up in the **sealed** rule set — the one the composition carries, which is
+    what a pin names and what actually judged a document — never in a working tree. Two consequences
+    follow and both are stated in the template rather than left to be discovered. **A design cannot
+    discharge a refusal by citing a rule its own change is adding**: the rule is not in the pinned
+    composition, so the citation resolves to nothing and this rule says so. And a rule retired by a
+    later change stops discharging anything, which is the point of asking every time rather than
+    once.
+
+    **Resolution is not coverage.** That the cited rule exists and is in force is checkable here;
+    that it refuses the condition stated beside it is not, and no rule can check it. That judgment
+    is Gate 1's, and this rule deliberately does not pretend to make it.
+
+    The phase is read from its own column because rule identifiers are not unique across phases —
+    every derived one is declared by all nine — so an identifier alone names nine rules and resolves
+    against whichever happened to be looked at first.
+    """
+    observed = (doc.observed or {}).get(rule.params["observation"]) or []
+    # Which workflow carries which phase is the design compiler's own naming, declared with the
+    # rule rather than inferred here: the snapshot publishes identities and knows nothing of phases.
+    workflows = rule.params["phase_workflows"]
+    in_force = {
+        carrier.get("artifact"): set(carrier.get("rules") or ())
+        for carrier in observed
+        if isinstance(carrier, dict)
+    }
+
+    phase_column = rule.params.get("phase_column", "Phase")
+    rule_column = rule.params.get("rule_column", "Governing Rule")
+
+    out = []
+    for i, row in _rows(doc, rule):
+        phase = _cell(row, phase_column).strip()
+        cited = _cell(row, rule_column).strip()
+        if not phase or not cited or phase not in workflows:
+            # A malformed phase and an empty citation are each another rule's finding. Reporting
+            # them again here would make one wrong row look like two defects.
+            continue
+        wf = workflows[phase]
+        declared = in_force.get(wf)
+        if declared is None:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{wf.split('::')[-1]} carries no sealed rule set in the pinned composition — "
+                f"nothing there can be discharging anything",
+            ))
+            continue
+        if cited not in declared:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{cited!r} is not in force at {phase} — the composition this design is pinned to "
+                f"declares no such rule, so the refusal is carried out by nothing. A design cannot "
+                f"discharge a refusal by citing a rule its own change is adding",
+            ))
+    return out
+
+
 def _prior_section_registers(phase: str) -> dict[str, str]:
     """Section number → register id, for a prior phase's template.
 
@@ -1621,6 +2018,57 @@ def _citations(value: str, sections: dict[str, dict[str, str]]) -> list[tuple[st
         for ordinal in re.findall(rf"(?<![A-Za-z_]){re.escape(register)}\s*#\s*(\d+)", value):
             found.append((register, int(ordinal)))
     return found
+
+
+@check("STEP_OPERATION_PUBLISHED")
+def _step_operation_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A step must name an operation its capability actually offers.
+
+    `STEP_CONSUMES_PUBLISHED` skips a step whose operation it cannot resolve, with the note that the
+    operation is another rule's business. That rule did not exist, and its absence was not one gap
+    but three: an unresolvable operation makes the consumes check, the binding-source check and this
+    one all pass in silence, because each of them looks the operation up and finds nothing to
+    compare against.
+
+    What it cost: a design declared two clock reads as `READ` where the clock offers only `NOW`, and
+    bound their results to a field called `now` where the operation publishes `timestamp`. Admissible
+    over a hundred and thirty-four rules, one hundred per cent construction-complete, and refused by
+    the compiler at S4 on an invariant the design layer had every fact needed to check.
+
+    A capability absent from the surface is reported rather than skipped. A side effect is substrate
+    a business change reuses and never authors, so one the composition does not publish is a name
+    that resolves to nothing.
+    """
+    observation = rule.params["observation"]
+    published = doc.observed.get(observation) or []
+    if not published:
+        return [(
+            _where(rule),
+            "no capability surface was observed — a step's operation cannot be checked against "
+            "operations nobody published",
+        )]
+
+    offered = {
+        str(entry.get("capability")): set(entry.get("operations") or {})
+        for entry in published
+        if isinstance(entry, dict)
+    }
+
+    out = []
+    for i, row in _rows(doc, rule):
+        if _cell(row, "Kind") != "CS":
+            continue
+        capability, operation = _cell(row, "Capability"), _cell(row, "Operation")
+        if capability not in offered:
+            out.append((f"{_where(rule)} row {i}",
+                        f"{capability!r} publishes no capability surface — a side effect is reused, "
+                        f"never authored, so one the composition does not carry names nothing"))
+            continue
+        if operation and operation not in offered[capability]:
+            out.append((f"{_where(rule)} row {i}",
+                        f"{capability} offers no operation {operation!r} — it publishes "
+                        f"{', '.join(sorted(offered[capability])) or 'none'}"))
+    return out
 
 
 @check("STEP_CONSUMES_PUBLISHED")
@@ -1898,7 +2346,15 @@ def _step_interface_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]
                 (doc.observed.get(rule.params["observation"]) or [])
                 if isinstance(t, dict) and t.get("transform")}
     if not observed:
-        return []
+        # Reported, not skipped. Returning nothing here made this rule pass in silence through the
+        # compiled path for as long as it existed, because the contract that judges a document
+        # passed the capability surface and not the transform surface. A rule that cannot see its
+        # subject has not checked it, and saying so is the difference between the two.
+        return [(
+            _where(rule),
+            "no transform surface was observed — a step's interface cannot be checked against "
+            "transforms nobody published",
+        )]
 
     out: list[tuple[str, str]] = []
     for index, row in _rows(doc, rule):
@@ -1967,4 +2423,533 @@ def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str,
             out.append((f"{_where(rule)} row {index}",
                         f"binds {field!r} on {key[1]}, which its interface does not carry — it "
                         f"declares {', '.join(sorted(allowed)) or 'nothing'} in that direction"))
+    return out
+
+
+@check("IMPLEMENTATION_MODULE_CONFORMS")
+def _implementation_module_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A transform's implementation sits where its domain says implementations live.
+
+    A capability transform is the one family whose artifact points outside the composition, and the
+    module path is the whole of that pointer. `IMPLEMENTATION_WITHOUT_MODULE` asks only whether the
+    cell is filled, so a path that is filled and wrong passed every rule, compiled, verified and
+    attested — and failed at execution, where the loader looked in a namespace the domain does not
+    use and found nothing.
+
+    The expected path is derived from the artifact's own identity rather than declared, because it
+    already is: the domain's build manifest resolves implementations under
+    `<domain>.implementation.capability_transforms.atoms`, and the module is named for the artifact it
+    implements. Asking a design to restate a path the composition already determines would invite it
+    to restate it differently, which is exactly what happened.
+    """
+    template = rule.params["namespace_template"]
+    code_column = rule.params["code_column"]
+    module_column = rule.params["module_column"]
+
+    out = []
+    for i, row in _rows(doc, rule):
+        code, module = _cell(row, code_column), _cell(row, module_column)
+        # Presence is another rule's business, and so is the shape of the identity. This one has an
+        # opinion only when there is both a well-formed code and a path to compare against it.
+        if not code or not module or "::" not in code:
+            continue
+        domain, _, bare = code.partition("::")
+        expected = f"{template.format(domain=domain)}.{bare.lower()}"
+        if module != expected:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"implementation is declared at {module!r}; {domain} resolves transforms at "
+                f"{expected!r}. A module the loader does not look for is a transform that does not "
+                f"run, and nothing below this notices until it is invoked",
+            ))
+    return out
+
+
+@check("CROSS_SUBDOMAIN_REACH_READ_ONLY")
+def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An act reaching into another subdomain may read what it holds and never change it.
+
+    A subdomain owns what it holds, and ownership that does not include being the only writer is not
+    ownership. An act may consult another subdomain's records because a second copy of one truth can
+    disagree with the thing it describes; it may not change them, because then two subdomains decide
+    what is true and neither is answerable for the result.
+
+    Three published facts and no inference: which subdomain owns a contract, which operations that
+    contract's steps perform, and whether each of those operations writes. The last of those did not
+    exist until it was declared — the operation *names* read as reads and writes, and a rule resting
+    on a name is a convention anybody can break by naming an operation well. `idempotent` does not
+    answer it either: a last-write-wins write is idempotent.
+    """
+    artifacts = doc.observed.get(rule.params["artifact_observation"]) or []
+    contracts = doc.observed.get(rule.params["contract_observation"]) or []
+    capabilities = doc.observed.get(rule.params["capability_observation"]) or []
+    if not artifacts or not contracts or not capabilities:
+        return [(
+            _where(rule),
+            "the composition was not observed — a reach across a subdomain boundary cannot be "
+            "checked against subdomains nobody published",
+        )]
+
+    # Where each artifact lives. The composition answers for what it already holds; the design
+    # answers for what it is authoring, which the composition has never seen.
+    subdomain = {_bare_identity(str(a.get("artifact"))): a.get("owner_subdomain")
+                 for a in artifacts if isinstance(a, dict)}
+    for _, row in _content_rows(doc.register(rule.params["new_register"])):
+        code, owner = _bare_identity(_cell(row, "Code")), _cell(row, "Owner Subdomain")
+        if code and owner:
+            subdomain[code] = owner
+
+    effect = {(str(c.get("capability")), op): spec.get("effect")
+              for c in capabilities if isinstance(c, dict)
+              for op, spec in (c.get("operations") or {}).items()}
+
+    writes: dict[str, list[tuple[str, str]]] = {}
+    for contract in contracts:
+        if not isinstance(contract, dict):
+            continue
+        performed = [
+            (str(step.get("op")), str(step.get("store")))
+            for step in (contract.get("steps") or [])
+            if isinstance(step, dict) and step.get("side_effect")
+            and effect.get((str(step.get("side_effect")), str(step.get("op")))) == "write"
+        ]
+        if performed:
+            writes[_bare_identity(str(contract.get("contract")))] = performed
+
+    out = []
+    for i, row in _content_rows(doc.register(rule.params["topology_register"])):
+        if _cell(row, "Node Type").upper() != "CC":
+            continue
+        workflow, node = _bare_identity(_cell(row, "Workflow")), _bare_identity(_cell(row, "Node"))
+        here, there = subdomain.get(workflow), subdomain.get(node)
+        # An unplaced artifact is another rule's finding. Reporting it here too would say the same
+        # thing twice and say it less clearly.
+        if not here or not there or here == there:
+            continue
+        for op, store in writes.get(node, []):
+            out.append((
+                f"{rule.params['topology_register']} row {i}",
+                f"{workflow} is in {here} and reaches {node} in {there}, which performs {op} on "
+                f"{store}. A subdomain may read what another holds and never change it — the owner "
+                f"of a record is the only writer of it",
+            ))
+    return out
+
+
+def _routing_outcomes(routing: str) -> set[str]:
+    """The outcomes a routing cell branches on — the left of each `OUTCOME -> target`."""
+    return {part.split("->", 1)[0].strip().upper()
+            for part in routing.split(";") if "->" in part}
+
+
+@check("OUTCOME_GROUNDED_IN_OPERATION")
+def _outcome_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A step may only branch on an outcome its operation answers, or name what produced the rest.
+
+    This is the data-to-decision closure, and until now it was asked as "is the cell filled?" —
+    which an em-dash satisfies. Every `Interpreted By` and `Semantic Status` cell in every design
+    in the corpus is an em-dash, so the discipline the template states had never once bound a
+    design, while two rules reported it satisfied 62 times.
+
+    The em-dash is a declaration, and what it declares is that the step's output is data: the
+    branches are the operation's own statuses, and nothing had to interpret anything to reach them.
+    That is true of all 62 — a registry claim exits on `ALREADY_EXISTS` because the registry says
+    so, and a read exits on `NOT_FOUND` for the same reason. Requiring an interpretation there
+    would demand a transform to restate what the store already answered.
+
+    So the question is not whether the step reads. It is whether the design routes on an outcome
+    the operation cannot produce. `exists` bound to `authorized` was exactly that: a branch named
+    for a decision, on a step whose operation answers only SUCCESS and VIOLATION, with nothing in
+    between to turn one into the other. `result_status_values` is published per operation, so the
+    check needs no fact the composition does not already carry.
+
+    An operation that does not resolve at all is `STEP_NAMES_UNPUBLISHED_OPERATION`'s finding, and
+    reporting it here as well would say one thing twice.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(
+            _where(rule),
+            "no capability surface was observed — whether a step branches on an outcome its "
+            "operation answers cannot be checked against operations nobody published",
+        )]
+
+    answers = {(_bare_identity(str(c.get("capability"))), op.upper()):
+               {str(s).upper() for s in (spec.get("result_status_values") or [])}
+               for c in observed if isinstance(c, dict)
+               for op, spec in (c.get("operations") or {}).items()}
+
+    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
+    column = rule.params["column"]
+
+    out = []
+    for i, row in _rows(doc, rule):
+        if _cell(row, rule.params["kind_column"]).upper() != rule.params["kind_value"]:
+            continue
+        operation = _cell(row, "Operation").upper()
+        declared = answers.get((_bare_identity(_cell(row, "Capability")), operation))
+        if declared is None:
+            continue
+        named = _routing_outcomes(_cell(row, rule.params["routing_column"]))
+        status = _cell(row, rule.params["status_column"])
+        if status not in none_markers:
+            named.add(status.upper())
+        undeclared = sorted(named - declared)
+        if not undeclared or _cell(row, column) not in none_markers:
+            continue
+        out.append((
+            f"{_where(rule)} row {i}",
+            rule.params["detail"].format(
+                outcomes=", ".join(undeclared),
+                operation=operation,
+                answers=", ".join(sorted(declared)) or "nothing",
+            ),
+        ))
+    return out
+
+
+@check("INTERPRETATION_TRANSFORM_REFUSES")
+def _interpretation_transform_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A transform that interprets an observation must be able to refuse it.
+
+    A read reports that the store answered, never what it found, so a step reading state names the
+    transform that turns the observation into a decision and the status that decision yields. Both
+    have been required since CR-1. Neither asks the one question that decides whether the
+    interpretation happens: a `CT` step yields SUCCESS when its transform returns and VIOLATION when
+    it raises, so a transform that returns its judgement as a value leaves the step SUCCEEDing
+    whatever it found, and the semantic status the row promises is never reached.
+
+    `refuse_self_verification` was exactly this. It named `CT_PURE_COMPARE_EQUAL_V0`, which returns
+    `is_equal` and raises only on missing inputs, and routed on whether the transform *ran* rather
+    than on what it found — so a person could accept themselves, through a step named for refusing
+    it. It passed every rule here, at full Construction Completeness, and the criterion covering it
+    passed too because a prior defect had left the subject already decided.
+
+    The fact this rests on could not be inferred: both transforms raise, and only a declaration
+    distinguishes the one that raises on its judgement from the one that raises on a missing input.
+    Read from the composition for a transform that already exists, and from this design's own
+    implementation bindings for one it is authoring — the composition has never seen that one, and a
+    rule that skipped it would be silent on exactly the transforms a change introduces.
+    """
+    column = rule.params["column"]
+    observed = doc.observed.get(rule.params["observation"])
+    if not observed:
+        return [(
+            _where(rule),
+            "no transform surface was observed — whether an interpreting transform can refuse "
+            "cannot be checked against transforms nobody published",
+        )]
+
+    refusal = {_bare_identity(str(t.get("transform"))): t.get("refusal")
+               for t in observed if isinstance(t, dict) and t.get("transform")}
+    for _, row in _content_rows(doc.register(rule.params["design_register"])):
+        code = _bare_identity(_cell(row, rule.params["design_code_column"]))
+        if code:
+            refusal[code] = _cell(row, rule.params["design_refusal_column"]).lower()
+
+    out = []
+    for i, row in _rows(doc, rule):
+        named = _cell(row, column)
+        if not named or named in ("—", "-"):
+            continue
+        declared = refusal.get(_bare_identity(named))
+        where = f"{_where(rule)} row {i}"
+        if declared is None:
+            out.append((
+                where,
+                f"interprets with {_bare_identity(named)}, which neither the composition nor this "
+                f"design declares a refusal for — an interpretation that cannot be shown to refuse "
+                f"has not been checked",
+            ))
+        elif declared != "raises":
+            answers = ("yields its judgement as a value" if declared == "returns"
+                       else "makes no judgement at all")
+            status = _cell(row, rule.params["status_column"]) or "semantic status"
+            out.append((
+                where,
+                f"interprets with {_bare_identity(named)}, which {answers} — the step succeeds "
+                f"whatever it found, so the {status} this row declares is a branch nothing can "
+                f"reach",
+            ))
+    return out
+
+
+@check("STORE_GROUNDED_IN_CAPABILITY")
+def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A step names a store when its capability keeps one, and does not when it does not.
+
+    `Store` is the third em-dash column in the step register and the only one no check read at all:
+    88 of 155 steps in the corpus declare `—` there, and the column reached the register-columns
+    check and stopped. So both halves were unstated — a storage step that named nothing, and a
+    clock step that named a store — and neither could be told from a step that was right.
+
+    The dash is the same kind of declaration `Interpreted By`'s is: it says this step addresses no
+    store. What decides whether that is true is the capability's `category`, published per
+    capability and authored on the artifact rather than inferred from the name. `storage` keeps
+    records; `external` and `inspection` do not, and a capability transform keeps none by being one.
+
+    An unknown capability is `COMPOSITION_STEP_UNDECLARED`'s finding and an unknown operation is
+    `STEP_NAMES_UNPUBLISHED_OPERATION`'s; neither is restated here.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(
+            _where(rule),
+            "no capability surface was observed — whether a step addresses a store cannot be "
+            "checked against capabilities nobody published",
+        )]
+
+    storage, known = set(), set()
+    for entry in observed:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("capability") is not None:
+            identity = _bare_identity(str(entry["capability"]))
+            known.add(identity)
+            if str(entry.get("category") or "").lower() == rule.params["storage_category"]:
+                storage.add(identity)
+        elif entry.get("transform") is not None:
+            known.add(_bare_identity(str(entry["transform"])))
+
+    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
+    out = []
+    for i, row in _rows(doc, rule):
+        capability = _bare_identity(_cell(row, rule.params["capability_column"]))
+        if capability not in known:
+            continue
+        keeps_records = capability in storage
+        if (_cell(row, rule.params["column"]) not in none_markers) == keeps_records:
+            continue
+        detail = rule.params["detail_missing"] if keeps_records else rule.params["detail_spurious"]
+        out.append((f"{_where(rule)} row {i}", detail.format(capability=capability)))
+    return out
+
+
+@check("CONSUMPTION_GROUNDED_IN_OPERATION")
+def _consumption_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A step consuming nothing must invoke an operation that takes nothing.
+
+    `STEP_CONSUMES_UNDECLARED_INPUT` holds every named field to the published surface and skips the
+    em-dash, which is the half that says a step hands the operation nothing at all. Nine steps in
+    the corpus declare it, and until now the claim was unexamined: a `READ` consuming `—` addresses
+    no key, and the operation receives null for the one input it has.
+
+    Grounded in the operation's published `input`, so the dash is admissible exactly when there is
+    nothing to hand over — `NOW` and `SELECT` take none, and both are in the corpus.
+
+    CS steps only, for the reason the binding check gives: on a transform step the column carries
+    domain-side names against the transform's own formals, so comparing them reports a defect where
+    a mapping exists.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(
+            _where(rule),
+            "no capability surface was observed — whether a step hands an operation nothing cannot "
+            "be checked against operations nobody published",
+        )]
+
+    inputs = {(_bare_identity(str(c.get("capability"))), op.upper()): list(spec.get("input") or [])
+              for c in observed if isinstance(c, dict)
+              for op, spec in (c.get("operations") or {}).items()}
+
+    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
+    out = []
+    for i, row in _rows(doc, rule):
+        if _cell(row, rule.params["kind_column"]).upper() != rule.params["kind_value"]:
+            continue
+        operation = _cell(row, "Operation").upper()
+        declared = inputs.get((_bare_identity(_cell(row, rule.params["capability_column"])), operation))
+        if not declared:
+            continue
+        if _cell(row, rule.params["column"]) not in none_markers:
+            continue
+        out.append((
+            f"{_where(rule)} row {i}",
+            rule.params["detail"].format(
+                operation=operation,
+                accepts=", ".join(sorted(declared)),
+            ),
+        ))
+    return out
+
+
+def _binding_stores(observed: list) -> dict[str, set[str]]:
+    """`binding -> the store keys it covers`, inverted from the surface that answers every store.
+
+    The surface is keyed by store because that is what it lists; the question a reach asks is keyed
+    by binding. Inverting here rather than publishing it inverted keeps the projection a projection.
+    """
+    out: dict[str, set[str]] = {}
+    for entry in observed:
+        if not isinstance(entry, dict):
+            continue
+        key = str(entry.get("key") or "")
+        for binding in entry.get("bindings") or []:
+            out.setdefault(_bare_identity(str(binding)), set()).add(key)
+    return out
+
+
+def _store_keys(observed: list) -> dict[str, str]:
+    """`bare store name -> its one key`, and nothing for a name two domains both declare.
+
+    A design names a store by its bare name. Where that name is ambiguous the design has not said
+    which store it means, and guessing would attribute a read to the wrong domain — so the name
+    resolves to nothing and the rules that need it stay silent about it.
+    """
+    seen: dict[str, list[str]] = {}
+    for entry in observed:
+        if isinstance(entry, dict) and entry.get("store"):
+            seen.setdefault(str(entry["store"]), []).append(str(entry.get("key") or ""))
+    return {name: keys[0] for name, keys in seen.items() if len(keys) == 1}
+
+
+def _act_stores(doc: ParsedDocument, rule, keys: dict[str, str]) -> dict[str, set[str]]:
+    """`act -> the store keys the steps it runs address`.
+
+    Read from the composition for a contract that already exists and from the design's own
+    composition for one it authors, because an act's reads are what the change is judged on and half
+    of them may not be built yet.
+    """
+    contracts: dict[str, set[str]] = {}
+    for entry in doc.observed.get(rule.params["contract_observation"]) or []:
+        if not isinstance(entry, dict):
+            continue
+        stores = {keys[s] for step in entry.get("steps") or []
+                  if (s := str(step.get("store") or "")) in keys}
+        contracts[_bare_identity(str(entry.get("contract")))] = stores
+
+    for (owner, _), row in _composition_steps(doc, rule.params["composition_register"]).items():
+        store = _cell(row, "Store")
+        if store in keys:
+            contracts.setdefault(owner, set()).add(keys[store])
+
+    out: dict[str, set[str]] = {}
+    block = doc.register(rule.params["topology_register"])
+    for _, row in _content_rows(block) if block is not None else []:
+        act = _bare_identity(_cell(row, "Workflow"))
+        node = _bare_identity(_cell(row, "Node"))
+        if node in contracts:
+            out.setdefault(act, set()).update(contracts[node])
+    return out
+
+
+def _declared_reach(doc: ParsedDocument, rule) -> dict[str, set[str]]:
+    """`act -> the bindings its design says it consults`."""
+    out: dict[str, set[str]] = {}
+    block = doc.register(rule.params["register"])
+    for _, row in _content_rows(block) if block is not None else []:
+        act = _bare_identity(_cell(row, "Act"))
+        for binding in _named(_cell(row, "Consults")):
+            out.setdefault(act, set()).add(_bare_identity(binding))
+    return out
+
+
+def _own_binding(doc: ParsedDocument, rule) -> dict[str, str]:
+    """`act -> the binding it owns`, from the declarations that bind one to each workflow."""
+    out: dict[str, str] = {}
+    block = doc.register(rule.params["rb_register"])
+    for _, row in _content_rows(block) if block is not None else []:
+        out[_bare_identity(_cell(row, "Binds WF"))] = _bare_identity(_cell(row, "RB Code"))
+    return out
+
+
+@check("REACH_IS_USED")
+def _reach_is_used(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A declared reach must be read by something the act does.
+
+    Half of one statement, and the half that alone permits a reserve: an act may declare a reach to
+    records it never touches, and nothing would say so. The other half — refusing an undeclared read
+    — permits the opposite, a read nobody declared. Together the declared set and the used set are
+    the same set, which is the whole of what the business asked for.
+
+    A binding the composition does not publish is not judged here. The reach that matters consults
+    another subdomain's existing binding, which is always published; one this design authors has no
+    stores in the composition yet, and refusing it would refuse the design for being new.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(_where(rule),
+                 "no store surface was observed — whether a declared reach is read cannot be "
+                 "checked against stores nobody published")]
+
+    covers = _binding_stores(observed)
+    reads = _act_stores(doc, rule, _store_keys(observed))
+
+    out = []
+    for act, bindings in sorted(_declared_reach(doc, rule).items()):
+        for binding in sorted(bindings):
+            stores = covers.get(binding)
+            if stores is None:
+                continue
+            if stores & reads.get(act, set()):
+                continue
+            out.append((
+                f"{_where(rule)} {act}",
+                rule.params["detail"].format(
+                    binding=binding,
+                    stores=", ".join(sorted(s.split("::")[-1] for s in stores)) or "no records",
+                ),
+            ))
+    return out
+
+
+@check("READ_IS_DECLARED")
+def _read_is_declared(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """An act reads nothing it did not declare a reach to.
+
+    The other half. A step addressing records that neither the act's own binding nor any reach it
+    declared covers is reaching, and the design does not say so — which is exactly the state the
+    blocked change was in, and it was invisible until the act ran.
+
+    An act whose own binding does not resolve is left alone: what it owns is undecided, so what it
+    reaches cannot be told apart from it.
+    """
+    observed = doc.observed.get(rule.params["observation"]) or []
+    if not observed:
+        return [(_where(rule),
+                 "no store surface was observed — whether an act reads what it declared cannot be "
+                 "checked against stores nobody published")]
+
+    covers = _binding_stores(observed)
+    reads = _act_stores(doc, rule, _store_keys(observed))
+    reach = _declared_reach(doc, rule)
+
+    out = []
+    for act, owned in sorted(_own_binding(doc, rule).items()):
+        if owned not in covers:
+            continue
+        permitted = set(covers[owned])
+        for binding in reach.get(act, set()):
+            permitted |= covers.get(binding, set())
+        for store in sorted(reads.get(act, set()) - permitted):
+            out.append((
+                f"{_where(rule)} {act}",
+                rule.params["detail"].format(store=store, binding=owned),
+            ))
+    return out
+
+
+@check("COLUMN_VALUES_UNIQUE")
+def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A column whose value identifies the row, so two rows may not carry the same one.
+
+    Every other register check asks whether a row says the right thing. This asks whether the
+    register says one thing about a subject at all: where a second row restates a subject the first
+    already settled, the two may disagree, and nothing downstream can tell which was meant. Reading
+    the first, the last, or refusing are three different behaviours and none of them is declared.
+
+    Compared on the bare identity, because a subject written once as `domain::CODE_V0` and once as
+    `CODE_V0` is one subject stated twice, and a comparison on the full string would call it two.
+    """
+    seen: dict[str, int] = {}
+    out: list[tuple[str, str]] = []
+    column = rule.params["column"]
+    for index, row in _rows(doc, rule):
+        value = _bare_identity(_cell(row, column))
+        if not value:
+            continue
+        first = seen.setdefault(value, index)
+        if first != index:
+            out.append((f"{_where(rule)} row {index}", rule.params["detail"].format(value=value, first=first)))
     return out

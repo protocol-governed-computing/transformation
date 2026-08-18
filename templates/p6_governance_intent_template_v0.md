@@ -67,6 +67,26 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 
 ---
 
+### Citing a prior row
+
+Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
+names one of:
+
+- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
+- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
+- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
+- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+
+Separate several citations with `;`. One resolvable citation grounds the row.
+
+**A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
+a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
+sentence while citing the row it came from is how a claim drifts from what was decided, so the rules
+treat a tidier synonym as a new claim and refuse it. Cite it as it stands, or change it in the phase
+that owns it.
+
+---
+
 ## 1. Subdomain Boundary — Ownership
 
 *Every capability this CR needs, and who OWNS it. Disposition ∈ OWNED (this subdomain authors it) | SATISFIED (an existing artifact covers it — cite the FQDN in Evidence) | DEFERRED (future CR). `capability` is business language; `owner_subdomain` is a subdomain namespace, never an artifact code.*
@@ -94,6 +114,20 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 <!-- register:cross_subdomain_deps optional business_language=dependency -->
 | Dependency | Direction | Existing Artifact | Status (SATISFIED, GAP) | Source Finding |
 |------------|-----------|-------------------|-------------------------|----------------|
+
+---
+
+### A platform change acts only on the platform
+
+A platform dossier may **cite** a domain artifact — as a belief verified at P2, as impact at P3, as
+what was observed in the composition it was validated against. It may not **act** on one. A domain
+artifact in §3 or §4 is a platform change scheduling work inside a domain it does not own, and a
+dependency declared *from* a platform subdomain *to* a business one points the arrow backwards: a
+capability does not depend on the domains that reach it.
+
+The distinction is what makes a platform dossier age. A composition selects its domains; a citation
+becomes history when one is not selected, and a scheduled action becomes a claim on something that
+is not there.
 
 ---
 
@@ -125,6 +159,23 @@ artifact amended to admit a case it did not is extended at both rungs or at neit
 <!-- register:governance_outcome optional business_language=capability -->
 | Capability | Owner Subdomain | Source Finding |
 |------------|-----------------|----------------|
+
+---
+
+## Gate 1 — Design Approval, where a change ends here
+
+**A governance-surface change closes Gate 1 at this stage.** The governance surface is authored, not
+constructed, so such a dossier is terminal at P6 — and the gate that reviews a dossier as a body
+belongs at the end of the dossier, wherever that end is. The full dossier (Stages 0–6) is presented
+for review as a body, and approval authorizes the authoring of the clauses and rules it argues for.
+
+**Gate 2 has no subject here and does not apply.** It exists to lock a mandate before artifact
+authoring begins; a change that schedules no artifacts has no mandate to lock. What Gate 2 protects
+for a domain change — that scope is frozen before anyone writes an artifact — is carried by Gate 1
+being the last word rather than the second-to-last.
+
+**For a change that continues to P7, this section is not used.** Gate 1 closes there, as it always
+has, over a dossier that includes a design.
 
 ---
 

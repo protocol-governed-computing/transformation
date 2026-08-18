@@ -24,9 +24,9 @@ operations that maintain that description, and it governs none of the nine remai
 ## 1. CR Type
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
-|----------------|-----------|
-| NEW_SUBDOMAIN | book_library_mgmt is proposed as a new project, and the library requires a governed catalog management capability it maintains manually today. It extends nothing that exists. |
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
+|-----------|----------------|-----------|
+| catalog | NEW_SUBDOMAIN | book_library_mgmt is proposed as a new project, and the library requires a governed catalog management capability it maintains manually today. It extends nothing that exists. |
 
 ## 2. Business Vocabulary
 

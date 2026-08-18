@@ -56,9 +56,20 @@ artifact correctly and leaves that path unstated is admissible and still cannot 
 - **No implicit truthiness.** `exists`, `matched`, `authorized` and every other boolean a capability
   returns is an **observation**, never a decision. A step that reads external state cannot drive
   business routing directly.
-- **Every read declares its interpretation.** A `CS` step whose operation reads state MUST name the
-  transform that interprets its output (`Interpreted By`) and the status that interpretation yields
-  (`Semantic Status`). A read with neither is an observation pretending to be a decision.
+- **A step branches on what its operation answers, or says what produced the rest.** Every
+  operation publishes its `result_status_values`. A `CS` step routing on one of those — a registry
+  claim exiting on `ALREADY_EXISTS`, a read exiting on `NOT_FOUND` — is routing on the store's own
+  answer, and interprets nothing. A step routing on anything else MUST name the transform that
+  produces that outcome (`Interpreted By`) and the outcome itself (`Semantic Status`).
+- **`—` in either column is a declaration, not a blank.** It says the step's output is data and the
+  branches are the operation's own. It is the right answer for most steps and refused wherever the
+  routing names an outcome the operation cannot produce.
+- **`Store` and `Consumes` take the same dash and it says something different in each.** In `Store`
+  it declares that the step addresses no store, which is true exactly when its capability keeps no
+  records — a clock and every transform. In `Consumes` it declares that the step hands the operation
+  nothing, which is true exactly when the operation takes no input. Both are checked against what the
+  composition publishes, so a storage step addressing nothing and a read consuming nothing are each
+  refused where they read as a design that works.
 - **Routing closure.** Every workflow branch is backed by the whole chain:
 
 ```
@@ -69,7 +80,8 @@ CS result  →  CT interpretation  →  semantic outcome  →  WF transition
 
 An interpretation transform expresses its decision the only way the execution contract allows: a
 `CT` step yields `SUCCESS` when it returns and `VIOLATION` when it raises. A transform that returns
-a boolean for both answers has interpreted nothing, however it is named.
+a boolean for both answers has interpreted nothing, however it is named — which is why a transform
+named here must declare `refusal: raises` in §9.
 
 ### Capability Composition discipline (the oracle enforces these)
 
@@ -118,6 +130,26 @@ binding codes belong. Existing artifacts are cited by their real FQDN in `fqdn` 
 - Before declaring a new CT or EV: check the existing inventory (the transform vocabulary and event set usually already contain the atom) — if reused, it belongs in `existing_inventory`, not `new_artifacts`.
 - **Compose every new CC.** Each `family = CC` row in `new_artifacts` gets a `cc_composition` (§6): the ordered CT/CS steps it is built from + their data flow. Leaving a CC's composition unstated leaves construction a design decision — exactly the black box this stage exists to close.
 - **Module path assignment (reference):** IN→`[repo].registry.[subdomain].intents`, WF→`.workflows`, CC→`.capability_contracts`, CT→`.capability_transforms`, RB→`.runtime_bindings`, STRUCTURE→`.structures`. A missing assignment is a build failure.
+
+---
+
+### Citing a prior row
+
+Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
+names one of:
+
+- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
+- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
+- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
+- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+
+Separate several citations with `;`. One resolvable citation grounds the row.
+
+**A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
+a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
+sentence while citing the row it came from is how a claim drifts from what was decided, so the rules
+treat a tidier synonym as a new claim and refuse it. Cite it as it stands, or change it in the phase
+that owns it.
 
 ---
 
@@ -261,9 +293,16 @@ declared once, at design time, never discovered later.*
 *`operation` is the CT's declared operation name; `purity` ∈ ct_pure | ct_impure; `kind` ∈ atom |
 molecule.*
 
+*`refusal` says how the transform expresses a judgement about its subject: `raises` refuses, which
+the execution contract reads as VIOLATION; `returns` yields the judgement as an output, so the step
+succeeds whatever it found; `never` judges nothing. It is about the subject, never the inputs —
+every transform raises on a missing input, so that would make the fact uniform and therefore empty.
+A transform named as an interpretation must declare `raises`, because a judgement the step cannot
+fail on is a branch nothing reaches.*
+
 <!-- register:implementation_bindings optional -->
-| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Source Finding |
-|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------|
+| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Refusal (raises, returns, never) | Source Finding |
+|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------------------------|----------------|
 
 ---
 
@@ -272,6 +311,10 @@ molecule.*
 *Business status names this change adds, and the vocabulary they extend. A workflow that routes on
 `DENIED` needs `DENIED` to exist; the routing surface and the vocabulary that admits it are declared
 together or the composition compiles with a status nothing recognizes.*
+
+*`Extends` is required and the none marker is an answer. A vocabulary that builds on nothing is a
+base vocabulary, which is a decision; left blank it is indistinguishable from a design that never
+settled the question, and both render the same empty field.*
 
 <!-- register:vocabulary_extensions optional -->
 | Vocabulary Code | Extends | Value | Meaning | Source Finding |
@@ -337,6 +380,130 @@ per mapped field, so a mapping is checkable rather than a blob.*
 
 ---
 
+## 16. Generation Provenance
+
+*How an artifact is **reached**. Every other register says what an artifact must become; this one
+says what determines it, and it is the only register that can describe an artifact nobody types.*
+
+*An artifact listed here is produced by invoking its generator, and construction never writes it —
+two producers of one truth drift, and the drift is silent until something reads the stale one. The
+generator is authoritative: where the artifact and the generator disagree, the artifact is stale, and
+the build refuses rather than reporting on a copy.*
+
+*`Generator` is what construction invokes, as `module:callable`, and it must be importable from the
+composition rather than reached as a script. `Generator Sources` names everything the emission reads
+— a template and the declaration read with it are **one** generator, and naming either alone permits
+regenerating from a stale pairing.*
+
+*The artifact is still scheduled as an artifact. A design does not schedule a generator: the artifact
+is what enters the composition and what conformance judges, and a mandate scheduling a generator
+schedules something that never appears in a snapshot.*
+
+<!-- register:generation_provenance optional -->
+| Artifact | Generator | Generator Sources | Source Finding |
+|----------|-----------|-------------------|----------------|
+
+---
+
+## 17. Declared Reach
+
+*The bindings an act **consults** — the records another subdomain of its own domain owns, which this
+act reads and never writes. Ownership is §4 and is exactly one; reach is here and may be several,
+and the two are separate registers rather than one with a column telling them apart, because a
+column would put them a typo apart with nothing between them but the rule that reads it.*
+
+*`Act` is the workflow's binding FQDN; `Consults` names the binding, comma-separated for several,
+and **never the records behind it**. Which records a binding covers is the owning subdomain's own
+declaration, and restating it here is a second copy kept by someone other than whoever answers for
+it. The rules read the composition for that half.*
+
+*Every declared reach is used by a read the act performs, and every read the act's own binding does
+not cover is declared here. Neither half is a rule alone: the first permits a reserve, the second
+permits a silent reach.*
+
+*An act that reads only what it owns declares none, which is most acts.*
+
+<!-- register:declared_reach optional -->
+| Act | Consults | Source Finding |
+|-----|----------|----------------|
+
+---
+
+## 18. Refusal Discharge
+
+*What carries out an operation the business said it refuses. The seed states the refusal and the
+condition; this register states the act, the step and the outcome that stop it — and it is the only
+place a design says so, because a refusal nothing discharges is a refusal in prose.*
+
+*`Operation` and `Refused When` are the seed's own wording, taken from its `operation_refusals`
+register: the pair identifies which declared refusal this row answers, and a row naming a pair the
+seed does not state is answering for a refusal nobody approved.*
+
+*`Act` is the workflow's binding FQDN and `Step` is a step of that workflow, both resolved against
+§5. `Outcome` is one the step reports, and it must route to a node typed `EXIT` — an ending that
+refuses. An outcome routing anywhere else does not stop the operation, however plainly this register
+says it does.*
+
+*A refusal this change does not carry out belongs in §19, not here and not nowhere.*
+
+<!-- register:refusal_discharge optional -->
+| Operation | Refused When | Act | Step | Outcome | Source Finding |
+|-----------|--------------|-----|------|---------|----------------|
+
+---
+
+## 19. Refusal Deferrals
+
+*A refusal the business declared and this design does not discharge, with the owner who will. The
+two registers are read together for coverage and apart for everything else: a discharge names a
+place in the topology, a deferral names a person and a condition, and one table holding both would
+leave half its cells empty on every row — where a blank meaning "not applicable" is indistinguishable
+from one meaning "unanswered".*
+
+*`Deferred To` is who owns it and must not be blank; a deferral with no owner is a refusal dropped
+in language that sounds like a plan. `Until` is the condition that ends the deferral.*
+
+<!-- register:refusal_deferrals optional -->
+| Operation | Refused When | Deferred To | Until | Source Finding |
+|-----------|--------------|-------------|-------|----------------|
+
+---
+
+## 20. Refusal — Governance-Surface Discharge
+
+*A refusal carried out by the design language itself, rather than by a step of this domain's own
+acts. The business refuses an operation; no act performs it and none omits it; what refuses it is a
+rule of the pipeline, which makes the declaration inadmissible before anything runs.*
+
+*Three places a declared refusal can be carried out, and a design states each in its own register:
+§18 when an act is attempted and refuses, §19 when someone else will carry it out later, and here
+when the governance surface refuses the declaration outright. A fourth case — the domain simply
+never offering the operation — is stated nowhere yet.*
+
+*`Phase` is the phase whose rule set holds the rule, written `p0` through `p8` — the phase spelling,
+never a stage number. It is required and not inferred: rule identifiers are **not** unique across
+phases — every derived one, `REGISTER_MISSING`
+among them, is declared by all nine — so a rule named without its phase names nine different rules.*
+
+*`Governing Rule` is the rule's identifier, never a check kind. A check kind is a mechanism and can
+be bound to any register with any parameters; it says how a check runs and cannot say what is
+governed. The rule is the binding, and the binding is what refuses.*
+
+*The rule must be **active in that phase's sealed rule set** — in the composition this design is
+pinned to, not in somebody's working tree. Two consequences worth meeting here rather than
+discovering later. **A design cannot discharge a refusal by citing a rule its own change is adding**:
+the rule does not exist in the pinned composition, and the citation resolves to nothing. And
+**resolution is not coverage** — that the cited rule exists and is enforced is checkable; that it
+actually refuses the condition stated in `Refused When` is not, and it is what Gate 1 is reading for.*
+
+<!-- register:refusal_governance_discharge optional -->
+| Operation | Refused When | Phase | Governing Rule | Source Finding |
+|-----------|--------------|-------|----------------|----------------|
+
+---
+
+---
+
 ## Gate 1 — Design Approval
 
 **Gate 1 closes here.** The full dossier (Stages 0–7) is presented for review as a body. Any
@@ -377,4 +544,4 @@ keys match the register ids above exactly.*
 | **Consumes** ← Stage 5 | scope_boundary · invariants · actions · provisional_codes |
 | **Consumes** ← Stage 6 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |
 | **Emits** → Stage 7 | new_artifacts · existing_inventory · rb_declarations · execution_topology · artifact_summary |
-| **Emits** → Stage 8 (Build Sheet) | cc_composition |
+| **Emits** → Stage 8 (Build Sheet) | cc_composition · generation_provenance |

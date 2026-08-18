@@ -11,6 +11,22 @@
 
 ---
 
+## Generated Artifact
+
+This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
+the copy is never corrected directly: where this artifact and its generator disagree, this
+artifact is stale, and an edit here lasts until whoever next runs the emission.
+
+- **Generator:** `transformation.design.emit:emit_rule_sets`
+- **Generator sources** — one generator together, never separately:
+  - `templates/p5_business_intent_template_v0.md`
+  - `transformation/design/p5_business_intent/rules.py`
+
+To change what this phase judges, amend a source and invoke the generator.
+`tc phase emit --check` refuses a build in which the two disagree.
+
+---
+
 ## 1. Intent
 
 Phase 5 of the change pipeline: decide whether an offered Business Intent register is admissible.
@@ -124,6 +140,148 @@ core:
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
+          register: subdomain_purposes
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: subdomain_purposes
+          params:
+            columns:
+            - Subdomain
+            - Purpose
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: REGISTER_EMPTY
+          check: TABLE_HAS_ROWS
+          register: subdomain_purposes
+          intent: an empty required register asserts nothing
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: subdomain_purposes
+          params:
+            columns:
+            - purpose
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: subdomain_purposes
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: subdomain_purposes
+          params:
+            column: Source Finding
+            known_registers: &id001
+            - acceptance_criteria
+            - actions
+            - actors
+            - analysis_findings
+            - architectural_observations
+            - artifact_properties
+            - artifact_summary
+            - assumptions
+            - authoring_decisions
+            - authoring_scope
+            - authority_boundaries
+            - authority_deferrals
+            - belief_verification
+            - bm_entities
+            - boundary_rules
+            - build_order
+            - business_events
+            - business_invariants
+            - business_objects
+            - business_processes
+            - business_vocabulary
+            - capability_graph
+            - cc_composition
+            - clarification_requests
+            - constraint_register
+            - constraints
+            - cr_type
+            - critical_path
+            - cross_subdomain_deps
+            - cross_subdomain_notes
+            - cross_subdomain_refs
+            - declared_reach
+            - dependency_discoveries
+            - dependency_graph
+            - design_decisions
+            - design_resolution
+            - discovery_concerns
+            - entities
+            - entity_attributes
+            - events
+            - execution_topology
+            - existing_inventory
+            - field_declarations
+            - gap_register
+            - gaps
+            - generation_provenance
+            - governance_outcome
+            - governance_scope
+            - identity_and_sameness
+            - identity_semantics
+            - impact_analysis
+            - implementation_bindings
+            - interface_fields
+            - invariants
+            - known_facts
+            - lifecycle_states
+            - lifecycle_transitions
+            - mandate_artifact_summary
+            - new_artifacts
+            - new_capabilities
+            - new_intents
+            - open_questions
+            - operation_refusals
+            - out_of_scope
+            - ownership
+            - placement_decision
+            - pps_artifacts_requiring_action
+            - pps_baseline_fqdns
+            - process_steps
+            - provisional_codes
+            - purpose_provenance
+            - rb_declarations
+            - refusal_deferrals
+            - refusal_discharge
+            - refusal_governance_discharge
+            - relationships
+            - requested_outcomes
+            - resources
+            - runtime_policies
+            - saturation
+            - scope_boundary
+            - step_bindings
+            - storage_governance
+            - structure_stores
+            - subdomain_purpose
+            - subdomain_purposes
+            - system_beliefs
+            - transport_bindings
+            - verification_results
+            - vocabulary_extensions
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: subdomain_purposes
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
           register: scope_boundary
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
@@ -172,91 +330,7 @@ core:
           register: scope_boundary
           params:
             column: Source Finding
-            known_registers: &id001
-            - acceptance_criteria
-            - actions
-            - actors
-            - analysis_findings
-            - architectural_observations
-            - artifact_properties
-            - artifact_summary
-            - assumptions
-            - authoring_decisions
-            - authoring_scope
-            - authority_boundaries
-            - authority_deferrals
-            - belief_verification
-            - bm_entities
-            - boundary_rules
-            - build_order
-            - business_events
-            - business_invariants
-            - business_objects
-            - business_processes
-            - business_vocabulary
-            - capability_graph
-            - cc_composition
-            - clarification_requests
-            - constraint_register
-            - constraints
-            - cr_type
-            - critical_path
-            - cross_subdomain_deps
-            - cross_subdomain_notes
-            - cross_subdomain_refs
-            - dependency_discoveries
-            - dependency_graph
-            - design_decisions
-            - design_resolution
-            - discovery_concerns
-            - entities
-            - entity_attributes
-            - events
-            - execution_topology
-            - existing_inventory
-            - field_declarations
-            - gap_register
-            - gaps
-            - governance_outcome
-            - governance_scope
-            - identity_and_sameness
-            - identity_semantics
-            - impact_analysis
-            - implementation_bindings
-            - interface_fields
-            - invariants
-            - known_facts
-            - lifecycle_states
-            - lifecycle_transitions
-            - mandate_artifact_summary
-            - new_artifacts
-            - new_capabilities
-            - new_intents
-            - open_questions
-            - operation_refusals
-            - out_of_scope
-            - ownership
-            - placement_decision
-            - pps_artifacts_requiring_action
-            - pps_baseline_fqdns
-            - process_steps
-            - provisional_codes
-            - purpose_provenance
-            - rb_declarations
-            - relationships
-            - requested_outcomes
-            - resources
-            - runtime_policies
-            - saturation
-            - scope_boundary
-            - step_bindings
-            - storage_governance
-            - structure_stores
-            - subdomain_purpose
-            - system_beliefs
-            - transport_bindings
-            - verification_results
-            - vocabulary_extensions
+            known_registers: *id001
             literal_sources:
             - CR seed
             - human decision
@@ -514,6 +588,7 @@ core:
           register: provisional_codes
           params:
             columns:
+            - Subdomain
             - Provisional Code
             - Family
             - Summary
@@ -621,6 +696,14 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: PURPOSE_PROVENANCE_NOT_SINGULAR
+          check: TABLE_ROW_COUNT
+          register: purpose_provenance
+          params:
+            maximum: 1
+            detail: the register answers one question — whether this phase inherited the seed's purpose or refined
+              it — and two rows are two answers to it
+          intent: a register owing one answer may not carry several
         - id: PURPOSE_NOT_CARRIED_FROM_SEED
           check: PRIOR_PROSE_CARRIED
           register: purpose_provenance
@@ -643,6 +726,30 @@ core:
             detail: a refined purpose must state what it adds that the seed did not say; silence here is the silent
               replacement this register exists to prevent
           intent: superseding upstream content is allowed, doing it without saying so is not
+        - id: TOUCHED_SUBDOMAIN_WITHOUT_PURPOSE
+          check: PRIOR_IDENTITIES_COVERED
+          register: subdomain_purposes
+          params:
+            prior_phase: p0
+            prior_register: cr_type
+            prior_column: Subdomain
+            column: Subdomain
+            require: prior_in_here
+          intent: every subdomain a change touches has its purpose stated
+        - id: TOUCHED_SUBDOMAIN_AUTHORS_NOTHING
+          check: PRIOR_IDENTITIES_COVERED
+          register: provisional_codes
+          params:
+            prior_phase: p0
+            prior_register: cr_type
+            prior_column: Subdomain
+            column: Subdomain
+            require: prior_in_here
+            prior_only_when_column: Classification
+            prior_only_when_values:
+            - NEW_SUBDOMAIN
+            - EXTEND_SUBDOMAIN
+          intent: a subdomain a change authors into names the artifacts it authors
         - id: PROVISIONAL_CODE_ALREADY_BOUND
           check: CELL_TOKEN_ABSENT
           register: provisional_codes

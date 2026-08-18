@@ -35,19 +35,57 @@ from pathlib import Path
 
 import yaml
 
-from transformation.build.render import render_all, bare
+# `MACHINE_BLOCK` is one spelling of where a machine block ends, owned by the module
+# that renders them — there were three spellings and two of them disagreed.
+from transformation.build.render import MACHINE_BLOCK as MACHINE
+from transformation.build.render import build_manifest, render_all, bare
 from transformation.design.read import read_seed
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
 # In order. A dossier appended here is a change that came after the ones above it, and the ordering
 # is the whole of what makes the composite meaningful.
-CR_DOSSIERS = WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers"
-DOSSIERS = [CR_DOSSIERS / "cr_01_catalog", CR_DOSSIERS / "cr_02_catalog"]
+# The fixture dossiers, not the approved ones. A closed change request is evidence and is never
+# amended to satisfy a rule written after it was gated; a fixture is maintained against the
+# current rule set on purpose. See `fixture_dossiers/README.md`.
+CR_DOSSIERS = REPO / "scripts/testbed/fixture_dossiers"
 REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 
-MACHINE = re.compile(r"```yaml\n(.*?)\n```", re.S)
+# Every domain whose registry a dossier sequence determines, as (dossier root, registry).
+#
+# The two are read from different places and the asymmetry is deliberate. **The catalog is read from
+# maintained fixtures** because its own harnesses judge those documents and a delivered dossier goes
+# inadmissible as the design language grows. **blockchain is read from its delivered dossiers**,
+# which is possible because rendering reads registers and never judges admissibility — a dossier that
+# would be refused at P7 today still determines exactly the artifacts it determined when it was
+# gated. Nothing had ever compared those 40 artifacts against their designs.
+DOMAINS = (
+    (CR_DOSSIERS, REGISTRY),
+    (WORKSPACE / "business_domains/blockchain/cr_dossiers",
+     WORKSPACE / "business_domains/blockchain/registry"),
+)
 
+# The sequence used to be a literal list, and a delivered dossier that re-rendered an artifact an
+# earlier one rendered had to be appended by hand. Miss the step and the harness compares a built
+# artifact against a design that is no longer its design of record, then reports the difference as
+# a field difference — which reads like a construction defect rather than a stale corpus. cr_03
+# cost 12 such differences before anyone thought to look at the list.
+#
+# A business-domain dossier is numbered, and the number *is* the sequence: `cr_NN_<subject>` is the
+# form, declared in `transformation/CLAUDE.md`. So the ordering is read from the name rather than
+# restated beside it. A directory that is not numbered that way is not part of a sequence and is
+# not silently swept in.
+SEQUENCED = re.compile(r"^cr_(\d+)_")
+
+
+def sequence(root: Path) -> list[Path]:
+    """The delivered dossiers of one domain, in the order they were delivered."""
+    numbered = [(int(m.group(1)), p) for p in root.iterdir()
+                if p.is_dir() and (m := SEQUENCED.match(p.name))]
+    return [p for _, p in sorted(numbered)]
+
+
+DOSSIERS = sequence(CR_DOSSIERS)
 
 def registers(path: Path) -> dict[str, list[dict]]:
     doc = read_seed(path)
@@ -84,13 +122,20 @@ def built(registry: Path) -> dict[str, dict]:
 # binding is a list of names an assertion checks, so it stays in.
 DOCUMENTATION = {"description", "isolation", "resolution", "storage_roots", "extensions"}
 
+# `superseded_by` is written when an artifact is **stood down**, which is a separate act from
+# rendering it: a replaced artifact has no design left to render from, so construction marks the
+# header and leaves the rest alone. Comparing it here would report every superseded artifact as a
+# construction defect, when what it records is that the artifact was correctly retired. The rest of
+# the machine block is still compared, so a superseded artifact whose *content* drifted is caught.
+STOOD_DOWN = {"superseded_by"}
+
 
 def diff(expected, actual, path: str = "") -> list[str]:
     """Every leaf where two Machine blocks disagree, addressed by dotted path."""
     if isinstance(expected, dict) and isinstance(actual, dict):
         out = []
         for key in sorted(set(expected) | set(actual)):
-            if key in DOCUMENTATION:
+            if key in DOCUMENTATION or key in STOOD_DOWN:
                 continue
             here = f"{path}.{key}" if path else key
             if key not in actual:
@@ -112,17 +157,14 @@ def diff(expected, actual, path: str = "") -> list[str]:
     return []
 
 
-def main() -> int:
-    args = sys.argv[1:]
-    registry = REGISTRY
-    if "--registry" in args:
-        i = args.index("--registry")
-        if i + 1 >= len(args):
-            print("--registry needs a path")
-            return 1
-        registry = Path(args[i + 1])
-        del args[i:i + 2]
-    dossiers = [Path(a) for a in args] or DOSSIERS
+def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None = None) -> tuple[int, int, int]:
+    """Render one domain's dossier sequence and compare it with what was built.
+
+    Returns (compared, failures, field differences).
+    """
+    dossiers = dossiers or sequence(dossier_root)
+    if not dossiers:
+        return 0, 0, 0
 
     # Later changes override earlier ones, artifact by artifact — the same thing promotion did.
     rendered: dict[str, dict] = {}
@@ -135,9 +177,20 @@ def main() -> int:
             rendered[code] = artifact
             determined_by[code] = dossier.name
 
+        # The domain build manifest is generated rather than rendered, so `render_all` correctly
+        # omits it and this harness reported it as MISS for as long as it has existed — the one
+        # artifact construction could not reproduce. It is reproducible; it was simply produced by a
+        # different callable. Comparing the generator's output here is what holds that claim: if
+        # `build_manifest` ever stops deriving what the composition holds, a design that names it as
+        # its generator would be pointing at something that does not produce the artifact.
+        manifest = build_manifest(p7, p8)
+        if manifest is not None:
+            code = bare(manifest["fqdn"])
+            rendered[code] = {"machine": manifest}
+            determined_by[code] = f"{dossier.name} (generated)"
+
     reference = built(registry)
-    sequence = " -> ".join(d.name for d in dossiers)
-    print(f"construction acceptance — {sequence}")
+    print(f"construction acceptance — {' -> '.join(d.name for d in dossiers)}")
     print(f"{len(rendered)} rendered against {len(reference)} built\n")
 
     failures, total_diffs = 0, 0
@@ -158,13 +211,34 @@ def main() -> int:
         if len(differences) > 6:
             print(f"          … {len(differences) - 6} more")
 
-    extra = sorted(set(rendered) - set(reference))
-    for code in extra:
+    for code in sorted(set(rendered) - set(reference)):
         print(f"  EXTRA {code:<44} rendered, never built")
         failures += 1
 
     print(f"\n  {len(reference) - failures}/{len(reference)} artifacts reproduced"
-          f"   ({total_diffs} field difference(s))")
+          f"   ({total_diffs} field difference(s))\n")
+    return len(reference), failures, total_diffs
+
+
+def main() -> int:
+    args = sys.argv[1:]
+    if "--registry" in args:
+        i = args.index("--registry")
+        if i + 1 >= len(args):
+            print("--registry needs a path")
+            return 1
+        registry = Path(args[i + 1])
+        del args[i:i + 2]
+        compared, failures, _ = acceptance(CR_DOSSIERS, registry, [Path(a) for a in args] or None)
+        return 1 if failures else 0
+
+    compared = failures = diffs = 0
+    for dossier_root, registry in DOMAINS:
+        c, f, d = acceptance(dossier_root, registry)
+        compared += c; failures += f; diffs += d
+
+    print(f"  {compared - failures}/{compared} artifacts reproduced across {len(DOMAINS)} domain(s)"
+          f"   ({diffs} field difference(s))")
     return 1 if failures else 0
 
 

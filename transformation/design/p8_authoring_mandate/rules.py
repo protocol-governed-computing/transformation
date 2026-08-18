@@ -188,6 +188,39 @@ COMPLETENESS_RULES: list[Rule] = [
         },
         intent="every artifact the mandate schedules declares the subdomain it is built into",
     ),
+    # The same obligation on the other half of what construction produces, and it was missing for
+    # the same reason placement completeness was missing before it: every rule judged the rows that
+    # were present. An amended artifact is never a build step — `BUILD_CODE_ALREADY_EXISTS` refuses
+    # to mandate authoring an identity the composition already holds — so nothing reached it, and a
+    # workflow this change extends rendered `subdomain: ''` while the design passed every rule.
+    #
+    # Gated to the families construction renders into a subdomain, which is wider than the families
+    # that carry a `subdomain` field. The path an artifact is written to is `registry/<subdomain>/…`,
+    # so an amended boundary contract with no declared subdomain was rendered to `registry//transport/`
+    # — a second copy at a path nobody reads, while the artifact it was meant to amend stayed as it
+    # was and kept routing to a workflow that had been stood down.
+    #
+    # EXTEND only, and STRUCTURE stays out — both for one reason. The obligation follows what
+    # construction *renders*. A replaced artifact is marked superseded where it already sits and is
+    # never written, and a generated one is reached by invoking its generator. Neither has a path
+    # for a subdomain to resolve, so obliging one would oblige a fact nothing reads.
+    Rule(
+        id="AMENDED_ARTIFACT_UNPLACED",
+        check="PRIOR_IDENTITIES_COVERED",
+        register="field_declarations",
+        params={
+            "prior_phase": "p7",
+            "prior_register": "existing_inventory",
+            "prior_column": "FQDN",
+            "column": "Code",
+            "require": "prior_in_here",
+            "match_on": "bare_code",
+            "prior_only_when_column": "Action",
+            "prior_only_when_values": ["EXTEND"],
+            "prior_only_when_prefixes": ["AC_", "IN_", "WF_", "CC_", "CT_", "EV_", "RB_", "VOCAB_", "TI_", "TE_"],
+        },
+        intent="an artifact this change amends declares the subdomain it is placed in, as a scheduled one does",
+    ),
 ]
 
 

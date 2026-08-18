@@ -34,7 +34,7 @@ Every binding names a field the capability declares, read from the pinned baseli
 <!-- register:existing_inventory -->
 | FQDN | Action (REPLACE, REUSE, EXTEND, REVIEW) | Summary | Reason | Source Finding |
 |------|------------------------------------------|---------|--------|----------------|
-| capability_side_effects::CS_MUTABLE_JSON_V0 | EXTEND | Writes, reads, selects, lists, updates in place and deletes durable records | Extended with an operation that publishes the records themselves, so a search can select among them by content; the implementation behind it already returned them. | S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0 |
+| capability_side_effects::CS_MUTABLE_JSON_V0 | REVIEW | Writes, reads, selects, lists, updates in place and deletes durable records | Extended with an operation that publishes the records themselves, so a search can select among them by content; the implementation behind it already returned them. | S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0 |
 | capability_side_effects::CS_REGISTRY_V0 | REUSE |  | Register-if-absent gives the atomic claim duplicate prevention needs, on a key the catalog forms. | S6 ownership Claim a value once so a second claim on it fails |
 | capability_side_effects::CS_APPENDONLY_JSONL_V0 | REUSE |  | Appends an entry to a trail that cannot be amended. | S6 ownership Append an entry to a trail that cannot be amended |
 | capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 | REUSE |  | Assembles a durable record from supplied values. | S6 ownership Assemble a durable record from supplied values |
@@ -521,9 +521,9 @@ Every binding names a field the capability declares, read from the pinned baseli
 ## 9. Implementation Bindings
 
 <!-- register:implementation_bindings optional -->
-| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Source Finding |
-|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------|
-| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_form_book_identity_key_v0 | execute | PURE_FORM_BOOK_IDENTITY_KEY | atom | ct_pure | S7 new_artifacts CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 |
+| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Refusal (raises, returns, never) | Source Finding |
+| --------- | -------- | ---------- | ----------- | ----------------------- | ----------------------------- | -------------------------------- | ---------------- |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_form_book_identity_key_v0 | execute | PURE_FORM_BOOK_IDENTITY_KEY | atom | ct_pure | never | S7 new_artifacts CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 |
 
 ---
 
@@ -588,9 +588,71 @@ BACKEND_ERROR — is already admitted, so no vocabulary is extended.
 
 ---
 
+## 16. Generation Provenance
+
+*Every artifact this design schedules is authored: construction renders it from the registers
+above and it is its own source of truth. Nothing here is reached by invoking a generator.*
+
+<!-- register:generation_provenance optional -->
+| Artifact | Generator | Generator Sources | Source Finding |
+|----------|-----------|-------------------|----------------|
+| NONE IDENTIFIED |
+
+---
+
+## 17. Declared Reach
+
+<!-- register:declared_reach optional -->
+| Act | Consults | Source Finding |
+|-----|----------|----------------|
+| NONE IDENTIFIED |
+
+---
+
+## 18. Refusal Discharge
+
+<!-- register:refusal_discharge optional -->
+| Operation | Refused When | Act | Step | Outcome | Source Finding |
+|-----------|--------------|-----|------|---------|----------------|
+| Register a book | Its title, author and publication year match a registered book. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 | ALREADY_EXISTS | S0 operation_refusals #1 |
+| Register a book | No physical copy is offered with it. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #2 |
+| Register a book | It carries no subject. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 | VIOLATION | S0 operation_refusals #3 |
+| Register a physical copy | The book it names is not registered. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 | NOT_FOUND | S0 operation_refusals #4 |
+| Register a physical copy | Its barcode matches a copy the library already owns. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 | ALREADY_EXISTS | S0 operation_refusals #5 |
+| Update bibliographic information | The changed title, author and publication year would match another registered book. | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | VIOLATION | S0 operation_refusals #6 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REGISTER_BOOK_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_SEARCH_CATALOG_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+| Any catalog operation | The staff member performing it is not authorized. | book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0 | book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 | VIOLATION | S0 operation_refusals #7 |
+
+---
+
+## 19. Refusal Deferrals
+
+<!-- register:refusal_deferrals optional -->
+| Operation | Refused When | Deferred To | Until | Source Finding |
+|-----------|--------------|-------------|-------|----------------|
+| NONE IDENTIFIED |
+
+---
+
+## 20. Refusal — Governance-Surface Discharge
+
+<!-- register:refusal_governance_discharge optional -->
+| Operation | Refused When | Phase | Governing Rule | Source Finding |
+|-----------|--------------|-------|----------------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |
 |-----------|--------|
 | **Consumes** ← Stage 6 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action · boundary_rules · governance_outcome |
-| **Emits** → Stage 8 | design_resolution · existing_inventory · new_artifacts · rb_declarations · execution_topology · cc_composition · step_bindings · interface_fields · implementation_bindings · vocabulary_extensions · runtime_policies · artifact_properties · structure_stores · artifact_summary |
+| **Emits** → Stage 8 | design_resolution · existing_inventory · new_artifacts · rb_declarations · execution_topology · cc_composition · step_bindings · interface_fields · implementation_bindings · vocabulary_extensions · runtime_policies · artifact_properties · structure_stores · artifact_summary · generation_provenance |

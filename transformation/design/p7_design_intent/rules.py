@@ -1,6 +1,6 @@
 """The P7 rule set — what makes a Design Intent register admissible.
 
-Eight registers, their columns, their vocabularies and their traceability come from
+Sixteen registers, their columns, their vocabularies and their traceability come from
 `templates/p7_design_intent_template_v0.md`. Declared here is what the template cannot express.
 
 P7 answers **HOW**, and it is where identity becomes binding. P5 assigned provisional codes, P6
@@ -29,11 +29,17 @@ string everywhere, because a spelling variant of the same concept does not read 
 creates a second, permanently misnamed artifact. So every code referenced in the topology, in a
 runtime binding, or in a composition must be declared: as new here, or as an existing artifact
 carried over. A reference to neither is a name nobody owns.
+
+The last thing P7 owns is how an artifact is **reached**, and it was the last thing it could not say.
+Every register describes what an artifact must become; a generated artifact's interesting fact is
+that its source of truth is elsewhere, and a design naming only the artifact schedules a copy that
+the next emission overwrites. `generation_provenance` names the generator and the sources read with
+it, and construction invokes that rather than becoming a second producer of the same artifact.
 """
 
 from __future__ import annotations
 
-from transformation.design.families import binding_fqdn_pattern
+from transformation.design.families import authorable_fqdn_pattern, binding_fqdn_pattern
 from transformation.design.derive import derived_rules
 from transformation.design.rules import (
     event_naming_rules,
@@ -55,16 +61,49 @@ CAPABILITY_OBSERVATION = "si.capability.surface"
 
 TRANSFORM_OBSERVATION = "si.capability.surface#transforms"
 
+# What a capability contract requires. A reused contract declares nothing in the design —
+# it already exists — so the only place its interface can be read is the composition.
+CONTRACT_OBSERVATION = "si.capability.surface#contracts"
+
+# Which records each binding covers. A design names a binding and never the records behind it, so
+# the reach it declares is checkable only against a surface that answers the other half — and this
+# is the surface that answers it for every store at once, which is the only shape a fixed pipeline
+# can ask for.
+STORE_OBSERVATION = "si.store.list"
+
+# Which rules are in force, and in which artifact. A refusal may be carried out by a rule of the
+# pipeline rather than by a step of the domain's own acts, and a citation nobody resolves documents
+# intent and enforces nothing. The sealed set is what a pin names, so it is what is asked.
+RULE_SET_OBSERVATION = "si.rule_set.list"
+
 OBSERVATIONS = {
     OBSERVATION_OPERATION: "artifacts",
     CAPABILITY_OBSERVATION: "capabilities",
     TRANSFORM_OBSERVATION: "transforms",
+    CONTRACT_OBSERVATION: "contracts",
+    STORE_OBSERVATION: "stores",
+    RULE_SET_OBSERVATION: "carriers",
 }
+
+
+def _phase_workflows() -> dict[str, str]:
+    """phase id → the artifact carrying its sealed rule set.
+
+    Declared with the rule rather than inferred in the check: the snapshot publishes identities and
+    knows nothing of phases, and it should stay that way. `emit` already owns the mapping because it
+    is the generator that writes those artifacts, so this reads it rather than keeping a second copy.
+    """
+    from transformation.design.emit import SEALED_IN, workflow_fqdn
+
+    return {phase: workflow_fqdn(phase) for phase in SEALED_IN}
 
 ARTIFACT_REFERENCE_PATTERN = r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+"
 
 # A binding FQDN: domain-qualified, family-prefixed, explicitly versioned.
 BINDING_FQDN_PATTERN = binding_fqdn_pattern()
+
+# An identity a design may amend, which is narrower than one it may cite.
+AUTHORABLE_FQDN_PATTERN = authorable_fqdn_pattern()
 
 
 BINDING_RULES: list[Rule] = [
@@ -100,6 +139,46 @@ BINDING_RULES: list[Rule] = [
             "observation": OBSERVATION_OPERATION,
         },
         intent="an artifact carried over from the composition must really be in it",
+    ),
+    # A design amends by re-rendering whole, so it may only amend what it could have authored. The
+    # governance surface has no family and no builder: a constitution's content is argument, and a
+    # register that determined it would have to carry the argument. So a governance change is
+    # authored by a person under a governed dossier and its dossier is complete at P6 — the ruling
+    # is in `doc/THE_SHAPE_OF_A_CHANGE_V0.md` §7. Citing one of these is untouched; three dossiers
+    # reached P6 before the boundary was stated, and none of them could be told it here.
+    Rule(
+        id="AMENDED_ARTIFACT_NOT_AUTHORABLE",
+        check="CELL_MATCHES",
+        register="existing_inventory",
+        params={
+            "column": "FQDN",
+            "pattern": AUTHORABLE_FQDN_PATTERN,
+            "only_when_column": "Action",
+            "only_when_value": "EXTEND",
+            "detail": (
+                "amends {value!r}, whose family this design cannot author — an amended artifact is "
+                "rendered whole, so this schedules a document to be rewritten from registers that "
+                "never held its content. The governance surface is authored, not constructed: cite "
+                "it with REUSE or REVIEW, and deliver the change by authoring it"
+            ),
+        },
+        intent="a design amends only what it could have authored",
+    ),
+    Rule(
+        id="REPLACED_ARTIFACT_NOT_AUTHORABLE",
+        check="CELL_MATCHES",
+        register="existing_inventory",
+        params={
+            "column": "FQDN",
+            "pattern": AUTHORABLE_FQDN_PATTERN,
+            "only_when_column": "Action",
+            "only_when_value": "REPLACE",
+            "detail": (
+                "replaces {value!r}, whose family this design cannot author — a replacement is a "
+                "rendering like any other. The governance surface is authored, not constructed"
+            ),
+        },
+        intent="a design replaces only what it could have authored",
     ),
     Rule(
         id="TOPOLOGY_WORKFLOW_UNDECLARED",
@@ -179,36 +258,144 @@ BINDING_RULES: list[Rule] = [
         },
         intent="a step invokes a capability that is declared new or carried over, never invented inline",
     ),
+    # The em-dash in either column is a declaration: the step's output is data, and the branches
+    # are the operation's own statuses. Asked as "is the cell filled?", both of these were
+    # satisfied by that dash on all 62 CS steps in the corpus, so neither had ever bound a design.
+    # Grounded instead in what the operation answers, they bite exactly where the doctrine means
+    # them to — a branch the store cannot produce, with nothing named that produces it.
     Rule(
         id="OBSERVATION_WITHOUT_INTERPRETATION",
-        check="CELL_NOT_EMPTY",
+        check="OUTCOME_GROUNDED_IN_OPERATION",
         register="cc_composition",
         params={
             "column": "Interpreted By",
-            "only_when_column": "Kind",
-            "only_when_value": "CS",
+            "kind_column": "Kind",
+            "kind_value": "CS",
+            "routing_column": "Routing",
+            "status_column": "Semantic Status",
+            "observation": CAPABILITY_OBSERVATION,
             "detail": (
-                "a step that reads external state names no interpreting transform — a raw "
-                "observation cannot drive business routing, because the status it carries says "
-                "the store answered, not what it found"
+                "branches on {outcomes}, which {operation} does not answer — it answers "
+                "{answers}. An outcome the store cannot produce comes from an interpretation, and "
+                "this step names none, so the branch is a decision nothing makes"
             ),
         },
-        intent="every read of external state declares how its output becomes a decision",
+        intent="an outcome the operation cannot answer names the transform that produces it",
     ),
     Rule(
         id="OBSERVATION_WITHOUT_SEMANTIC_STATUS",
-        check="CELL_NOT_EMPTY",
+        check="OUTCOME_GROUNDED_IN_OPERATION",
         register="cc_composition",
         params={
             "column": "Semantic Status",
-            "only_when_column": "Kind",
-            "only_when_value": "CS",
+            "kind_column": "Kind",
+            "kind_value": "CS",
+            "routing_column": "Routing",
+            "status_column": "Semantic Status",
+            "observation": CAPABILITY_OBSERVATION,
             "detail": (
-                "a step that reads external state names no semantic status — the workflow branch "
-                "it feeds has nothing declared to route on"
+                "routes on {outcomes} and declares no semantic status — {operation} answers "
+                "{answers}, so the outcome routed on is an interpretation's, and the workflow "
+                "branch it feeds has nothing declared to route on"
             ),
         },
         intent="an interpretation names the outcome it yields, closing the route",
+    ),
+    # The other two em-dash columns, grounded the same way. `Store` was read by nothing at all, and
+    # `Consumes` was read only where it named something — so a step addressing no store and a step
+    # handing an operation nothing were both unexamined declarations. What decides each is published:
+    # a capability's category, and an operation's inputs.
+    Rule(
+        id="STORE_UNGROUNDED_IN_CAPABILITY",
+        check="STORE_GROUNDED_IN_CAPABILITY",
+        register="cc_composition",
+        params={
+            "column": "Store",
+            "capability_column": "Capability",
+            "storage_category": "storage",
+            "observation": CAPABILITY_OBSERVATION,
+            "detail_missing": (
+                "names no store on {capability}, which keeps records — a storage step that "
+                "addresses nothing is a read or a write with no subject"
+            ),
+            "detail_spurious": (
+                "names a store on {capability}, which keeps none — the step addresses records "
+                "that capability has no way to hold"
+            ),
+        },
+        intent="a step addresses a store exactly when its capability keeps one",
+    ),
+    Rule(
+        id="STEP_CONSUMES_NOTHING_FROM_OPERATION_WITH_INPUT",
+        check="CONSUMPTION_GROUNDED_IN_OPERATION",
+        register="cc_composition",
+        params={
+            "column": "Consumes",
+            "capability_column": "Capability",
+            "kind_column": "Kind",
+            "kind_value": "CS",
+            "observation": CAPABILITY_OBSERVATION,
+            "detail": (
+                "consumes nothing and invokes {operation}, which accepts {accepts} — the "
+                "operation receives no value for what it takes, and the step reports success on "
+                "having addressed nothing"
+            ),
+        },
+        intent="a step consuming nothing invokes an operation that takes nothing",
+    ),
+    # The two halves of one statement, and neither is a rule alone: refusing an unused reach permits
+    # a read nobody declared, and refusing an undeclared read permits a reach held in reserve. Both
+    # read the binding a design names and derive the records from the composition, because a design
+    # that restated them would be the second copy this change exists beside.
+    Rule(
+        id="DECLARED_REACH_UNUSED",
+        check="REACH_IS_USED",
+        register="declared_reach",
+        params={
+            "register": "declared_reach",
+            "topology_register": "execution_topology",
+            "composition_register": "cc_composition",
+            "observation": STORE_OBSERVATION,
+            "contract_observation": CONTRACT_OBSERVATION,
+            "detail": (
+                "declares a reach to {binding} and reads nothing it covers — that binding answers "
+                "for {stores}, and no step this act runs addresses any of them. A permission "
+                "granted for nothing is one whose purpose nobody reviewed"
+            ),
+        },
+        intent="every reach an act declares is used by a read that act performs",
+    ),
+    Rule(
+        id="UNDECLARED_REACH_READ",
+        check="READ_IS_DECLARED",
+        register="execution_topology",
+        params={
+            "register": "declared_reach",
+            "rb_register": "rb_declarations",
+            "topology_register": "execution_topology",
+            "composition_register": "cc_composition",
+            "observation": STORE_OBSERVATION,
+            "contract_observation": CONTRACT_OBSERVATION,
+            "detail": (
+                "reads {store}, which {binding} does not cover and no declared reach names — the "
+                "act reaches records another part of the business owns and its design does not say "
+                "so, which is invisible until the act runs"
+            ),
+        },
+        intent="an act reads nothing it did not declare a reach to",
+    ),
+    Rule(
+        id="CROSS_SUBDOMAIN_WRITE",
+        check="CROSS_SUBDOMAIN_REACH_READ_ONLY",
+        register="execution_topology",
+        params={
+            "topology_register": "execution_topology",
+            "new_register": "new_artifacts",
+            "artifact_observation": OBSERVATION_OPERATION,
+            "capability_observation": CAPABILITY_OBSERVATION,
+            "contract_observation": CONTRACT_OBSERVATION,
+        },
+        intent="an act reaching into another subdomain reads what it holds and never changes it",
     ),
     Rule(
         id="INTERPRETATION_TRANSFORM_UNDECLARED",
@@ -222,6 +409,23 @@ BINDING_RULES: list[Rule] = [
             "detail": "an interpreting transform is an artifact like any other, declared or carried over",
         },
         intent="the transform that turns an observation into a decision is itself governed",
+    ),
+    # A vocabulary that extends nothing is a base vocabulary, which is a decision. Left blank it is
+    # indistinguishable from a design that forgot, and construction renders `extends: ''` either
+    # way — the same silence `declared_empty` exists to break everywhere else. So the design writes
+    # the none marker and construction reads it as the statement it is.
+    Rule(
+        id="VOCABULARY_WITHOUT_EXTENDS",
+        check="CELL_NOT_EMPTY",
+        register="vocabulary_extensions",
+        params={
+            "column": "Extends",
+            "detail": (
+                "vocabulary says nothing about what it extends — a base vocabulary declares that "
+                "with the none marker, because an empty cell and an omission render the same thing"
+            ),
+        },
+        intent="a vocabulary states what it extends, or states that it extends nothing",
     ),
     Rule(
         id="STORE_WITHOUT_PROPOSED_PATH",
@@ -238,7 +442,13 @@ BINDING_RULES: list[Rule] = [
 
 # P7 is where the purity ladder is paid off. P5 names capabilities the business asked for and is
 # forbidden to bind them; P7 binds. The design document it must be judged against is therefore P5's.
-PRIORS = ("p5", "p6")
+# The seed joins them for the refusals. P7 must refuse a design that leaves a declared refusal
+# unaccounted for, and it cannot refuse what it cannot see: the register lives in the seed, and P5
+# and P6 neither carry it nor should. Carrying it forward instead would mean a register and a carry
+# rule in each intermediate phase, restating what the seed already says and free to drift from it —
+# and P5 and P6 already declare `p0` directly, so this is the mechanism the pipeline has rather than
+# a new one.
+PRIORS = ("p5", "p6", "p0")
 
 
 # One direction only, and the asymmetry is the point.
@@ -375,6 +585,26 @@ COMPLETENESS_RULES: list[Rule] = [
         },
         intent="a transform is the one family that points outside the composition; the path is designed, not discovered",
     ),
+    # A REPLACE says an artifact is superseded, and until now said it only in prose. Construction
+    # had no concept of the action at all — `_scheduled` admitted an amendment when its action was
+    # EXTEND and nothing else — so a design could retire a workflow, emit, and leave the retired one
+    # in place, compiled and dispatchable, with the build reporting success. The design must name
+    # what supersedes it, because "superseded" with no successor is a deletion wearing a softer word.
+    Rule(
+        id="REPLACED_ARTIFACT_WITHOUT_SUCCESSOR",
+        check="REGISTER_COVERS_REGISTER",
+        register="artifact_properties",
+        params={
+            "source_register": "existing_inventory",
+            "source_column": "FQDN",
+            "column": "Value",
+            "only_when_column": "Action",
+            "only_when_value": "REPLACE",
+            "covered_only_when_column": "Property",
+            "covered_only_when_value": "supersedes",
+        },
+        intent="an artifact this design replaces is named by whatever supersedes it",
+    ),
     Rule(
         id="VOCABULARY_WITHOUT_VALUES",
         check="REGISTER_COVERS_REGISTER",
@@ -447,6 +677,13 @@ INTERFACE_RULES: list[Rule] = [
         intent="a binding reads a field the operation yields, never one it was hoped would exist",
     ),
     Rule(
+        id="STEP_NAMES_UNPUBLISHED_OPERATION",
+        check="STEP_OPERATION_PUBLISHED",
+        register="cc_composition",
+        params={"observation": CAPABILITY_OBSERVATION},
+        intent="a step invokes an operation the capability offers, never one it was assumed to have",
+    ),
+    Rule(
         id="STEP_CONSUMES_UNDECLARED_INPUT",
         check="STEP_CONSUMES_PUBLISHED",
         register="cc_composition",
@@ -462,6 +699,73 @@ INTERFACE_RULES: list[Rule] = [
             "detail": "transform names no module — an implementation nobody can locate is not designed",
         },
         intent="a declared implementation says where it lives",
+    ),
+    Rule(
+        id="IMPLEMENTATION_MODULE_MISPLACED",
+        check="IMPLEMENTATION_MODULE_CONFORMS",
+        register="implementation_bindings",
+        params={
+            "code_column": "CT Code",
+            "module_column": "Module",
+            "namespace_template": "{domain}.implementation.capability_transforms.atoms",
+        },
+        intent="a transform's module is where its domain resolves implementations, named for the artifact",
+    ),
+    Rule(
+        id="IMPLEMENTATION_WITHOUT_REFUSAL",
+        check="CELL_NOT_EMPTY",
+        register="implementation_bindings",
+        params={
+            "column": "Refusal",
+            "detail": (
+                "transform declares no refusal — whether a judgement is raised or returned is the "
+                "one fact that says if a step routing on it can ever fail, and both look the same "
+                "from outside"
+            ),
+        },
+        intent="a transform says how it expresses a judgement about its subject",
+    ),
+    Rule(
+        id="IMPLEMENTATION_REFUSAL_UNKNOWN",
+        check="CELL_MATCHES",
+        register="implementation_bindings",
+        params={
+            "column": "Refusal",
+            "pattern": r"^(raises|returns|never)$",
+            "detail": (
+                "refusal is {value!r}; a transform raises its judgement, returns it, or makes "
+                "none, and the schema admits nothing else"
+            ),
+        },
+        intent="refusal is one of the three the composition can act on",
+    ),
+    Rule(
+        id="INTERPRETATION_TRANSFORM_CANNOT_REFUSE",
+        check="INTERPRETATION_TRANSFORM_REFUSES",
+        register="cc_composition",
+        params={
+            "column": "Interpreted By",
+            "status_column": "Semantic Status",
+            "observation": TRANSFORM_OBSERVATION,
+            "design_register": "implementation_bindings",
+            "design_code_column": "CT Code",
+            "design_refusal_column": "Refusal",
+        },
+        intent="an interpretation can fail, or the branch it feeds is unreachable",
+    ),
+    Rule(
+        id="IMPLEMENTATION_CALLABLE_UNCONVENTIONAL",
+        check="CELL_MATCHES",
+        register="implementation_bindings",
+        params={
+            "column": "Callable",
+            "pattern": r"^execute$",
+            "detail": (
+                "callable is {value!r}; every transform in the composition is entered through "
+                "`execute`, and a loader given another name finds nothing"
+            ),
+        },
+        intent="a transform is entered the one way every transform is entered",
     ),
     Rule(
         id="BINDING_WITHOUT_SOURCE",
@@ -498,6 +802,7 @@ INTERFACE_RULES: list[Rule] = [
         params={
             "topology_register": "execution_topology",
             "fields_register": "interface_fields",
+            "observation": CONTRACT_OBSERVATION,
         },
         intent="a workflow hands a contract everything that contract says it requires",
     ),
@@ -574,6 +879,258 @@ COMPOSITION_INTEGRITY_RULES: list[Rule] = [
 ]
 
 
+# A generator, as construction must be able to reach it: an importable module and the callable
+# inside it. A path to a script is not this — the composition imports, it does not shell out, and a
+# generator nothing can import is a generator only a person can run.
+GENERATOR_PATTERN = r"^[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)*:[a-z_][a-z0-9_]*$"
+
+
+# Every register above describes what an artifact must *become*. None of them says how it is
+# *reached*, and for an artifact nobody types that is the only interesting fact about it: its rules
+# live in a template and in code, the artifact carries a sealed copy, and a change meaning to alter
+# the rules must alter what generates them. A design with no way to say so cannot be built from — the
+# nine phase workflows were designed through six phases and stopped here, because the language they
+# exist to govern could not express the one thing that mattered about them.
+GENERATION_RULES: list[Rule] = [
+    Rule(
+        id="GENERATED_ARTIFACT_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="generation_provenance",
+        params={
+            "column": "Artifact",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": (
+                "provenance is stated about an artifact this design neither authors nor carries "
+                "over — a generator for something nothing schedules produces nothing"
+            ),
+        },
+        intent="provenance belongs to an artifact the design actually declares",
+    ),
+    Rule(
+        id="ARTIFACT_HAS_TWO_GENERATORS",
+        check="COLUMN_VALUES_UNIQUE",
+        register="generation_provenance",
+        params={
+            "column": "Artifact",
+            "detail": (
+                "{value} is generated twice, first at row {first} — an artifact has exactly one "
+                "producer, and two producers of one truth drift"
+            ),
+        },
+        intent="one artifact, one producer, so agreement with the generator means something",
+    ),
+    Rule(
+        id="GENERATOR_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="generation_provenance",
+        params={
+            "column": "Generator",
+            "detail": (
+                "artifact is declared generated and names no generator — construction has nothing "
+                "to invoke and no way to reach it"
+            ),
+        },
+        intent="a generated artifact names what produces it",
+    ),
+    Rule(
+        id="GENERATOR_UNREACHABLE",
+        check="CELL_MATCHES",
+        register="generation_provenance",
+        params={
+            "column": "Generator",
+            "pattern": GENERATOR_PATTERN,
+            "detail": (
+                "generator {value!r} must be module:callable — construction imports its generator "
+                "and a script it can only shell out to is one nothing governs"
+            ),
+        },
+        intent="a generator is invocable from the composition, not only by a person at a terminal",
+    ),
+    Rule(
+        id="GENERATOR_SOURCES_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="generation_provenance",
+        params={
+            "column": "Generator Sources",
+            "detail": (
+                "generator names no sources — a template and the declaration read with it are one "
+                "generator, and naming neither permits regenerating from a stale pairing"
+            ),
+        },
+        intent="a generator is its sources together, so a change to either is a change to it",
+    ),
+]
+
+
+# The pair of cells that identifies a declared refusal. The seed states it in business language and
+# the design answers it in the same words: there is no code for a refusal, and inventing one would
+# put a business fact behind an identity only this pipeline can read.
+REFUSAL_KEY = ["Operation", "Refused When"]
+
+# Twelve rules across P0 and P1 guard the refusal register's arrival and, until these five, none
+# guarded its consequence. A refusal was declared by the business, restated by the change request,
+# and then carried unread through six phases into a composition where nothing performed it.
+REFUSAL_RULES: list[Rule] = [
+    Rule(
+        id="REFUSAL_UNACCOUNTED",
+        check="PRIOR_ROWS_PRESENT_BY_KEY",
+        register="refusal_discharge",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+            # Accounted for is discharged, deferred, or refused by the governance surface. Reading
+            # one register alone would report the other two as omissions and make them unusable by
+            # existing. The three are separate registers because they answer with different facts —
+            # a place in the topology, a person and a condition, a rule of the pipeline — and one
+            # table holding all three would leave most of its cells empty on every row.
+            "registers": ["refusal_discharge", "refusal_deferrals",
+                          "refusal_governance_discharge"],
+        },
+        intent="every refusal the business declared is carried out here or owned by someone else",
+    ),
+    Rule(
+        id="DISCHARGE_UNDECLARED_REFUSAL",
+        check="ROWS_CONFINED_TO_PRIOR",
+        register="refusal_discharge",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+        },
+        intent="a discharge answers a refusal the business declared, never one the design invented",
+    ),
+    Rule(
+        id="DEFERRAL_UNDECLARED_REFUSAL",
+        check="ROWS_CONFINED_TO_PRIOR",
+        register="refusal_deferrals",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+        },
+        intent="a deferral hands on a refusal the business declared, never one nobody approved",
+    ),
+    Rule(
+        id="DEFERRAL_OWNER_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="refusal_deferrals",
+        params={
+            "column": "Deferred To",
+            "detail": (
+                "names no owner — a refusal handed on to nobody is a refusal dropped in language "
+                "that sounds like a plan"
+            ),
+        },
+        intent="a deferred refusal names who will carry it out",
+    ),
+    Rule(
+        id="GOVERNANCE_DISCHARGE_UNDECLARED_REFUSAL",
+        check="ROWS_CONFINED_TO_PRIOR",
+        register="refusal_governance_discharge",
+        params={
+            "prior_phase": "p0",
+            "prior_register": "operation_refusals",
+            "prior_key_column": REFUSAL_KEY,
+            "key_column": REFUSAL_KEY,
+        },
+        intent="the governance surface is cited for a refusal the business declared, never for one it did not",
+    ),
+    Rule(
+        id="GOVERNING_RULE_PHASE_MALFORMED",
+        check="CELL_MATCHES",
+        register="refusal_governance_discharge",
+        params={
+            "column": "Phase",
+            "pattern": r"^p[0-8]$",
+            "detail": (
+                "{value!r} is not a phase — a rule is named by its phase and its identifier "
+                "together, written p0 through p8, because an identifier alone names nine rules"
+            ),
+        },
+        intent="a cited rule is located in the phase whose rule set holds it",
+    ),
+    Rule(
+        id="GOVERNING_RULE_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="refusal_governance_discharge",
+        params={
+            "column": "Governing Rule",
+            "detail": (
+                "cites no rule — a refusal said to be carried out by the governance surface and "
+                "naming nothing there is prose, and prose refuses nothing"
+            ),
+        },
+        intent="a governance-surface discharge names the rule that refuses",
+    ),
+    Rule(
+        id="GOVERNING_RULE_NOT_IN_FORCE",
+        check="GOVERNING_RULE_IN_SEALED_SET",
+        register="refusal_governance_discharge",
+        params={
+            "observation": RULE_SET_OBSERVATION,
+            "phase_workflows": _phase_workflows(),
+        },
+        intent="a rule said to carry out a refusal is really in force where the design is pinned",
+    ),
+    Rule(
+        id="DISCHARGE_NOT_IN_TOPOLOGY",
+        check="DISCHARGE_GROUNDED_IN_TOPOLOGY",
+        register="refusal_discharge",
+        params={},
+        intent="a discharge names a step the act has and an outcome that step reports",
+    ),
+    Rule(
+        id="DISCHARGE_DOES_NOT_REFUSE",
+        check="DISCHARGE_OUTCOME_REFUSES",
+        register="refusal_discharge",
+        params={},
+        intent="the outcome a discharge names stops the act rather than continuing it",
+    ),
+]
+
+
+# An announcement was declared and ungoverned. `multi_emission` gave an act the ability to announce
+# several moments at one ending and left open that nothing counted an announcement; six acts then
+# announced eight moments and no rule read one. These two are what read them, and they add no
+# register: the site is already in `artifact_properties` and the ending is already typed in
+# `execution_topology`.
+EMISSION_PROPERTY_PREFIX = "emit."
+
+EMISSION_RULES: list[Rule] = [
+    Rule(
+        id="EMISSION_NOT_FROM_COMPLETING_ENDING",
+        check="EMISSION_GROUNDED_IN_ENDING",
+        register="artifact_properties",
+        params={"property_prefix": EMISSION_PROPERTY_PREFIX},
+        intent="a moment is announced from an ending the act has, and one that completes it",
+    ),
+    Rule(
+        id="EMITTED_EVENT_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="artifact_properties",
+        params={
+            "column": "Value",
+            "only_when_column": "Property",
+            "only_when_prefix": EMISSION_PROPERTY_PREFIX,
+            # An announced moment is authored by this design or carried from the composition, and a
+            # design that extends an act announces moments it did not author — so both registers
+            # answer, exactly as they do for a code assigned at P7.
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": "an announced moment must be an identity this design declares",
+        },
+        intent="an act announces a moment that exists, never one nothing declares",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
     return (
@@ -583,6 +1140,9 @@ def rule_set() -> list[Rule]:
         + COMPLETENESS_RULES
         + INTERFACE_RULES
         + COMPOSITION_INTEGRITY_RULES
+        + GENERATION_RULES
+        + REFUSAL_RULES
+        + EMISSION_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()

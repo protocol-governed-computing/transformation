@@ -14,9 +14,9 @@ does not.
 ## 1. CR Type
 
 <!-- register:cr_type business_language -->
-| Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
-|-------------------------------------------------------------------|---------|--------------|
-| NEW_SUBDOMAIN | book_library_mgmt is proposed as a new project, and the library requires a governed catalog management capability it maintains manually today. It extends nothing that exists. | CR seed §1 CR Type #1 |
+| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
+|---------|-------------------------------------------------------------------|---------|--------------|
+| catalog | NEW_SUBDOMAIN | book_library_mgmt is proposed as a new project, and the library requires a governed catalog management capability it maintains manually today. It extends nothing that exists. | CR seed §1 CR Type #1 |
 
 ---
 
