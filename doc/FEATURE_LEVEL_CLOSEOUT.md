@@ -176,16 +176,51 @@ subject does not exist anywhere in the corpus, and five whose fixture would drow
 recut. The first five want a dossier that borrows a capability across subdomains and declares its
 reach — one dossier, five rules, and the only remaining structural hole in the evidence.
 
-### 3. The last generator without an agreement check
+### 3. The last generator without an agreement check — **the claim was wrong**
 
-Four generators now re-derive their output and refuse a mismatch. `tc construction emit` does not.
-A generator without an agreement check is drift waiting to be found by hand, and it has been found by
-hand twice.
+`tc construction emit` was carried for several sessions as the one generator that does not re-derive
+its output and refuse a mismatch. Measured: **everything it writes is already compared.**
+`construction_acceptance.py` renders the accumulated design and compares it against the registry
+semantically, Machine-block scoped, 93/93 across two domains — and it compares the generated build
+manifest too, explicitly, so that a `build_manifest` which stopped deriving what the composition
+holds would be caught. A second `--check` on `emit` would have re-asked a question already answered.
+
+**What was actually unchecked is one level up: `DOMAINS` is a hand-kept pair.**
+
+That is the same shape `SEQUENCED` was introduced to remove. The harness's own comment records the
+cost: the *sequence* used to be a literal list, a missed entry compared a built artifact against a
+design that was no longer its design of record, and cr_03 cost twelve differences that read as
+construction defects before anyone thought to look at the list. The *domain* list stayed literal.
+
+Two ways it can go stale, and neither reports anything today:
+
+- a third domain whose dossiers determine artifacts is reproduced by nothing;
+- `sequence()` recognises only `cr_NN_`, so a **base-code domain's** dossiers — deliberately
+  unnumbered as `dossiers/<subject>/` per `CLAUDE.md` — cannot enter the corpus at all, whatever
+  they declare.
+
+**The check asks the question the list can go stale on, of the workspace rather than of a second
+list.** Every dossier root whose P7 schedules an artifact must be one `DOMAINS` reads; the catalog's
+fixture substitution is named so a deliberate override is not read as an omission. Both probes were
+authored, observed to fail, and reverted:
+
+```
+drop blockchain from DOMAINS                      → UNCOVERED business_domains/blockchain/cr_dossiers
+give transformation/dossiers/declared_reach one
+  new artifact — the unnumbered, base-code form   → UNCOVERED transformation/dossiers
+```
+
+The second is the one worth having. It is the hazard that could not have been found by reading the
+list, because the form it takes is a directory `sequence()` was never able to see.
 
 ### 4. Two forks in flight
 
-- **`register_coverage`** — scope collapsed; may be closable without being built. Deciding that is
-  cheaper than carrying it.
+- **`register_coverage`** — **closed unbuilt by ruling.** Its three named instances were checked
+  against the design language as it stands: two were closed by work done since and neither closure
+  had been recorded against the fork, which is why it read as parked rather than two-thirds
+  delivered. The third is still true and is a different question — whether an artifact every field of
+  which is compiler configuration belongs in the design language at all. `closure.md`, and the
+  evidence in `doc/REGISTER_COVERAGE_VERIFICATION.md`.
 - **`rule_effectivity`** — P0–P6 admissible, P7 authorable. Applicability: which rules are in force
   for which change kinds. Compounds with everything above, blocks nothing.
 
