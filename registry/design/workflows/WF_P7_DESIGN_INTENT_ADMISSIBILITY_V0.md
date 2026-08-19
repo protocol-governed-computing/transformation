@@ -316,7 +316,7 @@ core:
           register: new_artifacts
           params:
             columns:
-            - capability
+            - Capability
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'

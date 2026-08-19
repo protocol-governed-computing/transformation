@@ -124,7 +124,7 @@ core:
           register: ownership
           params:
             columns:
-            - capability
+            - Capability
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -267,8 +267,8 @@ core:
           register: storage_governance
           params:
             columns:
-            - storage_need
-            - purpose
+            - Storage Need
+            - Purpose
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -327,7 +327,7 @@ core:
           register: cross_subdomain_deps
           params:
             columns:
-            - dependency
+            - Dependency
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -463,7 +463,7 @@ core:
           register: governance_outcome
           params:
             columns:
-            - capability
+            - Capability
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'

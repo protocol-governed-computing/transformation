@@ -142,6 +142,68 @@ PAYLOADS = {
         "scripts/testbed/corpus_p7/admissible_p7_deferral_owned.md",
     "53_p7_inadmissible_deferral_unowned.json":
         "scripts/testbed/corpus_p7/inadmissible_p7_deferral_unowned.md",
+    "54_p5_inadmissible_uncited_rows.json":
+        "scripts/testbed/corpus_p5/inadmissible_p5_uncited_rows.md",
+    "55_p5_inadmissible_hollow_registers.json":
+        "scripts/testbed/corpus_p5/inadmissible_p5_hollow_registers.md",
+    "56_p5_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p5/inadmissible_p5_malformed_document.md",
+    "57_p5_inadmissible_untouched_subdomain.json":
+        "scripts/testbed/corpus_p5/inadmissible_p5_untouched_subdomain.md",
+    "58_p6_inadmissible_uncited_rows.json":
+        "scripts/testbed/corpus_p6/inadmissible_p6_uncited_rows.md",
+    "59_p6_inadmissible_hollow_registers.json":
+        "scripts/testbed/corpus_p6/inadmissible_p6_hollow_registers.md",
+    "60_p6_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p6/inadmissible_p6_malformed_document.md",
+    "61_p6_inadmissible_unowned_subdomain.json":
+        "scripts/testbed/corpus_p6/inadmissible_p6_unowned_subdomain.md",
+    "62_p3_inadmissible_uncited_rows.json":
+        "scripts/testbed/corpus_p3/inadmissible_p3_uncited_rows.md",
+    "63_p3_inadmissible_unreasoned_decisions.json":
+        "scripts/testbed/corpus_p3/inadmissible_p3_unreasoned_decisions.md",
+    "64_p3_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p3/inadmissible_p3_malformed_document.md",
+    "65_p4_inadmissible_uncited_rows.json":
+        "scripts/testbed/corpus_p4/inadmissible_p4_uncited_rows.md",
+    "66_p4_inadmissible_untraced_consolidation.json":
+        "scripts/testbed/corpus_p4/inadmissible_p4_untraced_consolidation.md",
+    "67_p4_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p4/inadmissible_p4_malformed_document.md",
+    "68_inadmissible_malformed_seed.json":
+        "scripts/testbed/corpus/inadmissible_p0_malformed_seed.md",
+    "69_p1_inadmissible_outstanding_clarifications.json":
+        "scripts/testbed/corpus_p1/inadmissible_p1_outstanding_clarifications.md",
+    "70_p1_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p1/inadmissible_p1_malformed_document.md",
+    "71_p2_inadmissible_unverified_beliefs.json":
+        "scripts/testbed/corpus_p2/inadmissible_p2_unverified_beliefs.md",
+    "72_p2_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p2/inadmissible_p2_malformed_document.md",
+    "73_p8_inadmissible_unbuildable_schedule.json":
+        "scripts/testbed/corpus_p8/inadmissible_p8_unbuildable_schedule.md",
+    "74_p8_inadmissible_hollow_mandate.json":
+        "scripts/testbed/corpus_p8/inadmissible_p8_hollow_mandate.md",
+    "75_p8_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p8/inadmissible_p8_malformed_document.md",
+    "76_p8_inadmissible_unplaced_amendment.json":
+        "scripts/testbed/corpus_p8/inadmissible_p8_unplaced_amendment.md",
+    "77_p7_inadmissible_malformed_document.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_malformed_document.md",
+    "78_p7_inadmissible_uncomposed_steps.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_uncomposed_steps.md",
+    "79_p7_inadmissible_unbuildable_artifacts.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_unbuildable_artifacts.md",
+    "80_p7_inadmissible_unbound_fields.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_unbound_fields.md",
+    "81_p7_inadmissible_unbound_topology.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_unbound_topology.md",
+    "82_p7_inadmissible_miscounted_inventory.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_miscounted_inventory.md",
+    "83_p7_inadmissible_uncited_rows.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_uncited_rows.md",
+    "84_p7_inadmissible_undeclared_reach.json":
+        "scripts/testbed/corpus_p7/inadmissible_p7_undeclared_reach.md",
 }
 
 

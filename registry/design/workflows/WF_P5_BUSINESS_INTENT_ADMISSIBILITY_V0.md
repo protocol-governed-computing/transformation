@@ -133,7 +133,7 @@ core:
           register: purpose_provenance
           params:
             columns:
-            - refinement
+            - Refinement
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -160,7 +160,7 @@ core:
           register: subdomain_purposes
           params:
             columns:
-            - purpose
+            - Purpose
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -312,8 +312,8 @@ core:
           register: scope_boundary
           params:
             columns:
-            - capability
-            - notes
+            - Capability
+            - Notes
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -373,8 +373,8 @@ core:
           register: business_objects
           params:
             columns:
-            - store_name
-            - business_rationale
+            - Store Name
+            - Business Rationale
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -429,10 +429,10 @@ core:
           register: identity_semantics
           params:
             columns:
-            - identity_field
-            - source
-            - uniqueness_rule
-            - cross_subdomain_relationship
+            - Identity Field
+            - Source
+            - Uniqueness Rule
+            - Cross-Subdomain Relationship
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -484,8 +484,8 @@ core:
           register: invariants
           params:
             columns:
-            - invariant
-            - business_reason
+            - Invariant
+            - Business Reason
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -548,8 +548,8 @@ core:
           register: actions
           params:
             columns:
-            - object
-            - trigger
+            - Object
+            - Trigger
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -617,7 +617,7 @@ core:
           register: provisional_codes
           params:
             columns:
-            - summary
+            - Summary
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -666,7 +666,7 @@ core:
           register: cross_subdomain_refs
           params:
             columns:
-            - role
+            - Role
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'

@@ -51,6 +51,17 @@ def _is_provenance_column(column: str) -> bool:
     return any(column.startswith(p) for p in _PROVENANCE_COLUMNS)
 
 
+def _normalized(column: str) -> str:
+    """A column name reduced to the form a template author writes it in.
+
+    `Cross-Subdomain Relationship` and `cross_subdomain_relationship` name one column. The bare
+    `business_language` flag reads the header itself and never needed this; the scoped form
+    `business_language=capability,notes` is typed by hand in the author's spelling, and a rule
+    carrying that spelling looks up a key no parsed row has.
+    """
+    return re.sub(r"[^a-z0-9]+", "_", column.strip().lower()).strip("_")
+
+
 @dataclass(frozen=True)
 class Register:
     """One declared register of a phase document."""
@@ -80,10 +91,29 @@ class Register:
         and in a phase that verifies against the composition they must name artifacts. Treating
         them as business prose reports a finding against every correctly-grounded row, which is what
         the battle-tested P2 instance exposed.
+
+        Scoped names are resolved back to the header they name. Until they were, the scoped form
+        emitted a rule keyed on the author's spelling — `business_reason` against a row held under
+        `Business Reason` — so every register that named its columns explicitly carried a rule that
+        could not fire. A declared name matching no column is a template defect and is raised here
+        rather than silently dropped, which is how the first spelling survived.
         """
         if self.business_language:
             return tuple(c for c in self.columns if not _is_provenance_column(c))
-        return self.scoped_flags.get("business_language", ())
+        declared = self.scoped_flags.get("business_language", ())
+        if not declared:
+            return ()
+        by_normal = {_normalized(c): c for c in self.columns}
+        resolved, unknown = [], []
+        for name in declared:
+            column = by_normal.get(_normalized(name))
+            (resolved if column else unknown).append(column or name)
+        if unknown:
+            raise ValueError(
+                f"register {self.id!r} scopes business_language to {unknown} — "
+                f"no such column among {list(self.columns)}"
+            )
+        return tuple(resolved)
 
     @property
     def optional(self) -> bool:
