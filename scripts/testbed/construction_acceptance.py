@@ -65,6 +65,11 @@ DOMAINS = (
      WORKSPACE / "business_domains/blockchain/registry"),
 )
 
+# The catalog's entry above overrides what discovery would find, and only that one: its dossiers are
+# read from maintained fixtures rather than from the domain's own delivered ones. Named here so the
+# coverage check below can tell a deliberate substitution from an omission.
+SUBSTITUTED = {WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers"}
+
 # The sequence used to be a literal list, and a delivered dossier that re-rendered an artifact an
 # earlier one rendered had to be appended by hand. Miss the step and the harness compares a built
 # artifact against a design that is no longer its design of record, then reports the difference as
@@ -220,6 +225,52 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
     return len(reference), failures, total_diffs
 
 
+def determines_artifacts(dossier: Path) -> bool:
+    """True when a dossier's design schedules an artifact for construction to render.
+
+    A dossier that only amends existing artifacts renders nothing, so acceptance has nothing to
+    compare and its absence from the corpus is not a gap.
+    """
+    for p7 in dossier.glob("p7_*.md"):
+        rows = registers(p7).get("new_artifacts") or []
+        if any(_cell_of(row, "Code") for row in rows):
+            return True
+    return False
+
+
+def _cell_of(row: dict, prefix: str) -> str:
+    for key, value in row.items():
+        if key.startswith(prefix):
+            return str(value).strip()
+    return ""
+
+
+def uncovered() -> list[Path]:
+    """Dossier roots holding a design that determines artifacts and that DOMAINS does not read.
+
+    `DOMAINS` is a hand-kept pair, which is the shape `SEQUENCED` was introduced to remove one level
+    down: the *sequence* used to be a literal list and a missed entry cost twelve differences read as
+    construction defects. The *domain* list is still literal, and a third domain whose dossiers
+    determine artifacts would be reproduced by nothing and reported by nothing.
+
+    So rather than derive the list — the fixture substitution above is deliberate and derivation
+    would undo it — this asks the question the list can go stale on, and asks it of the workspace
+    rather than of a second list.
+    """
+    covered = {root.resolve() for root, _ in DOMAINS} | {p.resolve() for p in SUBSTITUTED}
+    out = []
+    for repo in sorted(WORKSPACE.iterdir()):
+        if not repo.is_dir() or repo.name.startswith("."):
+            continue
+        for root in sorted(repo.glob("**/cr_dossiers")) + sorted(repo.glob("*/dossiers")) \
+                + sorted(repo.glob("dossiers")):
+            if root.resolve() in covered or not root.is_dir():
+                continue
+            if any(determines_artifacts(d) for d in root.iterdir() if d.is_dir()):
+                out.append(root)
+    return out
+
+
 def main() -> int:
     args = sys.argv[1:]
     if "--registry" in args:
@@ -239,7 +290,14 @@ def main() -> int:
 
     print(f"  {compared - failures}/{compared} artifacts reproduced across {len(DOMAINS)} domain(s)"
           f"   ({diffs} field difference(s))")
-    return 1 if failures else 0
+
+    missing = uncovered()
+    for root in missing:
+        print(f"  UNCOVERED  {root.relative_to(WORKSPACE)} determines artifacts and is compared "
+              f"against nothing")
+    if missing:
+        print(f"\n  {len(missing)} dossier root(s) outside DOMAINS — add them, or say why not")
+    return 1 if failures or missing else 0
 
 
 if __name__ == "__main__":

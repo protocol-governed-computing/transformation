@@ -258,7 +258,7 @@ core:
           register: authoring_decisions
           params:
             columns:
-            - capability
+            - Capability
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -410,7 +410,7 @@ core:
           register: placement_decision
           params:
             columns:
-            - subdomain
+            - Subdomain
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
@@ -471,7 +471,7 @@ core:
           register: saturation
           params:
             columns:
-            - criterion
+            - Criterion
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'

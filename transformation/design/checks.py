@@ -175,14 +175,25 @@ def _table_has_columns(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     if block is None or block.table is None:
         return []
     out = []
+    remaining = list(block.table.columns)
     for expected in rule.params["columns"]:
-        if not any(col.startswith(expected) for col in block.table.columns):
+        # Prefix, because a header carries its vocabulary — `Status (IN_SCOPE, DEFERRED)` is the
+        # `Status` column. **Consumed once**, because a prefix match is otherwise satisfied by a
+        # longer sibling: `Source Finding` startswith `Source`, so nine registers across six phases
+        # could lose their `Source`, `Evidence`, `Node`, `Step` or `Generator` column and report
+        # clean. Exact matches are taken first so a shorter name cannot claim a longer one's header
+        # while its own is present.
+        match = next((c for c in remaining if c == expected), None) \
+            or next((c for c in remaining if c.startswith(expected)), None)
+        if match is None:
             out.append(
                 (
                     _where(rule),
                     f"required column {expected!r} absent; found {block.table.columns}",
                 )
             )
+        else:
+            remaining.remove(match)
     return out
 
 
