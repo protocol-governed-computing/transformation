@@ -59,7 +59,7 @@ INTENT_OUTCOMES = {
     "NACK": {"description": "Request rejected"},
 }
 
-WORKFLOW_STRUCTURE = "fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0"
+WORKFLOW_STRUCTURE = "execution::STRUCTURE_RUNTIME_EXECUTION_V0"
 
 # The boundary's own substitution syntax, matched here so the renderer can tell a token it must
 # preserve verbatim from a constant it should read as a value. Kept identical to the resolver's.
@@ -340,6 +340,11 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
         "artifact_kind": KIND[fam],
         "version": "v0",
         "governed_by": GOVERNED_BY[fam],
+        # Authority and concern are declared carriers, never derived from the identifier or the
+        # source directory (GO-11, MB-7, ID-12, `2e` CA-1). `concern` is the design's own subdomain
+        # field, so the renderer states what the design already decided rather than inferring it.
+        "authority": "pgc.platform",
+        "concern": sub,
     }
     # In the Machine block, not the header. It was a header fact for as long as nothing read it; the
     # compiler now asserts referential closure over it, so it is governed content and belongs where
@@ -910,6 +915,10 @@ def build_manifest(p7: dict, p8: dict) -> dict | None:
         "artifact_kind": "STRUCTURE",
         "version": "V0",
         "governed_by": BY_CODE["STRUCTURE"].constitution,
+        # Declared carriers, as for every rendered artifact. A build manifest sits at the domain
+        # root rather than in a subdomain, so its concern is the domain itself.
+        "authority": "pgc.platform",
+        "concern": domain,
         "structure_scope": domain,
         "reuse_visibility": "business",
         "core": {

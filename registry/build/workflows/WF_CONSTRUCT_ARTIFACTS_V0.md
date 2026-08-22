@@ -55,11 +55,13 @@ not this workflow's to make.
 fqdn: transformation::WF_CONSTRUCT_ARTIFACTS_V0
 artifact_kind: WORKFLOW
 version: v0
-governed_by: fb.workflow::CONSTITUTION_WORKFLOW_V0
+governed_by: workflow::CONSTITUTION_WORKFLOW_V0
+authority: pgc.platform
+concern: build
 
 runtime_binding: transformation::RB_CONSTRUCTION_BINDINGS_V0
 subdomain: build
-structure: fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0
+structure: execution::STRUCTURE_RUNTIME_EXECUTION_V0
 
 core:
   summary: Construct protocol artifacts from an approved design and mandate

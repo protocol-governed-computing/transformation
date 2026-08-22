@@ -31,7 +31,7 @@ HOW. Binding FQDNs are assigned here; business facts and placement decisions are
 | transformation::CC_JUDGE_AGAINST_SNAPSHOT_V0 | EXTEND | Parse a phase document and its priors, observe the composition, and judge them together | Gains the step that observes the store surface, without which every new rule reports nothing. | S4 gap_register GAP-5 |
 | inspection::TI_SI_STORE_LIST_V0 | EXTEND | List every store a composition declares, with the paths and the declarations behind it | Answers every store at once with a count of each store's bindings and not their identities, which is the one hop the new rules cannot make. Gains the identities beside the count. | S6 pps_artifacts_requiring_action #3 |
 | inspection::TI_SI_CAPABILITY_SURFACE_V0 | REUSE | | Publishes each act's steps and each operation's effect — the other half of the same derivation. | S6 pps_artifacts_requiring_action #4 |
-| fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0 | REVIEW | | States the resolution model this change lets a design declare. Unchanged: the platform already admits the reach. | S6 pps_artifacts_requiring_action #5 |
+| runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0 | REVIEW | | States the resolution model this change lets a design declare. Unchanged: the platform already admits the reach. | S6 pps_artifacts_requiring_action #5 |
 | transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0 | REVIEW | | Declares what the domain compiles. Unchanged; named because the amended artifacts are compiled under it. | S6 pps_artifacts_requiring_action #2 |
 
 ---

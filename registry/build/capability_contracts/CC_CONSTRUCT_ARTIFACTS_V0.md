@@ -63,7 +63,9 @@ a register contains.
 fqdn: transformation::CC_CONSTRUCT_ARTIFACTS_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: build
 core:
   summary: Measure a design, refuse it if under-determined, and render the artifacts it schedules
   inputs:

@@ -35,7 +35,9 @@ cannot alter the composition it is reasoning about.
 fqdn: transformation::RB_TRANSFORMATION_BINDINGS_V0
 artifact_kind: RUNTIME_BINDING
 version: v0
-governed_by: fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0
+governed_by: runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0
+authority: pgc.platform
+concern: design
 parameters:
 - snapshot_root
 core:

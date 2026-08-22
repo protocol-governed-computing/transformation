@@ -59,7 +59,7 @@ subdomain is declared.
 | What a design states about reach is what the built act carries | design -> build | transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0 | GAP | S4 dependency_graph #2 |
 | The records a named binding covers, read rather than restated | design -> inspection | inspection::TI_SI_STORE_LIST_V0 | GAP | S4 dependency_graph #3 |
 | Which records an act's steps address | design -> inspection | inspection::TI_SI_CAPABILITY_SURFACE_V0 | SATISFIED | S4 dependency_graph #3 |
-| The reach the platform admits, which this states rather than invents | design -> runtime_binding | fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0 | SATISFIED | S4 dependency_graph #4 |
+| The reach the platform admits, which this states rather than invents | design -> runtime_binding | runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0 | SATISFIED | S4 dependency_graph #4 |
 
 ---
 
@@ -72,7 +72,7 @@ subdomain is declared.
 | transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0 | Declares what the domain compiles. Unchanged by this correction; named because the emitted reach is compiled under it. | REVIEW | S4 dependency_graph #2 |
 | inspection::TI_SI_STORE_LIST_V0 | Answers every store at once with the count of its bindings and not their identities. The identities are published one store at a time, which a fixed pipeline cannot ask for. | EXTEND | S4 gap_register GAP-7 |
 | inspection::TI_SI_CAPABILITY_SURFACE_V0 | Publishes each act's steps and each operation's effect. Already sufficient; named as the fact the new rules derive from. | REUSE | S4 capability_graph #7 |
-| fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0 | States the storage resolution model the platform admits, including the reach this change lets a design declare. | REVIEW | S4 dependency_graph #4 |
+| runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0 | States the storage resolution model the platform admits, including the reach this change lets a design declare. | REVIEW | S4 dependency_graph #4 |
 
 ---
 

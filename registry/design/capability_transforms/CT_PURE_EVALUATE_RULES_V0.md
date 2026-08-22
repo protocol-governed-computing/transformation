@@ -43,7 +43,9 @@ unevaluated subject.
 fqdn: transformation::CT_PURE_EVALUATE_RULES_V0
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
-governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+governed_by: capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Evaluate a declared rule set against parsed registers
   refusal: returns

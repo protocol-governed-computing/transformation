@@ -27,7 +27,9 @@ acceptance is recorded against them.
 fqdn: transformation::AC_GATE_REVIEWER_V0
 artifact_kind: ACTOR
 version: v0
-governed_by: fb.actor::CONSTITUTION_ACTOR_IDENTITY_V0
+governed_by: actor::CONSTITUTION_ACTOR_IDENTITY_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Human reviewer at a pipeline gate
   description: The human who accepts or declines a seed at Gate 0 after a verdict is reached.

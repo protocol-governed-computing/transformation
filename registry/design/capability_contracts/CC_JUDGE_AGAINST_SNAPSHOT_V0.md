@@ -102,7 +102,9 @@ compiled workflow is a declaration that this phase's handoff is ungoverned, and 
 fqdn: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Parse a phase document and its priors, observe the composition, and judge them together
   inputs:

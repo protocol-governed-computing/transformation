@@ -82,7 +82,9 @@ be read from the composition without reading any code.
 fqdn: transformation::CC_JUDGE_DOCUMENT_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Parse a phase document and judge it against a declared rule set
   inputs:

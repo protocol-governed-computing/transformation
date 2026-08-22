@@ -38,26 +38,26 @@ class Family:
 
 
 FAMILIES: tuple[Family, ...] = (
-    Family("AC", "ACTOR", "fb.governance::CONSTITUTION_GOVERNANCE_V0", "actors"),
-    Family("IN", "INTENT", "fb.intent::CONSTITUTION_INTENT_V0", "intents"),
-    Family("WF", "WORKFLOW", "fb.workflow::CONSTITUTION_WORKFLOW_V0", "workflows"),
+    Family("AC", "ACTOR", "governance::CONSTITUTION_GOVERNANCE_V0", "actors"),
+    Family("IN", "INTENT", "intent::CONSTITUTION_INTENT_V0", "intents"),
+    Family("WF", "WORKFLOW", "workflow::CONSTITUTION_WORKFLOW_V0", "workflows"),
     Family("CC", "CAPABILITY_CONTRACT",
-           "fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0", "capability_contracts"),
+           "capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0", "capability_contracts"),
     Family("CT", "CAPABILITY_TRANSFORM",
-           "fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0",
+           "capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0",
            "capability_transforms"),
     Family("CS", "CAPABILITY_SIDE_EFFECT",
-           "fb.capability_side_effects::CONSTITUTION_CAPABILITY_SIDE_EFFECTS_V0",
+           "capability_side_effects::CONSTITUTION_CAPABILITY_SIDE_EFFECTS_V0",
            "capability_side_effects", authorable=False),
     Family("RB", "RUNTIME_BINDING",
-           "fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0", "runtime_bindings"),
-    Family("EV", "EVENT", "fb.event::CONSTITUTION_EVENT_V0", "events"),
-    Family("VOCAB", "VOCABULARY", "fb.vocabulary::CONSTITUTION_VOCABULARY_V0", "vocabulary"),
-    Family("STRUCTURE", "STRUCTURE", "fb.structure::CONSTITUTION_STRUCTURE_V0", "layers"),
+           "runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0", "runtime_bindings"),
+    Family("EV", "EVENT", "event::CONSTITUTION_EVENT_V0", "events"),
+    Family("VOCAB", "VOCABULARY", "vocabulary::CONSTITUTION_VOCABULARY_V0", "vocabulary"),
+    Family("STRUCTURE", "STRUCTURE", "structure::CONSTITUTION_STRUCTURE_V0", "layers"),
     Family("TI", "TRANSPORT_INGRESS",
-           "fb.transport::CONSTITUTION_TRANSPORT_INGRESS_V0", "transport"),
+           "transport::CONSTITUTION_TRANSPORT_INGRESS_V0", "transport"),
     Family("TE", "TRANSPORT_EGRESS",
-           "fb.transport::CONSTITUTION_TRANSPORT_EGRESS_V0", "transport/egress"),
+           "transport::CONSTITUTION_TRANSPORT_EGRESS_V0", "transport/egress"),
 )
 
 BY_CODE: dict[str, Family] = {family.code: family for family in FAMILIES}

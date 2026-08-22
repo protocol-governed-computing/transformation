@@ -40,7 +40,9 @@ Derived, the same corpus requires **710** facts rather than 170.
 fqdn: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
-governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+governed_by: capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+authority: pgc.platform
+concern: build
 core:
   summary: Measure Construction Completeness and refuse a design that does not determine its artifacts
   refusal: raises

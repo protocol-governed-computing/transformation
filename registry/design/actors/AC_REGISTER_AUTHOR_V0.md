@@ -33,7 +33,9 @@ later phases, which reuse this one.
 fqdn: transformation::AC_REGISTER_AUTHOR_V0
 artifact_kind: ACTOR
 version: v0
-governed_by: fb.actor::CONSTITUTION_ACTOR_IDENTITY_V0
+governed_by: actor::CONSTITUTION_ACTOR_IDENTITY_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Author of record for a phase register
   description: The human accountable for the content of a register offered to a dossier phase.

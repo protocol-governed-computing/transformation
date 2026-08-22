@@ -81,7 +81,9 @@ one case it can still appear — the inadmissible document that is rated anyway.
 fqdn: transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
 artifact_kind: STRUCTURE
 version: V1
-governed_by: fb.structure::CONSTITUTION_STRUCTURE_V0
+governed_by: structure::CONSTITUTION_STRUCTURE_V0
+authority: pgc.platform
+concern: transformation
 supersedes: transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
 
 core:

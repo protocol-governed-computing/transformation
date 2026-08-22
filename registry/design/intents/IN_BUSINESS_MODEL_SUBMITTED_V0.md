@@ -28,7 +28,9 @@ against.
 fqdn: transformation::IN_BUSINESS_MODEL_SUBMITTED_V0
 artifact_kind: INTENT
 version: v0
-governed_by: fb.intent::CONSTITUTION_INTENT_V0
+governed_by: intent::CONSTITUTION_INTENT_V0
+authority: pgc.platform
+concern: design
 
 core:
   summary: Offer a Business Model register for admissibility judgement

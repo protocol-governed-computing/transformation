@@ -46,7 +46,9 @@ this step is what guarantees there is nothing left to invent by the time it runs
 fqdn: transformation::CT_PURE_RENDER_ARTIFACTS_V0
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
-governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+governed_by: capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+authority: pgc.platform
+concern: build
 core:
   summary: Render every artifact a mandate schedules from the design that determines it
   refusal: raises

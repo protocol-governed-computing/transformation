@@ -23,7 +23,9 @@ Build-time manifest for the `transformation` domain — the governed change pipe
 fqdn: transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0
 artifact_kind: STRUCTURE
 version: V0
-governed_by: fb.structure::CONSTITUTION_STRUCTURE_V0
+governed_by: structure::CONSTITUTION_STRUCTURE_V0
+authority: pgc.platform
+concern: transformation
 structure_scope: transformation
 reuse_visibility: platform_service
 core:

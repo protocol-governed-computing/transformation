@@ -57,11 +57,13 @@ artifacts by FQDN, so it is the one that must be checked against the composition
 fqdn: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
 version: v0
-governed_by: fb.workflow::CONSTITUTION_WORKFLOW_V0
+governed_by: workflow::CONSTITUTION_WORKFLOW_V0
+authority: pgc.platform
+concern: design
 
 runtime_binding: transformation::RB_TRANSFORMATION_BINDINGS_V0
 subdomain: design
-structure: fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0
+structure: execution::STRUCTURE_RUNTIME_EXECUTION_V0
 
 core:
   summary: Decide whether an offered Business Model register is admissible

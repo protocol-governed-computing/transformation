@@ -66,7 +66,9 @@ so the number of upstream documents a phase reads must not change the contract's
 fqdn: transformation::CC_JUDGE_AGAINST_COMPOSITION_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Parse a phase document and its priors, observe the composition and its declarations, and judge them together
   inputs:

@@ -48,7 +48,9 @@ or it was not.
 fqdn: transformation::CC_PERSIST_ARTIFACTS_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: build
 core:
   summary: Write a rendered construction beneath the root its runtime binding declares
   inputs:
