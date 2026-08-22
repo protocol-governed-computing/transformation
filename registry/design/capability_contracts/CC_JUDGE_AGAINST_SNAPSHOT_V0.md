@@ -1,18 +1,5 @@
 # CC_JUDGE_AGAINST_SNAPSHOT_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CC_JUDGE_AGAINST_SNAPSHOT_V0
-- **Artifact Kind:** capability_contract
-- **Governed By:** CONSTITUTION_CAPABILITY_CONTRACT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_PARSE_PRIOR_PHASES_V0,
-  CS_SNAPSHOT_QUERY_V0, CT_PURE_EVALUATE_RULES_V0
-
----
-
 ## 1. Intent
 
 Judge a phase document against a declared rule set, **against the composition it describes**, and

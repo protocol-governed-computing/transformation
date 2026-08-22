@@ -1,16 +1,5 @@
 # CT_PURE_EVALUATE_RULES_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CT_PURE_EVALUATE_RULES_V0
-- **Artifact Kind:** capability_transform
-- **Governed By:** CONSTITUTION_CAPABILITY_TRANSFORMS_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Apply a declared rule set to parsed registers and report every rule that failed.

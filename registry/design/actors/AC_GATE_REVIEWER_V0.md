@@ -1,16 +1,5 @@
 # AC_GATE_REVIEWER_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** AC_GATE_REVIEWER_V0
-- **Artifact Kind:** actor
-- **Governed By:** CONSTITUTION_ACTOR_IDENTITY_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 The person who confirms at a gate that a seed says what they meant.

@@ -1,16 +1,5 @@
 # RB_TRANSFORMATION_BINDINGS_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** RB_TRANSFORMATION_BINDINGS_V0
-- **Artifact Kind:** runtime_binding
-- **Governed By:** CONSTITUTION_RUNTIME_BINDING_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Runtime bindings for the transformation phase pipeline.

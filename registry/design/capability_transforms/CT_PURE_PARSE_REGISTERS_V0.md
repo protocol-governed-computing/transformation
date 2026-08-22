@@ -1,16 +1,5 @@
 # CT_PURE_PARSE_REGISTERS_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CT_PURE_PARSE_REGISTERS_V0
-- **Artifact Kind:** capability_transform
-- **Governed By:** CONSTITUTION_CAPABILITY_TRANSFORMS_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Read a phase document into the registers a rule set can be applied to.

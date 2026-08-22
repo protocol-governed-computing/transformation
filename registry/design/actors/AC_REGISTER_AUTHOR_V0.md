@@ -1,16 +1,5 @@
 # AC_REGISTER_AUTHOR_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** AC_REGISTER_AUTHOR_V0
-- **Artifact Kind:** actor
-- **Governed By:** CONSTITUTION_ACTOR_IDENTITY_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 The person accountable for a phase register's content, from P1 onward.

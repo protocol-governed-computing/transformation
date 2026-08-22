@@ -1,16 +1,5 @@
 # STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0
-- **Artifact Kind:** structure
-- **Governed By:** CONSTITUTION_STRUCTURE_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Build-time manifest for the `transformation` domain — the governed change pipeline itself.

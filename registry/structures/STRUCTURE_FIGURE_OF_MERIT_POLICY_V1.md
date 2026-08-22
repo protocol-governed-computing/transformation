@@ -1,16 +1,5 @@
 # STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
 
-## Header (Mandatory)
-
-- **Artifact Code:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
-- **Artifact Kind:** structure
-- **Governed By:** CONSTITUTION_STRUCTURE_V0
-- **Version:** V1
-- **Status:** draft
-- **Supersedes:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
-
----
-
 ## 1. Intent
 
 What a phase document loses a star for, and how much.

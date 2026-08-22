@@ -1,16 +1,5 @@
 # IN_DOMAIN_MODEL_SUBMITTED_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** IN_DOMAIN_MODEL_SUBMITTED_V0
-- **Artifact Kind:** intent
-- **Governed By:** CONSTITUTION_INTENT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 A Domain Model register is offered to P2 for judgement.

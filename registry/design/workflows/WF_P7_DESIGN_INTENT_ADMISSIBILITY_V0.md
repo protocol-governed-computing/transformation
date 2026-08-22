@@ -1,16 +1,5 @@
 # WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
-- **Artifact Kind:** workflow
-- **Governed By:** CONSTITUTION_WORKFLOW_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## Generated Artifact
 
 This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and

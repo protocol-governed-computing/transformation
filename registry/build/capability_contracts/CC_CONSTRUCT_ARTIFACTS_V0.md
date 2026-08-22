@@ -1,18 +1,5 @@
 # CC_CONSTRUCT_ARTIFACTS_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CC_CONSTRUCT_ARTIFACTS_V0
-- **Artifact Kind:** capability_contract
-- **Governed By:** CONSTITUTION_CAPABILITY_CONTRACT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_MEASURE_COMPLETENESS_V0,
-  CT_PURE_RENDER_ARTIFACTS_V0
-
----
-
 ## 1. Intent
 
 Construct protocol artifacts from an approved design and mandate.

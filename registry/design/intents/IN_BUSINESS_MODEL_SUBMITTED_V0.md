@@ -1,16 +1,5 @@
 # IN_BUSINESS_MODEL_SUBMITTED_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** IN_BUSINESS_MODEL_SUBMITTED_V0
-- **Artifact Kind:** intent
-- **Governed By:** CONSTITUTION_INTENT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 A Business Model register is offered to P4 for judgement.
