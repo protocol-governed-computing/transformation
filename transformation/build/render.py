@@ -994,26 +994,22 @@ def render_document(artifact: dict) -> str:
 
     body = yaml.dump(machine, sort_keys=False, width=100, allow_unicode=True,
                      default_flow_style=False)
-    # `Supersedes` has been on every header since the first artifact and has said NONE on all of
-    # them. A design that retires an artifact names its successor, and this is where the successor
-    # says so — the field existed for exactly this and nothing had ever written it.
-    supersedes = ", ".join(artifact.get("supersedes") or ()) or "NONE"
+    # No header block. Artifact code, kind, governing constitution, version and supersession are
+    # all declared in the Machine block below; restating them in prose is a second surface that can
+    # disagree with the first, and the prose copy is always the weaker one (a short name where the
+    # declaration carries an identity). The policy is vocabulary::VOCAB_HUMAN_BLOCK_CONSTRAINTS_V0;
+    # the reasoning is in the Field Manual, `The human block`.
+    #
+    # The Machine block leads and the prose follows it as commentary, which is the actual
+    # relationship between them.
     return (
         f"# {code}\n\n"
-        "## Header (Mandatory)\n\n"
-        f"- **Artifact Code:** {code}\n"
-        f"- **Artifact Kind:** {HEADER_KIND.get(kind, kind.lower())}\n"
-        f"- **Governed By:** {constitution}\n"
-        f"- **Version:** {machine.get('version', 'v0').upper()}\n"
-        "- **Status:** draft\n"
-        f"- **Supersedes:** {supersedes}\n\n"
-        "---\n\n"
-        "## 1. Intent\n\n"
-        f"{summary}\n\n"
-        "---\n\n"
         "## Machine\n\n"
         "```yaml\n"
-        f"{body}```\n"
+        f"{body}```\n\n"
+        "---\n\n"
+        "## Intent\n\n"
+        f"{summary}\n"
     )
 
 
@@ -1037,7 +1033,6 @@ def render_documents(p7: dict, p8: dict) -> list[dict]:
 # nothing in the governance surface models supersession. The marking is the record, and excluding a
 # superseded artifact from a composition is a platform question that belongs with the platform.
 
-SUPERSEDED_STATUS = "superseded"
 
 
 def mark_superseded(text: str, successors: list[str]) -> str:
@@ -1071,15 +1066,8 @@ def mark_superseded(text: str, successors: list[str]) -> str:
     else:
         lines[anchors[0] + 1:anchors[0] + 1] = block
 
-    named = ", ".join(successors)
-    for i, line in enumerate(lines):
-        if line.startswith("- **Status:**"):
-            lines[i] = f"- **Status:** {SUPERSEDED_STATUS}\n"
-        elif line.startswith("- **Superseded By:**"):
-            lines[i] = f"- **Superseded By:** {named}\n"
-    if not any(line.startswith("- **Superseded By:**") for line in lines):
-        for i, line in enumerate(lines):
-            if line.startswith("- **Status:**"):
-                lines.insert(i + 1, f"- **Superseded By:** {named}\n")
-                break
+    # Standing an artifact down writes `superseded_by` into the Machine block above and nothing
+    # else. There was a prose `- **Status:**` line kept in step with it; it is gone, because two
+    # records of one governed fact can disagree and supersession is a declared relation (`4e` SU-1,
+    # SU-3). A reader asking whether an artifact is superseded reads the declaration.
     return "".join(lines)
