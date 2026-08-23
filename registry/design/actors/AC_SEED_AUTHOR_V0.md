@@ -1,16 +1,5 @@
 # AC_SEED_AUTHOR_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** AC_SEED_AUTHOR_V0
-- **Artifact Kind:** actor
-- **Governed By:** CONSTITUTION_ACTOR_IDENTITY_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 The person accountable for a seed's content.
@@ -28,7 +17,9 @@ can occupy this role.
 fqdn: transformation::AC_SEED_AUTHOR_V0
 artifact_kind: ACTOR
 version: v0
-governed_by: fb.actor::CONSTITUTION_ACTOR_IDENTITY_V0
+governed_by: actor::CONSTITUTION_ACTOR_IDENTITY_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Author of record for a seed
   description: The human accountable for the content of a seed offered to the seed phase.

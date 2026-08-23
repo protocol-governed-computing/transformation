@@ -1,18 +1,5 @@
 # CC_CONSTRUCT_ARTIFACTS_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CC_CONSTRUCT_ARTIFACTS_V0
-- **Artifact Kind:** capability_contract
-- **Governed By:** CONSTITUTION_CAPABILITY_CONTRACT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_MEASURE_COMPLETENESS_V0,
-  CT_PURE_RENDER_ARTIFACTS_V0
-
----
-
 ## 1. Intent
 
 Construct protocol artifacts from an approved design and mandate.
@@ -63,7 +50,9 @@ a register contains.
 fqdn: transformation::CC_CONSTRUCT_ARTIFACTS_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: build
 core:
   summary: Measure a design, refuse it if under-determined, and render the artifacts it schedules
   inputs:
@@ -115,23 +104,13 @@ core:
       SUCCESS: continue
       VIOLATION: exit
 
-  # The gate. A design that does not determine its artifacts stops here and never reaches the
-  # renderer — refusal is the transform raising, which the runtime surfaces as UNDER_DETERMINED.
-  - step: require_determined
-    transform: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
-    inputs:
-      design_registers: $.results.parse_design.capability_result.registers
-      mandate_registers: $.results.parse_mandate.capability_result.registers
-      threshold: $.inputs.threshold
-    outputs:
-      completeness: $.capability_result.completeness
-    result_surface:
-    - SUCCESS
-    - VIOLATION
-    on_result:
-      SUCCESS: continue
-      VIOLATION: exit
-
+  # Rendering now precedes the gate, and the gate is unchanged in what it protects. The measure tests
+  # where each value came from, and only the renderer knows — it is the thing that put it there. So
+  # the renderer runs, reports one source per leaf, and the gate reads the origins derived from them.
+  #
+  # Nothing is written before the gate. Rendering is pure and produces a shape in memory; persistence
+  # is a separate contract and still runs only on a design the gate admitted. What the gate stops is
+  # a construction being *written* from a design that does not determine it, and it still does.
   - step: render_artifacts
     transform: transformation::CT_PURE_RENDER_ARTIFACTS_V0
     inputs:
@@ -141,6 +120,42 @@ core:
       artifacts: $.capability_result.artifacts
       documents: $.capability_result.documents
       artifact_count: $.capability_result.artifact_count
+      sources: $.capability_result.sources
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+
+  # One origin per leaf: stated by the design, governed elsewhere, carried from the predecessor, or
+  # supplied by the renderer. Only the last is a fact nobody accounted for.
+  - step: attribute_provenance
+    transform: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
+    inputs:
+      rendered: $.results.render_artifacts.capability_result.artifacts
+      sources: $.results.render_artifacts.capability_result.sources
+    outputs:
+      provenance: $.capability_result.provenance
+      governing_artifacts: $.capability_result.governing_artifacts
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+
+  # The gate. A design that does not determine its artifacts stops here and nothing is written —
+  # refusal is the transform raising, which the runtime surfaces as UNDER_DETERMINED.
+  - step: require_determined
+    transform: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
+    inputs:
+      design_registers: $.results.parse_design.capability_result.registers
+      mandate_registers: $.results.parse_mandate.capability_result.registers
+      threshold: $.inputs.threshold
+      provenance: $.results.attribute_provenance.capability_result.provenance
+    outputs:
+      completeness: $.capability_result.completeness
     result_surface:
     - SUCCESS
     - VIOLATION

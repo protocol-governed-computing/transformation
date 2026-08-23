@@ -1,16 +1,5 @@
 # IN_CONSTRUCTION_REQUESTED_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** IN_CONSTRUCTION_REQUESTED_V0
-- **Artifact Kind:** intent
-- **Governed By:** CONSTITUTION_INTENT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Offer an approved design and mandate for construction.
@@ -28,7 +17,9 @@ file would make its result depend on a filesystem the composition cannot see.
 fqdn: transformation::IN_CONSTRUCTION_REQUESTED_V0
 artifact_kind: INTENT
 version: v0
-governed_by: fb.intent::CONSTITUTION_INTENT_V0
+governed_by: intent::CONSTITUTION_INTENT_V0
+authority: pgc.platform
+concern: build
 
 core:
   summary: Offer an approved design and mandate for construction

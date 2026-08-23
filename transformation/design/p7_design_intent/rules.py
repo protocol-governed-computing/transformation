@@ -605,6 +605,36 @@ COMPLETENESS_RULES: list[Rule] = [
         },
         intent="an artifact this design replaces is named by whatever supersedes it",
     ),
+    # A vocabulary states the group its values belong to and the spelling they take. Both were
+    # literals in the renderer until a vocabulary that was not a result status carried a group it
+    # did not belong to and a spelling its values did not have, and the platform refused it. A
+    # design that says neither leaves the renderer to choose, which is a second design authority.
+    Rule(
+        id="VOCABULARY_WITHOUT_GROUP",
+        check="CELL_NOT_EMPTY",
+        register="vocabulary_extensions",
+        params={
+            "column": "Group",
+            "detail": (
+                "vocabulary names no group for its values — the renderer would supply one, and it "
+                "supplies the same one to every vocabulary whatever the values mean"
+            ),
+        },
+        intent="a vocabulary states the group its values belong to",
+    ),
+    Rule(
+        id="VOCABULARY_WITHOUT_CASING",
+        check="CELL_NOT_EMPTY",
+        register="vocabulary_extensions",
+        params={
+            "column": "Casing",
+            "detail": (
+                "vocabulary names no spelling for its values — the renderer would supply one, and a "
+                "spelling its values do not have is refused by the platform that reads them"
+            ),
+        },
+        intent="a vocabulary states the spelling its values take",
+    ),
     Rule(
         id="VOCABULARY_WITHOUT_VALUES",
         check="REGISTER_COVERS_REGISTER",

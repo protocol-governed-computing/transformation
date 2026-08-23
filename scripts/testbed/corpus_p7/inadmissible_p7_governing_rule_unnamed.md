@@ -247,8 +247,8 @@ HOW. Binding FQDNs are assigned here; business facts and placement decisions are
 ## 10. Vocabulary Extensions
 
 <!-- register:vocabulary_extensions optional -->
-| Vocabulary Code | Extends | Value | Meaning | Source Finding |
-|-----------------|---------|-------|---------|----------------|
+| Vocabulary Code | Extends | Group | Casing | Value | Meaning | Source Finding |
+|-----------------|---------|-------|--------|-------|---------|----------------|
 | NONE IDENTIFIED |
 
 ---

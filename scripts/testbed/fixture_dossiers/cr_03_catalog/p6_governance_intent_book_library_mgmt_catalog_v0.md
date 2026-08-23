@@ -15,7 +15,7 @@ WHERE things belong and who owns them. No new artifact codes; no cross-subdomain
 | Domain | `book_library_mgmt` |
 | Primary subdomain | `catalog` — EXISTING — modified by this CR |
 | Authority class | reuse existing — an act announces what it completed; no new actor type |
-| Governing constitutions | `fb.workflow::CONSTITUTION_WORKFLOW_V0`, `fb.event::CONSTITUTION_EVENT_V0`, `fb.constitution::CONSTITUTION_GOVERNANCE_V0` |
+| Governing constitutions | `workflow::CONSTITUTION_WORKFLOW_V0`, `event::CONSTITUTION_EVENT_V0`, `fb.constitution::CONSTITUTION_GOVERNANCE_V0` |
 
 Every act and every moment belongs to catalog already. What changes is what its acts state about
 what they did, declared in the acts themselves. No subdomain is created.
@@ -30,7 +30,7 @@ what they did, declared in the acts themselves. No subdomain is created.
 | Announcing the three moments registering a book completes | catalog | OWNED | book_library_mgmt::WF_REGISTER_BOOK_V0 | S4 gap_register GAP-1 |
 | Announcing the moment each remaining act completes | catalog | OWNED | book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | S4 gap_register GAP-2 |
 | Attaching the moment naming a registered work to the act that claims its identity | catalog | SATISFIED | book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0 | S4 capability_graph #3 |
-| Announcing an ordered sequence at one ending | catalog | SATISFIED | fb.workflow::CONSTITUTION_WORKFLOW_V0 | S4 capability_graph #4 |
+| Announcing an ordered sequence at one ending | catalog | SATISFIED | workflow::CONSTITUTION_WORKFLOW_V0 | S4 capability_graph #4 |
 | A moment naming a reinstatement | catalog | DEFERRED | | S4 authoring_scope deferred #1 |
 | Refusing a declared moment that nothing announces | catalog | DEFERRED | | S4 authoring_scope deferred #2 |
 | A moment announced per member of a collection | catalog | DEFERRED | | S4 authoring_scope deferred #3 |

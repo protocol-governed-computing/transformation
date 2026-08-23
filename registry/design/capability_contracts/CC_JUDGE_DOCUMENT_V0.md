@@ -1,18 +1,5 @@
 # CC_JUDGE_DOCUMENT_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CC_JUDGE_DOCUMENT_V0
-- **Artifact Kind:** capability_contract
-- **Governed By:** CONSTITUTION_CAPABILITY_CONTRACT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-- **Dependencies:** CT_PURE_PARSE_REGISTERS_V0, CT_PURE_PARSE_PRIOR_PHASES_V0,
-  CT_PURE_EVALUATE_RULES_V0
-
----
-
 ## 1. Intent
 
 Judge a phase document against a declared rule set: read it into registers, then apply every rule
@@ -82,7 +69,9 @@ be read from the composition without reading any code.
 fqdn: transformation::CC_JUDGE_DOCUMENT_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Parse a phase document and judge it against a declared rule set
   inputs:

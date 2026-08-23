@@ -131,6 +131,46 @@ def narrowing(rendered: list[dict], existing: dict[str, dict]) -> dict[str, list
         lost = sorted(fact for fact in was
                       if fact not in now
                       and not any(later.startswith(fact + ".") for later in now))
+        # A leaf the design has no register for is not one the amendment chose to drop. Prose
+        # descriptions are the case, and the renderer preserves them rather than deleting what the
+        # design cannot speak about — so they are carried into the render before this comparison and
+        # never appear here. Anything still listed is a fact the design could have stated and did not.
         if lost:
             out[code] = lost
     return out
+
+
+def carry_forward(rendered: list[dict], existing: dict[str, dict]) -> None:
+    """Preserve, in each amended artifact, the leaves no register of the design can express.
+
+    Mutates the rendered machine blocks in place and records the origin of each preserved leaf, so
+    the measure counts it as accounted for rather than as a fact somebody stated.
+
+    Confined to descriptions deliberately. Every other leaf the design omits is a leaf it could have
+    stated, and preserving those would let an amendment inherit anything its predecessor happened to
+    carry — which is the drift this whole change is about, moving one level down.
+    """
+    from transformation.build.render import _carried
+
+    for artifact in rendered:
+        code = artifact["path"].rsplit("/", 1)[-1].removesuffix(".md")
+        prior = existing.get(code)
+        if not prior:
+            continue
+        now = dict(_leaves(artifact["machine"]))
+        supplied = artifact.setdefault("supplied", {})
+        for path, value in _leaves(prior):
+            if path in now or not path.endswith("description"):
+                continue
+            # `_leaves` emits a leading separator, so the first segment is empty.
+            target, *rest = path.lstrip(".").split(".")
+            cursor = artifact["machine"]
+            ok = True
+            for key in [target] + rest[:-1]:
+                if not isinstance(cursor, dict) or key not in cursor:
+                    ok = False
+                    break
+                cursor = cursor[key]
+            if ok and isinstance(cursor, dict):
+                cursor[rest[-1] if rest else target] = value
+                _carried(supplied, path)

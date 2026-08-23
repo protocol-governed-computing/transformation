@@ -1,17 +1,5 @@
 # STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
-- **Artifact Kind:** structure
-- **Governed By:** CONSTITUTION_STRUCTURE_V0
-- **Version:** V0
-- **Status:** superseded
-- **Supersedes:** NONE
-- **Superseded By:** STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
-
----
-
 ## 1. Intent
 
 What a phase document loses a star for, and how much.
@@ -58,7 +46,11 @@ version like any other.
 fqdn: transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V0
 artifact_kind: STRUCTURE
 version: V0
-governed_by: fb.structure::CONSTITUTION_STRUCTURE_V0
+governed_by: structure::CONSTITUTION_STRUCTURE_V0
+authority: pgc.platform
+concern: transformation
+superseded_by:
+- transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V1
 
 core:
   summary: Deterministic figure of merit for a phase document — deduction-based, 0 to 5

@@ -38,7 +38,7 @@ import yaml
 # `MACHINE_BLOCK` is one spelling of where a machine block ends, owned by the module
 # that renders them — there were three spellings and two of them disagreed.
 from transformation.build.render import MACHINE_BLOCK as MACHINE
-from transformation.build.render import build_manifest, render_all, bare
+from transformation.build.render import render_all, bare
 from transformation.design.read import read_seed
 
 REPO = Path(__file__).resolve().parents[2]
@@ -59,10 +59,20 @@ REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 # which is possible because rendering reads registers and never judges admissibility — a dossier that
 # would be refused at P7 today still determines exactly the artifacts it determined when it was
 # gated. Nothing had ever compared those 40 artifacts against their designs.
+# The base-code roots below are read from their delivered dossiers for the same reason blockchain is:
+# rendering reads registers and never judges admissibility. They carry no numbering, so they carry no
+# order — see `sequence`.
+# `(dossier root, registry, whole)`. `whole` is whether the dossiers account for the registry
+# entirely — true where a domain was built by change requests from its first artifact, false where
+# the registry predates the lifecycle and most of it is determined by no design.
 DOMAINS = (
-    (CR_DOSSIERS, REGISTRY),
+    (CR_DOSSIERS, REGISTRY, True),
     (WORKSPACE / "business_domains/blockchain/cr_dossiers",
-     WORKSPACE / "business_domains/blockchain/registry"),
+     WORKSPACE / "business_domains/blockchain/registry", True),
+    (WORKSPACE / "software_governance/dossiers",
+     WORKSPACE / "software_governance/registry", False),
+    (WORKSPACE / "transformation/dossiers",
+     WORKSPACE / "transformation/registry", False),
 )
 
 # The catalog's entry above overrides what discovery would find, and only that one: its dossiers are
@@ -84,10 +94,22 @@ SEQUENCED = re.compile(r"^cr_(\d+)_")
 
 
 def sequence(root: Path) -> list[Path]:
-    """The delivered dossiers of one domain, in the order they were delivered."""
+    """The delivered dossiers of one domain, in the order they were delivered.
+
+    A business domain numbers its dossiers and the number *is* the order. A base-code domain does
+    not — `transformation/CLAUDE.md` rules that `cr_NN_` "says nothing true about it and reads as a
+    sequence that does not exist", because git manages the change. So an unnumbered root has a set
+    and no order, and this returns it sorted by name for a stable report rather than a meaningful one.
+
+    That is safe exactly while no two of its dossiers determine the same artifact, which `acceptance`
+    checks rather than assumes. Where two do, an order is needed, none is declared, and the harness
+    refuses instead of picking one.
+    """
     numbered = [(int(m.group(1)), p) for p in root.iterdir()
                 if p.is_dir() and (m := SEQUENCED.match(p.name))]
-    return [p for _, p in sorted(numbered)]
+    if numbered:
+        return [p for _, p in sorted(numbered)]
+    return sorted(p for p in root.iterdir() if p.is_dir() and determines_artifacts(p))
 
 
 DOSSIERS = sequence(CR_DOSSIERS)
@@ -162,8 +184,18 @@ def diff(expected, actual, path: str = "") -> list[str]:
     return []
 
 
-def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None = None) -> tuple[int, int, int]:
+def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None = None,
+               whole: bool = True) -> tuple[int, int, int]:
     """Render one domain's dossier sequence and compare it with what was built.
+
+    `whole` says whether the dossiers account for the registry entirely. A business domain built by
+    change requests from the first artifact onward is whole, and a built artifact no dossier
+    determines is a real gap. A base-code domain is not: its registry was authored before the
+    lifecycle reached it, and most of it is determined by no design at all. Reporting those as gaps
+    would bury the two that matter under two hundred that do not.
+
+    What is compared is the same either way — every artifact a dossier determines. What changes is
+    whether the remainder is a finding.
 
     Returns (compared, failures, field differences).
     """
@@ -174,33 +206,49 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
     # Later changes override earlier ones, artifact by artifact — the same thing promotion did.
     rendered: dict[str, dict] = {}
     determined_by: dict[str, str] = {}
+    ordered = bool(SEQUENCED.match(dossiers[0].name))
     for dossier in dossiers:
         p7 = registers(next(dossier.glob("p7_*.md")))
         p8 = registers(next(dossier.glob("p8_*.md")))
         for artifact in render_all(p7, p8):
             code = bare(artifact["machine"]["fqdn"])
+            # Overriding is what promotion did, and it is only meaningful where the dossiers are
+            # ordered. An unnumbered root carries no order, so two of its dossiers determining one
+            # artifact is two designs of record and nothing says which is later. That is the hazard
+            # `transformation/CLAUDE.md` names and nothing enforces — enforced here, for the roots
+            # where it can be.
+            if not ordered and code in rendered:
+                print(f"  REFUSED  {code} is determined by both {determined_by[code]} and "
+                      f"{dossier.name}, which carry no order between them")
+                return 0, 1, 0
             rendered[code] = artifact
             determined_by[code] = dossier.name
 
-        # The domain build manifest is generated rather than rendered, so `render_all` correctly
-        # omits it and this harness reported it as MISS for as long as it has existed — the one
-        # artifact construction could not reproduce. It is reproducible; it was simply produced by a
-        # different callable. Comparing the generator's output here is what holds that claim: if
-        # `build_manifest` ever stops deriving what the composition holds, a design that names it as
-        # its generator would be pointing at something that does not produce the artifact.
-        manifest = build_manifest(p7, p8)
-        if manifest is not None:
-            code = bare(manifest["fqdn"])
-            rendered[code] = {"machine": manifest}
-            determined_by[code] = f"{dossier.name} (generated)"
+        # The domain build manifest is no longer compared, because construction no longer produces
+        # one. It was generated rather than rendered, and its domain was read from the namespace of
+        # the first scheduled artifact — the same word as the domain for a business domain, and not
+        # for anything else. Comparing a producer that has been withdrawn reported three differences
+        # against a manifest nobody now claims to derive.
 
     reference = built(registry)
     print(f"construction acceptance — {' -> '.join(d.name for d in dossiers)}")
     print(f"{len(rendered)} rendered against {len(reference)} built\n")
 
     failures, total_diffs = 0, 0
+    undetermined = 0
     for code in sorted(reference):
+        # A build manifest is determined by no design, in any domain. Every field of it is
+        # configuration the compiler discovers a domain by, and no register of any phase states one.
+        # Construction used to generate it and no longer does; comparing it here would report a gap
+        # against an artifact nothing claims to determine. Whether it should have a producer at all
+        # is an open ruling, and until it has one this is not a construction defect.
+        if code.startswith("STRUCTURE_BUILD_") and code.endswith("_CONFIG_V0"):
+            undetermined += 1
+            continue
         if code not in rendered:
+            if not whole:
+                undetermined += 1
+                continue
             print(f"  MISS  {code:<44} rendered nothing")
             failures += 1
             continue
@@ -220,9 +268,15 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
         print(f"  EXTRA {code:<44} rendered, never built")
         failures += 1
 
-    print(f"\n  {len(reference) - failures}/{len(reference)} artifacts reproduced"
-          f"   ({total_diffs} field difference(s))\n")
-    return len(reference), failures, total_diffs
+    # Compared is what a dossier determines, not what the registry holds. For a whole domain those
+    # are the same number; for a partial one the difference is the tail the lifecycle has not reached,
+    # reported so it stays visible rather than counted as reproduced.
+    compared = len(reference) - undetermined
+    print(f"\n  {compared - failures}/{compared} artifacts reproduced"
+          f"   ({total_diffs} field difference(s))"
+          + (f"   [{undetermined} built artifact(s) determined by no dossier]" if undetermined else "")
+          + "\n")
+    return compared, failures, total_diffs
 
 
 def determines_artifacts(dossier: Path) -> bool:
@@ -257,7 +311,7 @@ def uncovered() -> list[Path]:
     would undo it — this asks the question the list can go stale on, and asks it of the workspace
     rather than of a second list.
     """
-    covered = {root.resolve() for root, _ in DOMAINS} | {p.resolve() for p in SUBSTITUTED}
+    covered = {root.resolve() for root, _, _ in DOMAINS} | {p.resolve() for p in SUBSTITUTED}
     out = []
     for repo in sorted(WORKSPACE.iterdir()):
         if not repo.is_dir() or repo.name.startswith("."):
@@ -284,8 +338,8 @@ def main() -> int:
         return 1 if failures else 0
 
     compared = failures = diffs = 0
-    for dossier_root, registry in DOMAINS:
-        c, f, d = acceptance(dossier_root, registry)
+    for dossier_root, registry, whole in DOMAINS:
+        c, f, d = acceptance(dossier_root, registry, whole=whole)
         compared += c; failures += f; diffs += d
 
     print(f"  {compared - failures}/{compared} artifacts reproduced across {len(DOMAINS)} domain(s)"

@@ -533,9 +533,9 @@ Every binding names a field the capability declares, read from the pinned baseli
 ## 10. Vocabulary Extensions
 
 <!-- register:vocabulary_extensions optional -->
-| Vocabulary Code | Extends | Value | Meaning | Source Finding |
-|-----------------|---------|-------|---------|----------------|
-| book_library_mgmt::VOCAB_CATALOG_STATUS_V0 |  | REINSTATED | The status a record carries after being returned to use | S7 new_artifacts VOCAB_CATALOG_STATUS_V0 |
+| Vocabulary Code | Extends | Group | Casing | Value | Meaning | Source Finding |
+|-----------------|---------|-------|--------|-------|---------|----------------|
+| book_library_mgmt::VOCAB_CATALOG_STATUS_V0 |  | fact_group | UPPER_SNAKE | REINSTATED | The status a record carries after being returned to use | S7 new_artifacts VOCAB_CATALOG_STATUS_V0 |
 
 Every status this design routes on — ACK, NACK, SUCCESS, NOT_FOUND, ALREADY_EXISTS, DENIED, VIOLATION,
 BACKEND_ERROR — is already admitted, so no vocabulary is extended.

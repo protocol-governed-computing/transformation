@@ -1,17 +1,5 @@
 # CC_PERSIST_ARTIFACTS_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CC_PERSIST_ARTIFACTS_V0
-- **Artifact Kind:** capability_contract
-- **Governed By:** CONSTITUTION_CAPABILITY_CONTRACT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-- **Dependencies:** CS_TEXT_ARTIFACT_V0
-
----
-
 ## 1. Intent
 
 Persist a rendered construction.
@@ -48,7 +36,9 @@ or it was not.
 fqdn: transformation::CC_PERSIST_ARTIFACTS_V0
 artifact_kind: CAPABILITY_CONTRACT
 version: v0
-governed_by: fb.capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
+authority: pgc.platform
+concern: build
 core:
   summary: Write a rendered construction beneath the root its runtime binding declares
   inputs:

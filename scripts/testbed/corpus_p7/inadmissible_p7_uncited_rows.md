@@ -532,8 +532,8 @@ Every binding names a field the capability declares, read from the pinned baseli
 ## 10. Vocabulary Extensions
 
 <!-- register:vocabulary_extensions optional -->
-| Vocabulary Code | Extends | Value | Meaning | Source Finding |
-|-----------------|---------|-------|---------|----------------|
+| Vocabulary Code | Extends | Group | Casing | Value | Meaning | Source Finding |
+|-----------------|---------|-------|--------|-------|---------|----------------|
 
 Every status this design routes on — ACK, NACK, SUCCESS, NOT_FOUND, ALREADY_EXISTS, DENIED, VIOLATION,
 BACKEND_ERROR — is already admitted, so no vocabulary is extended.

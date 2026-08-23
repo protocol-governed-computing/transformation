@@ -1,16 +1,5 @@
 # CT_PURE_EVALUATE_RULES_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CT_PURE_EVALUATE_RULES_V0
-- **Artifact Kind:** capability_transform
-- **Governed By:** CONSTITUTION_CAPABILITY_TRANSFORMS_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Apply a declared rule set to parsed registers and report every rule that failed.
@@ -43,7 +32,9 @@ unevaluated subject.
 fqdn: transformation::CT_PURE_EVALUATE_RULES_V0
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
-governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+governed_by: capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Evaluate a declared rule set against parsed registers
   refusal: returns

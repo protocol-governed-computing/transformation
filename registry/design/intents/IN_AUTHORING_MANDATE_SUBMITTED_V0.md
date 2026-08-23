@@ -1,16 +1,5 @@
 # IN_AUTHORING_MANDATE_SUBMITTED_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** IN_AUTHORING_MANDATE_SUBMITTED_V0
-- **Artifact Kind:** intent
-- **Governed By:** CONSTITUTION_INTENT_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 An Authoring Mandate is offered to P8 for judgement.
@@ -28,7 +17,9 @@ against.
 fqdn: transformation::IN_AUTHORING_MANDATE_SUBMITTED_V0
 artifact_kind: INTENT
 version: v0
-governed_by: fb.intent::CONSTITUTION_INTENT_V0
+governed_by: intent::CONSTITUTION_INTENT_V0
+authority: pgc.platform
+concern: design
 
 core:
   summary: Offer an Authoring Mandate for admissibility judgement

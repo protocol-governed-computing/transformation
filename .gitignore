@@ -32,3 +32,8 @@ snapshot/
 # holds a directory. Ignoring the nested level ignores everything generated and nothing authored,
 # and a new authored dossier is tracked from the moment it exists.
 /dossiers/*/*/
+
+# Construction determination records — evidence about a build, not build output.
+# `3e` §3.2 makes evidence output only; nothing reads these.
+snapshot/determinations/
+**/snapshot/determinations/

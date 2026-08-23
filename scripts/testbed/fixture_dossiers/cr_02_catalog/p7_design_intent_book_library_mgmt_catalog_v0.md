@@ -373,8 +373,8 @@ them again would create a second artifact under the same name.
 ## 10. Vocabulary Extensions
 
 <!-- register:vocabulary_extensions optional -->
-| Vocabulary Code | Extends | Value | Meaning | Source Finding |
-|-----------------|---------|-------|---------|----------------|
+| Vocabulary Code | Extends | Group | Casing | Value | Meaning | Source Finding |
+|-----------------|---------|-------|--------|-------|---------|----------------|
 
 ---
 

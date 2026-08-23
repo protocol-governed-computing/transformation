@@ -59,7 +59,7 @@ INTENT_OUTCOMES = {
     "NACK": {"description": "Request rejected"},
 }
 
-WORKFLOW_STRUCTURE = "fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0"
+WORKFLOW_STRUCTURE = "execution::STRUCTURE_RUNTIME_EXECUTION_V0"
 
 # The boundary's own substitution syntax, matched here so the renderer can tell a token it must
 # preserve verbatim from a constant it should read as a value. Kept identical to the resolver's.
@@ -105,6 +105,61 @@ def typed_fields(design: dict, code: str, direction: str) -> dict:
     return out
 
 
+# The origins a rendered fact may have. Governed by `transformation::VOCAB_FACT_PROVENANCE_V0`;
+# stated here because the renderer is what reports them and a name it cannot spell is a report
+# nothing can read.
+#
+# The measure admits the first two and refuses the third. That is the whole of the distinction: a
+# fact the design stated and a fact something else governs are both accounted for, and a fact the
+# renderer put there on its own authority is a second design nobody approved.
+STATED_BY_DESIGN = "stated_by_design"
+GOVERNED_ELSEWHERE = "governed_elsewhere"
+SUPPLIED_BY_RENDERER = "supplied_by_renderer"
+# A value the artifact already carried, which no register of the design can express. Prose
+# descriptions are the case: `typed_fields` deliberately does not render a field's `Meaning`, because
+# the built corpus carries a description on some fields and not others — a sign it is documentation
+# rather than governed content, and rendering it would have the generator author documentation the
+# design never committed to. That reasoning holds, and it left an amendment unable to state the
+# artifact whole: re-rendering a contract dropped every description it had.
+#
+# Preserving is not inventing. The renderer authors nothing here; it declines to delete what the
+# design has no way to speak about. The origin is recorded so the measure counts it as accounted for
+# rather than as a fact somebody stated.
+CARRIED_FROM_PREDECESSOR = "carried_from_predecessor"
+
+
+def _stated(design: dict, short: str, column: str) -> bool:
+    """Whether the design carries a value in `column` for this vocabulary.
+
+    Separate from reading the value because a fallback and a stated value that happens to equal the
+    fallback are the same string and different facts, and the measure is asked about the second.
+    """
+    return any(cell(r, column) for r in rows(design, "vocabulary_extensions")
+               if bare(cell(r, "Vocabulary Code")) == short)
+
+
+def _carried(sink, path: str) -> None:
+    """Record that a leaf was preserved from the artifact being amended, not authored here."""
+    if sink is not None:
+        sink[path] = (CARRIED_FROM_PREDECESSOR, "")
+
+
+def _supplied(sink, path: str, governed_by: str = "") -> None:
+    """Record that the renderer, not the design, put a value at `path`.
+
+    `governed_by` names the artifact that fixes the value where one does — an event's moment field
+    is supplied because the event constitution settles it, and a design restating what a
+    constitution settles would state it twice. Where nothing governs it, the origin is the renderer
+    itself and the measure refuses it.
+
+    Silent when there is no sink: `_render` is called from places that want the machine block and
+    not the accounting, and a builder should not have to know which caller it is serving.
+    """
+    if sink is None:
+        return
+    sink[path] = (GOVERNED_ELSEWHERE, governed_by) if governed_by else (SUPPLIED_BY_RENDERER, "")
+
+
 def _literal(value: str) -> Any:
     low = value.lower()
     if low in ("true", "false"):
@@ -113,6 +168,25 @@ def _literal(value: str) -> Any:
         return int(value)
     except ValueError:
         return value
+
+
+def _origin(supplied: dict, path: str) -> tuple[str, str]:
+    """The origin reported for a leaf, and what governs it where anything does.
+
+    A leaf the renderer said nothing about was read from a register, so silence means the design
+    stated it. Recording only departures keeps the report the size of what went wrong rather than
+    the size of the artifact.
+
+    A record on an ancestor covers what hangs beneath it: a builder that supplies a whole field
+    supplies every leaf of it, and making it enumerate them would be asking it to walk a shape it
+    has not finished building.
+    """
+    if path in supplied:
+        return supplied[path]
+    for ancestor, record in supplied.items():
+        if path.startswith(ancestor + "."):
+            return record
+    return (STATED_BY_DESIGN, "")
 
 
 def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
@@ -132,8 +206,16 @@ def requirements(p7: dict, p8: dict) -> list[tuple[str, str, bool]]:
     for artifact in render_all(p7, p8):
         code = bare(artifact["machine"]["fqdn"])
         declared_empty = set(artifact.get("declared_empty") or ())
+        supplied = artifact.get("supplied") or {}
         for path, value in _leaves(artifact["machine"]):
-            out.append((code, path, not _empty(value) or path in declared_empty))
+            # Presence, then origin. Presence alone cannot tell a value the design stated from one
+            # the renderer wrote on its own authority — both are non-empty, and for as long as that
+            # was the whole test a renderer that never asked could invent freely and still measure
+            # complete. A leaf is determined when the design stated it, or when something else
+            # governs it and the renderer said which.
+            present = not _empty(value) or path in declared_empty
+            origin, _governed = _origin(supplied, path)
+            out.append((code, path, present and origin != SUPPLIED_BY_RENDERER))
 
     # An artifact construction has no builder for determines nothing, and must be counted as
     # determining nothing. Leaving it out of the measurement entirely — which is what skipping it
@@ -316,8 +398,9 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
         if fam not in _BUILDERS:
             continue
         declared_empty: list[str] = []
+        supplied: dict[str, tuple[str, str]] = {}
         machine = _render(fam, code, short, summary.get(short, ""), subdomain.get(short, ""),
-                          p7, p8, declared_empty, sorted(supersedes.get(short, ())))
+                          p7, p8, declared_empty, sorted(supersedes.get(short, ())), supplied)
         domain = norm(code).split("::")[0]
         out.append({
             "path": f"registry/{subdomain.get(short, '')}/{DIRECTORY[fam]}/{short}.md",
@@ -329,17 +412,26 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
             # Leaves the design deliberately left empty, so a measurement can tell a declared
             # "nothing here" from an omission.
             "declared_empty": declared_empty,
+            # Where each value the renderer did not read from a register came from. Absent means the
+            # design stated it: a builder reaches for a register and writes what it finds, so the
+            # ordinary case needs no record and only a departure does.
+            "supplied": supplied,
         })
     return out
 
 
 def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
-            supersedes: list[str] | None = None) -> dict:
+            supersedes: list[str] | None = None, supplied: dict | None = None) -> dict:
     machine: dict[str, Any] = {
         "fqdn": code,
         "artifact_kind": KIND[fam],
         "version": "v0",
         "governed_by": GOVERNED_BY[fam],
+        # Authority and concern are declared carriers, never derived from the identifier or the
+        # source directory (GO-11, MB-7, ID-12, `2e` CA-1). `concern` is the design's own subdomain
+        # field, so the renderer states what the design already decided rather than inferring it.
+        "authority": "pgc.platform",
+        "concern": sub,
     }
     # In the Machine block, not the header. It was a header fact for as long as nothing read it; the
     # compiler now asserts referential closure over it, so it is governed content and belongs where
@@ -347,8 +439,15 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
     if supersedes:
         machine["supersedes"] = supersedes[0] if len(supersedes) == 1 else list(supersedes)
     builder = _BUILDERS[fam]
-    if fam in ("RB", "CC", "TI", "WF", "VOCAB"):
+    # The two extra channels are threaded the same way and for the same reason: a builder knows
+    # things about what it wrote that the shape it returns cannot express. `declared_empty` carries
+    # an emptiness the design chose; `supplied` carries a value the design never stated.
+    if fam in ("RB", "CC", "TI", "WF"):
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
+    elif fam == "VOCAB":
+        builder(machine, code, short, summary, sub, p7, p8, declared_empty, supplied)
+    elif fam in ("STRUCTURE", "CT", "EV"):
+        builder(machine, code, short, summary, sub, p7, p8, supplied)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
     return machine
@@ -605,7 +704,7 @@ def _interpret_step(p7: dict, owner: str, r: dict) -> str:
     return f"interpret_{observed}"
 
 
-def _transform(m, code, short, summary, sub, p7, p8):
+def _transform(m, code, short, summary, sub, p7, p8, supplied=None):
     row = next((r for r in rows(p7, "implementation_bindings") if bare(cell(r, "CT Code")) == short), {})
     m["core"] = {
         "summary": summary,
@@ -617,6 +716,10 @@ def _transform(m, code, short, summary, sub, p7, p8):
         "inputs": typed_fields(p7, code, "INPUT"),
         "outputs": typed_fields(p7, code, "OUTPUT"),
     }
+    if not cell(row, "Kind"):
+        _supplied(supplied, "machine.ct_kind")
+    if not cell(row, "Purity"):
+        _supplied(supplied, "machine.ct_purity")
     m["machine"] = {
         "ct_kind": cell(row, "Kind") or "atom",
         "ct_purity": cell(row, "Purity") or "ct_pure",
@@ -644,7 +747,7 @@ def _actor(m, code, short, summary, sub, p7, p8):
                  "attributes": typed_fields(p7, code, "ATTRIBUTE")}
 
 
-def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None):
+def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None, supplied=None):
     """A controlled vocabulary: what it admits, and what it builds on.
 
     A base vocabulary extends nothing, and that is a decision rather than an omission. The design
@@ -662,13 +765,29 @@ def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None):
             declared_empty.append("extends")
     m.pop("core", None)
     m["extends"] = extends
-    m["result_status"] = {"casing": "UPPER_SNAKE", "entries": entries}
+    # The group these values belong to and the spelling they must take. Both were literals for as
+    # long as every vocabulary rendered was a result status, and the first one that was not carried
+    # a group it does not belong to and a spelling its values do not have — the platform refused it.
+    # No register states either, so both are reported as the renderer's own until one does.
+    group = cell(next((r for r in rows(p7, "vocabulary_extensions")
+                       if bare(cell(r, "Vocabulary Code")) == short), {}), "Group") or "result_status"
+    casing = cell(next((r for r in rows(p7, "vocabulary_extensions")
+                        if bare(cell(r, "Vocabulary Code")) == short), {}), "Casing") or "UPPER_SNAKE"
+    if not _stated(p7, short, "Casing"):
+        _supplied(supplied, f"{group}.casing")
+    # The group name is undesigned too, and is not reported here. It is a key rather than a value,
+    # so no leaf *is* it — recording it as one would mark the whole subtree beneath it supplied,
+    # which would slander every entry the design did state. A leaf-walking measure cannot see a
+    # fact that is a path, and this is the one place that limit bites today.
+    m[group] = {"casing": casing, "entries": entries}
 
 
-def _structure(m, code, short, summary, sub, p7, p8):
+def _structure(m, code, short, summary, sub, p7, p8, supplied=None):
     stores = {cell(r, "Store Name"): {"path": cell(r, "Proposed Path")}
               for r in rows(p7, "structure_stores")}
     props = _properties(p7, code)
+    if "layer" not in props:
+        _supplied(supplied, "core.layer")
     m["core"] = {"summary": summary, "layer": props.pop("layer", "DOMAINS"),
                  "domain": norm(code).split("::")[0], "subdomain": sub,
                  "entity_stores": stores, **props}
@@ -711,7 +830,7 @@ def _binding_artifact(m, code, short, summary, sub, p7, p8, declared_empty=None)
     m["core"] = {"summary": summary, "storage_structure": structure, "bindings": bindings}
 
 
-def _event(m, code, short, summary, sub, p7, p8):
+def _event(m, code, short, summary, sub, p7, p8, supplied=None):
     """A business moment the domain recognises: what it records, and the shape of the record.
 
     An event states a fact and triggers nothing — the workflow that raises it has already decided
@@ -723,6 +842,13 @@ def _event(m, code, short, summary, sub, p7, p8):
     not restated either. A design that declares its own `timestamp` keeps it.
     """
     schema = typed_fields(p7, code, "OUTPUT") or typed_fields(p7, code, "INPUT")
+    if "timestamp" not in schema:
+        # Supplied, and accounted for: the event constitution fixes that a moment carries when it
+        # occurred, so a design restating it would state it twice. Naming what governs it is what
+        # separates this from the vocabulary's two literals, which nothing governs at all.
+        for leaf in ("type", "format", "required", "description"):
+            _supplied(supplied, f"core.schema.timestamp.{leaf}",
+                      governed_by="event::CONSTITUTION_EVENT_V0")
     schema.setdefault("timestamp", {
         "type": "string",
         "format": "date-time",
@@ -910,6 +1036,10 @@ def build_manifest(p7: dict, p8: dict) -> dict | None:
         "artifact_kind": "STRUCTURE",
         "version": "V0",
         "governed_by": BY_CODE["STRUCTURE"].constitution,
+        # Declared carriers, as for every rendered artifact. A build manifest sits at the domain
+        # root rather than in a subdomain, so its concern is the domain itself.
+        "authority": "pgc.platform",
+        "concern": domain,
         "structure_scope": domain,
         "reuse_visibility": "business",
         "core": {
@@ -985,26 +1115,22 @@ def render_document(artifact: dict) -> str:
 
     body = yaml.dump(machine, sort_keys=False, width=100, allow_unicode=True,
                      default_flow_style=False)
-    # `Supersedes` has been on every header since the first artifact and has said NONE on all of
-    # them. A design that retires an artifact names its successor, and this is where the successor
-    # says so — the field existed for exactly this and nothing had ever written it.
-    supersedes = ", ".join(artifact.get("supersedes") or ()) or "NONE"
+    # No header block. Artifact code, kind, governing constitution, version and supersession are
+    # all declared in the Machine block below; restating them in prose is a second surface that can
+    # disagree with the first, and the prose copy is always the weaker one (a short name where the
+    # declaration carries an identity). The policy is vocabulary::VOCAB_HUMAN_BLOCK_CONSTRAINTS_V0;
+    # the reasoning is in the Field Manual, `The human block`.
+    #
+    # The Machine block leads and the prose follows it as commentary, which is the actual
+    # relationship between them.
     return (
         f"# {code}\n\n"
-        "## Header (Mandatory)\n\n"
-        f"- **Artifact Code:** {code}\n"
-        f"- **Artifact Kind:** {HEADER_KIND.get(kind, kind.lower())}\n"
-        f"- **Governed By:** {constitution}\n"
-        f"- **Version:** {machine.get('version', 'v0').upper()}\n"
-        "- **Status:** draft\n"
-        f"- **Supersedes:** {supersedes}\n\n"
-        "---\n\n"
-        "## 1. Intent\n\n"
-        f"{summary}\n\n"
-        "---\n\n"
         "## Machine\n\n"
         "```yaml\n"
-        f"{body}```\n"
+        f"{body}```\n\n"
+        "---\n\n"
+        "## Intent\n\n"
+        f"{summary}\n"
     )
 
 
@@ -1028,7 +1154,6 @@ def render_documents(p7: dict, p8: dict) -> list[dict]:
 # nothing in the governance surface models supersession. The marking is the record, and excluding a
 # superseded artifact from a composition is a platform question that belongs with the platform.
 
-SUPERSEDED_STATUS = "superseded"
 
 
 def mark_superseded(text: str, successors: list[str]) -> str:
@@ -1062,15 +1187,8 @@ def mark_superseded(text: str, successors: list[str]) -> str:
     else:
         lines[anchors[0] + 1:anchors[0] + 1] = block
 
-    named = ", ".join(successors)
-    for i, line in enumerate(lines):
-        if line.startswith("- **Status:**"):
-            lines[i] = f"- **Status:** {SUPERSEDED_STATUS}\n"
-        elif line.startswith("- **Superseded By:**"):
-            lines[i] = f"- **Superseded By:** {named}\n"
-    if not any(line.startswith("- **Superseded By:**") for line in lines):
-        for i, line in enumerate(lines):
-            if line.startswith("- **Status:**"):
-                lines.insert(i + 1, f"- **Superseded By:** {named}\n")
-                break
+    # Standing an artifact down writes `superseded_by` into the Machine block above and nothing
+    # else. There was a prose `- **Status:**` line kept in step with it; it is gone, because two
+    # records of one governed fact can disagree and supersession is a declared relation (`4e` SU-1,
+    # SU-3). A reader asking whether an artifact is superseded reads the declaration.
     return "".join(lines)

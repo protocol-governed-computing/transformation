@@ -17,8 +17,8 @@ the same governed composition that supplied the evidence for its prior phases.
 Two changes moved the composition after this dossier's pin was taken, and both bear on what its
 phases assert.
 
-**The storage resolution model was delivered.** `fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0`
-§2a and `fb.runtime_binding::INVARIANT_RB_STORAGE_SUBDOMAIN_OWNED_V0` entered the composition, and
+**The storage resolution model was delivered.** `runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0`
+§2a and `runtime_binding::INVARIANT_RB_STORAGE_SUBDOMAIN_OWNED_V0` entered the composition, and
 the compiler began composing an act's storage from the bindings it operates under. P2's second
 belief cites both by identity. Under the superseded pin that citation named artifacts the pinned
 composition did not contain — the evidence was true of the workspace and not of the baseline, which

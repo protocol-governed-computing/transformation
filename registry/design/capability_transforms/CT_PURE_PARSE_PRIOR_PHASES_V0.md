@@ -1,16 +1,5 @@
 # CT_PURE_PARSE_PRIOR_PHASES_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CT_PURE_PARSE_PRIOR_PHASES_V0
-- **Artifact Kind:** capability_transform
-- **Governed By:** CONSTITUTION_CAPABILITY_TRANSFORMS_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Parse the upstream phase documents a phase is judged against, keyed by the phase that produced each.
@@ -50,7 +39,9 @@ that is a defect, and for a phase that declares a cross-phase rule it is one.
 fqdn: transformation::CT_PURE_PARSE_PRIOR_PHASES_V0
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
-governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+governed_by: capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Parse the upstream phase documents a phase is judged against
   refusal: never

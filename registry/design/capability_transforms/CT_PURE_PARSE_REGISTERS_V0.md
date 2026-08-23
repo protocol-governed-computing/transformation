@@ -1,16 +1,5 @@
 # CT_PURE_PARSE_REGISTERS_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** CT_PURE_PARSE_REGISTERS_V0
-- **Artifact Kind:** capability_transform
-- **Governed By:** CONSTITUTION_CAPABILITY_TRANSFORMS_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Read a phase document into the registers a rule set can be applied to.
@@ -36,7 +25,9 @@ where the author needs a governance finding. Deciding admissibility belongs to t
 fqdn: transformation::CT_PURE_PARSE_REGISTERS_V0
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
-governed_by: fb.capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+governed_by: capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+authority: pgc.platform
+concern: design
 core:
   summary: Parse phase document text into structured registers
   refusal: never

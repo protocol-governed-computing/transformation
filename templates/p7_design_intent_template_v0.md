@@ -317,8 +317,8 @@ base vocabulary, which is a decision; left blank it is indistinguishable from a 
 settled the question, and both render the same empty field.*
 
 <!-- register:vocabulary_extensions optional -->
-| Vocabulary Code | Extends | Value | Meaning | Source Finding |
-|-----------------|---------|-------|---------|----------------|
+| Vocabulary Code | Extends | Group | Casing | Value | Meaning | Source Finding |
+|-----------------|---------|-------|--------|-------|---------|----------------|
 
 ---
 

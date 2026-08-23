@@ -1,16 +1,5 @@
 # RB_CONSTRUCTION_BINDINGS_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** RB_CONSTRUCTION_BINDINGS_V0
-- **Artifact Kind:** runtime_binding
-- **Governed By:** CONSTITUTION_RUNTIME_BINDING_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## 1. Intent
 
 Runtime bindings for the Construction lifecycle: the one write the pipeline performs.
@@ -43,7 +32,9 @@ overwrite the corpus that proves it correct would destroy the evidence in the ac
 fqdn: transformation::RB_CONSTRUCTION_BINDINGS_V0
 artifact_kind: RUNTIME_BINDING
 version: v0
-governed_by: fb.runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0
+governed_by: runtime_binding::CONSTITUTION_RUNTIME_BINDING_V0
+authority: pgc.platform
+concern: build
 parameters:
 - module_data_root
 core:

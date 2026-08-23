@@ -1,16 +1,5 @@
 # WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
-- **Artifact Kind:** workflow
-- **Governed By:** CONSTITUTION_WORKFLOW_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## Generated Artifact
 
 This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
@@ -63,11 +52,13 @@ and every capability in the outcome was placed in the ownership register first.
 fqdn: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
 version: v0
-governed_by: fb.workflow::CONSTITUTION_WORKFLOW_V0
+governed_by: workflow::CONSTITUTION_WORKFLOW_V0
+authority: pgc.platform
+concern: design
 
 runtime_binding: transformation::RB_TRANSFORMATION_BINDINGS_V0
 subdomain: design
-structure: fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0
+structure: execution::STRUCTURE_RUNTIME_EXECUTION_V0
 
 core:
   summary: Decide whether an offered Governance Intent register is admissible

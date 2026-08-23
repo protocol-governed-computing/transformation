@@ -25,12 +25,10 @@ from transformation.baseline import (
 from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
-from transformation.build.completeness import measure, narrowing
+from transformation.build.completeness import carry_forward, measure, narrowing
 from transformation.build.render import (
     bare,
     machine_block,
-    build_manifest,
-    manifest_path,
     mark_superseded,
     generated,
     render_all,
@@ -38,7 +36,6 @@ from transformation.build.render import (
     render_documents,
 )
 from transformation.build.generators import (
-    MANIFEST_GENERATOR,
     Context as GeneratorContext,
     Generator,
     UnknownGenerator,
@@ -507,7 +504,12 @@ def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
             block = machine_block((result.get("canonical") or {}).get("content", ""))
             if block is not None:
                 existing[fqdn.split("::")[-1]] = yaml.safe_load(block) or {}
-    return narrowing(render_all(p7, p8), existing)
+    # Preserve what the design cannot express before comparing, so an amendment is not reported as
+    # dropping documentation no register could have carried. What remains listed is a fact the design
+    # could have stated and did not.
+    rendered = render_all(p7, p8)
+    carry_forward(rendered, existing)
+    return narrowing(rendered, existing)
 
 
 @main.group()
@@ -716,26 +718,31 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     documents = render_documents(p7, p8)
     planned: list[tuple[Path, str]] = [(domain_root / d["path"], d["text"]) for d in documents]
 
-    # The domain's build manifest is generated, never rendered here. A domain founding itself has no
-    # manifest to amend and therefore no design that could declare provenance for one, so its first
-    # emission is part of founding the domain — invoked, not written, so that one producer owns it
-    # from the first copy onwards.
-    manifest = build_manifest(p7, p8)
-    founding = (manifest is not None
-                and not (domain_root / manifest_path(manifest)).exists()
-                and MANIFEST_GENERATOR not in generators)
-    if founding:
-        generators = dict(generators)
-        generators[MANIFEST_GENERATOR] = resolve_generator(MANIFEST_GENERATOR)
+    # Construction does not found a build manifest. Every field of one is configuration for the
+    # compiler that discovers a domain — a search layer, a registry module, an identity rule — and
+    # no register of any phase states any of them, so writing one meant deriving a domain from the
+    # namespace of the first scheduled artifact. For a business domain those are the same word and
+    # the inference was invisible; for the platform they are not, and the first platform emission
+    # produced a manifest declaring one of its namespaces a business domain importing the platform.
+    #
+    # A domain that the compiler cannot discover still needs one. That is a real gap and it is left
+    # open rather than filled by inference: who founds a domain is a ruling, and a wrong manifest
+    # written confidently is worse than an absent one that says so.
 
     # `--root` takes a *domain* root, and a wrong one used to succeed. Passing the repository
     # (`business_domains`) rather than the domain (`business_domains/book_library_mgmt`) wrote a
     # complete registry tree at the repository root, reported every file emitted and exited 0. The
     # artifacts were correct and in a place nothing in the composition would ever read, and only
     # `git status` showed it. What identifies a domain root is the build config the compiler
-    # discovers it by — so that is what is asked for, except when this emission is the one founding
-    # it, where its absence is the whole point.
-    if not founding and not list(domain_root.glob("registry/structures/STRUCTURE_BUILD_*_CONFIG_V*.md")):
+    # discovers it by — so that is what is asked for. There is no longer an exception for a domain
+    # founding itself: construction does not found one, so an absent manifest is an absent domain
+    # root and nothing else.
+    # Searched the way the compiler and the release gate discover a domain, not at one fixed path.
+    # A business domain puts its build config at `registry/structures/`; the platform organizes one
+    # directory per namespace and puts its own at `registry/structure/structures/`. Globbing the
+    # business layout alone read the platform as not a domain root — which went unseen for as long
+    # as the founding exception skipped this check for exactly the roots that have no config there.
+    if not list(domain_root.glob("registry/**/STRUCTURE_BUILD_*_CONFIG_V*.md")):
         click.echo(f"REFUSED — {domain_root} carries no STRUCTURE_BUILD_*_CONFIG_V*.md, so it is "
                    f"not a domain root the compiler can discover. Nothing written.", err=True)
         click.echo(f"    --root takes the domain, not the repository that holds it.", err=True)

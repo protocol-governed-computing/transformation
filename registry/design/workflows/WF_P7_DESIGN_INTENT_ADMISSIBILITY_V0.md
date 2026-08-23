@@ -1,16 +1,5 @@
 # WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
 
-## Header (Mandatory)
-
-- **Artifact Code:** WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
-- **Artifact Kind:** workflow
-- **Governed By:** CONSTITUTION_WORKFLOW_V0
-- **Version:** V0
-- **Status:** draft
-- **Supersedes:** NONE
-
----
-
 ## Generated Artifact
 
 This artifact is generated. The rule set in its `Machine` block is a **sealed copy**, and
@@ -65,11 +54,13 @@ nobody owns.
 fqdn: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
 version: v0
-governed_by: fb.workflow::CONSTITUTION_WORKFLOW_V0
+governed_by: workflow::CONSTITUTION_WORKFLOW_V0
+authority: pgc.platform
+concern: design
 
 runtime_binding: transformation::RB_TRANSFORMATION_BINDINGS_V0
 subdomain: design
-structure: fb.execution::STRUCTURE_RUNTIME_EXECUTION_V0
+structure: execution::STRUCTURE_RUNTIME_EXECUTION_V0
 
 core:
   summary: Decide whether an offered Design Intent register is admissible
@@ -617,6 +608,8 @@ core:
             columns:
             - Vocabulary Code
             - Extends
+            - Group
+            - Casing
             - Value
             - Meaning
             - Source Finding
@@ -1401,6 +1394,22 @@ core:
             covered_only_when_column: Property
             covered_only_when_value: supersedes
           intent: an artifact this design replaces is named by whatever supersedes it
+        - id: VOCABULARY_WITHOUT_GROUP
+          check: CELL_NOT_EMPTY
+          register: vocabulary_extensions
+          params:
+            column: Group
+            detail: vocabulary names no group for its values — the renderer would supply one, and it supplies
+              the same one to every vocabulary whatever the values mean
+          intent: a vocabulary states the group its values belong to
+        - id: VOCABULARY_WITHOUT_CASING
+          check: CELL_NOT_EMPTY
+          register: vocabulary_extensions
+          params:
+            column: Casing
+            detail: vocabulary names no spelling for its values — the renderer would supply one, and a spelling
+              its values do not have is refused by the platform that reads them
+          intent: a vocabulary states the spelling its values take
         - id: VOCABULARY_WITHOUT_VALUES
           check: REGISTER_COVERS_REGISTER
           register: vocabulary_extensions

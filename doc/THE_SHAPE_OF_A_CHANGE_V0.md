@@ -136,7 +136,7 @@ Delivered. What the run showed, which was sharper than this section originally a
   `core.subdomain: wallet`, a field the artifact does not carry and the generator does not produce.
   The design invented a fact to satisfy a register that should never have been asked to hold it.
 - **It is a class, not a one-off.** Six domain build configs in the snapshot share the shape. The two
-  `fb.structure::STRUCTURE_BUILD_PLATFORM_CONFIG_V*` are hand-authored governance surface and stay
+  `structure::STRUCTURE_BUILD_PLATFORM_CONFIG_V*` are hand-authored governance surface and stay
   authored.
 
 Measured effect on cr_04:
