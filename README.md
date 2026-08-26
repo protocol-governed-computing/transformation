@@ -86,7 +86,7 @@ tc construction emit  $D --root $W/business_domains/book_library_mgmt
 
 python $W/transformation/scripts/testbed/construction_acceptance.py
 $W/protocol_compiler/compile_domain.sh $W/business_domains/book_library_mgmt
-$W/snapshot_assembler/assemble.sh
+PGC_SNAPSHOT_PROFILE=REFERENCE_PLATFORM_PROFILE_V1 $W/snapshot_assembler/assemble.sh
 ```
 
 `--snapshot` on the check is not optional in practice. Completeness never looks at what already
@@ -113,7 +113,7 @@ sets:
 tc phase emit --check                                  # names the drifted phase
 python $W/transformation/scripts/emit_rule_sets.py     # re-seal
 $W/protocol_compiler/compile_domain.sh $W/transformation
-$W/snapshot_assembler/assemble.sh
+PGC_SNAPSHOT_PROFILE=REFERENCE_PLATFORM_PROFILE_V1 $W/snapshot_assembler/assemble.sh
 python $W/transformation/scripts/testbed/build_fixtures.py
 python $W/transformation/scripts/testbed/build_payloads.py
 ```

@@ -823,9 +823,12 @@ def design_baseline() -> str:
         # behind, which is the same staleness one level down.
         shutil.rmtree(DESIGN_BASELINE, ignore_errors=True)
         roots = ":".join(str(r / "snapshot" / "compiled") for r in DESIGN_BASELINE_ROOTS)
+        # PGC_SNAPSHOT_PROFILE is named, not defaulted: a snapshot must name the profile it
+        # claims (1b §11), and assemble.sh has no default because none is privileged (6a §11).
         env = {**os.environ,
                "PGC_SOURCE_ROOTS": roots,
-               "PGC_SNAPSHOT_OUT": str(DESIGN_BASELINE)}
+               "PGC_SNAPSHOT_OUT": str(DESIGN_BASELINE),
+               "PGC_SNAPSHOT_PROFILE": "REFERENCE_PLATFORM_PROFILE_V1"}
         subprocess.run([str(WORKSPACE / "snapshot_assembler" / "assemble.sh")],
                        env=env, capture_output=True, check=True)
     return str(DESIGN_BASELINE)
