@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "transformation"
+dynamic = ["version"]
+description = "PGC Transformation Compiler — governed change request to authoring mandate"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Bhash Ganti aka Bachi" }
+]
+
+dependencies = [
+  "snapshot_inspector",
+]
+
+keywords = ["protocol-governed-computing", "pgc", "transformation", "change-request", "evolution"]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent"
+]
+
+[project.scripts]
+tc = "transformation.cli:main"
+
+[project.urls]
+Repository = "https://github.com/protocol-governed-computing/transformation"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["transformation*"]
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
