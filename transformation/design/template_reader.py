@@ -34,7 +34,9 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
+# The templates ship inside the package: they are content the pipeline reads at
+# run time, so a wheel that omitted them would install a pipeline that cannot run.
+TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
 
 _HEADING = re.compile(r"^##\s+(?:(\d+[a-z]?)\.\s+)?(.+?)\s*$")
 _MARKER = re.compile(r"^<!--\s*register:([a-z_]+)((?:\s+[a-z_]+(?:=[a-z_,]+)?)*)\s*-->\s*$")
