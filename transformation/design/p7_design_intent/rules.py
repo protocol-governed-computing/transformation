@@ -144,7 +144,7 @@ BINDING_RULES: list[Rule] = [
     # governance surface has no family and no builder: a constitution's content is argument, and a
     # register that determined it would have to carry the argument. So a governance change is
     # authored by a person under a governed dossier and its dossier is complete at P6 — the ruling
-    # is in `doc/THE_SHAPE_OF_A_CHANGE_V0.md` §7. Citing one of these is untouched; three dossiers
+    # is in `THE_SHAPE_OF_A_CHANGE_V0.md` §7. Citing one of these is untouched; three dossiers
     # reached P6 before the boundary was stated, and none of them could be told it here.
     Rule(
         id="AMENDED_ARTIFACT_NOT_AUTHORABLE",

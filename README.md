@@ -185,14 +185,8 @@ drops it: an approval is against one composition and survives no other.
 
 ## Documents
 
-- `doc/THE_SHAPE_OF_A_CHANGE_V0.md` — when a subject is a new change request and when it is the
+- `THE_SHAPE_OF_A_CHANGE_V0.md` — when a subject is a new change request and when it is the
   same one re-authored, and which artifacts a governance change may amend.
-- `doc/TRANSFORMATION_COMPILER_PLAN_V1_ADDENDUM_A.md` — the `book_library_mgmt` domain, its
-  decomposition, and the change request sequence it is worked through.
-- `doc/TRANSFORMATION_COMPILER_PLAN_V1_ADDENDUM_B.md` — self-hosting: why the pipeline's first
-  governed change is itself, and what that settles. Plan V1 itself has been removed; the addenda are
-  what survives, and a settled ruling is restated where it is needed rather than by restoring the
-  plan.
 - `doc/REGISTER_COVERAGE_VERIFICATION.md` — whether a design can state, for an artifact it amends,
   every fact that artifact carries. Four observed instances of one pattern: a fact the authoring
   path never had to state because authoring supplies it, and the amending path must state and
@@ -229,8 +223,18 @@ export PGC_PLATFORM_ROOT=$PWD/software_governance
 pgc            # reports what is installed and whether the anchor resolves
 ```
 
-`PGC_BUILD_ROOT` (compiled output, keeping the governance repo read-only) and `PGC_DOMAIN_ROOTS`
-(additional domains contributing their own `registry/structures`) are optional.
+`PGC_DOMAIN_ROOTS` names an additional domain contributing its own `registry/structures` — the
+directory that *directly contains* it, not the repository above it; pointing one level too high is a
+silent no-op. `PGC_SNAPSHOT_ROOT` is where compiled output is written, and each domain build needs
+its own: every layer's output consolidates into one root, and verification rejects any file in that
+root the current build did not declare. `PGC_SNAPSHOT_PROFILES` is the directory holding snapshot
+profiles, required by the assembler and the runtime alike.
+
+`PGC_BUILD_ROOT` is accepted and reported and **nothing reads it** — `PGC_SNAPSHOT_ROOT` is the
+anchor that controls output.
+
+The full sequence, with the repositories it needs, is in
+[`pgc_install`](https://github.com/protocol-governed-computing/pgc_install).
 
 **Versioning.** Two schemes, and the published version follows the second.
 
