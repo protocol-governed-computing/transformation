@@ -1319,6 +1319,7 @@ core:
           register: execution_topology
           params:
             column: Node
+            prefer_column: Runs
             target_registers:
             - new_artifacts
             - existing_inventory
@@ -1330,7 +1331,18 @@ core:
             - EXIT
             detail: a binding identity is immutable, so a spelling variant is a second artifact rather than a
               synonym
-          intent: every node in the topology is an identity this design actually assigned
+          intent: every node in the topology runs an identity this design actually assigned
+        - id: TOPOLOGY_NODE_REPEATED
+          check: TOPOLOGY_KEY_UNIQUE
+          register: execution_topology
+          intent: a node names one place in its workflow
+        - id: TOPOLOGY_ROUTE_UNRESOLVED
+          check: TOPOLOGY_ROUTE_RESOLVES
+          register: execution_topology
+          params:
+            exempt_prefixes:
+            - EXIT
+          intent: control reaches only a node the workflow declares, or an ending
         - id: RB_BINDS_UNDECLARED_WORKFLOW
           check: CELL_RESOLVES_IN_REGISTER
           register: rb_declarations

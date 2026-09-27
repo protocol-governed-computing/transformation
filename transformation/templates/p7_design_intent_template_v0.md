@@ -223,9 +223,16 @@ terminal. `SUCCESS -> CC_APPEND_CATALOG_OPERATION_V0; VIOLATION -> EXIT_REJECTED
 where control goes is not a routing declaration — it names no node, and construction cannot resolve
 it.*
 
-<!-- register:execution_topology -->
-| Workflow | Node | Node Type (IN, CC, EXIT, EXIT_SUCCESS) | Routing | Source Finding |
-|----------|------|----------------------------------------|---------|----------------|
+*`runs` is optional, and blank means the node is its own contract: the node is named by the CC's code,
+as above. A workflow that runs one contract at several places, each handed its own values, names
+each place with a key and states the contract it runs in `runs`. A key is unique within its
+workflow. Routing targets, step bindings and discharges name the key; the contract's interface and
+reach are read from `runs`. `NOT_FOUND -> RECORD_UNKNOWN_BORROWER` routes to a keyed node whose
+`runs` is `CC_RECORD_REFUSAL_V0`, and a second key in the same workflow may run that contract too.*
+
+<!-- register:execution_topology optional_columns=runs -->
+| Workflow | Node | Runs | Node Type (IN, CC, EXIT, EXIT_SUCCESS) | Routing | Source Finding |
+|----------|------|------|----------------------------------------|---------|----------------|
 
 ---
 

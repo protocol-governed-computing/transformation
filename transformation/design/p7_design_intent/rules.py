@@ -198,6 +198,9 @@ BINDING_RULES: list[Rule] = [
         register="execution_topology",
         params={
             "column": "Node",
+            # A keyed node is a place, not an identity; what must resolve is the contract it runs.
+            # So a key with a blank `Runs` is read as a code, and refused as one nobody declared.
+            "prefer_column": "Runs",
             "target_registers": ["new_artifacts", "existing_inventory"],
             "target_column": "Code",
             "target_columns": ["Code", "FQDN"],
@@ -208,7 +211,20 @@ BINDING_RULES: list[Rule] = [
                 "rather than a synonym"
             ),
         },
-        intent="every node in the topology is an identity this design actually assigned",
+        intent="every node in the topology runs an identity this design actually assigned",
+    ),
+    Rule(
+        id="TOPOLOGY_NODE_REPEATED",
+        check="TOPOLOGY_KEY_UNIQUE",
+        register="execution_topology",
+        intent="a node names one place in its workflow",
+    ),
+    Rule(
+        id="TOPOLOGY_ROUTE_UNRESOLVED",
+        check="TOPOLOGY_ROUTE_RESOLVES",
+        register="execution_topology",
+        params={"exempt_prefixes": ["EXIT"]},
+        intent="control reaches only a node the workflow declares, or an ending",
     ),
     Rule(
         id="RB_BINDS_UNDECLARED_WORKFLOW",

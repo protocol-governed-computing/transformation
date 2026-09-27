@@ -62,7 +62,7 @@ def _register_rules(register: Register, citable: list[str]) -> list[Rule]:
                 id="REGISTER_COLUMN_MISSING",
                 check="TABLE_HAS_COLUMNS",
                 register=register.id,
-                params={"columns": list(register.columns)},
+                params={"columns": list(register.required_columns)},
                 intent="downstream phases read these columns by name",
             )
         )

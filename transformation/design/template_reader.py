@@ -118,6 +118,30 @@ class Register:
         return tuple(resolved)
 
     @property
+    def optional_columns(self) -> tuple[str, ...]:
+        """Columns a document may leave out, resolved back to the header they name.
+
+        A column added to a register that delivered documents already carry is optional, or those
+        documents stop being admissible for a change they never made. An empty or absent optional
+        column reads as blank in every row, so its rules state what blank means.
+        """
+        declared = self.scoped_flags.get("optional_columns", ())
+        by_normal = {_normalized(c): c for c in self.columns}
+        unknown = [n for n in declared if _normalized(n) not in by_normal]
+        if unknown:
+            raise ValueError(
+                f"register {self.id!r} declares optional columns {unknown} — "
+                f"no such column among {list(self.columns)}"
+            )
+        return tuple(by_normal[_normalized(n)] for n in declared)
+
+    @property
+    def required_columns(self) -> tuple[str, ...]:
+        """Columns every document must carry."""
+        optional = set(self.optional_columns)
+        return tuple(c for c in self.columns if c not in optional)
+
+    @property
     def optional(self) -> bool:
         """The register may legitimately carry no rows."""
         return "optional" in self.flags

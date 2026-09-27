@@ -79,6 +79,17 @@ def _cell(row: dict[str, str], prefix: str) -> str:
     return ""
 
 
+def _runs(row: dict[str, str]) -> str:
+    """The contract a topology node runs: its `Runs`, or the node itself when that is blank.
+
+    A node is named by its contract's code unless the workflow runs that contract at more than one
+    place. Then each place is a key, and `Runs` names the contract. Anything read from a contract —
+    its interface, its reach, its writes — is read through this; anything that names a place in the
+    graph — routing, bindings, discharges — names the key.
+    """
+    return _bare_identity(_cell(row, "Runs") or _cell(row, "Node"))
+
+
 # A register with nothing in it renders one `| NONE IDENTIFIED |` row rather than no rows at all.
 # Emptiness is declared, never inferred from absence — an empty table and a register nobody filled
 # in look identical, and only one of them is a considered answer.
@@ -767,7 +778,10 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
                     continue
             elif gate.strip().upper() != str(only_when_value).upper():
                 continue
-        value = _cell(row, rule.params["column"])
+        # A row may name what it resolves to in a second column that overrides the first when
+        # filled: a keyed topology node is a place, and the contract it runs is in `Runs`.
+        prefer = rule.params.get("prefer_column")
+        value = (prefer and _cell(row, prefer)) or _cell(row, rule.params["column"])
         if not value or value.strip() in none_markers:
             continue
         for part in (p.strip() for p in value.split(";")):
@@ -1023,12 +1037,13 @@ def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         if _cell(row, "Node Type").upper() != "CC":
             continue
         workflow = _bare_identity(_cell(row, "Workflow"))
-        node = _bare_identity(_cell(row, "Node"))
-        missing = sorted(declared.get(node, set()) - bound.get((workflow, node), set()))
+        node, contract = _bare_identity(_cell(row, "Node")), _runs(row)
+        missing = sorted(declared.get(contract, set()) - bound.get((workflow, node), set()))
+        named = node if node == contract else f"{node} ({contract})"
         for field in missing:
             out.append((
                 f"{topology} row {i}",
-                f"{workflow} hands {node} no {field!r}, which that contract requires",
+                f"{workflow} hands {named} no {field!r}, which that contract requires",
             ))
     return out
 
@@ -1060,6 +1075,55 @@ def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[str, str]
                     f"{_where(rule)} row {i}",
                     f"source names {named!r}, which {owner} never runs — well-rooted and unreachable",
                 ))
+    return out
+
+
+@check("TOPOLOGY_KEY_UNIQUE")
+def _topology_key_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A node names one place in its workflow.
+
+    Routing, bindings and discharges address a node by its key. Two rows with one key are two
+    places nothing can tell apart, and construction keeps whichever it reads last.
+    """
+    seen: dict[tuple[str, str], int] = {}
+    out = []
+    for i, row in _rows(doc, rule):
+        key = (_bare_identity(_cell(row, "Workflow")), _bare_identity(_cell(row, "Node")))
+        if key in seen:
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{key[0]} names {key[1]} again (first at row {seen[key]}) — a node that runs a "
+                f"contract twice needs a key for each place, and `Runs` naming the contract",
+            ))
+        else:
+            seen[key] = i
+    return out
+
+
+@check("TOPOLOGY_ROUTE_RESOLVES")
+def _topology_route_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """Every routing target is a node of the same workflow.
+
+    A target is a key, not a contract: once a contract runs at several places, naming the contract
+    no longer says which one control reaches.
+    """
+    exempt = tuple(rule.params.get("exempt_prefixes") or ())
+    rows = list(_rows(doc, rule))
+    nodes: dict[str, set[str]] = {}
+    for _, row in rows:
+        nodes.setdefault(_bare_identity(_cell(row, "Workflow")), set()).add(
+            _bare_identity(_cell(row, "Node")))
+    out = []
+    for i, row in rows:
+        workflow = _bare_identity(_cell(row, "Workflow"))
+        for outcome, target in _routing(_cell(row, "Routing")).items():
+            bare = _bare_identity(target)
+            if not bare or bare.startswith(exempt) or bare in nodes[workflow]:
+                continue
+            out.append((
+                f"{_where(rule)} row {i}",
+                f"{outcome} routes to {target!r}, which is no node of {workflow}",
+            ))
     return out
 
 
@@ -2575,7 +2639,7 @@ def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[st
     for i, row in _content_rows(doc.register(rule.params["topology_register"])):
         if _cell(row, "Node Type").upper() != "CC":
             continue
-        workflow, node = _bare_identity(_cell(row, "Workflow")), _bare_identity(_cell(row, "Node"))
+        workflow, node = _bare_identity(_cell(row, "Workflow")), _runs(row)
         here, there = subdomain.get(workflow), subdomain.get(node)
         # An unplaced artifact is another rule's finding. Reporting it here too would say the same
         # thing twice and say it less clearly.
@@ -2883,7 +2947,7 @@ def _act_stores(doc: ParsedDocument, rule, keys: dict[str, str]) -> dict[str, se
     block = doc.register(rule.params["topology_register"])
     for _, row in _content_rows(block) if block is not None else []:
         act = _bare_identity(_cell(row, "Workflow"))
-        node = _bare_identity(_cell(row, "Node"))
+        node = _runs(row)
         if node in contracts:
             out.setdefault(act, set()).update(contracts[node])
     return out

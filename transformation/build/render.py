@@ -583,7 +583,9 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
                 declared_empty.append(f"core.nodes.{node}.emit")
             nodes[node] = spec_exit
             continue
-        spec: dict[str, Any] = {"type": node_type, "code": node}
+        # A node is its contract unless the design keys it: a workflow running one contract at
+        # several places names each place and states the contract in `Runs`.
+        spec: dict[str, Any] = {"type": node_type, "code": bare(cell(r, "Runs")) or node}
         bindings = _bindings(p7, short, node, "INPUT")
         if bindings:
             spec["inputs"] = bindings
