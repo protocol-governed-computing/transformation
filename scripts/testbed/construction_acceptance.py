@@ -69,6 +69,8 @@ DOMAINS = (
     (CR_DOSSIERS, REGISTRY, True),
     (WORKSPACE / "business_domains/blockchain/cr_dossiers",
      WORKSPACE / "business_domains/blockchain/registry", True),
+    (WORKSPACE / "business_domains/causal_language_model/cr_dossiers",
+     WORKSPACE / "business_domains/causal_language_model/registry", True),
     (WORKSPACE / "software_governance/dossiers",
      WORKSPACE / "software_governance/registry", False),
     (WORKSPACE / "transformation/dossiers",
