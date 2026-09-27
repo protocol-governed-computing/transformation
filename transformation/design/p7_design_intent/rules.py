@@ -1442,7 +1442,7 @@ MOLECULE_RULES: list[Rule] = [
 
 # A transform's implementation lives outside the composition, so the composition vouches for its
 # declaration and never for its code; its cases are the proof, run in its domain's build on every build
-# (conformance::CONSTITUTION_TEST_DATA_V1). The build cannot tell a transform authored today from one
+# (conformance::CONSTITUTION_TEST_DATA_V2). The build cannot tell a transform authored today from one
 # that predates vectors — nothing records when a transform was authored — but the design can: every
 # transform authored or amended from now on arrives through one. So the obligation is enforced here.
 #
