@@ -771,6 +771,19 @@ def _interpret_step(p7: dict, owner: str, r: dict) -> str:
     return f"interpret_{observed}"
 
 
+TRANSFORM_CONSTITUTIONS = {
+    "molecule": "capability_transforms::CONSTITUTION_MOLECULES_V0",
+    "ct_impure": "capability_transforms::CONSTITUTION_NONDETERMINISTIC_ATOMS_V0",
+}
+
+
+def _transform_constitution(kind: str, purity: str) -> str:
+    """The constitution that governs a transform, placed by kind and then by purity."""
+    if kind == "molecule":
+        return TRANSFORM_CONSTITUTIONS["molecule"]
+    return TRANSFORM_CONSTITUTIONS.get(purity, GOVERNED_BY["CT"])
+
+
 def _transform(m, code, short, summary, sub, p7, p8, supplied=None, declared_empty=None):
     row = next((r for r in rows(p7, "implementation_bindings") if bare(cell(r, "CT Code")) == short), {})
     m["core"] = {
@@ -792,6 +805,12 @@ def _transform(m, code, short, summary, sub, p7, p8, supplied=None, declared_emp
         "ct_purity": cell(row, "Purity") or "ct_pure",
         "operation": cell(row, "Operation"),
     }
+    # Which constitution governs a transform is decided by what it declares, never by its family: a
+    # molecule by the molecules constitution, a non-deterministic atom by its own, every other atom by
+    # the transforms constitution. The family's single constitution was right for as long as every
+    # transform rendered was a deterministic atom, and the compiler refused the first design that
+    # rendered anything else.
+    m["governed_by"] = _transform_constitution(m["machine"]["ct_kind"], m["machine"]["ct_purity"])
     if cell(row, "Kind") == "molecule":
         # A molecule is run as its declared steps and names no implementation: a module beside the
         # steps would be a second account of what it does, and the runtime would follow one of them.

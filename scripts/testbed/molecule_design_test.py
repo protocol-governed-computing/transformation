@@ -133,6 +133,13 @@ def test_a_loop_over_a_molecule_renders_the_form_the_compiler_lowers():
     assert machine(OFFER)["machine"]["implementation"]["callable"] == "execute"
 
 
+def test_each_transform_is_governed_by_the_constitution_its_kind_and_purity_place_it_under():
+    assert machine(WRITE)["governed_by"] == machine(PASS)["governed_by"] == \
+        "capability_transforms::CONSTITUTION_MOLECULES_V0"
+    assert machine(OFFER)["governed_by"] == "capability_transforms::CONSTITUTION_NONDETERMINISTIC_ATOMS_V0"
+    assert machine(CHOOSE)["governed_by"] == "capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0"
+
+
 def test_every_fact_of_a_molecule_is_determined_by_the_design():
     undetermined = [(c, p) for c, p, ok in requirements(registers(design()), MANDATE)
                     if not ok and ("atom_stream" in p or "emit" in p)]
