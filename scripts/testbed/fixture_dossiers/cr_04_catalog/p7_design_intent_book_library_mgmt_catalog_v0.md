@@ -295,6 +295,24 @@ HOW it is built. FQDNs, topology, schemas and bindings. The full dossier is revi
 
 ---
 
+## 23. Test Cases
+
+<!-- register:test_cases optional -->
+| CT Code | Case | Expected Outcome (SUCCESS, VIOLATION) | Source Finding |
+|---------|------|---------------------------------------|----------------|
+| NONE IDENTIFIED |
+
+---
+
+## 24. Test Case Values
+
+<!-- register:test_case_values optional -->
+| CT Code | Case | Role (INPUT, EXPECTED, ASSERT, RECORDED) | Field | Value | Source Finding |
+|---------|------|------------------------------------------|-------|-------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## Gate 1 — Design Approval
 
 **Gate 1 closes here.** Stages 0 through 7 are presented for review as a body — a unified review of

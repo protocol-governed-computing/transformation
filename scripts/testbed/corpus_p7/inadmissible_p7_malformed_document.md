@@ -654,6 +654,31 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 
 ---
 
+## 23. Test Cases
+
+<!-- register:test_cases optional -->
+| CT Code | Case | Expected Outcome (SUCCESS, VIOLATION) | Source Finding |
+|---------|------|---------------------------------------|----------------|
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | forms_normalized_key | SUCCESS | human decision |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | refuses_blank_title | VIOLATION | human decision |
+
+---
+
+## 24. Test Case Values
+
+<!-- register:test_case_values optional -->
+| CT Code | Case | Role (INPUT, EXPECTED, ASSERT, RECORDED) | Field | Value | Source Finding |
+|---------|------|------------------------------------------|-------|-------|----------------|
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | forms_normalized_key | INPUT | title | "THE ODYSSEY" | human decision |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | forms_normalized_key | INPUT | author | Homer | human decision |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | forms_normalized_key | INPUT | publication_year | 1614 | human decision |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | forms_normalized_key | EXPECTED | identity_key | the odyssey\|homer\|1614 | human decision |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | refuses_blank_title | INPUT | title | " " | human decision |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | refuses_blank_title | INPUT | author | Homer | human decision |
+| book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 | refuses_blank_title | INPUT | publication_year | 1614 | human decision |
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |

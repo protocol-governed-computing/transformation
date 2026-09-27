@@ -27,12 +27,16 @@ TABLE_DIVIDER = re.compile(r"^\|[\s:|-]+\|$")
 
 
 def _split_row(line: str) -> list[str]:
+    """A table row's cells. A pipe inside a cell is written `\\|`, as GitHub-flavoured Markdown escapes
+    it: a value may contain one — a book's identity key is `title|author|year` — and a row split on it
+    would shift every cell after it one column to the right."""
     stripped = line.strip()
     if stripped.startswith("|"):
         stripped = stripped[1:]
-    if stripped.endswith("|"):
+    if stripped.endswith("|") and not stripped.endswith("\\|"):
         stripped = stripped[:-1]
-    return [cell.strip() for cell in stripped.split("|")]
+    cells = re.split(r"(?<!\\)\|", stripped)
+    return [cell.strip().replace("\\|", "|") for cell in cells]
 
 
 def _read_table(lines: list[str]) -> tuple[list[str], list[dict[str, str]]]:

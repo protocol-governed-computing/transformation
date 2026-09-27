@@ -1440,6 +1440,106 @@ MOLECULE_RULES: list[Rule] = [
 ]
 
 
+# A transform's implementation lives outside the composition, so the composition vouches for its
+# declaration and never for its code; its cases are the proof, run in its domain's build on every build
+# (conformance::CONSTITUTION_TEST_DATA_V1). The build cannot tell a transform authored today from one
+# that predates vectors — nothing records when a transform was authored — but the design can: every
+# transform authored or amended from now on arrives through one. So the obligation is enforced here.
+#
+# What a case must say about its transform — outputs it declares, assertion forms, recorded results
+# for exactly its non-deterministic steps — is the compiler's to refuse, against the transform as
+# sealed. Stating it here too would be a second authority on the same rule.
+VECTOR_RULES: list[Rule] = [
+    Rule(
+        id="TRANSFORM_WITHOUT_VECTOR",
+        check="REGISTER_COVERS_REGISTER",
+        register="test_cases",
+        params={
+            "source_register": "new_artifacts",
+            "source_column": "Code",
+            "column": "CT Code",
+            "only_when_column": "Family",
+            "only_when_value": "CT",
+        },
+        intent="a transform authored here enters the composition with its proof",
+    ),
+    Rule(
+        id="AMENDED_TRANSFORM_WITHOUT_VECTOR",
+        check="REGISTER_COVERS_REGISTER",
+        register="test_cases",
+        params={
+            "source_register": "existing_inventory",
+            "source_column": "FQDN",
+            "column": "CT Code",
+            "only_when_column": "Action",
+            "only_when_value": "EXTEND",
+            "only_when_source_pattern": r"^CT_",
+        },
+        intent="a transform this change amends is proven as it will be",
+    ),
+    Rule(
+        id="TEST_CASE_TRANSFORM_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="test_cases",
+        params={
+            "column": "CT Code",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": "a case proves a transform this design declares or carries over",
+        },
+        intent="a case tests something that exists",
+    ),
+    Rule(
+        id="TEST_CASE_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="test_cases",
+        params={"column": "Case", "detail": "case has no name — a failure nothing can name is one nobody can find"},
+        intent="every case is named",
+    ),
+    Rule(
+        id="TEST_CASE_NAME_MALFORMED",
+        check="CELL_MATCHES",
+        register="test_cases",
+        params={
+            "column": "Case",
+            "pattern": r"^[a-z][a-z0-9_]*$",
+            "detail": "case is named {value!r}; a case is named in lower case, words joined by underscores",
+        },
+        intent="a case name is a stable identifier",
+    ),
+    Rule(
+        id="TEST_VALUE_CASE_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="test_case_values",
+        params={
+            "column": "Case",
+            "target_register": "test_cases",
+            "target_column": "Case",
+            "detail": "a value belongs to a case this design declares",
+        },
+        intent="a value is handed to, or expected of, a case that exists",
+    ),
+    Rule(
+        id="TEST_VALUE_WITHOUT_FIELD",
+        check="CELL_NOT_EMPTY",
+        register="test_case_values",
+        params={"column": "Field", "detail": "value names no field — construction would have to choose one"},
+        intent="every value names the field it is for",
+    ),
+    Rule(
+        id="TEST_VALUE_EMPTY",
+        check="CELL_NOT_EMPTY",
+        register="test_case_values",
+        params={
+            "column": "Value",
+            "detail": "value is empty — write the literal, and \"\" for the empty string",
+        },
+        intent="every value is stated",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
     return (
@@ -1453,6 +1553,7 @@ def rule_set() -> list[Rule]:
         + REFUSAL_RULES
         + EMISSION_RULES
         + MOLECULE_RULES
+        + VECTOR_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()

@@ -258,6 +258,8 @@ core:
             - subdomain_purpose
             - subdomain_purposes
             - system_beliefs
+            - test_case_values
+            - test_cases
             - transport_bindings
             - verification_results
             - vocabulary_extensions

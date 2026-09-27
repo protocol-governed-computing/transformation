@@ -35,6 +35,10 @@ class Family:
     # Whether a change request may author one. False for the neutral substrate a domain binds but
     # never writes.
     authorable: bool = True
+    # Whether construction renders one beside another artifact rather than as an artifact a design
+    # schedules. A transform's test vector is: the design states its cases, and the vector's identity
+    # follows from its transform's, so there is no second code to assign and no build step to order.
+    companion: bool = False
 
 
 FAMILIES: tuple[Family, ...] = (
@@ -58,6 +62,8 @@ FAMILIES: tuple[Family, ...] = (
            "transport::CONSTITUTION_TRANSPORT_INGRESS_V0", "transport"),
     Family("TE", "TRANSPORT_EGRESS",
            "transport::CONSTITUTION_TRANSPORT_EGRESS_V0", "transport/egress"),
+    Family("TEST_DATA", "TEST_DATA", "conformance::CONSTITUTION_TEST_DATA_V1", "test_data",
+           authorable=False, companion=True),
 )
 
 BY_CODE: dict[str, Family] = {family.code: family for family in FAMILIES}

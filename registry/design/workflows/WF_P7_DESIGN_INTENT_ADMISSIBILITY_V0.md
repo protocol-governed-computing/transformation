@@ -199,6 +199,8 @@ core:
             - subdomain_purpose
             - subdomain_purposes
             - system_beliefs
+            - test_case_values
+            - test_cases
             - transport_bindings
             - verification_results
             - vocabulary_extensions
@@ -1151,6 +1153,106 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: test_cases
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: test_cases
+          params:
+            columns:
+            - CT Code
+            - Case
+            - Expected Outcome
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: test_cases
+          params:
+            column: Expected Outcome
+            vocabulary:
+            - SUCCESS
+            - VIOLATION
+          intent: Expected Outcome is a controlled vocabulary declared by the template
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: test_cases
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: test_cases
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: test_cases
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: test_case_values
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: test_case_values
+          params:
+            columns:
+            - CT Code
+            - Case
+            - Role
+            - Field
+            - Value
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: test_case_values
+          params:
+            column: Role
+            vocabulary:
+            - INPUT
+            - EXPECTED
+            - ASSERT
+            - RECORDED
+          intent: Role is a controlled vocabulary declared by the template
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: test_case_values
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: test_case_values
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: test_case_values
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -1164,7 +1266,7 @@ core:
           register: new_artifacts
           params:
             column: Code
-            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
+            pattern: ^[a-z][a-z0-9_.]*::(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+$
             detail: binding code {value!r} must be domain::FAMILY_NAME_V<n>
           intent: a binding identity is domain-qualified, family-prefixed and versioned
         - id: EXISTING_INVENTORY_UNRESOLVED
@@ -2046,6 +2148,79 @@ core:
             detail: a carried value is updated from {value!r}; it is taken from what the pass produced, results.<field>,
               or the loop carries forward something no pass computed
           intent: what a loop carries forward is what each pass produced
+        - id: TRANSFORM_WITHOUT_VECTOR
+          check: REGISTER_COVERS_REGISTER
+          register: test_cases
+          params:
+            source_register: new_artifacts
+            source_column: Code
+            column: CT Code
+            only_when_column: Family
+            only_when_value: CT
+          intent: a transform authored here enters the composition with its proof
+        - id: AMENDED_TRANSFORM_WITHOUT_VECTOR
+          check: REGISTER_COVERS_REGISTER
+          register: test_cases
+          params:
+            source_register: existing_inventory
+            source_column: FQDN
+            column: CT Code
+            only_when_column: Action
+            only_when_value: EXTEND
+            only_when_source_pattern: ^CT_
+          intent: a transform this change amends is proven as it will be
+        - id: TEST_CASE_TRANSFORM_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: test_cases
+          params:
+            column: CT Code
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+            detail: a case proves a transform this design declares or carries over
+          intent: a case tests something that exists
+        - id: TEST_CASE_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: test_cases
+          params:
+            column: Case
+            detail: case has no name — a failure nothing can name is one nobody can find
+          intent: every case is named
+        - id: TEST_CASE_NAME_MALFORMED
+          check: CELL_MATCHES
+          register: test_cases
+          params:
+            column: Case
+            pattern: ^[a-z][a-z0-9_]*$
+            detail: case is named {value!r}; a case is named in lower case, words joined by underscores
+          intent: a case name is a stable identifier
+        - id: TEST_VALUE_CASE_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: test_case_values
+          params:
+            column: Case
+            target_register: test_cases
+            target_column: Case
+            detail: a value belongs to a case this design declares
+          intent: a value is handed to, or expected of, a case that exists
+        - id: TEST_VALUE_WITHOUT_FIELD
+          check: CELL_NOT_EMPTY
+          register: test_case_values
+          params:
+            column: Field
+            detail: value names no field — construction would have to choose one
+          intent: every value names the field it is for
+        - id: TEST_VALUE_EMPTY
+          check: CELL_NOT_EMPTY
+          register: test_case_values
+          params:
+            column: Value
+            detail: value is empty — write the literal, and "" for the empty string
+          intent: every value is stated
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

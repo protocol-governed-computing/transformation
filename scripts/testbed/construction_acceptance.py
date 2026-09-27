@@ -265,6 +265,13 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
             print(f"          … {len(differences) - 6} more")
 
     for code in sorted(set(rendered) - set(reference)):
+        # A test vector the design states and the delivered registry does not yet carry. Vectors joined
+        # the design language after these domains were delivered, and a delivered domain gains its
+        # vectors in its own change; until then the fixture that states one is ahead of the registry,
+        # which is not a construction defect. Reported by name so it stays visible, never counted.
+        if rendered[code]["machine"].get("artifact_kind") == "TEST_DATA":
+            print(f"  NOT YET DELIVERED  {code:<33} {determined_by[code]}")
+            continue
         print(f"  EXTRA {code:<44} rendered, never built")
         failures += 1
 

@@ -452,6 +452,34 @@ generator.*
 
 ---
 
+## 23. Test Cases
+
+<!-- register:test_cases optional -->
+| CT Code | Case | Expected Outcome (SUCCESS, VIOLATION) | Source Finding |
+|---------|------|---------------------------------------|----------------|
+| book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0 | forms_normalized_key | SUCCESS | human decision |
+| book_library_mgmt::CT_PURE_SELECT_RECORDS_V0 | selects_matching_records | SUCCESS | human decision |
+| book_library_mgmt::CT_PURE_GROUP_RECORDS_V0 | groups_by_attribute | SUCCESS | human decision |
+
+---
+
+## 24. Test Case Values
+
+<!-- register:test_case_values optional -->
+| CT Code | Case | Role (INPUT, EXPECTED, ASSERT, RECORDED) | Field | Value | Source Finding |
+|---------|------|------------------------------------------|-------|-------|----------------|
+| book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0 | forms_normalized_key | INPUT | title | The Odyssey | human decision |
+| book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0 | forms_normalized_key | INPUT | author | Homer | human decision |
+| book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0 | forms_normalized_key | EXPECTED | work_key | the odyssey\|homer | human decision |
+| book_library_mgmt::CT_PURE_SELECT_RECORDS_V0 | selects_matching_records | INPUT | source | [{author: Homer, title: Iliad}, {author: Virgil, title: Aeneid}] | human decision |
+| book_library_mgmt::CT_PURE_SELECT_RECORDS_V0 | selects_matching_records | INPUT | filter | {author: Homer} | human decision |
+| book_library_mgmt::CT_PURE_SELECT_RECORDS_V0 | selects_matching_records | EXPECTED | extracted | [{author: Homer, title: Iliad}] | human decision |
+| book_library_mgmt::CT_PURE_GROUP_RECORDS_V0 | groups_by_attribute | INPUT | source | [{work: w1, edition: 1}, {work: w2, edition: 1}, {work: w1, edition: 2}] | human decision |
+| book_library_mgmt::CT_PURE_GROUP_RECORDS_V0 | groups_by_attribute | INPUT | attribute | work | human decision |
+| book_library_mgmt::CT_PURE_GROUP_RECORDS_V0 | groups_by_attribute | EXPECTED | grouped | [{key: w1, records: [{work: w1, edition: 1}, {work: w1, edition: 2}]}, {key: w2, records: [{work: w2, edition: 1}]}] | human decision |
+
+---
+
 ## Pipeline Provenance
 
 | Stage | Output | Status |

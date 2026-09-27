@@ -1461,11 +1461,19 @@ def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]
         and (not covered_present_column or _present(row, covered_present_column))
     }
 
+    # A gate on the source key's form, for a register holding several families in one column: the
+    # inventory carries every amended artifact, and an obligation owed by transforms alone must read
+    # only the rows naming a transform.
+    source_pattern = rule.params.get("only_when_source_pattern")
+    source_re = re.compile(source_pattern) if source_pattern else None
+
     out = []
     for ordinal, row in _content_rows(block):
         if gate_column and _cell(row, gate_column) != gate_value:
             continue
         key = _cell(row, source_column)
+        if source_re and not source_re.match(_bare_identity(key)):
+            continue
         if not key or _bare_identity(key) in covered:
             continue
         out.append((

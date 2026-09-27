@@ -417,7 +417,70 @@ def render_all(p7: dict, p8: dict) -> list[dict]:
             # ordinary case needs no record and only a departure does.
             "supplied": supplied,
         })
+        if fam == "CT":
+            vector = _vector(code, short, subdomain.get(short, ""), p7)
+            if vector is not None:
+                out.append(vector)
     return out
+
+
+def _vector(code: str, short: str, sub: str, p7: dict) -> dict | None:
+    """A transform's test vector, rendered beside it from the design's cases.
+
+    A companion, not a scheduled artifact: its identity follows from its transform's, so the design
+    assigns it no code and the mandate orders no step for it (`design.families`, `companion`). Governed
+    by `conformance::CONSTITUTION_TEST_DATA_V1`; its shape is `SCHEMA_TEST_DATA_V0`.
+    """
+    cases = [r for r in rows(p7, "test_cases") if bare(cell(r, "CT Code")) == short]
+    if not cases:
+        return None
+    values = [r for r in rows(p7, "test_case_values") if bare(cell(r, "CT Code")) == short]
+    declared_empty: list[str] = []
+    rendered_cases = []
+    for i, row in enumerate(cases):
+        case_id = cell(row, "Case")
+        by_role: dict[str, dict] = {"INPUT": {}, "EXPECTED": {}, "ASSERT": {}, "RECORDED": {}}
+        for v in values:
+            if cell(v, "Case") == case_id and cell(v, "Role") in by_role:
+                by_role[cell(v, "Role")][cell(v, "Field")] = _vector_value(cell(v, "Value"))
+        case: dict[str, Any] = {"case_id": case_id, "expected_outcome": cell(row, "Expected Outcome"),
+                                "bindings": by_role["INPUT"]}
+        for key, role in (("expected", "EXPECTED"), ("assertions", "ASSERT"), ("recorded", "RECORDED")):
+            if by_role[role]:
+                case[key] = by_role[role]
+        # A case handed nothing, or expecting a value that is empty, says so — both are stated.
+        declared_empty.extend(_declared_empty_leaves(case, f"cases[{i}]"))
+        rendered_cases.append(case)
+    domain = norm(code).split("::")[0]
+    fqdn = f"{domain}::TEST_DATA_{short}"
+    machine = {
+        "fqdn": fqdn,
+        "artifact_kind": KIND["TEST_DATA"],
+        "version": "V0",
+        "governed_by": GOVERNED_BY["TEST_DATA"],
+        "authority": "pgc.platform",
+        "concern": sub,
+        "target": norm(code),
+        "cases": rendered_cases,
+    }
+    return {
+        "path": f"registry/{sub}/{DIRECTORY['TEST_DATA']}/TEST_DATA_{short}.md",
+        "domain": domain,
+        "machine": machine,
+        "supersedes": [],
+        "declared_empty": declared_empty,
+        "supplied": {},
+    }
+
+
+def _vector_value(value: str) -> Any:
+    """A case value as the design wrote it: a YAML literal, so a list is a list and a number a number."""
+    import yaml
+
+    try:
+        return yaml.safe_load(value)
+    except yaml.YAMLError:
+        return value
 
 
 def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
@@ -1098,6 +1161,13 @@ def build_manifest(p7: dict, p8: dict) -> dict | None:
     subdomains = sorted({cell(r, "Subdomain Field") for r in rows(p8, "field_declarations")
                          if cell(r, "Subdomain Field")})
     families = [f.code for f in FAMILIES if f.authorable]
+    # A domain whose design states cases compiles vectors, and declares where their runnable cases are
+    # written — beside its projections, where the runtime's conformance reads them and the assembler
+    # carries them, apart from composition evidence. A domain with none declares neither, and its
+    # manifest is exactly what it was.
+    vectors = bool(rows(p7, "test_cases"))
+    if vectors:
+        families.append("TEST_DATA")
     layer = domain.upper()
     return {
         "fqdn": f"{domain}::STRUCTURE_BUILD_{layer}_CONFIG_V0",
@@ -1144,7 +1214,8 @@ def build_manifest(p7: dict, p8: dict) -> dict | None:
                 {"layer": "GOVERNANCE", "subpath": "compiled/visualization"},
             "layer_outputs": {layer: {"layer": layer, "subpath": "compiled/canonical"}},
             "bootstrap_search_roots": [{"layer": "GOVERNANCE", "subpath": "structure/structures"}],
-        },
+        } | ({"conformance": {"layer": "GOVERNANCE", "subpath": "compiled/transform_conformance"}}
+             if vectors else {}),
         "build_phases": [
             {"phase": name, "description": text.format(domain=domain)}
             | ({"target": "compiled/artifacts/"} if name == "materialize" else {})

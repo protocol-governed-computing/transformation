@@ -553,6 +553,48 @@ constant the design fixes.*
 
 ---
 
+## 23. Test Cases
+
+*The proof each transform this design authors or amends carries: stated inputs, and what the transform
+must produce from them. A transform's implementation lives outside the composition, so the composition
+can vouch for its declaration and never for its code; its cases are run against it exactly as sealed,
+in its domain's build, on every build (`conformance::CONSTITUTION_TEST_DATA_V1`). One row per case.*
+
+*Every transform in `new_artifacts`, and every transform amended in `existing_inventory`, has at least
+one case — a transform authored without one is refused here, because this is the one place a new
+transform can be told from one that already exists. Construction renders a transform's cases as its
+vector, `TEST_DATA_<transform code>`, beside the transform; the vector is not listed in `new_artifacts`.*
+
+*`Expected Outcome` is `SUCCESS`, or `VIOLATION` for a case the transform must refuse.*
+
+<!-- register:test_cases optional -->
+| CT Code | Case | Expected Outcome (SUCCESS, VIOLATION) | Source Finding |
+|---------|------|---------------------------------------|----------------|
+
+---
+
+## 24. Test Case Values
+
+*What each case hands the transform and what it expects back. One row per value.*
+
+*`Role` says what a row is. `INPUT` is a field the transform is handed. `EXPECTED` is an output the
+transform must yield, compared exactly. `ASSERT` is an output whose value cannot be stated, with the
+form it must take — `{mode: property, type: non_zero}` — which is how a step that is not deterministic
+is proven on its own. `RECORDED` is, for a molecule, the result a non-deterministic step is recorded as
+having produced: `Field` is the step's path as the runtime addresses it — `written[3]/offered` is the
+step `offered` on the fourth pass of the loop `written` — and the case runs with that result
+substituted, never running the step.*
+
+*`Value` is a literal, written as YAML: `3`, `"The Odyssey"`, `[1, 2]`, `{candidates: [a, b]}`. A
+case expecting `SUCCESS` states every output the transform declares, as `EXPECTED` or `ASSERT`, and
+nothing else; a case expecting `VIOLATION` states none.*
+
+<!-- register:test_case_values optional -->
+| CT Code | Case | Role (INPUT, EXPECTED, ASSERT, RECORDED) | Field | Value | Source Finding |
+|---------|------|------------------------------------------|-------|-------|----------------|
+
+---
+
 ---
 
 ## Gate 1 — Design Approval
