@@ -1970,7 +1970,10 @@ core:
           register: artifact_properties
           params:
             property_prefix: emit.
-          intent: a moment is announced from an ending the act has, and one that completes it
+            refusal_property: moment
+            refusal_value: refusal
+          intent: a moment is announced from an ending the act has, and one that completes it — or, for a moment
+            declared a refusal, one that refuses it
         - id: EMITTED_EVENT_UNDECLARED
           check: CELL_RESOLVES_IN_REGISTER
           register: artifact_properties

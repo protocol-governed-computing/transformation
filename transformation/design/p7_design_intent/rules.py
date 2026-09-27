@@ -1184,8 +1184,10 @@ EMISSION_RULES: list[Rule] = [
         id="EMISSION_NOT_FROM_COMPLETING_ENDING",
         check="EMISSION_GROUNDED_IN_ENDING",
         register="artifact_properties",
-        params={"property_prefix": EMISSION_PROPERTY_PREFIX},
-        intent="a moment is announced from an ending the act has, and one that completes it",
+        params={"property_prefix": EMISSION_PROPERTY_PREFIX, "refusal_property": "moment",
+                "refusal_value": "refusal"},
+        intent="a moment is announced from an ending the act has, and one that completes it — or, "
+               "for a moment declared a refusal, one that refuses it",
     ),
     Rule(
         id="EMITTED_EVENT_UNDECLARED",

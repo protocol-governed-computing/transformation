@@ -1934,8 +1934,17 @@ def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, s
     property_column = rule.params.get("property_column", "Property")
     type_column = rule.params.get("type_column", "Node Type")
     completing = rule.params.get("completing_type", "EXIT_SUCCESS")
+    refusing = rule.params.get("refusing_type", "EXIT")
+    refusal_property = rule.params.get("refusal_property", "moment")
+    refusal_value = rule.params.get("refusal_value", "refusal")
 
     topology = _topology(doc, rule)
+    refusals = {
+        _bare_identity(_cell(row, artifact_column)): True
+        for _, row in _rows(doc, rule)
+        if _cell(row, property_column).strip() == refusal_property
+        and _cell(row, "Value").strip() == refusal_value
+    }
 
     out = []
     for i, row in _rows(doc, rule):
@@ -1961,12 +1970,22 @@ def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, s
             ))
             continue
         node_type = _cell(node, type_column).strip().upper()
-        if node_type != completing:
-            out.append((
-                f"{_where(rule)} row {i}",
-                f"{ending!r} is typed {node_type or 'nothing'} — a moment names something that "
-                f"happened, so it is announced only from an ending typed {completing}",
-            ))
+        if node_type == completing:
+            continue
+        # A refusal is itself something that happened. An act that refuses may announce the
+        # refusal, and only that: every moment it announces must be one the design declares a
+        # refusal, by property on the moment — never read from the moment's name.
+        announced = [m.strip() for m in _cell(row, "Value").split(",") if m.strip()]
+        if node_type == refusing and announced and all(
+                refusals.get(_bare_identity(m)) for m in announced):
+            continue
+        out.append((
+            f"{_where(rule)} row {i}",
+            f"{ending!r} is typed {node_type or 'nothing'} — a moment names something that "
+            f"happened, so it is announced only from an ending typed {completing}, or from one "
+            f"typed {refusing} when every moment announced is declared "
+            f"`{refusal_property}: {refusal_value}`",
+        ))
     return out
 
 

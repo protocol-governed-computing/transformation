@@ -353,6 +353,11 @@ declaration that it needs no configuration rather than an omission.*
 that recurs across families has stopped being family-specific and earns its own register; this one
 exists so that a single scalar does not.*
 
+*`emit.<ending>` names the moments an act announces at that ending, which completes the act. An act
+that refuses may announce the refusal itself, and nothing else: an ending typed `EXIT` announces only
+moments this register declares `moment` = `refusal`. Whether a moment is a refusal is read from that
+declaration, never from its name.*
+
 <!-- register:artifact_properties optional -->
 | Artifact | Property | Value | Source Finding |
 |----------|----------|-------|----------------|
