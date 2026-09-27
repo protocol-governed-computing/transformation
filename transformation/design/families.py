@@ -48,7 +48,7 @@ FAMILIES: tuple[Family, ...] = (
     Family("CC", "CAPABILITY_CONTRACT",
            "capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0", "capability_contracts"),
     Family("CT", "CAPABILITY_TRANSFORM",
-           "capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0",
+           "capability_transforms::CONSTITUTION_DETERMINISTIC_ATOMS_V0",
            "capability_transforms"),
     Family("CS", "CAPABILITY_SIDE_EFFECT",
            "capability_side_effects::CONSTITUTION_CAPABILITY_SIDE_EFFECTS_V0",

@@ -137,7 +137,7 @@ def test_each_transform_is_governed_by_the_constitution_its_kind_and_purity_plac
     assert machine(WRITE)["governed_by"] == machine(PASS)["governed_by"] == \
         "capability_transforms::CONSTITUTION_MOLECULES_V0"
     assert machine(OFFER)["governed_by"] == "capability_transforms::CONSTITUTION_NONDETERMINISTIC_ATOMS_V0"
-    assert machine(CHOOSE)["governed_by"] == "capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0"
+    assert machine(CHOOSE)["governed_by"] == "capability_transforms::CONSTITUTION_DETERMINISTIC_ATOMS_V0"
 
 
 def test_every_fact_of_a_molecule_is_determined_by_the_design():

@@ -39,7 +39,7 @@ that is a defect, and for a phase that declares a cross-phase rule it is one.
 fqdn: transformation::CT_PURE_PARSE_PRIOR_PHASES_V0
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
-governed_by: capability_transforms::CONSTITUTION_CAPABILITY_TRANSFORMS_V0
+governed_by: capability_transforms::CONSTITUTION_DETERMINISTIC_ATOMS_V0
 authority: pgc.platform
 concern: design
 core:
