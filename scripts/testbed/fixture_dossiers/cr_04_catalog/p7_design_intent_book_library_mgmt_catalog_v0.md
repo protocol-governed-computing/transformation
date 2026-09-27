@@ -277,6 +277,24 @@ HOW it is built. FQDNs, topology, schemas and bindings. The full dossier is revi
 
 ---
 
+## 21. Molecule Steps
+
+<!-- register:molecule_steps optional -->
+| CT Code | Step | Kind (atom, molecule, loop) | Target | Over | Iterator | Emits | Source Finding |
+|---------|------|-----------------------------|--------|------|----------|-------|----------------|
+| NONE IDENTIFIED |
+
+---
+
+## 22. Molecule Step Bindings
+
+<!-- register:molecule_step_bindings optional -->
+| CT Code | Step | Role (INPUT, CARRY, UPDATE) | Field | Bound To | Source Finding |
+|---------|------|-----------------------------|-------|----------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## Gate 1 — Design Approval
 
 **Gate 1 closes here.** Stages 0 through 7 are presented for review as a body — a unified review of

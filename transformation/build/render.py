@@ -446,7 +446,9 @@ def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
         builder(machine, code, short, summary, sub, p7, p8, declared_empty)
     elif fam == "VOCAB":
         builder(machine, code, short, summary, sub, p7, p8, declared_empty, supplied)
-    elif fam in ("STRUCTURE", "CT", "EV"):
+    elif fam == "CT":
+        builder(machine, code, short, summary, sub, p7, p8, supplied, declared_empty)
+    elif fam in ("STRUCTURE", "EV"):
         builder(machine, code, short, summary, sub, p7, p8, supplied)
     else:
         builder(machine, code, short, summary, sub, p7, p8)
@@ -704,7 +706,7 @@ def _interpret_step(p7: dict, owner: str, r: dict) -> str:
     return f"interpret_{observed}"
 
 
-def _transform(m, code, short, summary, sub, p7, p8, supplied=None):
+def _transform(m, code, short, summary, sub, p7, p8, supplied=None, declared_empty=None):
     row = next((r for r in rows(p7, "implementation_bindings") if bare(cell(r, "CT Code")) == short), {})
     m["core"] = {
         "summary": summary,
@@ -724,8 +726,74 @@ def _transform(m, code, short, summary, sub, p7, p8, supplied=None):
         "ct_kind": cell(row, "Kind") or "atom",
         "ct_purity": cell(row, "Purity") or "ct_pure",
         "operation": cell(row, "Operation"),
-        "implementation": {"module": cell(row, "Module"), "callable": cell(row, "Callable")},
     }
+    if cell(row, "Kind") == "molecule":
+        # A molecule is run as its declared steps and names no implementation: a module beside the
+        # steps would be a second account of what it does, and the runtime would follow one of them.
+        stream, emit = _molecule(p7, short, declared_empty)
+        m["machine"]["atom_stream"] = stream
+        m["machine"]["emit"] = emit
+    else:
+        m["machine"]["implementation"] = {"module": cell(row, "Module"), "callable": cell(row, "Callable")}
+
+
+def _molecule_source(bound_to: str) -> Any:
+    """A molecule binding's declared source as the executor's binding expression.
+
+    Separate from `_binding` because a molecule has two roots a contract step does not — the member a
+    loop pass is on, and the values the loop carries — and `iterator` read as a contract binding is a
+    literal word. Anything that names no root is a literal, read as YAML so that `""` is the empty
+    string, `false` a flag and `[]` a list rather than the characters that spell them.
+    """
+    if bound_to == "iterator":
+        return "$.iterator"
+    if bound_to.startswith(("inputs.", "results.", "accumulator.")):
+        return f"$.{bound_to}"
+    return _bound_value(bound_to)
+
+
+def _molecule(p7: dict, owner: str, declared_empty=None) -> tuple[list[dict], dict]:
+    """A molecule's atom stream and its emission, as the compiler reads them.
+
+    One entry per `molecule_steps` row, in the order the design states — the order the steps run in
+    and in no other. An atom or a molecule run once is handed its `INPUT` rows as `with`; a loop is
+    handed them on every pass as `inputs`, starts its carried values from `CARRY` and takes them
+    forward from `UPDATE`. Each map is omitted where the design binds nothing into it, because the
+    compiler reads an absent map as an empty one and an empty map is a leaf nothing determined.
+    """
+    steps = [r for r in rows(p7, "molecule_steps") if bare(cell(r, "CT Code")) == owner]
+    bindings = [r for r in rows(p7, "molecule_step_bindings") if bare(cell(r, "CT Code")) == owner]
+
+    def bound(step: str, role: str) -> dict:
+        return {cell(b, "Field"): _molecule_source(cell(b, "Bound To"))
+                for b in bindings if cell(b, "Step") == step and cell(b, "Role") == role}
+
+    stream: list[dict] = []
+    emit: dict[str, str] = {}
+    for r in steps:
+        step, kind, target = cell(r, "Step"), cell(r, "Kind"), cell(r, "Target")
+        entry: dict[str, Any] = {"kind": kind, "atom" if kind == "atom" else "molecule": target, "as": step}
+        if kind == "loop":
+            entry["over"] = f"$.{cell(r, 'Over')}"
+            entry["iterator"] = cell(r, "Iterator")
+            for key, role in (("accumulator", "CARRY"), ("inputs", "INPUT"),
+                              ("update_accumulator", "UPDATE")):
+                values = bound(step, role)
+                if values:
+                    entry[key] = values
+        else:
+            values = bound(step, "INPUT")
+            if values:
+                entry["with"] = values
+        if declared_empty is not None:
+            # A carried value that starts empty is stated, not missing — a response that begins as
+            # no words is exactly what the design says it is.
+            declared_empty.extend(_declared_empty_leaves(entry, f"machine.atom_stream[{len(stream)}]"))
+        stream.append(entry)
+        emits = cell(r, "Emits")
+        if emits and emits not in ("—", "-"):
+            emit[emits] = step
+    return stream, emit
 
 
 # Properties that describe the *document* rather than the artifact the compiler reads. Supersession

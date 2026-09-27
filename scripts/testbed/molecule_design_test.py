@@ -1,0 +1,189 @@
+"""Molecule design — the design language's half of software_governance/dossiers/molecule_composition.
+
+A molecule is declared in P7 as its steps (`molecule_steps`) and what each step is handed
+(`molecule_step_bindings`). Shown here: a loop over a molecule of two atoms renders to exactly the
+source form the compiler lowers — a stream of steps, their bindings and one emission, and no
+implementation — with every fact of it determined by the design; and each rule that holds a molecule
+to being stated fires on a design built to trip it and stays silent on the one that keeps it.
+
+Run:  python scripts/testbed/molecule_design_test.py
+"""
+
+from __future__ import annotations
+
+import sys
+
+from transformation.build.render import render_all, requirements
+from transformation.design.evaluate import ParsedDocument
+from transformation.design.oracle import evaluate
+from transformation.design.p7_design_intent.rules import MOLECULE_RULES, rule_set
+from transformation.design.read import parse_text
+
+D = "probe"
+OFFER, CHOOSE = f"{D}::CT_IMPURE_OFFER_WORDS_V0", f"{D}::CT_PURE_CHOOSE_WORD_V0"
+PASS, WRITE = f"{D}::CT_PASS_WRITE_ONE_WORD_V0", f"{D}::CT_WRITE_RESPONSE_V0"
+
+NEW = [
+    ("Offer words", OFFER), ("Choose a word", CHOOSE),
+    ("Write one word", PASS), ("Write a response", WRITE),
+]
+IMPL = [  # code, module, callable, kind, purity
+    (OFFER, f"{D}.implementation.capability_transforms.atoms.ct_impure_offer_words_v0", "execute", "atom", "ct_impure"),
+    (CHOOSE, f"{D}.implementation.capability_transforms.atoms.ct_pure_choose_word_v0", "execute", "atom", "ct_pure"),
+    (PASS, "", "", "molecule", "ct_impure"),
+    (WRITE, "", "", "molecule", "ct_impure"),
+]
+STEPS = [  # molecule, step, kind, target, over, iterator, emits
+    (PASS, "offered", "atom", OFFER, "—", "—", "—"),
+    (PASS, "chosen", "atom", CHOOSE, "—", "—", "result"),
+    (WRITE, "written", "loop", PASS, "inputs.positions", "position", "result"),
+]
+BINDINGS = [  # molecule, step, role, field, bound to
+    (PASS, "offered", "INPUT", "position", "inputs.position"),
+    (PASS, "chosen", "INPUT", "candidates", "results.offered.candidates"),
+    (PASS, "chosen", "INPUT", "forbidden", "inputs.forbidden"),
+    (PASS, "chosen", "INPUT", "text", "inputs.text"),
+    (PASS, "chosen", "INPUT", "done", "inputs.done"),
+    (WRITE, "written", "CARRY", "text", '""'),
+    (WRITE, "written", "CARRY", "done", "false"),
+    (WRITE, "written", "INPUT", "position", "iterator"),
+    (WRITE, "written", "INPUT", "text", "accumulator.text"),
+    (WRITE, "written", "INPUT", "done", "accumulator.done"),
+    (WRITE, "written", "INPUT", "forbidden", "inputs.forbidden"),
+    (WRITE, "written", "UPDATE", "text", "results.text"),
+    (WRITE, "written", "UPDATE", "done", "results.done"),
+]
+
+
+def _table(register: str, header: list[str], rows: list[tuple]) -> str:
+    lines = [f"<!-- register:{register} optional -->", "| " + " | ".join(header) + " |",
+             "|" + "|".join("---" for _ in header) + "|"]
+    lines += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows] or ["| NONE IDENTIFIED |"]
+    return "\n".join(lines) + "\n\n"
+
+
+def design(impl=IMPL, steps=STEPS, bindings=BINDINGS) -> str:
+    return (
+        "# Design Intent: probe / words\n\n"
+        + _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
+                                   "Source Finding"],
+                 [(c, "CT", code, c, "words", "NEW", "human decision") for c, code in NEW])
+        + _table("implementation_bindings", ["CT Code", "Module", "Callable", "Operation",
+                                             "Kind (atom, molecule)", "Purity (ct_pure, ct_impure)",
+                                             "Refusal (raises, returns, never)", "Source Finding"],
+                 [(c, m, k, "op", kind, p, "never", "human decision") for c, m, k, kind, p in impl])
+        + _table("molecule_steps", ["CT Code", "Step", "Kind (atom, molecule, loop)", "Target", "Over",
+                                    "Iterator", "Emits", "Source Finding"],
+                 [(*s, "human decision") for s in steps])
+        + _table("molecule_step_bindings", ["CT Code", "Step", "Role (INPUT, CARRY, UPDATE)", "Field",
+                                            "Bound To", "Source Finding"],
+                 [(*b, "human decision") for b in bindings])
+    )
+
+
+def parsed(text: str) -> ParsedDocument:
+    header, sections, registers = parse_text(text)
+    return ParsedDocument(header=header, sections=sections, registers=registers, raw=text, path="probe")
+
+
+def registers(text: str) -> dict[str, list[dict]]:
+    doc = parsed(text)
+    return {e["id"]: doc.register(e["id"]).table.rows for e in doc.registers
+            if doc.register(e["id"]) and doc.register(e["id"]).table}
+
+
+MANDATE = {"build_order": [{"Code": code} for _, code in NEW],
+           "field_declarations": [{"Code": code, "Subdomain Field": "words"} for _, code in NEW]}
+
+# The rules a molecule is held to: the molecule rules, the atom-only module rule, the two kind rules,
+# and the vocabulary the template declares for a binding's role.
+HELD = {r.id for r in MOLECULE_RULES} | {"IMPLEMENTATION_WITHOUT_MODULE", "IMPLEMENTATION_WITHOUT_KIND",
+                                          "IMPLEMENTATION_KIND_UNKNOWN"}
+RULES = [r for r in rule_set() if r.id in HELD or (
+    r.id == "CELL_NOT_IN_VOCABULARY" and r.register in ("molecule_steps", "molecule_step_bindings",
+                                                        "implementation_bindings"))]
+
+
+def fired(text: str) -> list[str]:
+    return sorted(f.rule for f in evaluate(parsed(text), RULES).findings)
+
+
+def machine(code: str) -> dict:
+    return next(a["machine"] for a in render_all(registers(design()), MANDATE) if a["machine"]["fqdn"] == code)
+
+
+def test_a_loop_over_a_molecule_renders_the_form_the_compiler_lowers():
+    write = machine(WRITE)["machine"]
+    assert "implementation" not in write
+    assert write["emit"] == {"result": "written"}
+    assert write["atom_stream"] == [{
+        "kind": "loop", "molecule": PASS, "as": "written",
+        "over": "$.inputs.positions", "iterator": "position",
+        "accumulator": {"text": "", "done": False},
+        "inputs": {"position": "$.iterator", "text": "$.accumulator.text",
+                   "done": "$.accumulator.done", "forbidden": "$.inputs.forbidden"},
+        "update_accumulator": {"text": "$.results.text", "done": "$.results.done"},
+    }]
+    passed = machine(PASS)["machine"]
+    assert passed["emit"] == {"result": "chosen"}
+    offered, chosen = passed["atom_stream"]
+    assert offered == {"kind": "atom", "atom": OFFER, "as": "offered",
+                       "with": {"position": "$.inputs.position"}}
+    assert chosen["with"]["candidates"] == "$.results.offered.candidates"
+    assert machine(OFFER)["machine"]["implementation"]["callable"] == "execute"
+
+
+def test_every_fact_of_a_molecule_is_determined_by_the_design():
+    undetermined = [(c, p) for c, p, ok in requirements(registers(design()), MANDATE)
+                    if not ok and ("atom_stream" in p or "emit" in p)]
+    assert undetermined == [], undetermined
+
+
+def test_a_well_formed_molecule_design_passes_every_rule():
+    assert fired(design()) == [], fired(design())
+
+
+def test_each_rule_fires_on_the_defect_it_names():
+    cases = {
+        "MOLECULE_DECLARES_IMPLEMENTATION":
+            design(impl=[*IMPL[:2], (PASS, "probe.x", "execute", "molecule", "ct_impure"), IMPL[3]]),
+        "MOLECULE_WITHOUT_STEPS": design(steps=STEPS[2:]),
+        "MOLECULE_STEP_OWNER_NOT_MOLECULE": design(steps=[*STEPS, (OFFER, "x", "atom", CHOOSE, "—", "—", "—")]),
+        "MOLECULE_STEP_TARGET_UNDECLARED": design(steps=[STEPS[0], (PASS, "chosen", "atom", f"{D}::CT_NONE_V0", "—", "—", "result"), STEPS[2]]),
+        "LOOP_WITHOUT_COLLECTION": design(steps=[*STEPS[:2], (WRITE, "written", "loop", PASS, "", "position", "result")]),
+        "LOOP_COLLECTION_UNROOTED": design(steps=[*STEPS[:2], (WRITE, "written", "loop", PASS, "results.chosen.words", "position", "result")]),
+        "LOOP_WITHOUT_ITERATOR": design(steps=[*STEPS[:2], (WRITE, "written", "loop", PASS, "inputs.positions", "", "result")]),
+        "LOOP_FIELDS_OUTSIDE_LOOP": design(steps=[(PASS, "offered", "atom", OFFER, "inputs.positions", "—", "—"), *STEPS[1:]]),
+        "MOLECULE_WITHOUT_EMISSION": design(steps=[*STEPS[:2], (WRITE, "written", "loop", PASS, "inputs.positions", "position", "—")]),
+        "MOLECULE_EMITS_TWICE": design(steps=[(PASS, "offered", "atom", OFFER, "—", "—", "offered"), *STEPS[1:]]),
+        "MOLECULE_BINDING_STEP_UNDECLARED": design(bindings=[*BINDINGS, (PASS, "nowhere", "INPUT", "x", "inputs.x")]),
+        "MOLECULE_BINDING_WITHOUT_SOURCE": design(bindings=[*BINDINGS, (PASS, "chosen", "INPUT", "x", "")]),
+        "MOLECULE_BINDING_SOURCE_MALFORMED": design(bindings=[*BINDINGS, (PASS, "chosen", "INPUT", "x", "$.inputs.x")]),
+        "LOOP_UPDATE_NOT_FROM_RESULT": design(bindings=[*BINDINGS[:-1], (WRITE, "written", "UPDATE", "done", "accumulator.done")]),
+        "IMPLEMENTATION_WITHOUT_MODULE": design(impl=[(OFFER, "", "execute", "atom", "ct_impure"), *IMPL[1:]]),
+        "IMPLEMENTATION_WITHOUT_KIND": design(impl=[*IMPL[:3], (WRITE, "", "", "", "ct_impure")]),
+        "MOLECULE_STEP_KIND_UNKNOWN": design(steps=[*STEPS[:2], (WRITE, "written", "repeat", PASS, "inputs.positions", "position", "result")]),
+        "MOLECULE_STEP_WITHOUT_KIND": design(steps=[*STEPS[:2], (WRITE, "written", "", PASS, "—", "—", "result")]),
+        "MOLECULE_STEP_UNNAMED": design(steps=[(PASS, "", "atom", OFFER, "—", "—", "—"), *STEPS[1:]]),
+        "MOLECULE_STEP_WITHOUT_TARGET": design(steps=[(PASS, "offered", "atom", "", "—", "—", "—"), *STEPS[1:]]),
+        "IMPLEMENTATION_KIND_UNKNOWN": design(impl=[*IMPL[:3], (WRITE, "", "", "compound", "ct_impure")]),
+        "CELL_NOT_IN_VOCABULARY": design(bindings=[*BINDINGS, (WRITE, "written", "SEED", "x", "1")]),
+    }
+    for rule, text in cases.items():
+        assert rule in fired(text), (rule, fired(text))
+    unshown = (HELD | {"CELL_NOT_IN_VOCABULARY"}) - set(cases)
+    assert not unshown, f"rules never shown to fire: {sorted(unshown)}"
+
+
+if __name__ == "__main__":
+    tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
+    failed = 0
+    for name, fn in tests:
+        try:
+            fn()
+            print(f"  PASS  {name}")
+        except Exception as exc:  # report every test, then fail the run
+            failed += 1
+            print(f"  FAIL  {name}: {exc!r}")
+    print(f"\n{len(tests) - failed}/{len(tests)} passed")
+    sys.exit(1 if failed else 0)

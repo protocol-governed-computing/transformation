@@ -95,6 +95,34 @@ def is_sentinel(row: dict[str, str]) -> bool:
     return values[0].upper() == EMPTINESS_SENTINEL and not any(values[1:])
 
 
+# The none marker a register writes to say a cell has nothing to state, as opposed to leaving it
+# unanswered. A gate asking whether a cell *says something* reads both as silence.
+NONE_MARKERS = ("—", "-", "NONE", "N/A")
+
+
+def _present(row: dict[str, str], column: str) -> bool:
+    """Whether a cell states a value — neither blank nor the none marker."""
+    value = _cell(row, column)
+    return bool(value) and value not in NONE_MARKERS
+
+
+def _gated_out(row: dict[str, str], rule) -> bool:
+    """Whether a row falls outside the rows a rule is about.
+
+    `only_when_column` with `only_when_value` selects the rows in one state; with `only_when_values`
+    it selects the rows in any of several, which a register whose column names three kinds of row
+    needs for a fact two of them share.
+    """
+    column = rule.params.get("only_when_column")
+    if not column:
+        return False
+    gate = _cell(row, column).strip().upper()
+    values = rule.params.get("only_when_values")
+    if values is not None:
+        return gate not in {str(v).upper() for v in values}
+    return gate != str(rule.params.get("only_when_value")).upper()
+
+
 def _content_rows(block: Block | None):
     """Numbered content rows of a register block, sentinel excluded.
 
@@ -292,13 +320,9 @@ def _cell_not_empty(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     out = []
     column = rule.params["column"]
-    only_when_column = rule.params.get("only_when_column")
-    only_when_value = rule.params.get("only_when_value")
     for i, row in _rows(doc, rule):
-        if only_when_column:
-            gate = _cell(row, only_when_column)
-            if gate.strip().upper() != str(only_when_value).upper():
-                continue
+        if _gated_out(row, rule):
+            continue
         if not _cell(row, column):
             out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
     return out
@@ -408,10 +432,8 @@ def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     pattern = re.compile(rule.params["pattern"])
     # A pattern that applies to only some rows says so, the way every other gated check does. A
     # naming rule for one artifact family would otherwise have to be a check kind of its own.
-    gate_column = rule.params.get("only_when_column")
-    gate_value = rule.params.get("only_when_value")
     for i, row in _rows(doc, rule):
-        if gate_column and _cell(row, gate_column).strip().upper() != str(gate_value).upper():
+        if _gated_out(row, rule):
             continue
         value = _cell(row, column)
         if value and not pattern.match(value):
@@ -703,6 +725,12 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
     target_column = rule.params["target_column"]
     target_columns = rule.params.get("target_columns") or [target_column] * len(targets)
 
+    # A gate on the target rows, for a value that must name a row of one kind rather than any row:
+    # a molecule's steps belong to a transform declared a molecule, and an atom of the same register
+    # answering for it would let an atom own a stream it can never run.
+    target_gate_column = rule.params.get("target_only_when_column")
+    target_gate_value = str(rule.params.get("target_only_when_value", "")).upper()
+
     known: set[str] = set()
     for register, column in zip(targets, target_columns):
         block = doc.register(register)
@@ -710,6 +738,8 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
             continue
         for row in block.table.rows:
             if is_sentinel(row):
+                continue
+            if target_gate_column and _cell(row, target_gate_column).strip().upper() != target_gate_value:
                 continue
             value = _cell(row, column)
             if value:
@@ -1419,10 +1449,16 @@ def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]
     covered_gate_column = rule.params.get("covered_only_when_column")
     covered_gate_value = rule.params.get("covered_only_when_value")
 
+    # Or a gate on whether the covering row states anything at all in a column, for a fact whose
+    # value varies row to row — a molecule's emission is named, not flagged, so no one value selects
+    # the row that carries it.
+    covered_present_column = rule.params.get("covered_present_column")
+
     covered = {
         _bare_identity(_cell(row, rule.params["column"]))
         for _, row in _rows(doc, rule)
-        if not covered_gate_column or _cell(row, covered_gate_column) == covered_gate_value
+        if (not covered_gate_column or _cell(row, covered_gate_column) == covered_gate_value)
+        and (not covered_present_column or _present(row, covered_present_column))
     }
 
     out = []
@@ -2956,7 +2992,13 @@ def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     seen: dict[str, int] = {}
     out: list[tuple[str, str]] = []
     column = rule.params["column"]
+    # Uniqueness over the rows that state something in another column, where a register holds many
+    # rows per subject and only one of them may carry a given fact: a molecule has many steps and
+    # exactly one emission.
+    present_column = rule.params.get("only_when_present_column")
     for index, row in _rows(doc, rule):
+        if present_column and not _present(row, present_column):
+            continue
         value = _bare_identity(_cell(row, column))
         if not value:
             continue

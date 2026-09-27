@@ -192,6 +192,8 @@ core:
             - lifecycle_states
             - lifecycle_transitions
             - mandate_artifact_summary
+            - molecule_step_bindings
+            - molecule_steps
             - new_artifacts
             - new_capabilities
             - new_intents

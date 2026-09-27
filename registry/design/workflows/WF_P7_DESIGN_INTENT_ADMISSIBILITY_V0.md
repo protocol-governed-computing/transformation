@@ -168,6 +168,8 @@ core:
             - lifecycle_states
             - lifecycle_transitions
             - mandate_artifact_summary
+            - molecule_step_bindings
+            - molecule_steps
             - new_artifacts
             - new_capabilities
             - new_intents
@@ -1055,6 +1057,100 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: molecule_steps
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: molecule_steps
+          params:
+            columns:
+            - CT Code
+            - Step
+            - Kind (atom, molecule, loop)
+            - Target
+            - Over
+            - Iterator
+            - Emits
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: molecule_steps
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: molecule_steps
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: molecule_steps
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: molecule_step_bindings
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: molecule_step_bindings
+          params:
+            columns:
+            - CT Code
+            - Step
+            - Role
+            - Field
+            - Bound To
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: molecule_step_bindings
+          params:
+            column: Role
+            vocabulary:
+            - INPUT
+            - CARRY
+            - UPDATE
+          intent: Role is a controlled vocabulary declared by the template
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: molecule_step_bindings
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: molecule_step_bindings
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: molecule_step_bindings
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -1470,8 +1566,27 @@ core:
           register: implementation_bindings
           params:
             column: Module
+            only_when_column: Kind
+            only_when_value: atom
             detail: transform names no module — an implementation nobody can locate is not designed
           intent: a declared implementation says where it lives
+        - id: IMPLEMENTATION_WITHOUT_KIND
+          check: CELL_NOT_EMPTY
+          register: implementation_bindings
+          params:
+            column: Kind
+            detail: transform declares no kind — whether it runs an implementation or a stream of steps decides
+              every other rule this row is held to
+          intent: a transform says whether it is an atom or a molecule
+        - id: IMPLEMENTATION_KIND_UNKNOWN
+          check: CELL_MATCHES
+          register: implementation_bindings
+          params:
+            column: Kind
+            pattern: ^(atom|molecule)$
+            detail: kind is {value!r}; a transform is an atom, which runs an implementation, or a molecule, which
+              runs its declared steps, and the schema admits nothing else
+          intent: kind is one of the two the runtime can run
         - id: IMPLEMENTATION_MODULE_MISPLACED
           check: IMPLEMENTATION_MODULE_CONFORMS
           register: implementation_bindings
@@ -1758,6 +1873,179 @@ core:
             - FQDN
             detail: an announced moment must be an identity this design declares
           intent: an act announces a moment that exists, never one nothing declares
+        - id: MOLECULE_DECLARES_IMPLEMENTATION
+          check: CELL_MATCHES
+          register: implementation_bindings
+          params:
+            column: Module
+            only_when_column: Kind
+            only_when_value: molecule
+            pattern: ^(?:—|-)$
+            detail: a molecule names module {value!r}; a molecule is run as its declared steps, and a module beside
+              them is a second account of what it does
+          intent: a molecule is its steps, never an implementation as well
+        - id: MOLECULE_WITHOUT_STEPS
+          check: REGISTER_COVERS_REGISTER
+          register: molecule_steps
+          params:
+            source_register: implementation_bindings
+            source_column: CT Code
+            column: CT Code
+            only_when_column: Kind
+            only_when_value: molecule
+          intent: a molecule with no declared steps specifies nothing to run
+        - id: MOLECULE_STEP_OWNER_NOT_MOLECULE
+          check: CELL_RESOLVES_IN_REGISTER
+          register: molecule_steps
+          params:
+            column: CT Code
+            target_register: implementation_bindings
+            target_column: CT Code
+            target_only_when_column: Kind
+            target_only_when_value: molecule
+            detail: steps belong to a transform this design declares a molecule
+          intent: only a molecule has steps
+        - id: MOLECULE_STEP_KIND_UNKNOWN
+          check: CELL_MATCHES
+          register: molecule_steps
+          params:
+            column: Kind
+            pattern: ^(atom|molecule|loop)$
+            detail: step kind is {value!r}; a step runs an atom, a molecule once, or a molecule once per member
+              of a collection, and the compiler lowers nothing else
+          intent: a step is one of the three the compiler lowers
+        - id: MOLECULE_STEP_WITHOUT_KIND
+          check: CELL_NOT_EMPTY
+          register: molecule_steps
+          params:
+            column: Kind
+            detail: step declares no kind — construction would have to choose how it runs
+          intent: every step says how it runs
+        - id: MOLECULE_STEP_TARGET_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: molecule_steps
+          params:
+            column: Target
+            target_registers:
+            - new_artifacts
+            - existing_inventory
+            target_column: Code
+            target_columns:
+            - Code
+            - FQDN
+            detail: a step runs a transform this design declares or carries over
+          intent: a step runs something that exists
+        - id: MOLECULE_STEP_WITHOUT_TARGET
+          check: CELL_NOT_EMPTY
+          register: molecule_steps
+          params:
+            column: Target
+            detail: step runs nothing — construction would have to choose what
+          intent: every step names the transform it runs
+        - id: MOLECULE_STEP_UNNAMED
+          check: CELL_NOT_EMPTY
+          register: molecule_steps
+          params:
+            column: Step
+            detail: step has no symbol — a result nothing can name is a result no later step can read
+          intent: every step's result has a name later steps read it by
+        - id: LOOP_WITHOUT_COLLECTION
+          check: CELL_NOT_EMPTY
+          register: molecule_steps
+          params:
+            column: Over
+            only_when_column: Kind
+            only_when_value: loop
+            detail: loop names no collection — its passes would have no stated bound
+          intent: a loop runs once per member of a collection the composition can see
+        - id: LOOP_COLLECTION_UNROOTED
+          check: CELL_MATCHES
+          register: molecule_steps
+          params:
+            column: Over
+            only_when_column: Kind
+            only_when_value: loop
+            pattern: ^inputs\.[A-Za-z_][A-Za-z0-9_.]*$
+            detail: loop runs over {value!r}; a loop's collection is a field the molecule is handed, inputs.<field>,
+              so its length is fixed before the first pass and never by one
+          intent: a loop's length never depends on the data it computes
+        - id: LOOP_WITHOUT_ITERATOR
+          check: CELL_NOT_EMPTY
+          register: molecule_steps
+          params:
+            column: Iterator
+            only_when_column: Kind
+            only_when_value: loop
+            detail: loop names no iterator — its body is handed a member under no name
+          intent: a loop's body receives each member under a declared name
+        - id: LOOP_FIELDS_OUTSIDE_LOOP
+          check: CELL_MATCHES
+          register: molecule_steps
+          params:
+            column: Over
+            only_when_column: Kind
+            only_when_values:
+            - atom
+            - molecule
+            pattern: ^(?:—|-)$
+            detail: a step that is not a loop names collection {value!r}, which nothing reads
+          intent: a collection is stated where it bounds something
+        - id: MOLECULE_WITHOUT_EMISSION
+          check: REGISTER_COVERS_REGISTER
+          register: molecule_steps
+          params:
+            source_register: implementation_bindings
+            source_column: CT Code
+            column: CT Code
+            only_when_column: Kind
+            only_when_value: molecule
+            covered_present_column: Emits
+          intent: a molecule yields a value, and says which step it comes from
+        - id: MOLECULE_EMITS_TWICE
+          check: COLUMN_VALUES_UNIQUE
+          register: molecule_steps
+          params:
+            column: CT Code
+            only_when_present_column: Emits
+            detail: '{value} emits a second value, first at row {first} — a molecule yields exactly one, and two
+              leave a caller to guess which it was handed'
+          intent: a molecule yields exactly one value
+        - id: MOLECULE_BINDING_STEP_UNDECLARED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: molecule_step_bindings
+          params:
+            column: Step
+            target_register: molecule_steps
+            target_column: Step
+            detail: a binding belongs to a step this design declares
+          intent: a binding hands a value to a step that exists
+        - id: MOLECULE_BINDING_WITHOUT_SOURCE
+          check: CELL_NOT_EMPTY
+          register: molecule_step_bindings
+          params:
+            column: Bound To
+            detail: field is bound to nothing — construction would have to choose a source
+          intent: every molecule binding names where its value comes from
+        - id: MOLECULE_BINDING_SOURCE_MALFORMED
+          check: CELL_MATCHES
+          register: molecule_step_bindings
+          params:
+            column: Bound To
+            pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_.]*|iterator|accumulator\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|""|-?[0-9]+|[A-Za-z_][A-Za-z0-9_-]*)$
+            detail: source is {value!r}; a molecule binding reads inputs.<field>, results.<step>.<field>, iterator,
+              accumulator.<field>, or is a literal
+          intent: a reference the runtime cannot resolve is indistinguishable from one it can
+        - id: LOOP_UPDATE_NOT_FROM_RESULT
+          check: CELL_MATCHES
+          register: molecule_step_bindings
+          params:
+            column: Bound To
+            only_when_column: Role
+            only_when_value: UPDATE
+            pattern: ^results\.[A-Za-z_][A-Za-z0-9_.]*$
+            detail: a carried value is updated from {value!r}; it is taken from what the pass produced, results.<field>,
+              or the loop carries forward something no pass computed
+          intent: what a loop carries forward is what each pass produced
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

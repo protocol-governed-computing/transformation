@@ -293,6 +293,9 @@ declared once, at design time, never discovered later.*
 *`operation` is the CT's declared operation name; `purity` ∈ ct_pure | ct_impure; `kind` ∈ atom |
 molecule.*
 
+*A molecule has no module and no callable: its steps are its specification, and §21 declares them.
+Leave both cells blank for a molecule. Every atom names both.*
+
 *`refusal` says how the transform expresses a judgement about its subject: `raises` refuses, which
 the execution contract reads as VIOLATION; `returns` yields the judgement as an output, so the step
 succeeds whatever it found; `never` judges nothing. It is about the subject, never the inputs —
@@ -499,6 +502,54 @@ actually refuses the condition stated in `Refused When` is not, and it is what G
 <!-- register:refusal_governance_discharge optional -->
 | Operation | Refused When | Phase | Governing Rule | Source Finding |
 |-----------|--------------|-------|----------------|----------------|
+
+---
+
+## 21. Molecule Steps
+
+*The inside of each molecule: the steps it runs, in order. A molecule is a transform made of other
+transforms, and it exists so that a computation of several decisions is declared as those decisions
+rather than hidden in one implementation. One row per (molecule, step), in execution order.*
+
+*`Step` is the symbol the step's result is known by, and later steps read it as
+`results.<step>.<field>`. `Kind` is `atom` for a transform with an implementation, `molecule` for a
+molecule run once, and `loop` for a molecule run once per member of a collection. `Target` is the
+transform the step runs, by binding FQDN, declared in `new_artifacts` or carried in
+`existing_inventory`.*
+
+*`Over` and `Iterator` are a loop's alone. `Over` names the collection, as `inputs.<field>`, and
+`Iterator` is the name each member is handed to the body under. A loop runs its body once per member,
+every time; a loop whose work is finished says so in the values it carries, and the passes that
+remain change nothing.*
+
+*`Emits` names the one value the molecule yields and is written on the step that produces it — on
+exactly one row per molecule, and `—` on every other. Where the emitting step is not deterministic,
+the molecule is refused: its results are offered to a deterministic step, never decided by one.*
+
+<!-- register:molecule_steps optional -->
+| CT Code | Step | Kind (atom, molecule, loop) | Target | Over | Iterator | Emits | Source Finding |
+|---------|------|-----------------------------|--------|------|----------|-------|----------------|
+
+---
+
+## 22. Molecule Step Bindings
+
+*What each molecule step is handed, and what a loop carries from one pass to the next. One row per
+field, as §7 is for contract steps.*
+
+*`Role` says which of three things a row is. `INPUT` is a field the step is handed — for a loop, a
+field its body is handed on each pass. `CARRY` is a value a loop carries between passes, with the
+value it starts from. `UPDATE` is where a carried value is taken from after each pass, read from the
+body's result.*
+
+*`Bound To` is declarative: `inputs.<field>` names a field the molecule is handed, `results.<step>.<field>`
+an earlier step's result, `iterator` the member a loop pass is on, `accumulator.<field>` a carried
+value as it stands, `results.<field>` (in an `UPDATE`) the body's result, and a bare literal a
+constant the design fixes.*
+
+<!-- register:molecule_step_bindings optional -->
+| CT Code | Step | Role (INPUT, CARRY, UPDATE) | Field | Bound To | Source Finding |
+|---------|------|-----------------------------|-------|----------|----------------|
 
 ---
 

@@ -726,9 +726,40 @@ INTERFACE_RULES: list[Rule] = [
         register="implementation_bindings",
         params={
             "column": "Module",
+            # An atom only. A molecule's steps are its specification and it has no module to name;
+            # `MOLECULE_DECLARES_IMPLEMENTATION` holds it to that.
+            "only_when_column": "Kind",
+            "only_when_value": "atom",
             "detail": "transform names no module — an implementation nobody can locate is not designed",
         },
         intent="a declared implementation says where it lives",
+    ),
+    Rule(
+        id="IMPLEMENTATION_WITHOUT_KIND",
+        check="CELL_NOT_EMPTY",
+        register="implementation_bindings",
+        params={
+            "column": "Kind",
+            "detail": (
+                "transform declares no kind — whether it runs an implementation or a stream of "
+                "steps decides every other rule this row is held to"
+            ),
+        },
+        intent="a transform says whether it is an atom or a molecule",
+    ),
+    Rule(
+        id="IMPLEMENTATION_KIND_UNKNOWN",
+        check="CELL_MATCHES",
+        register="implementation_bindings",
+        params={
+            "column": "Kind",
+            "pattern": r"^(atom|molecule)$",
+            "detail": (
+                "kind is {value!r}; a transform is an atom, which runs an implementation, or a "
+                "molecule, which runs its declared steps, and the schema admits nothing else"
+            ),
+        },
+        intent="kind is one of the two the runtime can run",
     ),
     Rule(
         id="IMPLEMENTATION_MODULE_MISPLACED",
@@ -1161,6 +1192,254 @@ EMISSION_RULES: list[Rule] = [
 ]
 
 
+# A molecule is declared as its steps rather than as an implementation, and the steps are what these
+# read. What a molecule may not be — one containing itself, one declared deterministic over a step
+# that is not, one emitting a result nothing deterministic consumed — is the compiler's to refuse,
+# under the constitutions that govern molecules and non-deterministic atoms; stating it here too
+# would be a second authority on the same rule. What only the design can be held to is that the
+# steps are stated at all, and stated in a form construction can render without choosing anything.
+MOLECULE_SOURCE_PATTERN = (
+    r"^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*"
+    r"|results\.[A-Za-z_][A-Za-z0-9_.]*"
+    r"|iterator"
+    r"|accumulator\.[A-Za-z_][A-Za-z0-9_.]*"
+    r"|[\[{].*[\]}]"
+    r'|""'
+    r"|-?[0-9]+"
+    r"|[A-Za-z_][A-Za-z0-9_-]*)$"
+)
+
+MOLECULE_RULES: list[Rule] = [
+    Rule(
+        id="MOLECULE_DECLARES_IMPLEMENTATION",
+        check="CELL_MATCHES",
+        register="implementation_bindings",
+        params={
+            "column": "Module",
+            "only_when_column": "Kind",
+            "only_when_value": "molecule",
+            "pattern": r"^(?:—|-)$",
+            "detail": (
+                "a molecule names module {value!r}; a molecule is run as its declared steps, and a "
+                "module beside them is a second account of what it does"
+            ),
+        },
+        intent="a molecule is its steps, never an implementation as well",
+    ),
+    Rule(
+        id="MOLECULE_WITHOUT_STEPS",
+        check="REGISTER_COVERS_REGISTER",
+        register="molecule_steps",
+        params={
+            "source_register": "implementation_bindings",
+            "source_column": "CT Code",
+            "column": "CT Code",
+            "only_when_column": "Kind",
+            "only_when_value": "molecule",
+        },
+        intent="a molecule with no declared steps specifies nothing to run",
+    ),
+    Rule(
+        id="MOLECULE_STEP_OWNER_NOT_MOLECULE",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="molecule_steps",
+        params={
+            "column": "CT Code",
+            "target_register": "implementation_bindings",
+            "target_column": "CT Code",
+            "target_only_when_column": "Kind",
+            "target_only_when_value": "molecule",
+            "detail": "steps belong to a transform this design declares a molecule",
+        },
+        intent="only a molecule has steps",
+    ),
+    Rule(
+        id="MOLECULE_STEP_KIND_UNKNOWN",
+        check="CELL_MATCHES",
+        register="molecule_steps",
+        params={
+            "column": "Kind",
+            "pattern": r"^(atom|molecule|loop)$",
+            "detail": (
+                "step kind is {value!r}; a step runs an atom, a molecule once, or a molecule once "
+                "per member of a collection, and the compiler lowers nothing else"
+            ),
+        },
+        intent="a step is one of the three the compiler lowers",
+    ),
+    Rule(
+        id="MOLECULE_STEP_WITHOUT_KIND",
+        check="CELL_NOT_EMPTY",
+        register="molecule_steps",
+        params={"column": "Kind", "detail": "step declares no kind — construction would have to choose how it runs"},
+        intent="every step says how it runs",
+    ),
+    Rule(
+        id="MOLECULE_STEP_TARGET_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="molecule_steps",
+        params={
+            "column": "Target",
+            "target_registers": ["new_artifacts", "existing_inventory"],
+            "target_column": "Code",
+            "target_columns": ["Code", "FQDN"],
+            "detail": "a step runs a transform this design declares or carries over",
+        },
+        intent="a step runs something that exists",
+    ),
+    Rule(
+        id="MOLECULE_STEP_WITHOUT_TARGET",
+        check="CELL_NOT_EMPTY",
+        register="molecule_steps",
+        params={"column": "Target", "detail": "step runs nothing — construction would have to choose what"},
+        intent="every step names the transform it runs",
+    ),
+    Rule(
+        id="MOLECULE_STEP_UNNAMED",
+        check="CELL_NOT_EMPTY",
+        register="molecule_steps",
+        params={
+            "column": "Step",
+            "detail": "step has no symbol — a result nothing can name is a result no later step can read",
+        },
+        intent="every step's result has a name later steps read it by",
+    ),
+    Rule(
+        id="LOOP_WITHOUT_COLLECTION",
+        check="CELL_NOT_EMPTY",
+        register="molecule_steps",
+        params={
+            "column": "Over",
+            "only_when_column": "Kind",
+            "only_when_value": "loop",
+            "detail": "loop names no collection — its passes would have no stated bound",
+        },
+        intent="a loop runs once per member of a collection the composition can see",
+    ),
+    Rule(
+        id="LOOP_COLLECTION_UNROOTED",
+        check="CELL_MATCHES",
+        register="molecule_steps",
+        params={
+            "column": "Over",
+            "only_when_column": "Kind",
+            "only_when_value": "loop",
+            "pattern": r"^inputs\.[A-Za-z_][A-Za-z0-9_.]*$",
+            "detail": (
+                "loop runs over {value!r}; a loop's collection is a field the molecule is handed, "
+                "inputs.<field>, so its length is fixed before the first pass and never by one"
+            ),
+        },
+        intent="a loop's length never depends on the data it computes",
+    ),
+    Rule(
+        id="LOOP_WITHOUT_ITERATOR",
+        check="CELL_NOT_EMPTY",
+        register="molecule_steps",
+        params={
+            "column": "Iterator",
+            "only_when_column": "Kind",
+            "only_when_value": "loop",
+            "detail": "loop names no iterator — its body is handed a member under no name",
+        },
+        intent="a loop's body receives each member under a declared name",
+    ),
+    Rule(
+        id="LOOP_FIELDS_OUTSIDE_LOOP",
+        check="CELL_MATCHES",
+        register="molecule_steps",
+        params={
+            "column": "Over",
+            "only_when_column": "Kind",
+            "only_when_values": ["atom", "molecule"],
+            "pattern": r"^(?:—|-)$",
+            "detail": "a step that is not a loop names collection {value!r}, which nothing reads",
+        },
+        intent="a collection is stated where it bounds something",
+    ),
+    Rule(
+        id="MOLECULE_WITHOUT_EMISSION",
+        check="REGISTER_COVERS_REGISTER",
+        register="molecule_steps",
+        params={
+            "source_register": "implementation_bindings",
+            "source_column": "CT Code",
+            "column": "CT Code",
+            "only_when_column": "Kind",
+            "only_when_value": "molecule",
+            "covered_present_column": "Emits",
+        },
+        intent="a molecule yields a value, and says which step it comes from",
+    ),
+    Rule(
+        id="MOLECULE_EMITS_TWICE",
+        check="COLUMN_VALUES_UNIQUE",
+        register="molecule_steps",
+        params={
+            "column": "CT Code",
+            "only_when_present_column": "Emits",
+            "detail": (
+                "{value} emits a second value, first at row {first} — a molecule yields exactly one, "
+                "and two leave a caller to guess which it was handed"
+            ),
+        },
+        intent="a molecule yields exactly one value",
+    ),
+    Rule(
+        id="MOLECULE_BINDING_STEP_UNDECLARED",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="molecule_step_bindings",
+        params={
+            "column": "Step",
+            "target_register": "molecule_steps",
+            "target_column": "Step",
+            "detail": "a binding belongs to a step this design declares",
+        },
+        intent="a binding hands a value to a step that exists",
+    ),
+    Rule(
+        id="MOLECULE_BINDING_WITHOUT_SOURCE",
+        check="CELL_NOT_EMPTY",
+        register="molecule_step_bindings",
+        params={
+            "column": "Bound To",
+            "detail": "field is bound to nothing — construction would have to choose a source",
+        },
+        intent="every molecule binding names where its value comes from",
+    ),
+    Rule(
+        id="MOLECULE_BINDING_SOURCE_MALFORMED",
+        check="CELL_MATCHES",
+        register="molecule_step_bindings",
+        params={
+            "column": "Bound To",
+            "pattern": MOLECULE_SOURCE_PATTERN,
+            "detail": (
+                "source is {value!r}; a molecule binding reads inputs.<field>, results.<step>.<field>, "
+                "iterator, accumulator.<field>, or is a literal"
+            ),
+        },
+        intent="a reference the runtime cannot resolve is indistinguishable from one it can",
+    ),
+    Rule(
+        id="LOOP_UPDATE_NOT_FROM_RESULT",
+        check="CELL_MATCHES",
+        register="molecule_step_bindings",
+        params={
+            "column": "Bound To",
+            "only_when_column": "Role",
+            "only_when_value": "UPDATE",
+            "pattern": r"^results\.[A-Za-z_][A-Za-z0-9_.]*$",
+            "detail": (
+                "a carried value is updated from {value!r}; it is taken from what the pass produced, "
+                "results.<field>, or the loop carries forward something no pass computed"
+            ),
+        },
+        intent="what a loop carries forward is what each pass produced",
+    ),
+]
+
+
 def rule_set() -> list[Rule]:
     """P7's rule set: derived, binding discipline, ladder closure, completeness, interface, header."""
     return (
@@ -1173,6 +1452,7 @@ def rule_set() -> list[Rule]:
         + GENERATION_RULES
         + REFUSAL_RULES
         + EMISSION_RULES
+        + MOLECULE_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()

@@ -636,6 +636,24 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 
 ---
 
+## 21. Molecule Steps
+
+<!-- register:molecule_steps optional -->
+| CT Code | Step | Kind (atom, molecule, loop) | Target | Over | Iterator | Emits | Source Finding |
+|---------|------|-----------------------------|--------|------|----------|-------|----------------|
+| NONE IDENTIFIED |
+
+---
+
+## 22. Molecule Step Bindings
+
+<!-- register:molecule_step_bindings optional -->
+| CT Code | Step | Role (INPUT, CARRY, UPDATE) | Field | Bound To | Source Finding |
+|---------|------|-----------------------------|-------|----------|----------------|
+| NONE IDENTIFIED |
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |
