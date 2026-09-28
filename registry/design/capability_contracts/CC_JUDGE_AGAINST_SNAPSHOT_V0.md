@@ -232,6 +232,21 @@ core:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+  - step: observe_behavior_logic_list
+    side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
+    op: QUERY
+    inputs:
+      operation: si.behavior_logic.list
+      params: {}
+    outputs: {}
+    result_surface:
+    - SUCCESS
+    - VIOLATION
+    - BACKEND_ERROR
+    on_result:
+      SUCCESS: continue
+      VIOLATION: exit
+      BACKEND_ERROR: exit
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:
@@ -243,6 +258,7 @@ core:
       # Keyed by the operation that produced it, so a rule can say which observation it relied on.
       observed:
         si.artifact.list: $.results.observe_composition.capability_result.result.artifacts
+        si.behavior_logic.list: $.results.observe_behavior_logic_list.capability_result.result.workflows
         si.capability.surface: $.results.observe_capabilities.capability_result.result.capabilities
         si.capability.surface#contracts: $.results.observe_capabilities.capability_result.result.contracts
         si.capability.surface#transforms: $.results.observe_capabilities.capability_result.result.transforms

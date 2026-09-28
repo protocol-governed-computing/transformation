@@ -79,9 +79,10 @@ def design(topology=TOPOLOGY, bindings=BINDINGS, discharges=DISCHARGES, keyed=Tr
     )
 
 
-def parsed(text: str) -> ParsedDocument:
+def parsed(text: str, observed: dict | None = None) -> ParsedDocument:
     header, sections, registers = parse_text(text)
-    return ParsedDocument(header=header, sections=sections, registers=registers, raw=text, path="probe")
+    return ParsedDocument(header=header, sections=sections, registers=registers, raw=text, path="probe",
+                          observed=observed or {})
 
 
 def registers(text: str) -> dict[str, list[dict]]:
@@ -147,6 +148,26 @@ def test_each_rule_fires_on_the_defect_it_names():
     }
     for name, (text, rule) in cases.items():
         assert rule in fired(text), (name, rule, fired(text))
+
+
+def test_a_route_to_a_place_the_composition_already_has_resolves():
+    # An amendment declares the places it changes. It routes on to a place the workflow already has
+    # and does not redeclare, which resolves against the composition and nowhere else.
+    amendment = [(f"{D}::IN_SUBMIT_V0", "", "IN", f"ACK -> {CHECK}"),
+                 (CHECK, "", "CC", "SUCCESS -> RECORD_ACCEPTED; NOT_FOUND -> EXIT_REFUSED")]
+    route = [r for r in rule_set() if r.id == "TOPOLOGY_ROUTE_UNRESOLVED"]
+
+    def fired_against(workflows):
+        doc = parsed(design(topology=amendment), {"si.behavior_logic.list": workflows})
+        return [f.rule for f in evaluate(doc, route).findings]
+
+    composed = {"domain": D, "wf_code": "WF_SUBMIT_V0", "nodes": ["CC_CHECK_V0", "RECORD_ACCEPTED"]}
+    assert fired_against([composed]) == [], fired_against([composed])
+    assert fired_against([]) == ["TOPOLOGY_ROUTE_UNRESOLVED"], "unobserved, the route is reported"
+    elsewhere = dict(composed, domain="other")
+    assert fired_against([elsewhere]) == ["TOPOLOGY_ROUTE_UNRESOLVED"], "another domain's workflow"
+    lacking = dict(composed, nodes=["CC_CHECK_V0"])
+    assert fired_against([lacking]) == ["TOPOLOGY_ROUTE_UNRESOLVED"], "a place the workflow lacks"
 
 
 if __name__ == "__main__":

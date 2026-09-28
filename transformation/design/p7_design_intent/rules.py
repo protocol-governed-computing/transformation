@@ -76,6 +76,10 @@ STORE_OBSERVATION = "si.store.list"
 # intent and enforces nothing. The sealed set is what a pin names, so it is what is asked.
 RULE_SET_OBSERVATION = "si.rule_set.list"
 
+# Which places each composed workflow already has, by key. A design that amends a workflow routes to
+# places it does not redeclare, and those resolve only against the composition.
+WORKFLOW_OBSERVATION = "si.behavior_logic.list"
+
 OBSERVATIONS = {
     OBSERVATION_OPERATION: "artifacts",
     CAPABILITY_OBSERVATION: "capabilities",
@@ -83,6 +87,7 @@ OBSERVATIONS = {
     CONTRACT_OBSERVATION: "contracts",
     STORE_OBSERVATION: "stores",
     RULE_SET_OBSERVATION: "carriers",
+    WORKFLOW_OBSERVATION: "workflows",
 }
 
 
@@ -223,8 +228,8 @@ BINDING_RULES: list[Rule] = [
         id="TOPOLOGY_ROUTE_UNRESOLVED",
         check="TOPOLOGY_ROUTE_RESOLVES",
         register="execution_topology",
-        params={"exempt_prefixes": ["EXIT"]},
-        intent="control reaches only a node the workflow declares, or an ending",
+        params={"exempt_prefixes": ["EXIT"], "observation": WORKFLOW_OBSERVATION},
+        intent="control reaches only a node the workflow declares or already has, or an ending",
     ),
     Rule(
         id="RB_BINDS_UNDECLARED_WORKFLOW",

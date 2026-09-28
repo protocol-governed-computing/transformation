@@ -1342,7 +1342,8 @@ core:
           params:
             exempt_prefixes:
             - EXIT
-          intent: control reaches only a node the workflow declares, or an ending
+            observation: si.behavior_logic.list
+          intent: control reaches only a node the workflow declares or already has, or an ending
         - id: RB_BINDS_UNDECLARED_WORKFLOW
           check: CELL_RESOLVES_IN_REGISTER
           register: rb_declarations
