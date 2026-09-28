@@ -2236,6 +2236,14 @@ core:
             column: Value
             detail: value is empty — write the literal, and "" for the empty string
           intent: every value is stated
+        - id: TEST_VALUE_UNPARSEABLE
+          check: CELL_PARSES_AS_YAML
+          register: test_case_values
+          params:
+            column: Value
+            detail: value {value!r} is not a YAML literal ({problem}) — construction would keep it as text; quote
+              it if text is meant
+          intent: every value is read as the design wrote it
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

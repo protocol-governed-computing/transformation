@@ -402,7 +402,7 @@ CASES = [
     # Judged against the design-time baseline — the composition CR-1 was designed against, not the
     # one containing its own output. Getting this wrong makes every assigned identity collide.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 234, 5, "design"),
+     "22_p7_admissible_catalog_register.json", "ADMISSIBLE", [], 235, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "23_p7_inadmissible_catalog_register.json", "INADMISSIBLE", [
          # The fixture renames an authored artifact, which leaves the renamed one traceable to no
@@ -425,7 +425,7 @@ CASES = [
          "TOPOLOGY_NODE_UNDECLARED",
          # The misspelled node leaves the route into the correct spelling with nowhere to go.
          "TOPOLOGY_ROUTE_UNRESOLVED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # P8 is the only phase judged on row *order*. Every rule before it decides a row on its own; a
     # mandate can be made entirely of well-formed rows and still be unexecutable, because a dropped
     # step and a prerequisite scheduled too late exist between rows rather than in any one of them.
@@ -445,7 +445,7 @@ CASES = [
          "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
-     ], 234, 3),
+     ], 235, 3),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "78_p7_inadmissible_uncomposed_steps.json", "INADMISSIBLE", [
          # An em-dash in `Interpreted By` declares that the step's branches are the operation's
@@ -464,7 +464,7 @@ CASES = [
          "STEP_INTERFACE_NOT_CONFORMANT",
          "STEP_NAMES_UNPUBLISHED_OPERATION",
          "STORE_UNGROUNDED_IN_CAPABILITY",
-     ], 234, 4),
+     ], 235, 4),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "79_p7_inadmissible_unbuildable_artifacts.json", "INADMISSIBLE", [
          "ARTIFACT_HAS_TWO_GENERATORS",
@@ -478,7 +478,7 @@ CASES = [
          "IMPLEMENTATION_WITHOUT_MODULE",
          "IMPLEMENTATION_WITHOUT_REFUSAL",
          "VOCABULARY_WITHOUT_EXTENDS",
-     ], 234, 4),
+     ], 235, 4),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "80_p7_inadmissible_unbound_fields.json", "INADMISSIBLE", [
          # BINDING_SOURCE_UNREACHABLE only sees a binding whose Owner is a workflow — a
@@ -488,7 +488,7 @@ CASES = [
          "BINDING_SOURCE_UNREACHABLE",
          "BINDING_WITHOUT_SOURCE",
          "CONTRACT_OUTPUT_UNPRODUCED",
-     ], 234, 4),
+     ], 235, 4),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "81_p7_inadmissible_unbound_topology.json", "INADMISSIBLE", [
          "RB_BINDS_UNDECLARED_WORKFLOW",
@@ -496,7 +496,7 @@ CASES = [
          "TOPOLOGY_ROUTE_UNRESOLVED",
          "TOPOLOGY_WORKFLOW_UNDECLARED",
          "WORKFLOW_WITHOUT_RUNTIME_BINDING",
-     ], 234, 4),
+     ], 235, 4),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "82_p7_inadmissible_miscounted_inventory.json", "INADMISSIBLE", [
          # The added EV row is one edit with four consequences: the moment is named in a tense
@@ -511,14 +511,14 @@ CASES = [
          "EXISTING_INVENTORY_UNRESOLVED",
          "REPLACED_ARTIFACT_NOT_AUTHORABLE",
          "REPLACED_ARTIFACT_WITHOUT_SUCCESSOR",
-     ], 234, 4),
+     ], 235, 4),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "83_p7_inadmissible_uncited_rows.json", "INADMISSIBLE", [
          "CITATION_ORDINAL_UNRESOLVED",
          "DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE",
          "ROW_WITHOUT_SOURCE_FINDING",
          "SOURCE_FINDING_UNRESOLVED",
-     ], 234, 4),
+     ], 235, 4),
     # Reach. A subdomain owns what it holds, and the three rules that say so had never been reached
     # because no dossier in the workspace populates `declared_reach`. They are document-local after
     # all — what was missing was the right *kind* of identifier: `Consults` names a runtime binding,
@@ -533,7 +533,7 @@ CASES = [
          "NODE_INPUT_UNBOUND",
          "NODE_INPUT_UNBOUND",
          "TOPOLOGY_NODE_UNDECLARED",
-     ], 234, 4),
+     ], 235, 4),
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
      "24_p8_admissible_catalog_mandate.json", "ADMISSIBLE", [], 33, 5, "design"),
     ("P8", "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
@@ -615,7 +615,7 @@ CASES = [
          "INTERFACE_ARTIFACT_UNDECLARED",
          "INTERFACE_ARTIFACT_UNDECLARED",
          "PROVISIONAL_CODE_NEVER_BOUND",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # The last two handoffs. P4's consolidation loses a decision P3 committed to; P7 drops a reused
     # artifact P6 declared a dependency satisfied by. The second fires two rules on one edit — an
     # artifact that is inventoried is also composed, so removing it is visible from both directions.
@@ -628,7 +628,7 @@ CASES = [
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "33_p7_inadmissible_dropped_reuse.json", "INADMISSIBLE", [
          "COMPOSITION_STEP_UNDECLARED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # The defect that reached execution: a source naming a place execution does not offer. Every
     # layer beneath read it as a literal and reported success — the design rules are the only place
     # it can be refused, because a binding determined to be a literal is still determined and
@@ -640,13 +640,13 @@ CASES = [
          # fire. They are different statements: one says the reference escapes the declared
          # roots, the other that it is not a reference the runtime can follow at all.
          "BINDING_SOURCE_MALFORMED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # A store whose name advertises a format its capability does not write. Nothing below the design
     # can catch it: the runtime opens the path it is handed and never reads the suffix.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "37_p7_inadmissible_store_path.json", "INADMISSIBLE", [
          "STORE_PATH_FORMAT_MISMATCH",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # The other face of reconciliation: an artifact the design declared that the mandate schedules
     # nowhere. CR-1's own mandate carried this defect until the dossier was completed, so the
     # corpus has to carry it now — it is the one the P7↔P8 rule was built for.
@@ -671,77 +671,77 @@ CASES = [
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "39_p7_inadmissible_refusal_unaccounted.json", "INADMISSIBLE", [
          "REFUSAL_UNACCOUNTED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "40_p7_inadmissible_discharge_undeclared.json", "INADMISSIBLE", [
          "DISCHARGE_UNDECLARED_REFUSAL",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "41_p7_inadmissible_deferral_undeclared.json", "INADMISSIBLE", [
          "DEFERRAL_UNDECLARED_REFUSAL",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "42_p7_inadmissible_discharge_ungrounded.json", "INADMISSIBLE", [
          "DISCHARGE_NOT_IN_TOPOLOGY",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # Every cell of the row is accurate and the act completes anyway — the defect no rule reading
     # the register alone can see.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "43_p7_inadmissible_discharge_completes.json", "INADMISSIBLE", [
          "DISCHARGE_DOES_NOT_REFUSE",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # The emission guard. Nothing read an `emit.` property before it: six acts announced eight
     # moments and no rule looked at one. Three probes, because the guard makes three claims — the
     # ending exists, it completes, and the moment is declared.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "44_p7_inadmissible_emission_unknown_ending.json", "INADMISSIBLE", [
          "EMISSION_NOT_FROM_COMPLETING_ENDING",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # The ending exists and refuses. The moment would state something that did not happen.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "45_p7_inadmissible_emission_from_refusal.json", "INADMISSIBLE", [
          "EMISSION_NOT_FROM_COMPLETING_ENDING",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "46_p7_inadmissible_emission_undeclared_event.json", "INADMISSIBLE", [
          "EMITTED_EVENT_UNDECLARED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # The governance-surface discharge. A refusal carried out by a rule of the pipeline rather than
     # by a step of the domain's own acts — cr_03's, and the third of the three forms.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "47_p7_inadmissible_governance_undeclared_refusal.json", "INADMISSIBLE", [
          "GOVERNANCE_DISCHARGE_UNDECLARED_REFUSAL",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "48_p7_inadmissible_governing_rule_unnamed.json", "INADMISSIBLE", [
          "GOVERNING_RULE_UNNAMED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # A stage number where a phase belongs — the collision the phase column exists to prevent.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "49_p7_inadmissible_governing_rule_phase.json", "INADMISSIBLE", [
          "GOVERNING_RULE_PHASE_MALFORMED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # Grounding the citation. A register naming a rule nobody resolves documents intent and
     # enforces nothing, which is the failure the refusal work exists to end.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "50_p7_inadmissible_governing_rule_not_in_force.json", "INADMISSIBLE", [
          "GOVERNING_RULE_NOT_IN_FORCE",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # Right rule, wrong phase — 15 rule identifiers are declared by more than one phase, so an
     # identifier without its phase names nine rules and resolves against whichever came first.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "51_p7_inadmissible_governing_rule_wrong_phase.json", "INADMISSIBLE", [
          "GOVERNING_RULE_NOT_IN_FORCE",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
     # Issue 23, both ways round. No document in the corpus had ever populated the deferral register,
     # so a rule requiring its owner would have reported clean while checking nothing — and nothing
     # would have shown that a well-formed deferral is accepted either.
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
-     "52_p7_admissible_deferral_owned.json", "ADMISSIBLE", [], 234, 5, "design"),
+     "52_p7_admissible_deferral_owned.json", "ADMISSIBLE", [], 235, 5, "design"),
     ("P7", "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
      "53_p7_inadmissible_deferral_unowned.json", "INADMISSIBLE", [
          "DEFERRAL_OWNER_UNNAMED",
-     ], 234, 4, "design"),
+     ], 235, 4, "design"),
 ]
 
 

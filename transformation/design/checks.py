@@ -339,6 +339,32 @@ def _cell_not_empty(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return out
 
 
+@check("CELL_PARSES_AS_YAML")
+def _cell_parses_as_yaml(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A column whose value is a YAML literal parses as one.
+
+    Construction reads such a value with `yaml.safe_load` and, when it does not parse, keeps the raw
+    text. So a value the design meant as a structure — a list, a mapping, a number — is written as a
+    string, the case proves something nobody declared, and nothing says so until it fails at build
+    time as a conformance case, far from the cell that caused it.
+    """
+    import yaml
+
+    out = []
+    column = rule.params["column"]
+    for i, row in _rows(doc, rule):
+        value = _cell(row, column)
+        if not value:
+            continue
+        try:
+            yaml.safe_load(value)
+        except yaml.YAMLError as exc:
+            problem = str(exc).splitlines()[0]
+            out.append((f"{_where(rule)} row {i}",
+                        rule.params["detail"].format(value=value, problem=problem)))
+    return out
+
+
 @check("CELL_NOT_PREFIXED")
 def _cell_not_prefixed(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     out = []

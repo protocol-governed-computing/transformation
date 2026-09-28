@@ -1555,6 +1555,17 @@ VECTOR_RULES: list[Rule] = [
         },
         intent="every value is stated",
     ),
+    Rule(
+        id="TEST_VALUE_UNPARSEABLE",
+        check="CELL_PARSES_AS_YAML",
+        register="test_case_values",
+        params={
+            "column": "Value",
+            "detail": "value {value!r} is not a YAML literal ({problem}) — construction would keep it "
+                      "as text; quote it if text is meant",
+        },
+        intent="every value is read as the design wrote it",
+    ),
 ]
 
 

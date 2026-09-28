@@ -155,6 +155,7 @@ def test_each_rule_fires_on_the_defect_it_names():
         "TEST_VALUE_CASE_UNDECLARED": design(values=[*VALUES, (WRITE, "nowhere", "INPUT", "x", "1")]),
         "TEST_VALUE_WITHOUT_FIELD": design(values=[*VALUES, (WRITE, "writes_three_words", "INPUT", "", "1")]),
         "TEST_VALUE_EMPTY": design(values=[*VALUES, (WRITE, "writes_three_words", "INPUT", "seed", "")]),
+        "TEST_VALUE_UNPARSEABLE": design(values=[*VALUES, (WRITE, "writes_three_words", "INPUT", "seed", "[1, 2")]),
         "CELL_NOT_IN_VOCABULARY": design(values=[*VALUES, (WRITE, "writes_three_words", "OUTPUT", "x", "1")]),
     }
     for rule, text in cases.items():
