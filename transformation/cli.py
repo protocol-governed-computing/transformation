@@ -693,9 +693,11 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     artifacts, and emitting one would put the generator's guesses into a registry where they read
     as authored. Nothing is written unless everything can be.
 
-    The domain's build manifest is written too when the domain has none. It is not an artifact any
-    phase designs — every field of it is compiler configuration — but a domain the compiler cannot
-    discover is a domain that does not build, and hand-copying it between domains has drifted.
+    Construction does not found a domain. `--root` must already hold the domain's build manifest
+    (`registry/structures/STRUCTURE_BUILD_*_CONFIG_V*.md`), the file the compiler discovers a domain
+    by; without one, nothing is written. No phase designs a manifest — every field of it is compiler
+    configuration — so a new domain's first manifest is written before its first emit, by hand or
+    with `transformation.build.render.build_manifest`.
 
     Exit 0 if everything was written, 1 if the design was refused or a path already exists.
     """
