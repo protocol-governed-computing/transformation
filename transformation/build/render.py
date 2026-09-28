@@ -993,7 +993,13 @@ def _event(m, code, short, summary, sub, p7, p8, supplied=None):
     to restate a fact the event constitution fixes — the same reason an intent's ACK/NACK surface is
     not restated either. A design that declares its own `timestamp` keeps it.
     """
-    schema = typed_fields(p7, code, "OUTPUT") or typed_fields(p7, code, "INPUT")
+    # An event's fields are what it records, whichever direction the design wrote them in. ATTRIBUTE
+    # was dropped here without a word: blockchain's wallet and identity events were designed with
+    # their fields as ATTRIBUTE and sealed carrying none of them.
+    schema: dict[str, Any] = {}
+    for direction in ("OUTPUT", "INPUT", "ATTRIBUTE"):
+        for field, spec in typed_fields(p7, code, direction).items():
+            schema.setdefault(field, spec)
     if "timestamp" not in schema:
         # Supplied, and accounted for: the event constitution fixes that a moment carries when it
         # occurred, so a design restating it would state it twice. Naming what governs it is what
@@ -1013,6 +1019,13 @@ def _event(m, code, short, summary, sub, p7, p8, supplied=None):
         "subdomain": sub,
         "schema": schema,
     }
+    # A refusal is a moment too: the design declares it, and an ending that refuses may announce only
+    # a moment declared a refusal. Rendered so the sealed event says what it is, rather than the
+    # declaration living in a design document the composition never reads.
+    moment = next((cell(r, "Value") for r in rows(p7, "artifact_properties")
+                   if bare(cell(r, "Artifact")) == bare(code) and cell(r, "Property") == "moment"), "")
+    if moment:
+        m["core"]["moment"] = moment
 
 
 
