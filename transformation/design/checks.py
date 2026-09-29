@@ -1042,9 +1042,18 @@ def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     # Unioned rather than overridden. A design extending a contract states the input it adds while
     # the composition still requires the ones it had, and both must be bound; requiring too much is
     # a finding an author can answer, requiring too little is one nobody sees.
+    #
+    # Except where the design redeclares the contract whole. A contract whose steps the design
+    # composes is authored again from this design, interface and all, so what it requires is what
+    # the design declares — and an input the design withdraws is no longer required. Unioned, a
+    # contract that stopped taking a rule from its caller was still read as requiring it, and the
+    # only way to satisfy the rule was to hand the contract a value none of its steps read.
+    redeclared = {owner for owner, _ in _composition_steps(doc, rule.params["composition_register"])}
     observation = rule.params.get("observation")
     for entry in (doc.observed.get(observation) or []) if observation else []:
         if not isinstance(entry, dict):
+            continue
+        if _bare_identity(str(entry.get("contract"))) in redeclared:
             continue
         required = {name for name, spec in (entry.get("inputs") or {}).items()
                     if isinstance(spec, dict) and spec.get("required")}

@@ -1784,6 +1784,7 @@ core:
           params:
             topology_register: execution_topology
             fields_register: interface_fields
+            composition_register: cc_composition
             observation: si.capability.surface#contracts
           intent: a workflow hands a contract everything that contract says it requires
         - id: BINDING_SOURCE_UNREACHABLE

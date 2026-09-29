@@ -884,6 +884,7 @@ INTERFACE_RULES: list[Rule] = [
         params={
             "topology_register": "execution_topology",
             "fields_register": "interface_fields",
+            "composition_register": "cc_composition",
             "observation": CONTRACT_OBSERVATION,
         },
         intent="a workflow hands a contract everything that contract says it requires",

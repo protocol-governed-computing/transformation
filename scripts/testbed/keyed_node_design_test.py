@@ -18,7 +18,7 @@ import sys
 from transformation.build.render import render_all
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import rule_set
+from transformation.design.p7_design_intent.rules import CONTRACT_OBSERVATION, rule_set
 from transformation.design.read import parse_text
 
 D = "probe"
@@ -169,6 +169,22 @@ def test_a_route_to_a_place_the_composition_already_has_resolves():
     lacking = dict(composed, nodes=["CC_CHECK_V0"])
     assert fired_against([lacking]) == ["TOPOLOGY_ROUTE_UNRESOLVED"], "a place the workflow lacks"
 
+
+def test_a_contract_redeclared_whole_requires_only_what_it_now_declares():
+    # The composition still has the contract taking a rule from its caller. A design that composes
+    # the contract's steps authors it again and withdraws that input; one that only calls it does not.
+    unbound = [r for r in rule_set() if r.id == "NODE_INPUT_UNBOUND"]
+    pinned = {CONTRACT_OBSERVATION: [{"contract": CHECK, "inputs": {"entry": {"required": True},
+                                                                   "rule": {"required": True}}}]}
+    composition = _table("cc_composition", ["CC Code", "Step", "Step Name", "Capability", "Kind", "Source Finding"],
+                         [(CHECK, 1, "check_entry", "capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0",
+                           "CT", "human decision")])
+
+    def fired_with(text):
+        return [f.rule for f in evaluate(parsed(text, pinned), unbound).findings]
+
+    assert fired_with(design() + composition) == [], fired_with(design() + composition)
+    assert fired_with(design()) == ["NODE_INPUT_UNBOUND"], "a contract only called keeps what it had"
 
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
