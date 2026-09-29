@@ -204,6 +204,7 @@ core:
             - transport_bindings
             - verification_results
             - vocabulary_extensions
+            - withdrawn_facts
             literal_sources:
             - CR seed
             - human decision
@@ -1253,6 +1254,45 @@ core:
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: withdrawn_facts
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: withdrawn_facts
+          params:
+            columns:
+            - Artifact
+            - Fact
+            - Reason
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: withdrawn_facts
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: withdrawn_facts
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: withdrawn_facts
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
         - id: NEW_CODE_ALREADY_EXISTS
           check: CITED_ARTIFACTS_ABSENT
           register: new_artifacts
@@ -2246,6 +2286,17 @@ core:
             detail: value {value!r} is not a YAML literal ({problem}) — construction would keep it as text; quote
               it if text is meant
           intent: every value is read as the design wrote it
+        - id: WITHDRAWAL_NOT_AN_AMENDMENT
+          check: CELL_RESOLVES_IN_REGISTER
+          register: withdrawn_facts
+          params:
+            column: Artifact
+            target_register: existing_inventory
+            target_column: FQDN
+            target_only_when_column: Action
+            target_only_when_value: EXTEND
+            detail: a fact is withdrawn only from an artifact this design extends
+          intent: only an amendment has facts to withdraw
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts

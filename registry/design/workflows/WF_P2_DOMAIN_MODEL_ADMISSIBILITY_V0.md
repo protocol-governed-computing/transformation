@@ -228,6 +228,7 @@ core:
             - transport_bindings
             - verification_results
             - vocabulary_extensions
+            - withdrawn_facts
             literal_sources:
             - CR seed
             - human decision

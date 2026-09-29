@@ -1,6 +1,6 @@
 """The P7 rule set — what makes a Design Intent register admissible.
 
-Sixteen registers, their columns, their vocabularies and their traceability come from
+Its registers, their columns, their vocabularies and their traceability come from
 `templates/p7_design_intent_template_v0.md`. Declared here is what the template cannot express.
 
 P7 answers **HOW**, and it is where identity becomes binding. P5 assigned provisional codes, P6
@@ -1473,6 +1473,27 @@ MOLECULE_RULES: list[Rule] = [
 # What a case must say about its transform — outputs it declares, assertion forms, recorded results
 # for exactly its non-deterministic steps — is the compiler's to refuse, against the transform as
 # sealed. Stating it here too would be a second authority on the same rule.
+# An amendment is rendered whole, so what it does not state it loses. `withdrawn_facts` is where a
+# design says a loss is its decision; whether each withdrawal names a fact that is really lost is
+# construction's to judge, because only construction renders the artifact that loses it.
+WITHDRAWAL_RULES: list[Rule] = [
+    Rule(
+        id="WITHDRAWAL_NOT_AN_AMENDMENT",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="withdrawn_facts",
+        params={
+            "column": "Artifact",
+            "target_register": "existing_inventory",
+            "target_column": "FQDN",
+            "target_only_when_column": "Action",
+            "target_only_when_value": "EXTEND",
+            "detail": "a fact is withdrawn only from an artifact this design extends",
+        },
+        intent="only an amendment has facts to withdraw",
+    ),
+]
+
+
 VECTOR_RULES: list[Rule] = [
     Rule(
         id="TRANSFORM_WITHOUT_VECTOR",
@@ -1589,6 +1610,7 @@ def rule_set() -> list[Rule]:
         + EMISSION_RULES
         + MOLECULE_RULES
         + VECTOR_RULES
+        + WITHDRAWAL_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()

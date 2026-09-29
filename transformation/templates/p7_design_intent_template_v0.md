@@ -607,6 +607,28 @@ nothing else; a case expecting `VIOLATION` states none.*
 
 ---
 
+## 25. Withdrawn Facts
+
+*What an amendment takes away. An artifact this design extends is rendered whole and replaces the one
+the composition holds, so every fact the design does not state is a fact the artifact loses — and
+construction refuses the loss, because an omission and a decision read the same in a rendered
+artifact. This register is where the decision is stated. A fact listed here is one the design
+removes on purpose; any other fact the artifact held and the design omits is still refused.*
+
+*`Artifact` is an artifact this design extends, by binding FQDN, carried in `existing_inventory` as
+`EXTEND`. `Fact` is where the fact sits in the artifact's machine block, written as construction
+reports it — `.core.inputs.registration_schema` — and it withdraws every fact at or beneath that
+place. A withdrawal naming a place where nothing is lost is refused at construction: it withdraws a
+fact the artifact still states, or one it never held.*
+
+*`Reason` says why the fact goes, in the words of the decision that removes it.*
+
+<!-- register:withdrawn_facts optional -->
+| Artifact | Fact | Reason | Source Finding |
+|----------|------|--------|----------------|
+
+---
+
 ---
 
 ## Gate 1 — Design Approval

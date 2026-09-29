@@ -313,6 +313,15 @@ HOW it is built. FQDNs, topology, schemas and bindings. The full dossier is revi
 
 ---
 
+## 25. Withdrawn Facts
+
+<!-- register:withdrawn_facts optional -->
+| Artifact | Fact | Reason | Source Finding |
+|----------|------|--------|----------------|
+
+
+---
+
 ## Gate 1 — Design Approval
 
 **Gate 1 closes here.** Stages 0 through 7 are presented for review as a body — a unified review of

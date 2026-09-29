@@ -25,9 +25,11 @@ from transformation.baseline import (
 from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
-from transformation.build.completeness import carry_forward, measure, narrowing
+from transformation.build.completeness import carry_forward, measure, narrowing, withdraw
 from transformation.build.render import (
     bare,
+    cell,
+    rows,
     machine_block,
     mark_superseded,
     generated,
@@ -512,6 +514,16 @@ def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
     return narrowing(rendered, existing)
 
 
+
+def _withdrawals(p7: dict) -> dict[str, list[str]]:
+    """The facts a design withdraws from each artifact it amends, by bare code."""
+    out: dict[str, list[str]] = {}
+    for row in rows(p7, "withdrawn_facts"):
+        code, fact = bare(cell(row, "Artifact")), cell(row, "Fact")
+        if code and fact:
+            out.setdefault(code, []).append(fact)
+    return out
+
 @main.group()
 def construction() -> None:
     """The Construction lifecycle — is a design ready to build from?"""
@@ -573,9 +585,18 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
                    f"   ({result.determined}/{result.total} determined)")
 
         lost = _narrowed(p7, p8, snapshot_root, dossier)
+        unfounded = {}
+        if lost is not None:
+            lost, unfounded = withdraw(lost, _withdrawals(p7))
         if lost is None:
             click.echo("  note: pass --snapshot to check that no amendment narrows what it replaces",
                        err=True)
+        elif unfounded:
+            click.echo("\n  WITHDRAWAL UNFOUNDED — these withdrawals name a place where nothing is lost:")
+            for code, places in sorted(unfounded.items()):
+                for place in places:
+                    click.echo(f"      {code:<44} {place}")
+            sys.exit(1)
         elif lost:
             click.echo("\n  AMENDMENT NARROWS — these facts exist now and the design does not state them:")
             for code, facts in sorted(lost.items()):

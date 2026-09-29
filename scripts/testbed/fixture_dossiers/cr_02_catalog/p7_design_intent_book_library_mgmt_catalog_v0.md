@@ -480,6 +480,15 @@ generator.*
 
 ---
 
+## 25. Withdrawn Facts
+
+<!-- register:withdrawn_facts optional -->
+| Artifact | Fact | Reason | Source Finding |
+|----------|------|--------|----------------|
+
+
+---
+
 ## Pipeline Provenance
 
 | Stage | Output | Status |

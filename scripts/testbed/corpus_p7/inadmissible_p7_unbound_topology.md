@@ -695,6 +695,15 @@ above and it is its own source of truth. Nothing here is reached by invoking a g
 
 ---
 
+## 25. Withdrawn Facts
+
+<!-- register:withdrawn_facts optional -->
+| Artifact | Fact | Reason | Source Finding |
+|----------|------|--------|----------------|
+
+
+---
+
 ## gov_projection — Governed Handoff to Stage 8
 
 | Direction | Fields |

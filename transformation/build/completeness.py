@@ -126,11 +126,11 @@ def narrowing(rendered: list[dict], existing: dict[str, dict]) -> dict[str, list
         was = dict(_leaves(prior))
         now = dict(_leaves(artifact["machine"]))
         # A fact survives when the path is still there, or when something beneath it is: a binding
-        # that was a value and is now an object of values has been refined, not deleted, and a
+        # that was a value and is now an object or a list of values has been refined, not deleted, and a
         # comparison that could not tell those apart would refuse every amendment that adds detail.
         lost = sorted(fact for fact in was
                       if fact not in now
-                      and not any(later.startswith(fact + ".") for later in now))
+                      and not any(later.startswith((fact + ".", fact + "[")) for later in now))
         # A leaf the design has no register for is not one the amendment chose to drop. Prose
         # descriptions are the case, and the renderer preserves them rather than deleting what the
         # design cannot speak about — so they are carried into the render before this comparison and
@@ -139,6 +139,33 @@ def narrowing(rendered: list[dict], existing: dict[str, dict]) -> dict[str, list
             out[code] = lost
     return out
 
+
+
+def withdraw(lost: dict[str, list[str]], withdrawals: dict[str, list[str]]
+             ) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """Split what an amendment loses into what it withdrew and what it merely omitted.
+
+    A withdrawal names a place in the machine block and covers every lost fact at or beneath it, so
+    a design withdraws an input by naming the input rather than each of its attributes. Returns the
+    facts still lost — omitted, and refused — and the withdrawals that cover nothing: a place where
+    the artifact still states the fact, or never held it. Both are refusals; the second is a design
+    claiming a decision that made no difference, which is a design that has misread its artifact.
+    """
+    remaining: dict[str, list[str]] = {}
+    for code, facts in lost.items():
+        places = withdrawals.get(code, [])
+        kept = [f for f in facts if not any(f == w or f.startswith(w + ".") or f.startswith(w + "[")
+                                            for w in places)]
+        if kept:
+            remaining[code] = kept
+    unfounded: dict[str, list[str]] = {}
+    for code, places in withdrawals.items():
+        facts = lost.get(code, [])
+        empty = [w for w in places if not any(f == w or f.startswith(w + ".") or f.startswith(w + "[")
+                                              for f in facts)]
+        if empty:
+            unfounded[code] = empty
+    return remaining, unfounded
 
 def carry_forward(rendered: list[dict], existing: dict[str, dict]) -> None:
     """Preserve, in each amended artifact, the leaves no register of the design can express.
