@@ -106,7 +106,18 @@ exists, so an artifact inventoried `EXTEND` is rendered whole and replaces its p
 stating only the delta deletes the rest, at 100% completeness. The flag is what runs the narrowing
 check; without it that check does not run, and says so.
 
-Construction writes into `data/`, never into the domain. **Promotion is a separate, deliberate act.**
+A fact the change means to remove is **withdrawn** in P7's `withdrawn_facts`, with its reason: a
+withdrawal is subtracted from what the amendment loses, an omission is still refused, and a withdrawal
+covering nothing lost is refused as unfounded. Descriptions no register can state are carried from
+the document being replaced, by `check` when it measures and by `emit` when it writes.
+
+**Transforms carry their cases.** P7's `test_cases` and `test_case_values` state what a transform is
+handed and what it must answer; construction renders them as `TEST_DATA` beside the transform, and
+the runtime's conformance runs them. **A generated artifact is reached, not written:** a design names
+its generator in `generation_provenance`, and `emit` invokes it. A domain's build manifest is one.
+
+Construction run as a governed workflow writes into `data/`, never into the domain. **Promotion is a
+separate, deliberate act**, and `tc construction emit` is that act.
 A `tc construction build` CLI existed once and was removed, because it duplicated a governed path
 with an ungoverned one.
 
@@ -225,13 +236,14 @@ pgc            # reports what is installed and whether the anchor resolves
 
 `PGC_DOMAIN_ROOTS` names an additional domain contributing its own `registry/structures` — the
 directory that *directly contains* it, not the repository above it; pointing one level too high is a
-silent no-op. `PGC_SNAPSHOT_ROOT` is where compiled output is written, and each domain build needs
-its own: every layer's output consolidates into one root, and verification rejects any file in that
-root the current build did not declare. `PGC_SNAPSHOT_PROFILES` is the directory holding snapshot
-profiles, required by the assembler and the runtime alike.
+silent no-op. `PGC_SNAPSHOT_PROFILES` is the directory holding snapshot profiles, required by the
+assembler and the runtime alike.
 
-`PGC_BUILD_ROOT` is accepted and reported and **nothing reads it** — `PGC_SNAPSHOT_ROOT` is the
-anchor that controls output.
+**Where a build writes is declared, not supplied.** Each build configuration names its root in
+`output_configuration.root`, and every layer's output consolidates there. The compiler does not read
+`PGC_SNAPSHOT_ROOT`; the runtime does, with its own meaning — the assembled snapshot to execute.
+
+`PGC_BUILD_ROOT` is accepted and reported and **nothing reads it**.
 
 The full sequence, with the repositories it needs, is in
 [`pgc_install`](https://github.com/protocol-governed-computing/pgc_install).

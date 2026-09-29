@@ -71,7 +71,7 @@ The distinction that explains every design choice in this repository:
 
 Each phase admits a strictly wider vocabulary than the one before, and **nothing may be said early
 that belongs late**. A problem statement containing a module path has already decided the design
-before anyone examined the problem — and the phase's rule set refuses it. Nine phases, 751 declared
+before anyone examined the problem — and the phase's rule set refuses it. Nine phases, 883 declared
 rules, all of them checkable.
 
 Two gates are human, and only two: **Design Approval** after p7, and **Mandate Approval** after p8,
@@ -263,7 +263,7 @@ that every declared rule resolves to a check that exists, and that every check i
 result reads:
 
 ```
-CONSISTENT — 772 rules across 9 phases resolve against 44 check kinds
+CONSISTENT — 883 rules across 9 phases resolve against 61 check kinds
 ```
 
 A pipeline whose rules are not themselves checkable is a pipeline that can quietly stop enforcing
