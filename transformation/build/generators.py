@@ -107,8 +107,15 @@ def _phase_workflows_stale(ctx: Context) -> list[str]:
 
 
 def _manifest(ctx: Context) -> tuple[dict | None, Path | None]:
-    manifest = build_manifest(ctx.p7, ctx.p8)
-    if manifest is None or ctx.domain_root is None:
+    if ctx.domain_root is None:
+        return build_manifest(ctx.p7, ctx.p8), None
+    # The subdomains the domain already holds are its registry's folders beside `structures`, where
+    # the manifest itself lives.
+    registry = ctx.domain_root / "registry"
+    held = tuple(d.name for d in registry.iterdir()
+                 if d.is_dir() and d.name != "structures") if registry.is_dir() else ()
+    manifest = build_manifest(ctx.p7, ctx.p8, held)
+    if manifest is None:
         return manifest, None
     return manifest, ctx.domain_root / manifest_path(manifest)
 

@@ -1182,18 +1182,25 @@ def manifest_path(manifest: dict) -> str:
     return f"registry/structures/{bare(manifest['fqdn'])}.md"
 
 
-def build_manifest(p7: dict, p8: dict) -> dict | None:
+def build_manifest(p7: dict, p8: dict, held: tuple[str, ...] = ()) -> dict | None:
     """The compiler's discovery manifest for the domain this mandate builds.
 
-    Returns None when the mandate schedules nothing, because a manifest for no artifacts would
-    declare a domain the composition has no reason to compile.
+    Returns None when the design neither schedules nor amends anything, because a manifest for no
+    artifacts would declare a domain the composition has no reason to compile. An amendment is a
+    reason: a change that states cases for transforms it only redeclares schedules nothing, and its
+    domain must still compile the cases.
+
+    `held` names the subdomains the domain already holds. A change to one subdomain declares only
+    that one, and the manifest describes the domain, not the change: without them, amending one
+    subdomain would describe a domain that had lost the others.
     """
     scheduled = [cell(r, "Code") for r in rows(p8, "build_order")]
+    scheduled += [cell(r, "FQDN") for r in rows(p7, "existing_inventory") if cell(r, "Action") == "EXTEND"]
     if not scheduled:
         return None
     domain = norm(scheduled[0]).split("::")[0]
     subdomains = sorted({cell(r, "Subdomain Field") for r in rows(p8, "field_declarations")
-                         if cell(r, "Subdomain Field")})
+                         if cell(r, "Subdomain Field")} | set(held))
     families = [f.code for f in FAMILIES if f.authorable]
     # A domain whose design states cases compiles vectors, and declares where their runnable cases are
     # written — beside its projections, where the runtime's conformance reads them and the assembler
@@ -1239,6 +1246,9 @@ def build_manifest(p7: dict, p8: dict) -> dict | None:
             "artifact_types": families,
         },
         "output_configuration": {
+            # Where this build writes, declared rather than taken from the environment (A10): two
+            # compositions naming one root are refused, and a manifest without one does not build.
+            "root": "snapshot",
             "artifacts": {"layer": "PROTOCOL_BUILD_ROOT", "subpath": "compiled/canonical"},
             "vocabulary_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/vocabulary"},
             "tokenized_projection_path": {"layer": "GOVERNANCE", "subpath": "compiled/tokenized"},

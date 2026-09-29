@@ -1827,6 +1827,14 @@ core:
             composition_register: cc_composition
             observation: si.capability.surface#contracts
           intent: a workflow hands a contract everything that contract says it requires
+        - id: ENTRANCE_UNDERSUPPLIES_GATE
+          check: ENTRANCE_SUPPLIES_GATE
+          register: transport_bindings
+          params:
+            topology_register: execution_topology
+            fields_register: interface_fields
+            observation: si.capability.surface#intents
+          intent: an entrance supplies everything the gate it reaches requires
         - id: BINDING_SOURCE_UNREACHABLE
           check: BINDING_SOURCE_REACHABLE
           register: step_bindings

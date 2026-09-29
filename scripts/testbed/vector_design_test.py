@@ -166,6 +166,40 @@ def test_each_rule_fires_on_the_defect_it_names():
     assert "AMENDED_TRANSFORM_WITHOUT_VECTOR" not in fired(amended_with_case)
 
 
+
+def test_a_manifest_is_generated_for_an_amendment_and_declares_its_root():
+    # A change that schedules nothing but states cases for transforms it redeclares still needs its
+    # domain to compile them; and every manifest declares where it writes (A10).
+    amending = registers(design())
+    amending["existing_inventory"] = [{"FQDN": "probe::CT_PURE_PROBE_V0", "Action": "EXTEND"}]
+    manifest = build_manifest(amending, {"build_order": [], "field_declarations": MANDATE["field_declarations"]})
+    assert manifest is not None and "TEST_DATA" in manifest["artifact_discovery"]["artifact_types"], manifest
+    assert manifest["output_configuration"]["root"] == "snapshot", manifest["output_configuration"]
+    assert build_manifest({}, {"build_order": []}) is None
+    # The manifest describes the domain: a subdomain the change does not touch is still named.
+    held = build_manifest(amending, {"build_order": [], "field_declarations": MANDATE["field_declarations"]},
+                          ("untouched",))
+    assert "untouched" in held["core"]["description"], held["core"]["description"]
+
+def test_an_emitted_amendment_keeps_the_descriptions_it_replaces():
+    # `check` measures an amendment with its predecessor's descriptions carried forward; emit must
+    # write it the same way, reading the document it replaces, or what was measured is not written.
+    import tempfile
+    from transformation.build.completeness import carry_forward
+    from transformation.build.render import render_document
+    from transformation.cli import _predecessors
+
+    rendered = render_all(registers(design()), MANDATE)
+    target = next(a for a in rendered if a["path"].endswith("CT_WRITE_RESPONSE_V0.md"))
+    prior = {**target["machine"], "core": {**target["machine"]["core"], "description": "Kept."}}
+    with tempfile.TemporaryDirectory() as root:
+        path = Path(root) / target["path"]
+        path.parent.mkdir(parents=True)
+        path.write_text(render_document({"machine": prior}), encoding="utf-8")
+        carry_forward(rendered, _predecessors(rendered, Path(root)))
+    assert target["machine"]["core"].get("description") == "Kept.", target["machine"]["core"]
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     failed = 0

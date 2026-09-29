@@ -65,6 +65,10 @@ TRANSFORM_OBSERVATION = "si.capability.surface#transforms"
 # it already exists — so the only place its interface can be read is the composition.
 CONTRACT_OBSERVATION = "si.capability.surface#contracts"
 
+# What each admission gate requires. An entrance is held to the gate of the workflow it invokes, and a
+# gate the design reuses declares nothing — the composition is the only place to ask.
+INTENT_OBSERVATION = "si.capability.surface#intents"
+
 # Which records each binding covers. A design names a binding and never the records behind it, so
 # the reach it declares is checkable only against a surface that answers the other half — and this
 # is the surface that answers it for every store at once, which is the only shape a fixed pipeline
@@ -85,6 +89,7 @@ OBSERVATIONS = {
     CAPABILITY_OBSERVATION: "capabilities",
     TRANSFORM_OBSERVATION: "transforms",
     CONTRACT_OBSERVATION: "contracts",
+    INTENT_OBSERVATION: "intents",
     STORE_OBSERVATION: "stores",
     RULE_SET_OBSERVATION: "carriers",
     WORKFLOW_OBSERVATION: "workflows",
@@ -888,6 +893,17 @@ INTERFACE_RULES: list[Rule] = [
             "observation": CONTRACT_OBSERVATION,
         },
         intent="a workflow hands a contract everything that contract says it requires",
+    ),
+    Rule(
+        id="ENTRANCE_UNDERSUPPLIES_GATE",
+        check="ENTRANCE_SUPPLIES_GATE",
+        register="transport_bindings",
+        params={
+            "topology_register": "execution_topology",
+            "fields_register": "interface_fields",
+            "observation": INTENT_OBSERVATION,
+        },
+        intent="an entrance supplies everything the gate it reaches requires",
     ),
     Rule(
         id="BINDING_SOURCE_UNREACHABLE",

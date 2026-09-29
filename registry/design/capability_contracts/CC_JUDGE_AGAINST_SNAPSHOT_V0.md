@@ -261,6 +261,7 @@ core:
         si.behavior_logic.list: $.results.observe_behavior_logic_list.capability_result.result.workflows
         si.capability.surface: $.results.observe_capabilities.capability_result.result.capabilities
         si.capability.surface#contracts: $.results.observe_capabilities.capability_result.result.contracts
+        si.capability.surface#intents: $.results.observe_capabilities.capability_result.result.intents
         si.capability.surface#transforms: $.results.observe_capabilities.capability_result.result.transforms
         si.rule_set.list: $.results.observe_rule_set_list.capability_result.result.carriers
         si.snapshot.summary: $.results.observe_reuse_visibility.capability_result.result.reuse_visibility

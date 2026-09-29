@@ -35,6 +35,7 @@ from transformation.build.render import (
     generated,
     render_all,
     retirements,
+    render_document,
     render_documents,
 )
 from transformation.build.generators import (
@@ -515,6 +516,19 @@ def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
 
 
 
+def _predecessors(rendered: list[dict], domain_root: Path) -> dict[str, dict]:
+    """The Machine block of each document an emission is about to replace, by bare code."""
+    out: dict[str, dict] = {}
+    for artifact in rendered:
+        path = domain_root / artifact["path"]
+        if not path.is_file():
+            continue
+        block = machine_block(path.read_text(encoding="utf-8"))
+        if block is not None:
+            out[path.stem] = yaml.safe_load(block) or {}
+    return out
+
+
 def _withdrawals(p7: dict) -> dict[str, list[str]]:
     """The facts a design withdraws from each artifact it amends, by bare code."""
     out: dict[str, list[str]] = {}
@@ -738,7 +752,12 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
             click.echo(f"    {count:>3}  {path}", err=True)
         sys.exit(1)
 
-    documents = render_documents(p7, p8)
+    # An amendment replaces a document that may carry descriptions no register can state. `check`
+    # measures the design with them carried forward, so emit writes it the same way — from the
+    # document it is replacing — or what was measured is not what is written.
+    rendered = render_all(p7, p8)
+    carry_forward(rendered, _predecessors(rendered, domain_root))
+    documents = [{"path": a["path"], "text": render_document(a)} for a in rendered]
     planned: list[tuple[Path, str]] = [(domain_root / d["path"], d["text"]) for d in documents]
 
     # Construction does not found a build manifest. Every field of one is configuration for the
