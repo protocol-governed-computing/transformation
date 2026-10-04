@@ -911,8 +911,7 @@ def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None, suppl
     which emptiness this is. Without that a vocabulary nobody finished and one deliberately rooted
     look identical, and only one of them is designed.
     """
-    entries = [cell(r, "Value") for r in rows(p7, "vocabulary_extensions")
-               if bare(cell(r, "Vocabulary Code")) == short]
+    own = [r for r in rows(p7, "vocabulary_extensions") if bare(cell(r, "Vocabulary Code")) == short]
     extends = next((cell(r, "Extends") for r in rows(p7, "vocabulary_extensions")
                     if bare(cell(r, "Vocabulary Code")) == short), "")
     if extends in ("—", "-", "NONE"):
@@ -921,21 +920,24 @@ def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None, suppl
             declared_empty.append("extends")
     m.pop("core", None)
     m["extends"] = extends
-    # The group these values belong to and the spelling they must take. Both were literals for as
-    # long as every vocabulary rendered was a result status, and the first one that was not carried
-    # a group it does not belong to and a spelling its values do not have — the platform refused it.
-    # No register states either, so both are reported as the renderer's own until one does.
-    group = cell(next((r for r in rows(p7, "vocabulary_extensions")
-                       if bare(cell(r, "Vocabulary Code")) == short), {}), "Group") or "result_status"
-    casing = cell(next((r for r in rows(p7, "vocabulary_extensions")
-                        if bare(cell(r, "Vocabulary Code")) == short), {}), "Casing") or "UPPER_SNAKE"
-    if not _stated(p7, short, "Casing"):
-        _supplied(supplied, f"{group}.casing")
-    # The group name is undesigned too, and is not reported here. It is a key rather than a value,
-    # so no leaf *is* it — recording it as one would mark the whole subtree beneath it supplied,
-    # which would slander every entry the design did state. A leaf-walking measure cannot see a
-    # fact that is a path, and this is the one place that limit bites today.
-    m[group] = {"casing": casing, "entries": entries}
+    # The group each value belongs to and the spelling it must take. Both were literals for as long
+    # as every vocabulary rendered was a result status, and the first one that was not carried a
+    # group it does not belong to and a spelling its values do not have — the platform refused it.
+    #
+    # Each row states its own group, and a vocabulary may declare several. Reading the group from the
+    # first row put every entry under it: a vocabulary of two groups was sealed as one, every value
+    # still present, and the measure counted it determined because it reads values, not where they
+    # sit. So the groups are rendered as the rows state them, in the order they first appear.
+    #
+    # The group name is a key rather than a value, so no leaf *is* it — recording it as supplied
+    # would mark the whole subtree beneath it, which would slander every entry the design stated.
+    for r in own:
+        group = cell(r, "Group") or "result_status"
+        if group not in m:
+            if not cell(r, "Casing"):
+                _supplied(supplied, f"{group}.casing")
+            m[group] = {"casing": cell(r, "Casing") or "UPPER_SNAKE", "entries": []}
+        m[group]["entries"].append(cell(r, "Value"))
 
 
 def _structure(m, code, short, summary, sub, p7, p8, supplied=None):
