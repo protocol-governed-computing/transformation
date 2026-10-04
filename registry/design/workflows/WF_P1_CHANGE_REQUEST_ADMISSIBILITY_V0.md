@@ -10,6 +10,7 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 - **Generator sources** — one generator together, never separately:
   - `templates/p1_change_request_template_v0.md`
   - `transformation/design/p1_change_request/rules.py`
+  - `registry/design/capability_contracts/CC_JUDGE_DOCUMENT_V0.md`
 
 To change what this phase judges, amend a source and invoke the generator.
 `tc phase emit --check` refuses a build in which the two disagree.

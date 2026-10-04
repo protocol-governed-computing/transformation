@@ -84,6 +84,7 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_input_failure: VIOLATION
   pipeline:
   - step: parse_registers
@@ -123,10 +124,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
 
   - step: observe_declarations
     side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
@@ -139,10 +142,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
 
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0

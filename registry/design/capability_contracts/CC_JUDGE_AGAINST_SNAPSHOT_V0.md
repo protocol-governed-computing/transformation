@@ -119,6 +119,7 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_input_failure: VIOLATION
   pipeline:
   - step: parse_registers
@@ -158,10 +159,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
 
   # A third question of the same bound capability, not a new capability. What an operation declares
   # it yields is the only fact that separates a binding reading a real field from one reading a
@@ -177,10 +180,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
 
   # What each domain declares about being drawn on. A phase deciding whether an artifact may be
   # reused needs the owning domain's own statement, and inferring relevance from a namespace is
@@ -197,10 +202,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
 
   - step: observe_store_list
     side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
@@ -213,10 +220,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
   - step: observe_rule_set_list
     side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
     op: QUERY
@@ -228,10 +237,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
   - step: observe_behavior_logic_list
     side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0
     op: QUERY
@@ -243,10 +254,12 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_result:
       SUCCESS: continue
       VIOLATION: exit
       BACKEND_ERROR: exit
+      NOT_FOUND: exit
   - step: evaluate_rules
     transform: transformation::CT_PURE_EVALUATE_RULES_V0
     inputs:

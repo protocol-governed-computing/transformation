@@ -10,6 +10,7 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 - **Generator sources** — one generator together, never separately:
   - `templates/p3_analysis_loop_template_v0.md`
   - `transformation/design/p3_analysis_loop/rules.py`
+  - `registry/design/capability_contracts/CC_JUDGE_AGAINST_COMPOSITION_V0.md`
 
 To change what this phase judges, amend a source and invoke the generator.
 `tc phase emit --check` refuses a build in which the two disagree.
@@ -582,6 +583,7 @@ core:
         SUCCESS: EXIT_JUDGED
         VIOLATION: EXIT_REJECTED
         BACKEND_ERROR: EXIT_REJECTED
+        NOT_FOUND: EXIT_REJECTED
 
     EXIT_JUDGED:
       type: EXIT

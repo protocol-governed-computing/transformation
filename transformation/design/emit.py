@@ -83,6 +83,31 @@ OBSERVED_INDENT = 6
 # somewhere the runtime has already passed.
 OBSERVATION_CONSUMER = "evaluate_rules"
 
+# Every judging contract whose observing steps this generator owns. Only the first takes the
+# generated `observed` map and its missing steps; both have their observing steps' outcomes brought
+# into agreement, because an observing step written by hand is the copy that falls behind.
+JUDGE_CONTRACTS = (
+    JUDGE_CONTRACT,
+    "registry/design/capability_contracts/CC_JUDGE_AGAINST_COMPOSITION_V0.md",
+)
+
+# The capability every observing step asks, and every outcome its QUERY operation declares — the
+# `result_status_values` of `CS_SNAPSHOT_QUERY_V0`. An observing step answers for each of them, and
+# ends its contract on any but SUCCESS (Open PGC Standard `v1` CP-13). The steps were written with
+# three and omitted NOT_FOUND, which the inspector reports for an operation that names nothing.
+#
+# Held here once rather than read from the declaration, because the platform's registry is not
+# shipped with its package. The compiler's step-surface check compares every step against the
+# capability it binds, so a disagreement between this tuple and the declaration fails the build.
+QUERY_CAPABILITY = "capability_side_effects::CS_SNAPSHOT_QUERY_V0"
+QUERY_OUTCOMES = ("SUCCESS", "VIOLATION", "BACKEND_ERROR", "NOT_FOUND")
+
+# Where a phase workflow sends every judging outcome but SUCCESS. A phase either judged the document
+# or did not, and the workflow has one ending for each. Routing is generated from the contract's
+# declared outcomes, so an outcome a contract gains is routed the moment it is declared, rather
+# than left for someone to notice (Open PGC Standard `v1` GC-15).
+REJECTED_ENDING = "EXIT_REJECTED"
+
 PROVENANCE_HEADING = "## Generated Artifact"
 
 # The section is placed where a reader meets the artifact, before its narrative begins. Every one of
@@ -162,21 +187,128 @@ def render_observing_step(operation: str) -> str:
     """
     return (
         f"  - step: {step_name(operation)}\n"
-        f"    side_effect: capability_side_effects::CS_SNAPSHOT_QUERY_V0\n"
+        f"    side_effect: {QUERY_CAPABILITY}\n"
         f"    op: QUERY\n"
         f"    inputs:\n"
         f"      operation: {operation}\n"
         f"      params: {{}}\n"
         f"    outputs: {{}}\n"
-        f"    result_surface:\n"
-        f"    - SUCCESS\n"
-        f"    - VIOLATION\n"
-        f"    - BACKEND_ERROR\n"
-        f"    on_result:\n"
-        f"      SUCCESS: continue\n"
-        f"      VIOLATION: exit\n"
-        f"      BACKEND_ERROR: exit\n"
+        + render_query_answers()
     )
+
+
+def render_query_answers() -> str:
+    """An observing step's `result_surface` and `on_result`: every QUERY outcome, each answered.
+
+    SUCCESS continues to the next step. Every other outcome ends the contract with it, so the
+    workflow decides what follows rather than the step carrying on past an observation it never got.
+    """
+    surface = "".join(f"    - {o}\n" for o in QUERY_OUTCOMES)
+    answers = "".join(f"      {o}: {'continue' if o == 'SUCCESS' else 'exit'}\n" for o in QUERY_OUTCOMES)
+    return f"    result_surface:\n{surface}    on_result:\n{answers}"
+
+
+def splice_query_answers(text: str) -> str:
+    """Bring every observing step's answers into agreement with `QUERY_OUTCOMES`.
+
+    Only the two keys are rewritten. A step's comments, inputs and name are the contract's own, and
+    regenerating the whole step would discard what a reviewer wrote above it.
+    """
+    lines = text.splitlines(keepends=True)
+    out: list[str] = []
+    i, observing = 0, False
+    while i < len(lines):
+        line = lines[i]
+        bare = line.rstrip("\n")
+        if bare.startswith("  - step: "):
+            observing = False
+        elif bare == f"    side_effect: {QUERY_CAPABILITY}":
+            observing = True
+        if observing and bare == "    result_surface:":
+            j = i + 1
+            while j < len(lines) and lines[j].startswith("    - "):
+                j += 1
+            if j >= len(lines) or lines[j].rstrip("\n") != "    on_result:":
+                raise SystemExit(f"an observing step's result_surface is not followed by on_result "
+                                 f"at line {j + 1}")
+            j += 1
+            while j < len(lines) and lines[j].startswith("      ") and lines[j].strip():
+                j += 1
+            out.append(render_query_answers())
+            i, observing = j, False
+            continue
+        out.append(line)
+        i += 1
+    return "".join(out)
+
+
+def machine(text: str) -> dict:
+    """The artifact's `Machine` block, parsed."""
+    import re
+    match = re.search(r"```yaml\n(.*?)```", text, re.S)
+    if match is None:
+        raise SystemExit("expected a ```yaml Machine block")
+    return yaml.safe_load(match.group(1))
+
+
+def splice_allowed(text: str) -> str:
+    """Declare every outcome the contract's steps can end it with, appending only what is missing.
+
+    A contract states how it can end. A step that exits with an outcome the contract does not
+    declare is a way to end that nobody routes, so the declaration follows the steps.
+    """
+    core = machine(text)["core"]
+    allowed = list(core["result_status_contract"]["allowed"])
+    exits = [code for step in core["pipeline"]
+             for code, act in (step.get("on_result") or {}).items() if act == "exit"]
+    missing = [code for code in dict.fromkeys(exits) if code not in allowed]
+    if not missing:
+        return text
+    lines = text.splitlines(keepends=True)
+    starts = [i for i, line in enumerate(lines) if line.rstrip("\n") == "    allowed:"]
+    if len(starts) != 1:
+        raise SystemExit(f"expected exactly one '    allowed:' line, found {len(starts)}")
+    end = starts[0] + 1
+    while end < len(lines) and lines[end].startswith("    - "):
+        end += 1
+    return "".join(lines[:end]) + "".join(f"    - {code}\n" for code in missing) + "".join(lines[end:])
+
+
+def judge_node(text: str) -> str:
+    """The workflow's judging node: the one CC node every phase workflow has."""
+    nodes = machine(text)["core"]["nodes"]
+    judges = [key for key, node in nodes.items() if node.get("type") == "CC"]
+    if len(judges) != 1:
+        raise SystemExit(f"expected exactly one judging node, found {judges}")
+    return judges[0]
+
+
+def splice_routing(text: str, allowed: list[str]) -> str:
+    """Route every outcome the judging contract declares, appending only what is missing.
+
+    SUCCESS keeps the ending the workflow already names; every other outcome is routed to
+    `REJECTED_ENDING`. A route for an outcome the contract does not declare is refused, because it
+    names a way to end that cannot happen and hides which ones can.
+    """
+    node = judge_node(text)
+    lines = text.splitlines(keepends=True)
+    heads = [i for i, line in enumerate(lines) if line.rstrip("\n") == f"    {node}:"]
+    if len(heads) != 1:
+        raise SystemExit(f"expected exactly one '    {node}:' line, found {len(heads)}")
+    nxt = next((i for i in range(heads[0] + 1, len(lines))
+                if lines[i].rstrip("\n") == "      next:"), None)
+    if nxt is None:
+        raise SystemExit(f"{node} declares no next:")
+    end = nxt + 1
+    while end < len(lines) and lines[end].startswith("        ") and lines[end].strip():
+        end += 1
+    routed = [line.strip().split(":", 1)[0] for line in lines[nxt + 1:end]]
+    stray = [code for code in routed if code not in allowed]
+    if stray or "SUCCESS" not in routed:
+        raise SystemExit(f"{node} routes {stray or 'no SUCCESS'}; the contract declares {allowed}")
+    missing = [code for code in allowed if code not in routed]
+    return "".join(lines[:end]) + "".join(f"        {code}: {REJECTED_ENDING}\n" for code in missing) \
+        + "".join(lines[end:])
 
 
 def splice_observing_steps(text: str) -> str:
@@ -251,6 +383,9 @@ def sources(phase_id: str) -> list[str]:
         out.append(f"templates/{template}")
     module_file = Path(RULE_MODULES[phase_id].__file__).resolve()
     out.append(str(module_file.relative_to(REPO)))
+    # The judging contract's declared outcomes are what the workflow's routing is generated from.
+    node = judge_node((WORKFLOWS / SEALED_IN[phase_id]).read_text(encoding="utf-8"))
+    out.append(str((CONTRACTS / f"{node}.md").relative_to(REPO)))
     return out
 
 
@@ -365,43 +500,60 @@ def splice_provenance(text: str, block: str) -> str:
     return "".join(lines[:at]) + block + "".join(lines[at:])
 
 
-def emit_contract(check_only: bool = False) -> Emission:
-    """Bring the judging contract's `observed` map into agreement with what the phases declare.
+def emit_contract(relative: str, check_only: bool = False) -> tuple[Emission, str]:
+    """Bring one judging contract into agreement with what the phases and the capability declare.
 
-    The map is generated for the same reason the rule sets are: it is a copy of a declaration that
-    lives elsewhere, and the two drifted the moment anyone added an observation. Generated, adding
-    one to a phase is enough — and an observation no step produces is a build failure rather than a
-    rule that silently sees nothing.
+    The `observed` map is generated for the same reason the rule sets are: it is a copy of a
+    declaration that lives elsewhere, and the two drifted the moment anyone added an observation.
+    Generated, adding one to a phase is enough — and an observation no step produces is a build
+    failure rather than a rule that silently sees nothing. Only the snapshot judge takes the map.
+
+    Every judge has its observing steps' answers brought into agreement with `QUERY_OUTCOMES`, and
+    its declared outcomes with what those steps can end it with. Returns the contract as emitted, so
+    the workflows' routing is generated from what the contract now declares, written or not.
     """
-    path = REPO / JUDGE_CONTRACT
+    path = REPO / relative
     current = path.read_text(encoding="utf-8")
-    stepped = splice_observing_steps(current)
-    updated = splice_observed(stepped, render_observed(stepped))
+    updated = current
+    if relative == JUDGE_CONTRACT:
+        stepped = splice_observing_steps(updated)
+        updated = splice_observed(stepped, render_observed(stepped))
+    updated = splice_allowed(splice_query_answers(updated))
     drifted = updated != current
     if drifted and not check_only:
         path.write_text(updated, encoding="utf-8")
-    return Emission(phase="cc", filename=pathlib.Path(JUDGE_CONTRACT).name,
-                    rules=len(observations()), drifted=drifted)
+    rules = len(observations()) if relative == JUDGE_CONTRACT else 0
+    return Emission(phase="cc", filename=pathlib.Path(relative).name,
+                    rules=rules, drifted=drifted), updated
 
 
 def emit(check_only: bool = False) -> list[Emission]:
-    """Bring every phase workflow into agreement with what its phase declares.
+    """Bring every judging contract, then every phase workflow, into agreement with its sources.
 
-    Under `check_only` nothing is written and the drift is reported instead, which is what a build
-    gate needs: the question "does the composition already agree with its generator" has to be
-    answerable without changing the answer.
+    Contracts first: a workflow's routing is generated from its judging contract's declared outcomes,
+    so the contract must already say what it can end with. Under `check_only` nothing is written and
+    the drift is reported instead, which is what a build gate needs: the question "does the
+    composition already agree with its generator" has to be answerable without changing the answer.
     """
     out: list[Emission] = []
+    contracts: dict[str, str] = {}
+    for relative in JUDGE_CONTRACTS:
+        emission, text = emit_contract(relative, check_only)
+        contracts[pathlib.Path(relative).stem] = text
+        out.append(emission)
     for phase_id, filename in SEALED_IN.items():
         path = WORKFLOWS / filename
         rules = declared(phase_id)
         current = path.read_text(encoding="utf-8")
-        updated = splice_provenance(splice(current, render(rules)), provenance(phase_id))
+        node = judge_node(current)
+        contract = contracts.get(node) or (CONTRACTS / f"{node}.md").read_text(encoding="utf-8")
+        allowed = list(machine(contract)["core"]["result_status_contract"]["allowed"])
+        updated = splice_provenance(splice_routing(splice(current, render(rules)), allowed),
+                                    provenance(phase_id))
         drifted = updated != current
         if drifted and not check_only:
             path.write_text(updated, encoding="utf-8")
         out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted))
-    out.append(emit_contract(check_only))
     return out
 
 
