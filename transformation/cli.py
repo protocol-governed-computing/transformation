@@ -439,7 +439,10 @@ def phase_list() -> None:
 @phase.command("emit")
 @click.option("--check", "check_only", is_flag=True,
               help="Report disagreement without writing; exit 1 if any workflow is stale.")
-def phase_emit(check_only: bool) -> None:
+@click.option("--snapshot", "snapshot_root", required=True,
+              type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="Composition whose snapshot capability the observing steps answer for.")
+def phase_emit(check_only: bool, snapshot_root: Path) -> None:
     """Bring each phase workflow into agreement with the generator that produces it.
 
     A phase declares its rules once and its workflow carries a sealed copy, so that the rules travel
@@ -453,7 +456,7 @@ def phase_emit(check_only: bool) -> None:
 
     Exit 0 if every workflow agrees (or was brought into agreement), 1 under `--check` if any did not.
     """
-    results = emit_phase_workflows(check_only=check_only)
+    results = emit_phase_workflows(snapshot_root, check_only=check_only)
     for e in results:
         state = "OK      " if not e.drifted else ("STALE   " if check_only else "WROTE   ")
         click.echo(f"  {state} {e.phase}  {e.rules:>3} rules  {e.filename}")
@@ -575,7 +578,7 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
     # already gone the way that hurts: a rule added after a workflow was emitted left the smaller
     # rule set sealed, and every run believed it.
     disagreeing, pending, unasked = _disagreeing(
-        p7, GeneratorContext(p7=p7, p8=p8, domain_root=domain_root))
+        p7, GeneratorContext(p7=p7, p8=p8, domain_root=domain_root, snapshot_root=snapshot_root))
 
     if as_json:
         click.echo(json.dumps({
@@ -686,7 +689,8 @@ def _disagreeing(p7: dict, ctx) -> tuple[list[tuple[str, str]], list[tuple[str, 
     pending: list[tuple[str, str]] = []
     unasked: list[str] = []
     for gen in _generators(p7).values():
-        if gen.needs_root and ctx.domain_root is None:
+        if (gen.needs_root and ctx.domain_root is None) or \
+                (gen.needs_snapshot and ctx.snapshot_root is None):
             unasked.append(gen.name)
             continue
         found = [(gen.name, artifact) for artifact in gen.stale(ctx)]
@@ -717,7 +721,11 @@ def _dossier_registers(dossier: Path, phase_key: str) -> dict:
 @click.option("--force", is_flag=True, help="Overwrite artifacts that already exist.")
 @click.option("--require", "threshold", type=float, default=100.0, show_default=True,
               help="Minimum Construction Completeness; below it nothing is written.")
-def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: float) -> None:
+@click.option("--snapshot", "snapshot_root",
+              type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="Composition a generator observes; required when the design names one that does.")
+def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: float,
+                      snapshot_root: Path | None = None) -> None:
     """Write the artifacts a mandate schedules into the domain that owns them.
 
     Construction has always been able to render; nothing put the result on disk, so the only thing
@@ -742,7 +750,12 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     # Resolved before the design is even measured: a generator construction may not invoke is a path
     # to an artifact that does not exist, and there is no point measuring a design that names one.
     generators = _generators(p7)
-    context = GeneratorContext(p7=p7, p8=p8, domain_root=domain_root)
+    context = GeneratorContext(p7=p7, p8=p8, domain_root=domain_root, snapshot_root=snapshot_root)
+    observing = sorted(name for name, gen in generators.items() if gen.needs_snapshot)
+    if observing and snapshot_root is None:
+        click.echo(f"REFUSED — {', '.join(observing)} observes a composition; pass --snapshot. "
+                   f"Nothing written.", err=True)
+        sys.exit(1)
 
     result = measure(p7, p8)
     if not result.meets(threshold):

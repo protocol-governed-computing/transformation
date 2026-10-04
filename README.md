@@ -62,7 +62,7 @@ tc phase rules --phase p1                  # the declared rule set
 tc phase project <prior.md> --phase p1 --out <doc.md>       # phases that decide nothing
 
 tc phase meta                              # do the rule sets themselves hold?
-tc phase emit --check                      # are the sealed workflows current?
+tc phase emit --snapshot $W/snapshot --check   # are the sealed workflows current?
 
 tc baseline show --snapshot <root>                 # the composition present, as a pin
 tc baseline verify <pin.json> --snapshot <root>
@@ -133,8 +133,8 @@ the declaration alone leaves `tc phase check` and the governed workflow evaluati
 sets:
 
 ```bash
-tc phase emit --check                                  # names the drifted phase
-python $W/transformation/scripts/emit_rule_sets.py     # re-seal
+tc phase emit --snapshot $W/snapshot --check           # names the drifted phase
+python $W/transformation/scripts/emit_rule_sets.py --snapshot $W/snapshot   # re-seal
 $W/protocol_compiler/compile_domain.sh $W/transformation
 PGC_SNAPSHOT_PROFILE=GOVERNANCE_SURFACE_PROFILE_V0 $W/snapshot_assembler/assemble.sh
 python $W/transformation/scripts/testbed/build_fixtures.py

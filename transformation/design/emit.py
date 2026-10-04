@@ -35,6 +35,8 @@ from pathlib import Path
 
 import yaml
 
+from inspector import api as inspector_api
+
 REPO = Path(__file__).resolve().parents[2]
 WORKFLOWS = REPO / "registry" / "design" / "workflows"
 
@@ -100,7 +102,30 @@ JUDGE_CONTRACTS = (
 # shipped with its package. The compiler's step-surface check compares every step against the
 # capability it binds, so a disagreement between this tuple and the declaration fails the build.
 QUERY_CAPABILITY = "capability_side_effects::CS_SNAPSHOT_QUERY_V0"
-QUERY_OUTCOMES = ("SUCCESS", "VIOLATION", "BACKEND_ERROR", "NOT_FOUND")
+QUERY_OPERATION = "QUERY"
+# Where the outcomes an observing step answers are read from. The capability declares them; the
+# generator holding its own copy was a second statement of a platform fact, so it observes them.
+QUERY_OUTCOMES_OBSERVATION = "si.capability.surface"
+
+
+def query_outcomes(snapshot_root: str | Path) -> tuple[str, ...]:
+    """The outcomes the observing capability's QUERY operation declares, as the snapshot states them.
+
+    Observed through the inspector, the only way this package reads a composition. Fail-hard when
+    the capability or the operation is absent: a generator that fell back to a remembered list would
+    be the copy this replaces.
+    """
+    status, result = inspector_api.query(QUERY_OUTCOMES_OBSERVATION, {}, str(snapshot_root))
+    if status != "SUCCESS":
+        raise SystemExit(f"{QUERY_OUTCOMES_OBSERVATION} failed against {snapshot_root}: {status}")
+    capability = next((c for c in result.get("capabilities", [])
+                       if c.get("capability") == QUERY_CAPABILITY), None)
+    operation = ((capability or {}).get("operations") or {}).get(QUERY_OPERATION)
+    outcomes = (operation or {}).get("result_status_values")
+    if not outcomes:
+        raise SystemExit(f"{snapshot_root} declares no outcomes for {QUERY_CAPABILITY} "
+                         f"{QUERY_OPERATION}; the observing steps have nothing to answer")
+    return tuple(outcomes)
 
 # Where a phase workflow sends every judging outcome but SUCCESS. A phase either judged the document
 # or did not, and the workflow has one ending for each. Routing is generated from the contract's
@@ -177,7 +202,7 @@ def step_name(operation: str) -> str:
     return "observe_" + operation.split("#", 1)[0].replace("si.", "", 1).replace(".", "_")
 
 
-def render_observing_step(operation: str) -> str:
+def render_observing_step(operation: str, outcomes: tuple[str, ...]) -> str:
     """One pipeline step asking the bound snapshot capability one question.
 
     The step is the last hand-kept copy of a declaration that already lives in a phase's rule
@@ -188,28 +213,28 @@ def render_observing_step(operation: str) -> str:
     return (
         f"  - step: {step_name(operation)}\n"
         f"    side_effect: {QUERY_CAPABILITY}\n"
-        f"    op: QUERY\n"
+        f"    op: {QUERY_OPERATION}\n"
         f"    inputs:\n"
         f"      operation: {operation}\n"
         f"      params: {{}}\n"
         f"    outputs: {{}}\n"
-        + render_query_answers()
+        + render_query_answers(outcomes)
     )
 
 
-def render_query_answers() -> str:
+def render_query_answers(outcomes: tuple[str, ...]) -> str:
     """An observing step's `result_surface` and `on_result`: every QUERY outcome, each answered.
 
     SUCCESS continues to the next step. Every other outcome ends the contract with it, so the
     workflow decides what follows rather than the step carrying on past an observation it never got.
     """
-    surface = "".join(f"    - {o}\n" for o in QUERY_OUTCOMES)
-    answers = "".join(f"      {o}: {'continue' if o == 'SUCCESS' else 'exit'}\n" for o in QUERY_OUTCOMES)
+    surface = "".join(f"    - {o}\n" for o in outcomes)
+    answers = "".join(f"      {o}: {'continue' if o == 'SUCCESS' else 'exit'}\n" for o in outcomes)
     return f"    result_surface:\n{surface}    on_result:\n{answers}"
 
 
-def splice_query_answers(text: str) -> str:
-    """Bring every observing step's answers into agreement with `QUERY_OUTCOMES`.
+def splice_query_answers(text: str, outcomes: tuple[str, ...]) -> str:
+    """Bring every observing step's answers into agreement with what the capability declares.
 
     Only the two keys are rewritten. A step's comments, inputs and name are the contract's own, and
     regenerating the whole step would discard what a reviewer wrote above it.
@@ -234,7 +259,7 @@ def splice_query_answers(text: str) -> str:
             j += 1
             while j < len(lines) and lines[j].startswith("      ") and lines[j].strip():
                 j += 1
-            out.append(render_query_answers())
+            out.append(render_query_answers(outcomes))
             i, observing = j, False
             continue
         out.append(line)
@@ -311,7 +336,7 @@ def splice_routing(text: str, allowed: list[str]) -> str:
         + "".join(lines[end:])
 
 
-def splice_observing_steps(text: str) -> str:
+def splice_observing_steps(text: str, outcomes: tuple[str, ...]) -> str:
     """Place a step for every declared observation the contract does not already perform.
 
     Inserted before the step that reads them, because the runtime chains by result and a step
@@ -333,7 +358,7 @@ def splice_observing_steps(text: str) -> str:
             f"observing step before, found {len(anchor)}"
         )
     at = anchor[0]
-    return "".join(lines[:at]) + "".join(render_observing_step(op) for op in missing) \
+    return "".join(lines[:at]) + "".join(render_observing_step(op, outcomes) for op in missing) \
         + "".join(lines[at:])
 
 
@@ -500,7 +525,8 @@ def splice_provenance(text: str, block: str) -> str:
     return "".join(lines[:at]) + block + "".join(lines[at:])
 
 
-def emit_contract(relative: str, check_only: bool = False) -> tuple[Emission, str]:
+def emit_contract(relative: str, outcomes: tuple[str, ...],
+                  check_only: bool = False) -> tuple[Emission, str]:
     """Bring one judging contract into agreement with what the phases and the capability declare.
 
     The `observed` map is generated for the same reason the rule sets are: it is a copy of a
@@ -508,7 +534,7 @@ def emit_contract(relative: str, check_only: bool = False) -> tuple[Emission, st
     Generated, adding one to a phase is enough — and an observation no step produces is a build
     failure rather than a rule that silently sees nothing. Only the snapshot judge takes the map.
 
-    Every judge has its observing steps' answers brought into agreement with `QUERY_OUTCOMES`, and
+    Every judge has its observing steps' answers brought into agreement with `outcomes`, and
     its declared outcomes with what those steps can end it with. Returns the contract as emitted, so
     the workflows' routing is generated from what the contract now declares, written or not.
     """
@@ -516,9 +542,9 @@ def emit_contract(relative: str, check_only: bool = False) -> tuple[Emission, st
     current = path.read_text(encoding="utf-8")
     updated = current
     if relative == JUDGE_CONTRACT:
-        stepped = splice_observing_steps(updated)
+        stepped = splice_observing_steps(updated, outcomes)
         updated = splice_observed(stepped, render_observed(stepped))
-    updated = splice_allowed(splice_query_answers(updated))
+    updated = splice_allowed(splice_query_answers(updated, outcomes))
     drifted = updated != current
     if drifted and not check_only:
         path.write_text(updated, encoding="utf-8")
@@ -527,7 +553,7 @@ def emit_contract(relative: str, check_only: bool = False) -> tuple[Emission, st
                     rules=rules, drifted=drifted), updated
 
 
-def emit(check_only: bool = False) -> list[Emission]:
+def emit(snapshot_root: str | Path, check_only: bool = False) -> list[Emission]:
     """Bring every judging contract, then every phase workflow, into agreement with its sources.
 
     Contracts first: a workflow's routing is generated from its judging contract's declared outcomes,
@@ -537,8 +563,9 @@ def emit(check_only: bool = False) -> list[Emission]:
     """
     out: list[Emission] = []
     contracts: dict[str, str] = {}
+    outcomes = query_outcomes(snapshot_root)
     for relative in JUDGE_CONTRACTS:
-        emission, text = emit_contract(relative, check_only)
+        emission, text = emit_contract(relative, outcomes, check_only)
         contracts[pathlib.Path(relative).stem] = text
         out.append(emission)
     for phase_id, filename in SEALED_IN.items():
@@ -557,11 +584,11 @@ def emit(check_only: bool = False) -> list[Emission]:
     return out
 
 
-def emit_rule_sets() -> list[Emission]:
+def emit_rule_sets(snapshot_root: str | Path) -> list[Emission]:
     """The generator, as a design names it and as construction invokes it."""
-    return emit(check_only=False)
+    return emit(snapshot_root, check_only=False)
 
 
-def check() -> list[Emission]:
+def check(snapshot_root: str | Path) -> list[Emission]:
     """Every workflow that does not agree with its generator. Empty is the only passing answer."""
-    return [e for e in emit(check_only=True) if e.drifted]
+    return [e for e in emit(snapshot_root, check_only=True) if e.drifted]

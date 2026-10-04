@@ -55,6 +55,9 @@ class Context:
     # Absent when the caller is only measuring a design. A generator that writes into a domain says
     # so with `needs_root`, and is asked nothing it cannot answer.
     domain_root: Path | None = None
+    # The composition a generator observes. The phase workflows' observing steps answer what the
+    # snapshot capability declares, which only a composition can say.
+    snapshot_root: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +72,9 @@ class Generator:
     # discovered, so a caller that cannot supply one reports that the question went unasked instead
     # of reading an empty answer as agreement.
     needs_root: bool = False
+    # Whether it observes a composition, and so cannot answer without `snapshot_root`. Declared for
+    # the same reason as `needs_root`.
+    needs_snapshot: bool = False
     # Whether the generator reads the design in front of it, or its own sources.
     #
     # The distinction decides what a disagreement *means*, and getting it wrong makes the agreement
@@ -87,11 +93,11 @@ class Generator:
 
 
 def _phase_workflows_invoke(ctx: Context) -> list[Path]:
-    return [phase_emit.WORKFLOWS / e.filename for e in phase_emit.emit_rule_sets()]
+    return [phase_emit.WORKFLOWS / e.filename for e in phase_emit.emit_rule_sets(ctx.snapshot_root)]
 
 
 def _phase_workflows_stale(ctx: Context) -> list[str]:
-    return [e.filename for e in phase_emit.check()]
+    return [e.filename for e in phase_emit.check(ctx.snapshot_root)]
 
 
 # The domain build manifest -----------------------------------------------------------------------
@@ -152,6 +158,7 @@ GENERATORS: dict[str, Generator] = {
         invoke=_phase_workflows_invoke,
         stale=_phase_workflows_stale,
         summary="the phase workflows and the rule set each of them seals",
+        needs_snapshot=True,
     ),
     MANIFEST_GENERATOR: Generator(
         name=MANIFEST_GENERATOR,

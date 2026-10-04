@@ -117,7 +117,7 @@ def main() -> int:
 
     # 3 — every way the observing capability answers is answered and routed
     arts = canonical(snapshot)
-    outcomes = set(emit.QUERY_OUTCOMES)
+    outcomes = set(emit.query_outcomes(snapshot))
     unanswered = []
     for relative in emit.JUDGE_CONTRACTS:
         fqdn = f"transformation::{Path(relative).stem}"
@@ -139,32 +139,29 @@ def main() -> int:
           f"{len(unanswered)} step(s) unanswered, {len(unrouted)} phase(s) unrouted")
 
     # 4 — an outcome the capability gains is answered and routed by the next emission
+    # The generator is handed the outcomes it observed, plus one invented; nothing is replaced.
     gained = "GAINED_OUTCOME"
-    saved = emit.QUERY_OUTCOMES
-    emit.QUERY_OUTCOMES = (*saved, gained)
-    try:
-        allowed_by: dict[str, list[str]] = {}
-        for relative in emit.JUDGE_CONTRACTS:
-            text = emit.splice_allowed(emit.splice_query_answers(
-                (REPO / relative).read_text(encoding="utf-8")))
-            allowed_by[Path(relative).stem] = emit.machine(text)["core"]["result_status_contract"]["allowed"]
-        missed = []
-        for phase_id, filename in emit.SEALED_IN.items():
-            text = (emit.WORKFLOWS / filename).read_text(encoding="utf-8")
-            node = emit.judge_node(text)
-            if node not in allowed_by:
-                continue
-            routed = emit.machine(emit.splice_routing(text, allowed_by[node]))["core"]["nodes"][node]["next"]
-            if routed.get(gained) != emit.REJECTED_ENDING:
-                missed.append(filename)
-        observing = sum(1 for p in emit.SEALED_IN
-                        if emit.judge_node((emit.WORKFLOWS / emit.SEALED_IN[p]).read_text()) in allowed_by)
-        check("an outcome the observing capability gains leaves no phase that does not answer it",
-              all(gained in a for a in allowed_by.values()) and not missed,
-              f"{observing - len(missed)}/{observing} observing phase(s) route it to "
-              f"{emit.REJECTED_ENDING}")
-    finally:
-        emit.QUERY_OUTCOMES = saved
+    gaining = (*emit.query_outcomes(snapshot), gained)
+    allowed_by: dict[str, list[str]] = {}
+    for relative in emit.JUDGE_CONTRACTS:
+        text = emit.splice_allowed(emit.splice_query_answers(
+            (REPO / relative).read_text(encoding="utf-8"), gaining))
+        allowed_by[Path(relative).stem] = emit.machine(text)["core"]["result_status_contract"]["allowed"]
+    missed = []
+    for phase_id, filename in emit.SEALED_IN.items():
+        text = (emit.WORKFLOWS / filename).read_text(encoding="utf-8")
+        node = emit.judge_node(text)
+        if node not in allowed_by:
+            continue
+        routed = emit.machine(emit.splice_routing(text, allowed_by[node]))["core"]["nodes"][node]["next"]
+        if routed.get(gained) != emit.REJECTED_ENDING:
+            missed.append(filename)
+    observing = sum(1 for p in emit.SEALED_IN
+                    if emit.judge_node((emit.WORKFLOWS / emit.SEALED_IN[p]).read_text()) in allowed_by)
+    check("an outcome the observing capability gains leaves no phase that does not answer it",
+          all(gained in a for a in allowed_by.values()) and not missed,
+          f"{observing - len(missed)}/{observing} observing phase(s) route it to "
+          f"{emit.REJECTED_ENDING}")
 
     results.append(("every phase judges every document it judged before this change exactly as it did",
                     None, "exercised by e2e_phases_test.py (83 cases) and differential.py"))
