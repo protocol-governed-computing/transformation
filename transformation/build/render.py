@@ -92,7 +92,11 @@ def typed_fields(design: dict, code: str, direction: str) -> dict:
     for row in rows(design, "interface_fields"):
         if bare(cell(row, "Artifact")) != bare(code) or cell(row, "Direction") != direction:
             continue
-        spec: dict[str, Any] = {"type": cell(row, "Type") or "string"}
+        # A format is written after the type, `string (date-time)`, as the artifacts' own prose
+        # tables write it. Without it an amended contract could not keep a format it already had.
+        typed = re.fullmatch(r"\s*(\w+)\s*\(\s*([\w-]+)\s*\)\s*", cell(row, "Type") or "")
+        spec: dict[str, Any] = ({"type": typed.group(1), "format": typed.group(2)} if typed
+                                else {"type": cell(row, "Type") or "string"})
         if cell(row, "Required") == "YES":
             spec["required"] = True
         default = cell(row, "Default")

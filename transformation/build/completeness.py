@@ -193,7 +193,11 @@ def carry_forward(rendered: list[dict], existing: dict[str, dict]) -> None:
             target, *rest = path.lstrip(".").split(".")
             cursor = artifact["machine"]
             ok = True
-            for key in [target] + rest[:-1]:
+            for depth, key in enumerate([target] + rest[:-1]):
+                # A description may sit under a block the design renders nothing else into, as a
+                # contract's `extensions` does; that block is made to hold it, at the top level only.
+                if depth == 0 and len(rest) == 1 and isinstance(cursor, dict) and key not in cursor:
+                    cursor[key] = {}
                 if not isinstance(cursor, dict) or key not in cursor:
                     ok = False
                     break
