@@ -165,17 +165,51 @@ def successors(supersessions: dict[str, tuple[str, list[str]]]) -> dict[str, str
     return out
 
 
-def repoint(text: str, successor: dict[str, str]) -> str:
-    """A document with each name this design replaces rewritten to its successor, in its Machine block.
+def _raw_leaves(value: Any, path: str, decl: Declaration, under: bool, out: dict) -> None:
+    """Every leaf as written, with whether it sits at or beneath a reference part."""
+    if isinstance(value, dict):
+        for k, item in value.items():
+            _raw_leaves(item, f"{path}.{k}", decl, under or k in decl.reference, out)
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            _raw_leaves(item, f"{path}[{index}]", decl, under, out)
+    else:
+        out[path] = (value, under)
 
-    Rewritten as text, so the document keeps its layout and its prose. Whether only references
-    moved is not assumed: the caller compares the result with what it was, by the declaration, and a
-    name rewritten anywhere but a reference part is a change of meaning it refuses.
+
+def _moves_only_a_reference(was: dict, now: dict, decl: Declaration) -> bool:
+    before: dict = {}
+    after: dict = {}
+    _raw_leaves(was, "", decl, False, before)
+    _raw_leaves(now, "", decl, False, after)
+    if set(before) != set(after):
+        return False  # a key was renamed: a place, a route or a field, never a reference value
+    changed = [p for p in after if after[p][0] != before[p][0]]
+    return bool(changed) and all(after[p][1] for p in changed)
+
+
+def repoint(text: str, successor: dict[str, str], decl: Declaration) -> str:
+    """A document with each name this design replaces rewritten to its successor, where it is a
+    reference and nowhere else.
+
+    Rewritten as text, one occurrence at a time, so the document keeps its layout and its prose. An
+    occurrence is kept only when the one value it changes sits at or beneath a declared reference
+    part. A workflow names a contract it runs by short code in `code`, and labels the place it runs
+    it in, and routes to that place, by the same spelling; the label and the route are not
+    references, and rewriting them would rename a place rather than re-point it.
     """
     found = MACHINE.search(text)
     if not found:
         return text
     block = found.group(1)
     for old, new in sorted(successor.items(), key=lambda kv: -len(kv[0])):
-        block = re.sub(rf"(?<![A-Za-z0-9_:]){re.escape(old)}(?![A-Za-z0-9_])", new, block)
+        pattern = re.compile(rf"(?<![A-Za-z0-9_:]){re.escape(old)}(?![A-Za-z0-9_])")
+        at = 0
+        while (hit := pattern.search(block, at)) is not None:
+            candidate = block[:hit.start()] + new + block[hit.end():]
+            if _moves_only_a_reference(yaml.safe_load(block) or {},
+                                       yaml.safe_load(candidate) or {}, decl):
+                block, at = candidate, hit.start() + len(new)
+            else:
+                at = hit.end()
     return text[:found.start(1)] + block + text[found.end(1):]

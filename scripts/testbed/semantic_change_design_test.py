@@ -31,7 +31,7 @@ SNAPSHOT = Path(__file__).resolve().parents[3] / "snapshot"
 DECL = sameness.Declaration(
     documentation=frozenset({"summary", "description"}),
     unordered=frozenset({"allowed", "consults"}),
-    reference=frozenset({"governed_by", "consults", "workflow"}),
+    reference=frozenset({"governed_by", "consults", "workflow", "code"}),
     reference_keyed=frozenset({"bindings"}),
 )
 SUCCESSOR = {"probe::RB_OLD_V0": "probe::RB_NEW_V0", "RB_OLD_V0": "RB_NEW_V0"}
@@ -120,16 +120,29 @@ core:
 
 
 def test_a_re_point_rewrites_names_in_the_machine_block_only():
-    out = sameness.repoint(DOC, {**SUCCESSOR, "WF_OLD_V0": "WF_NEW_V0"})
+    out = sameness.repoint(DOC, {**SUCCESSOR, "WF_OLD_V0": "WF_NEW_V0"}, DECL)
     assert "workflow: WF_NEW_V0" in out and "[probe::RB_NEW_V0]" in out, out
     assert out.startswith(DOC.split("```yaml")[0]), "prose was rewritten"
 
 
-def test_a_re_point_that_reaches_beyond_a_reference_is_a_change_of_meaning():
-    doc = DOC.replace("  consults:", "  label: WF_OLD_V0\n  consults:")
-    successor = {**SUCCESSOR, "WF_OLD_V0": "WF_NEW_V0"}
-    was, now = sameness.machine(doc), sameness.machine(sameness.repoint(doc, successor))
-    assert sameness.differences(was, now, DECL, successor) == ["core.label"]
+def test_a_re_point_leaves_a_place_label_and_its_route_alone():
+    doc = """```yaml
+fqdn: probe::WF_V0
+core:
+  nodes:
+    CC_OLD_V0:
+      code: CC_OLD_V0
+      next: {SUCCESS: EXIT_DONE}
+    IN_V0:
+      next: {ACK: CC_OLD_V0}
+```
+"""
+    successor = {"probe::CC_OLD_V0": "probe::CC_NEW_V0", "CC_OLD_V0": "CC_NEW_V0"}
+    out = sameness.machine(sameness.repoint(doc, successor, DECL))
+    nodes = out["core"]["nodes"]
+    assert nodes["CC_OLD_V0"]["code"] == "CC_NEW_V0", nodes
+    assert nodes["IN_V0"]["next"]["ACK"] == "CC_OLD_V0", nodes
+    assert sameness.differences(sameness.machine(doc), out, DECL, successor) == []
 
 
 # --- the design phase --------------------------------------------------------------------------
@@ -188,6 +201,17 @@ def test_a_replacement_names_every_referrer_it_leaves_unaccounted():
     p7 = _p7(("transformation::AC_REGISTER_AUTHOR_V0", "REPLACE"))
     refusals = _meaning_refusals(p7, {}, SNAPSHOT, Context(p7=p7, p8={}, snapshot_root=SNAPSHOT))
     assert len(refusals) == 9 and all("still names it" in r for r in refusals), refusals
+
+
+def test_a_route_to_a_place_is_not_a_referrer():
+    # The parameter check routes to the place that records the action, so inspection reports it as
+    # a referrer by NODE_NEXT; its declaration does not name the recording contract.
+    target = "ai_governance::CC_RECORD_GOVERNED_ACTION_V0"
+    p7 = _p7((target, "REPLACE"))
+    refusals = _meaning_refusals(p7, {}, SNAPSHOT, Context(p7=p7, p8={}, snapshot_root=SNAPSHOT))
+    assert refusals == [f"{target} is replaced and ai_governance::WF_GOVERN_AGENT_ACTION_V0 still "
+                        f"names it — REPLACE, EXTEND or REPOINT ai_governance::WF_GOVERN_AGENT_ACTION_V0 "
+                        f"in this design"], refusals
 
 
 def test_a_referrer_the_design_re_points_is_accounted_for():

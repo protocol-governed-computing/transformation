@@ -508,10 +508,19 @@ def _stood_down(fqdn: str, snapshot_root: Path) -> bool:
         (sameness.canonical(result).get("frontmatter") or {}).get("superseded_by"))
 
 
+# Edges inspection carries that are not a declaration naming an artifact: a workflow's routing
+# between its places, and its start. They are attributed to the artifact each place runs, so a
+# contract routed to from another contract's place reads as its referrer without naming it.
+_TOPOLOGY_EDGES = frozenset({"NODE_NEXT", "WF_START"})
+
+
 def _referrers(fqdn: str, snapshot_root: Path) -> list[str]:
-    """Every artifact that names this one, from the composition's record of references."""
+    """Every artifact whose declaration names this one."""
     status, result = inspector_api.query("si.artifact.refs", {"artifact": fqdn}, str(snapshot_root))
-    return sorted({r["fqdn"] for r in result.get("refs", [])}) if status == "SUCCESS" else []
+    if status != "SUCCESS":
+        return []
+    return sorted({r["fqdn"] for r in result.get("refs", [])
+                   if r.get("edge_kind") not in _TOPOLOGY_EDGES})
 
 
 def _meaning_refusals(p7: dict, p8: dict, snapshot_root: Path | None,
@@ -590,7 +599,7 @@ def _meaning_refusals(p7: dict, p8: dict, snapshot_root: Path | None,
             out.append(f"{fqdn} is re-pointed and the composition does not hold it")
             continue
         was = sameness.machine(text)
-        now = sameness.machine(sameness.repoint(text, successor))
+        now = sameness.machine(sameness.repoint(text, successor, decl))
         if now == was:
             out.append(f"{fqdn} is re-pointed and names nothing this design replaces")
             continue
@@ -871,6 +880,7 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     # A design builds one domain. Every artifact it re-points must be in this one, and that is
     # established before anything is written.
     successor = sameness.successors(supersessions(p7))
+    decl = sameness.read(snapshot_root) if snapshot_root is not None else None
     repoint_targets: list[Path] = []
     for fqdn in _inventory(p7).get("REPOINT", []):
         matches = sorted(domain_root.rglob(f"{bare(fqdn)}.md"))
@@ -919,7 +929,7 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
     if repoint_targets:
         click.echo(f"\n  re-pointed {len(repoint_targets)} artifact(s)")
     for target in repoint_targets:
-        target.write_text(sameness.repoint(target.read_text(encoding="utf-8"), successor),
+        target.write_text(sameness.repoint(target.read_text(encoding="utf-8"), successor, decl),
                           encoding="utf-8")
         click.echo(f"    {target.relative_to(domain_root)}")
 
