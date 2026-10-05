@@ -487,12 +487,23 @@ def _vector_value(value: str) -> Any:
         return value
 
 
+def _declared_version(code: str) -> str:
+    """The version an identity declares, as its `_V<n>` suffix states it."""
+    match = re.search(r"_V(\d+)$", bare(code))
+    if not match:
+        raise ValueError(f"{code} declares no version: an identity ends in _V<n>")
+    return f"v{match.group(1)}"
+
+
 def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
             supersedes: list[str] | None = None, supplied: dict | None = None) -> dict:
     machine: dict[str, Any] = {
         "fqdn": code,
         "artifact_kind": KIND[fam],
-        "version": "v0",
+        # The version the design declared, which is the suffix of the identity it assigned. A literal
+        # here sealed every successor as `v0`: a `_V1` replacing its predecessor read as the same
+        # version as what it replaced.
+        "version": _declared_version(code),
         "governed_by": GOVERNED_BY[fam],
         # Authority and concern are declared carriers, never derived from the identifier or the
         # source directory (GO-11, MB-7, ID-12, `2e` CA-1). `concern` is the design's own subdomain
