@@ -25,7 +25,8 @@ from transformation.baseline import (
 from transformation.design.checks import kinds as check_kinds
 from inspector import api as inspector_api
 
-from transformation.build.completeness import carry_forward, measure, narrowing, withdraw
+from transformation.build import sameness
+from transformation.build.completeness import carry_forward, measure
 from transformation.build.render import (
     bare,
     cell,
@@ -35,6 +36,7 @@ from transformation.build.render import (
     generated,
     render_all,
     retirements,
+    supersessions,
     render_document,
     render_documents,
 )
@@ -469,56 +471,6 @@ def phase_emit(check_only: bool, snapshot_root: Path) -> None:
     sys.exit(0)
 
 
-def _narrowed(p7: dict, p8: dict, snapshot_root: Path | None,
-              dossier: Path = Path(".")) -> dict | None:
-    """Facts each amended artifact would lose, or None when there is nothing to compare against.
-
-    An EXTEND is rendered whole and replaces its predecessor, so the design must state the artifact
-    whole. Reading what the composition already holds is the only way to know that it did.
-    """
-    if snapshot_root is None:
-        return None
-
-    # An amendment is only meaningfully compared with the composition the change was designed
-    # against. Handed the live snapshot after the change was promoted, this compares the design with
-    # its own output and reports the change's additions as losses whenever they are revised. The
-    # dossier names the composition it was validated against, so say so rather than let a reader
-    # take the wrong reading for a defect.
-    pin = dossier / "baseline.json"
-    if pin.is_file():
-        declared = json.loads(pin.read_text()).get("snapshot_id", "")
-        status, summary = inspector_api.query("si.snapshot.summary", {}, str(snapshot_root))
-        observed = summary.get("snapshot_id", "") if status == "SUCCESS" else ""
-        if declared and observed and declared != observed:
-            click.echo(
-                f"  note: {snapshot_root} is not this change's baseline "
-                f"({observed[:12]}… vs {declared[:12]}…) — an amendment compared against a "
-                f"composition that already holds this change reads its own additions as losses",
-                err=True)
-
-    existing = {}
-    for entry in p7.get("existing_inventory", []):
-        action = next((v for k, v in entry.items() if k.startswith("Action")), "")
-        fqdn = next((v for k, v in entry.items() if k.startswith("FQDN")), "").strip()
-        if action.strip().upper() == "EXTEND" and fqdn:
-            status, result = inspector_api.query(
-                "si.artifact.show", {"artifact": fqdn}, str(snapshot_root))
-            if status != "SUCCESS":
-                continue
-            # The machine block, read out of the canonical artifact the composition holds. It is the
-            # same shape construction renders, which is what makes the two comparable at all.
-            block = machine_block((result.get("canonical") or {}).get("content", ""))
-            if block is not None:
-                existing[fqdn.split("::")[-1]] = yaml.safe_load(block) or {}
-    # Preserve what the design cannot express before comparing, so an amendment is not reported as
-    # dropping documentation no register could have carried. What remains listed is a fact the design
-    # could have stated and did not.
-    rendered = render_all(p7, p8)
-    carry_forward(rendered, existing)
-    return narrowing(rendered, existing)
-
-
-
 def _predecessors(rendered: list[dict], domain_root: Path) -> dict[str, dict]:
     """The Machine block of each document an emission is about to replace, by bare code."""
     out: dict[str, dict] = {}
@@ -532,14 +484,135 @@ def _predecessors(rendered: list[dict], domain_root: Path) -> dict[str, dict]:
     return out
 
 
-def _withdrawals(p7: dict) -> dict[str, list[str]]:
-    """The facts a design withdraws from each artifact it amends, by bare code."""
+def _inventory(p7: dict) -> dict[str, list[str]]:
+    """Each inventory action and the identities the design takes it on."""
     out: dict[str, list[str]] = {}
-    for row in rows(p7, "withdrawn_facts"):
-        code, fact = bare(cell(row, "Artifact")), cell(row, "Fact")
-        if code and fact:
-            out.setdefault(code, []).append(fact)
+    for row in rows(p7, "existing_inventory"):
+        fqdn = cell(row, "FQDN")
+        if fqdn:
+            out.setdefault(cell(row, "Action").upper(), []).append(fqdn)
     return out
+
+
+def _held(fqdn: str, snapshot_root: Path) -> str | None:
+    """The document the composition holds for an identity, as it was authored."""
+    status, result = inspector_api.query("si.artifact.show", {"artifact": fqdn}, str(snapshot_root))
+    if status != "SUCCESS":
+        return None
+    return sameness.canonical(result).get("content", "")
+
+
+def _stood_down(fqdn: str, snapshot_root: Path) -> bool:
+    status, result = inspector_api.query("si.artifact.show", {"artifact": fqdn}, str(snapshot_root))
+    return status == "SUCCESS" and bool(
+        (sameness.canonical(result).get("frontmatter") or {}).get("superseded_by"))
+
+
+def _referrers(fqdn: str, snapshot_root: Path) -> list[str]:
+    """Every artifact that names this one, from the composition's record of references."""
+    status, result = inspector_api.query("si.artifact.refs", {"artifact": fqdn}, str(snapshot_root))
+    return sorted({r["fqdn"] for r in result.get("refs", [])}) if status == "SUCCESS" else []
+
+
+def _meaning_refusals(p7: dict, p8: dict, snapshot_root: Path | None,
+                      ctx: "GeneratorContext") -> list[str]:
+    """Why this design may not be built under the identities it keeps. Empty is the only pass.
+
+    A change of meaning is a new identity (`4c` ID-5, `4e` SU-11). Each amendment, rendered or
+    generated, is compared with the artifact the composition holds, by the platform's declaration
+    of what carries no meaning; each re-point is checked to move references and nothing else; and
+    each replacement's live referrers must be replaced, amended or re-pointed by this design. None
+    of it can be asked without the composition, so a design that amends, replaces or re-points is
+    refused without one rather than built uncompared.
+    """
+    acts = _inventory(p7)
+    touched = acts.get("EXTEND", []) + acts.get("REPLACE", []) + acts.get("REPOINT", [])
+    if not touched:
+        return []
+    if snapshot_root is None:
+        return [f"this design amends, replaces or re-points {len(touched)} artifact(s) and no "
+                f"composition was given — pass --snapshot; an amendment built uncompared could "
+                f"change meaning unseen"]
+    try:
+        decl = sameness.read(snapshot_root)
+    except sameness.Uncomparable as exc:
+        return [str(exc)]
+
+    successor = sameness.successors(supersessions(p7))
+    out: list[str] = []
+
+    rendered = render_all(p7, p8)
+    held_docs: dict[str, dict] = {}
+    for fqdn in acts.get("EXTEND", []):
+        text = _held(fqdn, snapshot_root)
+        if text is not None:
+            held_docs[bare(fqdn)] = sameness.machine(text)
+    # What the design cannot express is carried from the artifact it amends before comparing, as
+    # it is when written; text in an explanation part is ignored by the comparison either way.
+    carry_forward(rendered, held_docs)
+    by_code = {a["path"].rsplit("/", 1)[-1].removesuffix(".md"): a["machine"] for a in rendered}
+
+    reached = generated(p7)
+    previews: dict[str, dict] = {}
+    for fqdn in acts.get("EXTEND", []):
+        code = bare(fqdn)
+        was = held_docs.get(code)
+        if was is None:
+            out.append(f"{fqdn} is amended and the composition does not hold it")
+            continue
+        if code in reached:
+            name = reached[code][0]
+            gen = resolve_generator(name)
+            if gen.needs_root and ctx.domain_root is None:
+                out.append(f"{fqdn} is generated by {name}, which needs --root to show what it "
+                           f"would write; it cannot be compared without it")
+                continue
+            if name not in previews:
+                previews[name] = gen.preview(ctx)
+            now = previews[name].get(code)
+            if now is None:
+                out.append(f"{fqdn} is generated by {name}, which cannot show it before writing "
+                           f"it, so it cannot be compared")
+                continue
+        else:
+            now = by_code.get(code)
+            if now is None:
+                continue  # a family with no builder is reported as unrenderable
+        changed = sameness.differences(was, now, decl, successor)
+        if changed:
+            out.append(f"{fqdn} changes meaning under its identity at {len(changed)} place(s): "
+                       f"{', '.join(changed[:4])}{' …' if len(changed) > 4 else ''} — a change of "
+                       f"meaning is a new identity: author its successor and REPLACE this one")
+
+    for fqdn in acts.get("REPOINT", []):
+        text = _held(fqdn, snapshot_root)
+        if text is None:
+            out.append(f"{fqdn} is re-pointed and the composition does not hold it")
+            continue
+        was = sameness.machine(text)
+        now = sameness.machine(sameness.repoint(text, successor))
+        if now == was:
+            out.append(f"{fqdn} is re-pointed and names nothing this design replaces")
+            continue
+        changed = sameness.differences(was, now, decl, successor)
+        if changed:
+            out.append(f"{fqdn} would change more than its references if re-pointed, at "
+                       f"{', '.join(changed[:4])} — restate it as an amendment or replace it")
+
+    accounted = set(touched)
+    for fqdn in acts.get("REPLACE", []):
+        for referrer in _referrers(fqdn, snapshot_root):
+            if referrer not in accounted and not _stood_down(referrer, snapshot_root):
+                out.append(f"{fqdn} is replaced and {referrer} still names it — REPLACE, EXTEND "
+                           f"or REPOINT {referrer} in this design")
+    return out
+
+
+def _report_refusals(refusals: list[str]) -> None:
+    click.echo("\n  REFUSED — this design cannot be built under the identities it keeps:", err=True)
+    for line in refusals:
+        click.echo(f"      {line}", err=True)
+
 
 @main.group()
 def construction() -> None:
@@ -601,27 +674,11 @@ def construction_check(dossier: Path, threshold: float, as_json: bool,
         click.echo(f"\n  Construction Completeness  {result.percentage:.1f}%"
                    f"   ({result.determined}/{result.total} determined)")
 
-        lost = _narrowed(p7, p8, snapshot_root, dossier)
-        unfounded = {}
-        if lost is not None:
-            lost, unfounded = withdraw(lost, _withdrawals(p7))
-        if lost is None:
-            click.echo("  note: pass --snapshot to check that no amendment narrows what it replaces",
-                       err=True)
-        elif unfounded:
-            click.echo("\n  WITHDRAWAL UNFOUNDED — these withdrawals name a place where nothing is lost:")
-            for code, places in sorted(unfounded.items()):
-                for place in places:
-                    click.echo(f"      {code:<44} {place}")
-            sys.exit(1)
-        elif lost:
-            click.echo("\n  AMENDMENT NARROWS — these facts exist now and the design does not state them:")
-            for code, facts in sorted(lost.items()):
-                click.echo(f"      {code:<44} {len(facts)} fact(s) lost")
-                for fact in facts[:4]:
-                    click.echo(f"          {fact}")
-                if len(facts) > 4:
-                    click.echo(f"          ... and {len(facts) - 4} more")
+        refusals = _meaning_refusals(
+            p7, p8, snapshot_root,
+            GeneratorContext(p7=p7, p8=p8, domain_root=domain_root, snapshot_root=snapshot_root))
+        if refusals:
+            _report_refusals(refusals)
             sys.exit(1)
         for name, n in result.undetermined.most_common():
             click.echo(f"    {n:>3}  {name}")
@@ -765,6 +822,14 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
             click.echo(f"    {count:>3}  {path}", err=True)
         sys.exit(1)
 
+    # Nothing is written until the design keeps every identity it keeps: amendments compared,
+    # re-points confined to references, and every referrer of a replacement accounted for.
+    refusals = _meaning_refusals(p7, p8, snapshot_root, context)
+    if refusals:
+        _report_refusals(refusals)
+        click.echo("  Nothing written.", err=True)
+        sys.exit(1)
+
     # An amendment replaces a document that may carry descriptions no register can state. `check`
     # measures the design with them carried forward, so emit writes it the same way — from the
     # document it is replacing — or what was measured is not what is written.
@@ -803,6 +868,18 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
         click.echo(f"    --root takes the domain, not the repository that holds it.", err=True)
         sys.exit(1)
 
+    # A design builds one domain. Every artifact it re-points must be in this one, and that is
+    # established before anything is written.
+    successor = sameness.successors(supersessions(p7))
+    repoint_targets: list[Path] = []
+    for fqdn in _inventory(p7).get("REPOINT", []):
+        matches = sorted(domain_root.rglob(f"{bare(fqdn)}.md"))
+        if not matches:
+            click.echo(f"REFUSED — {fqdn} is re-pointed and is not in {domain_root}; a design builds "
+                       f"one domain, so it moves in its own. Nothing written.", err=True)
+            sys.exit(1)
+        repoint_targets.extend(matches)
+
     clashes = [path for path, _ in planned if path.exists()]
     if clashes and not force:
         click.echo(f"REFUSED — {len(clashes)} artifact(s) already exist; pass --force to "
@@ -836,6 +913,15 @@ def construction_emit(dossier: Path, domain_root: Path, force: bool, threshold: 
             target.write_text(mark_superseded(target.read_text(encoding="utf-8"), successors),
                               encoding="utf-8")
             click.echo(f"    {target.relative_to(domain_root)}   ← {', '.join(successors)}")
+
+    # A re-point rewrites the names of what this design replaces, in a document it otherwise leaves
+    # alone. Checked above against the composition; its targets were found before anything was written.
+    if repoint_targets:
+        click.echo(f"\n  re-pointed {len(repoint_targets)} artifact(s)")
+    for target in repoint_targets:
+        target.write_text(sameness.repoint(target.read_text(encoding="utf-8"), successor),
+                          encoding="utf-8")
+        click.echo(f"    {target.relative_to(domain_root)}")
 
     # A generated artifact is reached, not written. None of the paths above is one of them —
     # `render_all` never produced them, because a renderer that produced the file and then discarded

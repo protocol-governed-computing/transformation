@@ -49,7 +49,7 @@ SEALED_IN = {
     "p4": "WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0.md",
     "p5": "WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0.md",
     "p6": "WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0.md",
-    "p7": "WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0.md",
+    "p7": "WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1.md",
     "p8": "WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0.md",
 }
 
@@ -553,13 +553,17 @@ def emit_contract(relative: str, outcomes: tuple[str, ...],
                     rules=rules, drifted=drifted), updated
 
 
-def emit(snapshot_root: str | Path, check_only: bool = False) -> list[Emission]:
+def emit(snapshot_root: str | Path, check_only: bool = False,
+         texts: dict[str, str] | None = None) -> list[Emission]:
     """Bring every judging contract, then every phase workflow, into agreement with its sources.
 
     Contracts first: a workflow's routing is generated from its judging contract's declared outcomes,
     so the contract must already say what it can end with. Under `check_only` nothing is written and
     the drift is reported instead, which is what a build gate needs: the question "does the
     composition already agree with its generator" has to be answerable without changing the answer.
+
+    `texts`, when given, receives each artifact as the generator determines it, by code, so a
+    caller can compare it with the composition before anything is written.
     """
     out: list[Emission] = []
     contracts: dict[str, str] = {}
@@ -567,6 +571,8 @@ def emit(snapshot_root: str | Path, check_only: bool = False) -> list[Emission]:
     for relative in JUDGE_CONTRACTS:
         emission, text = emit_contract(relative, outcomes, check_only)
         contracts[pathlib.Path(relative).stem] = text
+        if texts is not None:
+            texts[pathlib.Path(relative).stem] = text
         out.append(emission)
     for phase_id, filename in SEALED_IN.items():
         path = WORKFLOWS / filename
@@ -580,8 +586,17 @@ def emit(snapshot_root: str | Path, check_only: bool = False) -> list[Emission]:
         drifted = updated != current
         if drifted and not check_only:
             path.write_text(updated, encoding="utf-8")
+        if texts is not None:
+            texts[filename[:-len(".md")]] = updated
         out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted))
     return out
+
+
+def preview(snapshot_root: str | Path) -> dict[str, str]:
+    """Every artifact this generator produces, as it would write it, by code. Writes nothing."""
+    texts: dict[str, str] = {}
+    emit(snapshot_root, check_only=True, texts=texts)
+    return texts
 
 
 def emit_rule_sets(snapshot_root: str | Path) -> list[Emission]:

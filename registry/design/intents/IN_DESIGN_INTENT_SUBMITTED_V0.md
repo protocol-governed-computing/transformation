@@ -23,7 +23,7 @@ concern: design
 
 core:
   summary: Offer a Design Intent register for admissibility judgement
-  workflow: WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
+  workflow: WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
 
   inputs:
     register_text:

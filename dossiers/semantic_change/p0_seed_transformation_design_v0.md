@@ -26,9 +26,8 @@ nothing about what any particular change should do.
 <!-- register:cr_type business_language -->
 | Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
 |-----------|----------------|-----------|
-| design | MODIFY | A design cannot say that it re-points a reference without restating the artifact that holds it. |
-| build | MODIFY | Construction builds an amendment that changes meaning, and does not ask what a replaced artifact reaches. |
-| artifact | MODIFY | The platform does not declare which parts of a declaration name another artifact, nor that explanation is exempt only where it is text. |
+| design | MODIFY | A design cannot re-point a reference without restating the artifact that holds it, and may withdraw a fact from an artifact it amends. |
+| build | MODIFY | Construction builds an amendment that changes meaning, skips the comparison without the composition, and does not ask what a replaced artifact reaches. |
 
 ## 2. Business Vocabulary
 
@@ -37,10 +36,10 @@ nothing about what any particular change should do.
 |------|------------|
 | Amendment | A change that restates an artifact under the identity it has. |
 | Replacement | A change that gives an artifact a new identity standing in for the old one. |
-| Meaning | What a declaration commits the artifact to, which is everything the platform does not declare explanation or unordered. |
+| Meaning | What a declaration commits the artifact to, read by the rules the platform declares. |
 | Referrer | An artifact that names another. |
 | Re-point | Changing which artifact a referrer names, and nothing else about it. |
-| Reference part | A part of a declaration whose value names another artifact. |
+| Reference part | A part of a declaration the platform declares names another artifact. |
 | Caller | Something outside the composition that names an artifact, such as a request sent to it. |
 
 ## 3. Requested Outcomes
@@ -48,9 +47,9 @@ nothing about what any particular change should do.
 <!-- register:requested_outcomes business_language -->
 | Outcome |
 |---------|
-| The platform declares which parts of a declaration name another artifact, and that a reference now naming the declared successor of what it named is not a change of meaning. |
-| The platform declares that a part declared explanation is exempt only where its value is text. |
 | An amendment that changes what an artifact means is refused when it is built. |
+| An amendment that cannot be compared with the composition is refused when it is built. |
+| A design can no longer withdraw a fact from an artifact it amends. |
 | A design can re-point a reference to a replaced artifact without restating the artifact that holds it. |
 | A design that leaves a reference to an artifact it replaces unaccounted for is refused when it is built. |
 
@@ -64,7 +63,8 @@ nothing about what any particular change should do.
 | A reference to a replaced artifact is re-pointed or retired. | HIGH |
 | Re-pointing keeps the referring artifact's identity. | HIGH |
 | A caller outside the composition moves itself, and a change lists the callers it knows of. | HIGH |
-| A part declared explanation is exempt only where its value is text. | HIGH |
+| What carries no meaning, what names another artifact, and how two declarations are compared are the platform's declaration. | HIGH |
+| A withdrawal from an amended artifact is a change of meaning. | HIGH |
 
 ## 5. Existing-System Beliefs — Requiring Verification
 
@@ -73,9 +73,9 @@ nothing about what any particular change should do.
 <!-- register:system_beliefs business_language -->
 | Belief | Why It Matters | Verification Goal |
 |--------|----------------|-------------------|
-| Construction compares an amendment with the artifact it restates only for what the amendment would lose. | A change of meaning that adds or alters something is built. | Establish what construction compares. |
+| Construction compares an amendment with the artifact it restates only for what the amendment would lose, and only when handed the composition. | A change of meaning that adds or alters something is built, and so is any amendment built without the composition. | Establish what construction compares, and when. |
 | A design can name a referrer only by restating it. | A referrer the design language cannot express cannot be re-pointed. | Establish which actions a design may take on an artifact it holds. |
-| The platform's declaration does not say which parts name another artifact. | Without it, a re-point reads as a change of meaning, and every replacement ripples upward. | Establish what the declaration holds and what consults it. |
+| The composition's record of references names every artifact that names another. | A replacement learns what it reaches from that record. | Establish that inspection reports every referrer. |
 | Nothing in the design checks what a replaced artifact reaches. | The compiler refuses late, after the design is approved. | Establish where references to a replaced artifact are first refused. |
 
 ## 6. Assumptions
@@ -108,8 +108,6 @@ nothing about what any particular change should do.
 |--------|-------|---------|
 | Artifact | In force | Reachable and referable. Unchanged by this change. |
 | Artifact | Replaced | Stood down by a successor and out of reach. Unchanged by this change. |
-| Declaration of what carries no meaning | In force | Consulted when two declarations are compared. |
-| Declaration of what carries no meaning | Replaced | Stood down by the version this change adds. |
 
 ## 10. Business Events
 
@@ -125,6 +123,7 @@ nothing about what any particular change should do.
 |-----------------|---------------------|
 | Which parts of a declaration carry no meaning | The platform's artifact subdomain |
 | Which parts of a declaration name another artifact | The platform's artifact subdomain |
+| How two declarations are compared | The platform's artifact subdomain |
 | Whether a design may be built | Build |
 | What a design may say | Design |
 
@@ -134,7 +133,7 @@ nothing about what any particular change should do.
 | Item | Reason |
 |------|--------|
 | Deciding which past changes altered meaning | The next change. |
-| Comparing a whole composition with the one last cited | The release process. |
+| Comparing a whole composition with the one last published | Not part of this change. |
 | Moving callers outside the composition | Each caller moves itself. |
 
 ## 13. Governance Scope
@@ -144,7 +143,7 @@ nothing about what any particular change should do.
 |------------|--------------|
 | design | MODIFIED |
 | build | MODIFIED |
-| artifact | MODIFIED |
+| artifact | ADJACENT |
 
 ## 14. Clarification Requests
 
@@ -158,14 +157,15 @@ nothing about what any particular change should do.
 <!-- register:acceptance_criteria business_language -->
 | Criterion |
 |-----------|
-| The platform's declaration names every part of a declaration that names another artifact, and states that explanation is exempt only where it is text. |
-| The new declaration replaces the old one, which stays retained and out of reach. |
 | An amendment that adds, removes or alters anything that carries meaning is refused when it is built, and the refusal names what changed. |
 | An amendment that changes only explanation, or only the order of an unordered list, is built. |
 | An amendment that changes a part declared explanation from text to anything else is refused. |
 | A re-point that names the declared successor of what it named is built, and the referrer keeps its identity. |
 | A design re-points a reference without restating the referrer, and only that reference changes. |
 | A design that replaces an artifact and leaves one of its referrers unaccounted for is refused when it is built, and the refusal names the referrer. |
+| An amendment built without the composition is refused, and the refusal says why. |
+| A design that withdraws a fact is refused. |
+| A comparison is refused when the platform declares a rule it does not apply. |
 | Every delivered design that keeps meaning builds exactly as it does today. |
 
 ## 16. Identity and Sameness
@@ -180,7 +180,7 @@ nothing about what any particular change should do.
 <!-- register:lifecycle_transitions business_language optional -->
 | Object | From State | To State | Triggered By | Cascade |
 |--------|------------|----------|--------------|---------|
-| Declaration of what carries no meaning | In force | Replaced | This change adds its successor | Every reference to it is re-pointed to the successor |
+| NONE IDENTIFIED | | | | |
 
 ## 18. Operation Refusals
 
@@ -188,6 +188,8 @@ nothing about what any particular change should do.
 | Operation | Refused When | Business Reason |
 |-----------|--------------|-----------------|
 | Building a design | An amendment changes what an artifact means | A change of meaning is a new identity. |
+| Building a design | An amendment cannot be compared with the composition | An uncompared amendment could change meaning unseen. |
+| Building a design | A design withdraws a fact from an artifact it amends | A withdrawal is a change of meaning. |
 | Building a design | A reference to an artifact it replaces is left unaccounted for | A reference to a replaced artifact is re-pointed or retired. |
 
 ## 19. Authority Deferrals

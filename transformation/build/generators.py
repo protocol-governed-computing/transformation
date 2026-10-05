@@ -68,6 +68,10 @@ class Generator:
     invoke: Callable[[Context], list[Path]]
     stale: Callable[[Context], list[str]]
     summary: str
+    # Each artifact as the generator would write it, by code, without writing. Construction compares
+    # a generated amendment with the composition before anything is written, as it does a rendered
+    # one: an amendment that changes meaning is refused whoever produces it.
+    preview: Callable[[Context], dict[str, dict]] = lambda ctx: {}
     # Whether the generator can answer at all without a domain to write into. Declared rather than
     # discovered, so a caller that cannot supply one reports that the question went unasked instead
     # of reading an empty answer as agreement.
@@ -98,6 +102,14 @@ def _phase_workflows_invoke(ctx: Context) -> list[Path]:
 
 def _phase_workflows_stale(ctx: Context) -> list[str]:
     return [e.filename for e in phase_emit.check(ctx.snapshot_root)]
+
+
+def _phase_workflows_preview(ctx: Context) -> dict[str, dict]:
+    out: dict[str, dict] = {}
+    for code, text in phase_emit.preview(ctx.snapshot_root).items():
+        found = MACHINE_BLOCK.search(text)
+        out[code] = (yaml.safe_load(found.group(1)) or {}) if found else {}
+    return out
 
 
 # The domain build manifest -----------------------------------------------------------------------
@@ -135,6 +147,11 @@ def _build_manifest_invoke(ctx: Context) -> list[Path]:
     return [path]
 
 
+def _build_manifest_preview(ctx: Context) -> dict[str, dict]:
+    manifest, _ = _manifest(ctx)
+    return {} if manifest is None else {manifest["fqdn"].split("::")[-1]: manifest}
+
+
 def _build_manifest_stale(ctx: Context) -> list[str]:
     """Whether the manifest on disk is what the mandate determines.
 
@@ -157,6 +174,7 @@ GENERATORS: dict[str, Generator] = {
         name=phase_emit.GENERATOR,
         invoke=_phase_workflows_invoke,
         stale=_phase_workflows_stale,
+        preview=_phase_workflows_preview,
         summary="the phase workflows and the rule set each of them seals",
         needs_snapshot=True,
     ),
@@ -164,6 +182,7 @@ GENERATORS: dict[str, Generator] = {
         name=MANIFEST_GENERATOR,
         invoke=_build_manifest_invoke,
         stale=_build_manifest_stale,
+        preview=_build_manifest_preview,
         summary="the domain build manifest, derived from the domain, its subdomains and its families",
         needs_root=True,
         derived_from_design=True,

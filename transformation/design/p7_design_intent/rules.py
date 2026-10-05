@@ -1489,23 +1489,20 @@ MOLECULE_RULES: list[Rule] = [
 # What a case must say about its transform — outputs it declares, assertion forms, recorded results
 # for exactly its non-deterministic steps — is the compiler's to refuse, against the transform as
 # sealed. Stating it here too would be a second authority on the same rule.
-# An amendment is rendered whole, so what it does not state it loses. `withdrawn_facts` is where a
-# design says a loss is its decision; whether each withdrawal names a fact that is really lost is
-# construction's to judge, because only construction renders the artifact that loses it.
+# A withdrawal is a change of meaning (`4e` SU-11), and an amendment keeps meaning, so no design may
+# withdraw a fact. The register stays declared, so the registers every phase may cite are unchanged;
+# it must carry no row. A fact removed is a new artifact the old one is replaced by.
 WITHDRAWAL_RULES: list[Rule] = [
     Rule(
-        id="WITHDRAWAL_NOT_AN_AMENDMENT",
-        check="CELL_RESOLVES_IN_REGISTER",
+        id="WITHDRAWAL_IS_A_CHANGE_OF_MEANING",
+        check="TABLE_ROW_COUNT",
         register="withdrawn_facts",
         params={
-            "column": "Artifact",
-            "target_register": "existing_inventory",
-            "target_column": "FQDN",
-            "target_only_when_column": "Action",
-            "target_only_when_value": "EXTEND",
-            "detail": "a fact is withdrawn only from an artifact this design extends",
+            "maximum": 0,
+            "detail": "a withdrawal changes what an artifact means — author its successor and "
+                      "REPLACE it instead",
         },
-        intent="only an amendment has facts to withdraw",
+        intent="an amendment withdraws nothing; a change of meaning is a new identity",
     ),
 ]
 
@@ -1625,8 +1622,8 @@ def rule_set() -> list[Rule]:
         + REFUSAL_RULES
         + EMISSION_RULES
         + MOLECULE_RULES
-        + VECTOR_RULES
         + WITHDRAWAL_RULES
+        + VECTOR_RULES
         + event_naming_rules("new_artifacts", "Code")
         + governed_hole_rules()
         + dossier_header_rules()
