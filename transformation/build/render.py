@@ -641,10 +641,13 @@ def _binding(bound_to: str) -> str:
     the execution surface, which is construction's business and not the designer's.
     """
     if bound_to.startswith(("{", "[")):
+        # A value written as an object or a list that does not parse is not a string: keeping it as
+        # one handed the runtime a literal the design never meant (`3c` RT-6).
         try:
             return ast.literal_eval(bound_to)
-        except (ValueError, SyntaxError):
-            return bound_to
+        except (ValueError, SyntaxError) as exc:
+            raise ValueError(f"binding {bound_to!r} is written as an object or a list and does not "
+                             f"parse: {exc}") from exc
     if bound_to.startswith(("payload.", "results.", "inputs.", "capability_result.", "result_status")):
         return f"$.{bound_to}"
     return _literal(bound_to)
