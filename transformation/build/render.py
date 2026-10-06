@@ -762,7 +762,7 @@ def _exit_statuses(pipeline: list[dict]) -> list[str]:
 
     Derived from the routing rather than from `Semantic Status`. The two are not the same set — a
     step's own operation can exit on a status the design never named semantically, and
-    `ASSERT_TOPOLOGY_CONTRACT_CLOSED_V0` requires the contract to be closed over *exits*: an
+    `ASSERT_TOPOLOGY_CONTRACT_CLOSED_V1` requires the contract to be closed over *exits*: an
     uncontracted exit and an unreachable contracted code are both violations. Deriving from the
     semantic column produced exactly the first when a READ began exiting on NOT_FOUND.
 
