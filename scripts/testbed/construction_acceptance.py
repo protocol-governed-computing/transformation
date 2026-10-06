@@ -80,6 +80,9 @@ DOMAINS = (
      WORKSPACE / "software_governance/registry", False),
     (WORKSPACE / "transformation/dossiers",
      WORKSPACE / "transformation/registry", False),
+    # The Collatz workload predates the lifecycle too; cr_01 is its first change through it.
+    (WORKSPACE / "conformance_workloads/workloads/collatz/cr_dossiers",
+     WORKSPACE / "conformance_workloads/workloads/collatz/registry", False),
 )
 
 # The catalog's entry above overrides what discovery would find, and only that one: its dossiers are
