@@ -83,7 +83,7 @@ PHASES = {
         ],
     },
     "P2": {
-        "wf": "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0",
+        "wf": "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1",
         "rules": p2_rule_set,
         # P2 grounds claims against the composition, so the differential must supply the same
         # observation the compiled workflow gathers. Comparing two ungrounded runs would agree
@@ -97,7 +97,7 @@ PHASES = {
         ],
     },
     "P3": {
-        "wf": "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0",
+        "wf": "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1",
         "rules": p3_rule_set,
         # Two observations, answering different questions: does this identity exist, and may this
         # domain be drawn on at all. A differential that supplied only the first would agree with
@@ -109,7 +109,7 @@ PHASES = {
         ],
     },
     "P4": {
-        "wf": "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0",
+        "wf": "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1",
         "rules": p4_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -118,7 +118,7 @@ PHASES = {
         ],
     },
     "P5": {
-        "wf": "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0",
+        "wf": "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1",
         "rules": p5_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -127,7 +127,7 @@ PHASES = {
         ],
     },
     "P6": {
-        "wf": "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0",
+        "wf": "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1",
         "rules": p6_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -136,7 +136,7 @@ PHASES = {
         ],
     },
     "P7": {
-        "wf": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0",
+        "wf": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1",
         "rules": p7_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -145,7 +145,7 @@ PHASES = {
         ],
     },
     "P8": {
-        "wf": "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0",
+        "wf": "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1",
         "rules": p8_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [

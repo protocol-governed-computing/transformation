@@ -62,7 +62,7 @@ tc phase rules --phase p1                  # the declared rule set
 tc phase project <prior.md> --phase p1 --out <doc.md>       # phases that decide nothing
 
 tc phase meta                              # do the rule sets themselves hold?
-tc phase emit --check                      # are the sealed workflows current?
+tc phase emit --snapshot $W/snapshot --check   # are the sealed workflows current?
 
 tc baseline show --snapshot <root>                 # the composition present, as a pin
 tc baseline verify <pin.json> --snapshot <root>
@@ -101,15 +101,17 @@ $W/protocol_compiler/compile_domain.sh $W/business_domains/book_library_mgmt
 PGC_SNAPSHOT_PROFILE=GOVERNANCE_SURFACE_PROFILE_V0 $W/snapshot_assembler/assemble.sh
 ```
 
-`--snapshot` on the check is not optional in practice. Completeness never looks at what already
-exists, so an artifact inventoried `EXTEND` is rendered whole and replaces its predecessor — a design
-stating only the delta deletes the rest, at 100% completeness. The flag is what runs the narrowing
-check; without it that check does not run, and says so.
-
-A fact the change means to remove is **withdrawn** in P7's `withdrawn_facts`, with its reason: a
-withdrawal is subtracted from what the amendment loses, an omission is still refused, and a withdrawal
-covering nothing lost is refused as unfounded. Descriptions no register can state are carried from
-the document being replaced, by `check` when it measures and by `emit` when it writes.
+`--snapshot` is required whenever a design amends, replaces or re-points anything; without it
+`check` and `emit` refuse. **A change of meaning is a new identity.** Each amendment — rendered, or
+generated and previewed before it is written — is compared with the artifact the composition holds,
+by the platform's declaration in `artifact::VOCAB_DECLARATION_REPRESENTATION_V1`: explanation is
+ignored where it is text, a list declared unordered is a set, and a reference re-pointed to the
+declared successor of what it named is the same reference. Any other difference is refused, and the
+design authors a successor and `REPLACE`s the artifact instead. P7 refuses a withdrawal for the same
+reason. A `REPOINT` row rewrites, in an artifact the design otherwise leaves alone, the names of what
+the design replaces; every live artifact naming a replaced one must be `REPLACE`d, `EXTEND`ed or
+`REPOINT`ed by the design, read from `si.artifact.refs`. Descriptions no register can state are
+carried from the document being replaced, by `check` when it measures and by `emit` when it writes.
 
 **Transforms carry their cases.** P7's `test_cases` and `test_case_values` state what a transform is
 handed and what it must answer; construction renders them as `TEST_DATA` beside the transform, and
@@ -133,8 +135,8 @@ the declaration alone leaves `tc phase check` and the governed workflow evaluati
 sets:
 
 ```bash
-tc phase emit --check                                  # names the drifted phase
-python $W/transformation/scripts/emit_rule_sets.py     # re-seal
+tc phase emit --snapshot $W/snapshot --check           # names the drifted phase
+python $W/transformation/scripts/emit_rule_sets.py --snapshot $W/snapshot   # re-seal
 $W/protocol_compiler/compile_domain.sh $W/transformation
 PGC_SNAPSHOT_PROFILE=GOVERNANCE_SURFACE_PROFILE_V0 $W/snapshot_assembler/assemble.sh
 python $W/transformation/scripts/testbed/build_fixtures.py

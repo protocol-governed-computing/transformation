@@ -92,7 +92,11 @@ def typed_fields(design: dict, code: str, direction: str) -> dict:
     for row in rows(design, "interface_fields"):
         if bare(cell(row, "Artifact")) != bare(code) or cell(row, "Direction") != direction:
             continue
-        spec: dict[str, Any] = {"type": cell(row, "Type") or "string"}
+        # A format is written after the type, `string (date-time)`, as the artifacts' own prose
+        # tables write it. Without it an amended contract could not keep a format it already had.
+        typed = re.fullmatch(r"\s*(\w+)\s*\(\s*([\w-]+)\s*\)\s*", cell(row, "Type") or "")
+        spec: dict[str, Any] = ({"type": typed.group(1), "format": typed.group(2)} if typed
+                                else {"type": cell(row, "Type") or "string"})
         if cell(row, "Required") == "YES":
             spec["required"] = True
         default = cell(row, "Default")
@@ -483,12 +487,23 @@ def _vector_value(value: str) -> Any:
         return value
 
 
+def _declared_version(code: str) -> str:
+    """The version an identity declares, as its `_V<n>` suffix states it."""
+    match = re.search(r"_V(\d+)$", bare(code))
+    if not match:
+        raise ValueError(f"{code} declares no version: an identity ends in _V<n>")
+    return f"v{match.group(1)}"
+
+
 def _render(fam, code, short, summary, sub, p7, p8, declared_empty=None,
             supersedes: list[str] | None = None, supplied: dict | None = None) -> dict:
     machine: dict[str, Any] = {
         "fqdn": code,
         "artifact_kind": KIND[fam],
-        "version": "v0",
+        # The version the design declared, which is the suffix of the identity it assigned. A literal
+        # here sealed every successor as `v0`: a `_V1` replacing its predecessor read as the same
+        # version as what it replaced.
+        "version": _declared_version(code),
         "governed_by": GOVERNED_BY[fam],
         # Authority and concern are declared carriers, never derived from the identifier or the
         # source directory (GO-11, MB-7, ID-12, `2e` CA-1). `concern` is the design's own subdomain
@@ -626,10 +641,13 @@ def _binding(bound_to: str) -> str:
     the execution surface, which is construction's business and not the designer's.
     """
     if bound_to.startswith(("{", "[")):
+        # A value written as an object or a list that does not parse is not a string: keeping it as
+        # one handed the runtime a literal the design never meant (`3c` RT-6).
         try:
             return ast.literal_eval(bound_to)
-        except (ValueError, SyntaxError):
-            return bound_to
+        except (ValueError, SyntaxError) as exc:
+            raise ValueError(f"binding {bound_to!r} is written as an object or a list and does not "
+                             f"parse: {exc}") from exc
     if bound_to.startswith(("payload.", "results.", "inputs.", "capability_result.", "result_status")):
         return f"$.{bound_to}"
     return _literal(bound_to)
@@ -907,8 +925,7 @@ def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None, suppl
     which emptiness this is. Without that a vocabulary nobody finished and one deliberately rooted
     look identical, and only one of them is designed.
     """
-    entries = [cell(r, "Value") for r in rows(p7, "vocabulary_extensions")
-               if bare(cell(r, "Vocabulary Code")) == short]
+    own = [r for r in rows(p7, "vocabulary_extensions") if bare(cell(r, "Vocabulary Code")) == short]
     extends = next((cell(r, "Extends") for r in rows(p7, "vocabulary_extensions")
                     if bare(cell(r, "Vocabulary Code")) == short), "")
     if extends in ("—", "-", "NONE"):
@@ -917,21 +934,24 @@ def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None, suppl
             declared_empty.append("extends")
     m.pop("core", None)
     m["extends"] = extends
-    # The group these values belong to and the spelling they must take. Both were literals for as
-    # long as every vocabulary rendered was a result status, and the first one that was not carried
-    # a group it does not belong to and a spelling its values do not have — the platform refused it.
-    # No register states either, so both are reported as the renderer's own until one does.
-    group = cell(next((r for r in rows(p7, "vocabulary_extensions")
-                       if bare(cell(r, "Vocabulary Code")) == short), {}), "Group") or "result_status"
-    casing = cell(next((r for r in rows(p7, "vocabulary_extensions")
-                        if bare(cell(r, "Vocabulary Code")) == short), {}), "Casing") or "UPPER_SNAKE"
-    if not _stated(p7, short, "Casing"):
-        _supplied(supplied, f"{group}.casing")
-    # The group name is undesigned too, and is not reported here. It is a key rather than a value,
-    # so no leaf *is* it — recording it as one would mark the whole subtree beneath it supplied,
-    # which would slander every entry the design did state. A leaf-walking measure cannot see a
-    # fact that is a path, and this is the one place that limit bites today.
-    m[group] = {"casing": casing, "entries": entries}
+    # The group each value belongs to and the spelling it must take. Both were literals for as long
+    # as every vocabulary rendered was a result status, and the first one that was not carried a
+    # group it does not belong to and a spelling its values do not have — the platform refused it.
+    #
+    # Each row states its own group, and a vocabulary may declare several. Reading the group from the
+    # first row put every entry under it: a vocabulary of two groups was sealed as one, every value
+    # still present, and the measure counted it determined because it reads values, not where they
+    # sit. So the groups are rendered as the rows state them, in the order they first appear.
+    #
+    # The group name is a key rather than a value, so no leaf *is* it — recording it as supplied
+    # would mark the whole subtree beneath it, which would slander every entry the design stated.
+    for r in own:
+        group = cell(r, "Group") or "result_status"
+        if group not in m:
+            if not cell(r, "Casing"):
+                _supplied(supplied, f"{group}.casing")
+            m[group] = {"casing": cell(r, "Casing") or "UPPER_SNAKE", "entries": []}
+        m[group]["entries"].append(cell(r, "Value"))
 
 
 def _structure(m, code, short, summary, sub, p7, p8, supplied=None):

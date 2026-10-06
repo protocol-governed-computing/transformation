@@ -1,4 +1,4 @@
-# WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0
+# WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1
 
 ## Generated Artifact
 
@@ -8,8 +8,9 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 
 - **Generator:** `transformation.design.emit:emit_rule_sets`
 - **Generator sources** — one generator together, never separately:
-  - `templates/p2_domain_model_template_v0.md`
-  - `transformation/design/p2_domain_model/rules.py`
+  - `templates/p6_governance_intent_template_v0.md`
+  - `transformation/design/p6_governance_intent/rules.py`
+  - `registry/design/capability_contracts/CC_JUDGE_AGAINST_SNAPSHOT_V1.md`
 
 To change what this phase judges, amend a source and invoke the generator.
 `tc phase emit --check` refuses a build in which the two disagree.
@@ -18,51 +19,41 @@ To change what this phase judges, amend a source and invoke the generator.
 
 ## 1. Intent
 
-Phase 2 of the change pipeline: decide whether an offered Domain Model register is admissible.
+Phase 6 of the change pipeline: decide whether an offered Governance Intent register is admissible.
 
-P2 is the first phase that **looks**. P0 and P1 judge a document against itself — structure,
-vocabulary, traceability — and can reach a verdict without knowing anything about the system. P2
-cannot: a register claiming an artifact already exists is making a claim about the assembled
-composition, and only observation settles it.
-
-So this workflow composes `CC_JUDGE_AGAINST_SNAPSHOT_V0` rather than `CC_JUDGE_DOCUMENT_V0`. The
-difference is one governed observation step, bound to the snapshot this workflow executes from.
+P6 answers WHERE — which subdomain owns each capability, which owns each store, and what crosses a
+boundary. It is the phase that draws lines.
 
 ---
 
-## 2. The first handoff this pipeline checks
+## 2. The ladder does not simply accumulate
 
-P2 is also the first phase judged against the document it was handed. P1 declares what the author
-believes the system already provides; P2's spine resolves each of those beliefs, and until now
-nothing established that the two registers were about the same beliefs.
+Stage 5 requires provisional artifact codes; this stage forbids them. That looks like a step
+backwards and is not: each rung admits its *own* vocabulary rather than everything below it. P6's
+vocabulary is placement, so a capability here is named in business language and placed in a
+subdomain. A row naming a provisional code has answered a question this stage is not asking and
+pre-empted one Stage 7 owns.
 
-A dropped belief is invisible from either side. P1 never sees P2. P2's register is well formed with
-two rows or with three. The defect exists only in the gap, so the rule needs both documents — which
-is why this workflow takes `prior_texts` alongside the register it judges.
+Existing artifacts stay citable by exact FQDN at every rung, because citing what already exists is
+observation rather than design — which is why this workflow grounds.
 
----
+## 3. What ownership exclusivity means here
 
-## 3. Grounding, and what it deliberately does not flag
-
-Cited identities are classified against the observed composition by the identity-preserving
-taxonomy: exact, typo-alias, wrong-domain, proposed-new, fabrication. Only a misspelling or a
-wrong namespace is reported.
-
-An identity absent from the baseline is **not** a finding. Every change request that designs
-anything proposes identities that do not exist yet, and proposed-new cannot be told from fabricated
-without the CR's declared new artifacts — which arrive at P7. Counting what was not found would
-reject every correct dossier for doing its job.
+A store is written only by capabilities of the subdomain that owns it. When a change needs a peer's
+store written, the writing capability belongs to that peer and is declared as a dependency gap.
+That is not visible in any single cell, so what is checked is the discipline that makes it
+visible: a dependency states its direction, a satisfied one names the artifact that satisfies it,
+and every capability in the outcome was placed in the ownership register first.
 
 ---
 
 ## Machine
 
 ```yaml
-fqdn: transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0
-superseded_by:
-- transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1
+fqdn: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1
+supersedes: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
-version: v0
+version: v1
 governed_by: workflow::CONSTITUTION_WORKFLOW_V0
 authority: pgc.platform
 concern: design
@@ -72,67 +63,75 @@ subdomain: design
 structure: execution::STRUCTURE_RUNTIME_EXECUTION_V0
 
 core:
-  summary: Decide whether an offered Domain Model register is admissible
+  summary: Decide whether an offered Governance Intent register is admissible
   actor_context: transformation::AC_REGISTER_AUTHOR_V0
 
-  start_node: IN_DOMAIN_MODEL_SUBMITTED_V0
+  start_node: IN_GOVERNANCE_INTENT_SUBMITTED_V0
 
   nodes:
-    IN_DOMAIN_MODEL_SUBMITTED_V0:
+    IN_GOVERNANCE_INTENT_SUBMITTED_V0:
       type: IN
-      code: IN_DOMAIN_MODEL_SUBMITTED_V0
+      code: IN_GOVERNANCE_INTENT_SUBMITTED_V0
       next:
         ACK: CC_JUDGE_AGAINST_SNAPSHOT_V0
         NACK: EXIT_REJECTED
 
     CC_JUDGE_AGAINST_SNAPSHOT_V0:
       type: CC
-      code: CC_JUDGE_AGAINST_SNAPSHOT_V0
+      code: CC_JUDGE_AGAINST_SNAPSHOT_V1
       inputs:
         document_text: $.payload.register_text
         prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: entities
+          register: ownership
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: entities
+          register: ownership
           params:
             columns:
-            - Entity
-            - Description
-            - Store Model
-            - Evidence Status
+            - Capability
+            - Owner Subdomain
+            - Disposition
+            - Existing Artifact
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: entities
+          register: ownership
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: ownership
+          params:
+            column: Disposition
+            vocabulary:
+            - OWNED
+            - SATISFIED
+            - DEFERRED
+          intent: Disposition is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
-          register: entities
+          register: ownership
           params:
             columns:
-            - Entity
-            - Description
-            - Store Model
+            - Capability
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
-          register: entities
+          register: ownership
           params:
             column: Source Finding
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
-          register: entities
+          register: ownership
           params:
             column: Source Finding
             known_registers: &id001
@@ -239,51 +238,49 @@ core:
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
-          register: entities
+          register: ownership
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: entity_attributes
+          register: storage_governance
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: entity_attributes
+          register: storage_governance
           params:
             columns:
-            - Entity
-            - Attribute
-            - Meaning
-            - Evidence Status
+            - Storage Need
+            - Purpose
+            - Subdomain
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
           check: TABLE_HAS_ROWS
-          register: entity_attributes
+          register: storage_governance
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
-          register: entity_attributes
+          register: storage_governance
           params:
             columns:
-            - Entity
-            - Attribute
-            - Meaning
+            - Storage Need
+            - Purpose
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
-          register: entity_attributes
+          register: storage_governance
           params:
             column: Source Finding
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
-          register: entity_attributes
+          register: storage_governance
           params:
             column: Source Finding
             known_registers: *id001
@@ -295,162 +292,54 @@ core:
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
-          register: entity_attributes
+          register: storage_governance
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: business_processes
+          register: cross_subdomain_deps
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: business_processes
+          register: cross_subdomain_deps
           params:
             columns:
-            - Process
-            - Initiator
-            - Outcome
-            - Evidence Status
+            - Dependency
+            - Direction
+            - Existing Artifact
+            - Status
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: business_processes
-          intent: an empty required register asserts nothing
-        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
-          check: CELL_TOKEN_ABSENT
-          register: business_processes
-          params:
-            columns:
-            - Process
-            - Initiator
-            - Outcome
-            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
-            detail: '{token!r} appears in business-language column {column!r} — this register states business
-              meaning, not design'
-          intent: business registers name no compiled artifact
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: business_processes
-          params:
-            column: Source Finding
-            detail: row cites no earlier finding — a phase restates its input, it does not add to it
-          intent: an uncited row has no provenance in the dossier
-        - id: SOURCE_FINDING_UNRESOLVED
-          check: SOURCE_FINDING_RESOLVES
-          register: business_processes
-          params:
-            column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
-          intent: a citation must name something this phase can actually cite
-        - id: CITATION_ORDINAL_UNRESOLVED
-          check: CITED_ORDINAL_RESOLVES
-          register: business_processes
-          params:
-            column: Source Finding
-          intent: an ordinal past the end of a register cites a finding that is not there
-        - id: REGISTER_MISSING
-          check: TABLE_PRESENT
-          register: process_steps
-          intent: a declared register must be present and readable as rows
-        - id: REGISTER_COLUMN_MISSING
-          check: TABLE_HAS_COLUMNS
-          register: process_steps
-          params:
-            columns:
-            - Process
-            - 'Step #'
-            - Action
-            - Record Produced
-            - Evidence Status
-            - Source Finding
-          intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: process_steps
-          intent: an empty required register asserts nothing
-        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
-          check: CELL_TOKEN_ABSENT
-          register: process_steps
-          params:
-            columns:
-            - Process
-            - 'Step #'
-            - Action
-            - Record Produced
-            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
-            detail: '{token!r} appears in business-language column {column!r} — this register states business
-              meaning, not design'
-          intent: business registers name no compiled artifact
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: process_steps
-          params:
-            column: Source Finding
-            detail: row cites no earlier finding — a phase restates its input, it does not add to it
-          intent: an uncited row has no provenance in the dossier
-        - id: SOURCE_FINDING_UNRESOLVED
-          check: SOURCE_FINDING_RESOLVES
-          register: process_steps
-          params:
-            column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
-          intent: a citation must name something this phase can actually cite
-        - id: CITATION_ORDINAL_UNRESOLVED
-          check: CITED_ORDINAL_RESOLVES
-          register: process_steps
-          params:
-            column: Source Finding
-          intent: an ordinal past the end of a register cites a finding that is not there
-        - id: REGISTER_MISSING
-          check: TABLE_PRESENT
-          register: belief_verification
-          intent: a declared register must be present and readable as rows
-        - id: REGISTER_COLUMN_MISSING
-          check: TABLE_HAS_COLUMNS
-          register: belief_verification
-          params:
-            columns:
-            - Belief
-            - Result
-            - Evidence
-            - Source Finding
-          intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: belief_verification
-          intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
           check: CELL_IN_VOCABULARY
-          register: belief_verification
+          register: cross_subdomain_deps
           params:
-            column: Result
+            column: Status
             vocabulary:
-            - VERIFIED
-            - NOT_FOUND
-            - INSUFFICIENT_EVIDENCE
-          intent: Result is a controlled vocabulary declared by the template
+            - SATISFIED
+            - GAP
+          intent: Status is a controlled vocabulary declared by the template
+        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          check: CELL_TOKEN_ABSENT
+          register: cross_subdomain_deps
+          params:
+            columns:
+            - Dependency
+            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} appears in business-language column {column!r} — this register states business
+              meaning, not design'
+          intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
-          register: belief_verification
+          register: cross_subdomain_deps
           params:
             column: Source Finding
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
-          register: belief_verification
+          register: cross_subdomain_deps
           params:
             column: Source Finding
             known_registers: *id001
@@ -462,80 +351,131 @@ core:
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
-          register: belief_verification
+          register: cross_subdomain_deps
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
-          register: pps_baseline_fqdns
+          register: pps_artifacts_requiring_action
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
           check: TABLE_HAS_COLUMNS
-          register: pps_baseline_fqdns
+          register: pps_artifacts_requiring_action
+          params:
+            columns:
+            - FQDN
+            - Current Status
+            - Action
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: CELL_NOT_IN_VOCABULARY
+          check: CELL_IN_VOCABULARY
+          register: pps_artifacts_requiring_action
+          params:
+            column: Action
+            vocabulary:
+            - REPLACE
+            - REVIEW
+            - REUSE
+            - EXTEND
+          intent: Action is a controlled vocabulary declared by the template
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: pps_artifacts_requiring_action
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: pps_artifacts_requiring_action
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: pps_artifacts_requiring_action
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: boundary_rules
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: boundary_rules
+          params:
+            columns:
+            - Rule Name
+            - Statement
+            - Source Finding
+          intent: downstream phases read these columns by name
+        - id: ROW_WITHOUT_SOURCE_FINDING
+          check: CELL_NOT_EMPTY
+          register: boundary_rules
+          params:
+            column: Source Finding
+            detail: row cites no earlier finding — a phase restates its input, it does not add to it
+          intent: an uncited row has no provenance in the dossier
+        - id: SOURCE_FINDING_UNRESOLVED
+          check: SOURCE_FINDING_RESOLVES
+          register: boundary_rules
+          params:
+            column: Source Finding
+            known_registers: *id001
+            literal_sources:
+            - CR seed
+            - human decision
+            - projection
+            - S1 seed
+          intent: a citation must name something this phase can actually cite
+        - id: CITATION_ORDINAL_UNRESOLVED
+          check: CITED_ORDINAL_RESOLVES
+          register: boundary_rules
+          params:
+            column: Source Finding
+          intent: an ordinal past the end of a register cites a finding that is not there
+        - id: REGISTER_MISSING
+          check: TABLE_PRESENT
+          register: governance_outcome
+          intent: a declared register must be present and readable as rows
+        - id: REGISTER_COLUMN_MISSING
+          check: TABLE_HAS_COLUMNS
+          register: governance_outcome
           params:
             columns:
             - Capability
-            - FQDN
-            - What It Does
-            - Fit
-            - Cannot Do
-          intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: pps_baseline_fqdns
-          intent: an empty required register asserts nothing
-        - id: CELL_NOT_IN_VOCABULARY
-          check: CELL_IN_VOCABULARY
-          register: pps_baseline_fqdns
-          params:
-            column: Fit
-            vocabulary:
-            - EXACT
-            - PARTIAL
-            - MISMATCH
-          intent: Fit is a controlled vocabulary declared by the template
-        - id: REGISTER_MISSING
-          check: TABLE_PRESENT
-          register: gaps
-          intent: a declared register must be present and readable as rows
-        - id: REGISTER_COLUMN_MISSING
-          check: TABLE_HAS_COLUMNS
-          register: gaps
-          params:
-            columns:
-            - Gap
-            - Severity
-            - Impact
-            - Evidence Status
+            - Owner Subdomain
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: gaps
-          intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
-          register: gaps
+          register: governance_outcome
           params:
             columns:
-            - Gap
-            - Severity
-            - Impact
+            - Capability
             pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
             detail: '{token!r} appears in business-language column {column!r} — this register states business
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
-          register: gaps
+          register: governance_outcome
           params:
             column: Source Finding
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
           check: SOURCE_FINDING_RESOLVES
-          register: gaps
+          register: governance_outcome
           params:
             column: Source Finding
             known_registers: *id001
@@ -547,221 +487,119 @@ core:
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
-          register: gaps
+          register: governance_outcome
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
-        - id: REGISTER_MISSING
-          check: TABLE_PRESENT
-          register: architectural_observations
-          intent: a declared register must be present and readable as rows
-        - id: REGISTER_COLUMN_MISSING
-          check: TABLE_HAS_COLUMNS
-          register: architectural_observations
-          params:
-            columns:
-            - Observation
-            - Evidence
-            - Evidence Status
-            - Source Finding
-          intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: architectural_observations
-          intent: an empty required register asserts nothing
-        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+        - id: PROVISIONAL_CODE_IN_PLACEMENT
           check: CELL_TOKEN_ABSENT
-          register: architectural_observations
+          register: ownership
           params:
             columns:
-            - Observation
-            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
-            detail: '{token!r} appears in business-language column {column!r} — this register states business
-              meaning, not design'
-          intent: business registers name no compiled artifact
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: architectural_observations
-          params:
-            column: Source Finding
-            detail: row cites no earlier finding — a phase restates its input, it does not add to it
-          intent: an uncited row has no provenance in the dossier
-        - id: SOURCE_FINDING_UNRESOLVED
-          check: SOURCE_FINDING_RESOLVES
-          register: architectural_observations
-          params:
-            column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
-          intent: a citation must name something this phase can actually cite
-        - id: CITATION_ORDINAL_UNRESOLVED
-          check: CITED_ORDINAL_RESOLVES
-          register: architectural_observations
-          params:
-            column: Source Finding
-          intent: an ordinal past the end of a register cites a finding that is not there
-        - id: REGISTER_MISSING
-          check: TABLE_PRESENT
-          register: discovery_concerns
-          intent: a declared register must be present and readable as rows
-        - id: REGISTER_COLUMN_MISSING
-          check: TABLE_HAS_COLUMNS
-          register: discovery_concerns
-          params:
-            columns:
-            - Concern
-            - Evidence
-            - Severity
-            - Evidence Status
-            - Source Finding
-          intent: downstream phases read these columns by name
-        - id: REGISTER_EMPTY
-          check: TABLE_HAS_ROWS
-          register: discovery_concerns
-          intent: an empty required register asserts nothing
-        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+            - Capability
+            - Owner Subdomain
+            pattern: \b(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} in {column!r} — this stage places capabilities in subdomains; naming an artifact
+              answers a question Stage 7 owns'
+          intent: placement names a subdomain, never an artifact
+        - id: STORAGE_CODE_IN_PLACEMENT
           check: CELL_TOKEN_ABSENT
-          register: discovery_concerns
+          register: storage_governance
           params:
             columns:
-            - Concern
-            - Severity
-            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
-            detail: '{token!r} appears in business-language column {column!r} — this register states business
-              meaning, not design'
-          intent: business registers name no compiled artifact
-        - id: ROW_WITHOUT_SOURCE_FINDING
+            - Storage Need
+            - Purpose
+            - Subdomain
+            pattern: \b(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\d+\b
+            detail: '{token!r} in {column!r} — a storage need is business language, not an artifact'
+          intent: a store is described by what it holds, not by what will write it
+        - id: SATISFIED_WITHOUT_EXISTING_ARTIFACT
           check: CELL_NOT_EMPTY
-          register: discovery_concerns
+          register: ownership
           params:
-            column: Source Finding
-            detail: row cites no earlier finding — a phase restates its input, it does not add to it
-          intent: an uncited row has no provenance in the dossier
-        - id: SOURCE_FINDING_UNRESOLVED
-          check: SOURCE_FINDING_RESOLVES
-          register: discovery_concerns
-          params:
-            column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
-          intent: a citation must name something this phase can actually cite
-        - id: CITATION_ORDINAL_UNRESOLVED
-          check: CITED_ORDINAL_RESOLVES
-          register: discovery_concerns
-          params:
-            column: Source Finding
-          intent: an ordinal past the end of a register cites a finding that is not there
-        - id: REGISTER_MISSING
-          check: TABLE_PRESENT
-          register: open_questions
-          intent: a declared register must be present and readable as rows
-        - id: REGISTER_COLUMN_MISSING
-          check: TABLE_HAS_COLUMNS
-          register: open_questions
-          params:
-            columns:
-            - Question
-            - Category
-            - Why It Matters
-            - Source Finding
-          intent: downstream phases read these columns by name
-        - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
-          check: CELL_TOKEN_ABSENT
-          register: open_questions
-          params:
-            columns:
-            - Question
-            - Category
-            - Why It Matters
-            pattern: \b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b
-            detail: '{token!r} appears in business-language column {column!r} — this register states business
-              meaning, not design'
-          intent: business registers name no compiled artifact
-        - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
-          register: open_questions
-          params:
-            column: Source Finding
-            detail: row cites no earlier finding — a phase restates its input, it does not add to it
-          intent: an uncited row has no provenance in the dossier
-        - id: SOURCE_FINDING_UNRESOLVED
-          check: SOURCE_FINDING_RESOLVES
-          register: open_questions
-          params:
-            column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
-          intent: a citation must name something this phase can actually cite
-        - id: CITATION_ORDINAL_UNRESOLVED
-          check: CITED_ORDINAL_RESOLVES
-          register: open_questions
-          params:
-            column: Source Finding
-          intent: an ordinal past the end of a register cites a finding that is not there
-        - id: BASELINE_IDENTITY_UNRESOLVED
+            column: Existing Artifact
+            only_when_column: Disposition
+            only_when_value: SATISFIED
+            detail: capability is SATISFIED but names no existing artifact — a claim that something already covers
+              this needs the something
+          intent: a satisfied capability names what satisfies it
+        - id: EXISTING_ARTIFACT_UNRESOLVED
           check: CITED_ARTIFACTS_RESOLVE
-          register: pps_baseline_fqdns
+          register: ownership
+          params:
+            column: Existing Artifact
+            pattern: '[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+'
+            observation: si.artifact.list
+          intent: an artifact said to cover a capability must be one that really exists
+        - id: PPS_ACTION_IDENTITY_UNRESOLVED
+          check: CITED_ARTIFACTS_RESOLVE
+          register: pps_artifacts_requiring_action
           params:
             column: FQDN
             pattern: '[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+'
             observation: si.artifact.list
-            detail_missing: baseline row names no artifact identity
-          intent: the baseline register records what already exists, so every row must be observable
-        - id: VERIFIED_BELIEF_IDENTITY_UNRESOLVED
-          check: CITED_ARTIFACTS_RESOLVE
-          register: belief_verification
+          intent: an artifact this change will act on must be one the composition carries
+        - id: DEPENDENCY_DIRECTION_MALFORMED
+          check: CELL_MATCHES
+          register: cross_subdomain_deps
           params:
-            column: Evidence
-            pattern: '[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+'
-            observation: si.artifact.list
-            only_when_column: Result
-            only_when_value: VERIFIED
-          intent: a belief grounded on an identity must be grounded on one that is really there
-        - id: BELIEF_WITHOUT_EVIDENCE
+            column: Direction
+            pattern: ^[a-z][a-z0-9_]*\s*(?:->|→)\s*[a-z][a-z0-9_]*$
+            detail: direction {value!r} must read `this_subdomain -> peer` — a boundary has two sides
+          intent: a dependency states which way it crosses the boundary
+        - id: DEPENDENCY_SATISFIED_WITHOUT_ARTIFACT
           check: CELL_NOT_EMPTY
-          register: belief_verification
+          register: cross_subdomain_deps
           params:
-            column: Evidence
-            detail: belief has a result but records nothing about how it was reached
-          intent: a result without evidence is an assertion, not a verification
-        - id: BELIEF_NOT_CARRIED_FROM_P1
-          check: PRIOR_ROWS_CITED
-          register: belief_verification
+            column: Existing Artifact
+            only_when_column: Status
+            only_when_value: SATISFIED
+            detail: dependency is SATISFIED but names no existing artifact — an unsatisfied dependency declared
+              satisfied is how a gap goes missing
+          intent: a satisfied dependency names the artifact that satisfies it
+        - id: OUTCOME_CAPABILITY_UNPLACED
+          check: CELL_RESOLVES_IN_REGISTER
+          register: governance_outcome
           params:
-            prior_phase: p1
-            prior_register: system_beliefs
-            prior_key_column: Belief
-            citation_column: Source Finding
-          intent: a belief nobody carried forward is forgotten, not resolved
-        - id: BELIEF_RESTATED_FROM_P1
-          check: PRIOR_ROW_MATCHES_CITED
-          register: belief_verification
+            column: Capability
+            target_register: ownership
+            target_column: Capability
+          intent: the outcome restates placement, it does not introduce it
+        - id: IN_SCOPE_CAPABILITY_UNPLACED
+          check: PRIOR_ROWS_PRESENT_BY_KEY
+          register: ownership
           params:
-            prior_phase: p1
-            prior_register: system_beliefs
-            prior_key_column: Belief
-            key_column: Belief
-            citation_column: Source Finding
-          intent: a verification must resolve the belief it cites, not a substitute for it
+            prior_phase: p5
+            prior_register: scope_boundary
+            prior_key_column: Capability
+            key_column: Capability
+            prior_only_when_column: Status
+            prior_only_when_value: IN_SCOPE
+          intent: a capability declared in scope and given no owner is in nobody's scope
+        - id: BORROWED_CAPABILITY_NOT_DECLARED_CROSSING
+          check: PRIOR_IDENTITIES_COVERED
+          register: cross_subdomain_deps
+          params:
+            prior_phase: p5
+            prior_register: cross_subdomain_refs
+            prior_column: CC Code
+            column: Existing Artifact
+            require: prior_in_here
+          intent: a capability borrowed across a subdomain boundary is a dependency, declared as one
+        - id: TOUCHED_SUBDOMAIN_UNOWNED
+          check: PRIOR_IDENTITIES_COVERED
+          register: ownership
+          params:
+            prior_phase: p0
+            prior_register: cr_type
+            prior_column: Subdomain
+            column: Owner Subdomain
+            require: prior_in_here
+          intent: every subdomain a change touches has its owner declared
         - id: REGISTER_CELL_UNRESOLVED
           check: UNRESOLVED_MARKER_ABSENT
           params:
-            exempt:
-            - gaps
-            - open_questions
-            - discovery_concerns
+            exempt: []
             detail: '{column!r} declares the question unanswered ({marker}) rather than answering it — ask it
               as a clarification, do not hedge it in a register'
           intent: an unanswered question left in a register reads as decided to every later phase
@@ -785,12 +623,11 @@ core:
         SUCCESS: EXIT_JUDGED
         VIOLATION: EXIT_REJECTED
         BACKEND_ERROR: EXIT_REJECTED
+        NOT_FOUND: EXIT_REJECTED
 
     EXIT_JUDGED:
       type: EXIT
-      status: SUCCESS
 
     EXIT_REJECTED:
       type: EXIT
-      status: VIOLATION
 ```

@@ -1,4 +1,4 @@
-# CC_JUDGE_AGAINST_SNAPSHOT_V0
+# CC_JUDGE_AGAINST_SNAPSHOT_V1
 
 ## 1. Intent
 
@@ -86,11 +86,10 @@ compiled workflow is a declaration that this phase's handoff is ungoverned, and 
 ## Machine
 
 ```yaml
-fqdn: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V0
-superseded_by:
-- transformation::CC_JUDGE_AGAINST_SNAPSHOT_V1
+fqdn: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V1
+supersedes: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V0
 artifact_kind: CAPABILITY_CONTRACT
-version: v0
+version: v1
 governed_by: capability_contracts::CONSTITUTION_CAPABILITY_CONTRACT_V0
 authority: pgc.platform
 concern: design
@@ -121,6 +120,7 @@ core:
     - SUCCESS
     - VIOLATION
     - BACKEND_ERROR
+    - NOT_FOUND
     on_input_failure: VIOLATION
   pipeline:
   - step: parse_registers
@@ -158,10 +158,12 @@ core:
     outputs: {}
     result_surface:
     - SUCCESS
+    - NOT_FOUND
     - VIOLATION
     - BACKEND_ERROR
     on_result:
       SUCCESS: continue
+      NOT_FOUND: exit
       VIOLATION: exit
       BACKEND_ERROR: exit
 
@@ -177,10 +179,12 @@ core:
     outputs: {}
     result_surface:
     - SUCCESS
+    - NOT_FOUND
     - VIOLATION
     - BACKEND_ERROR
     on_result:
       SUCCESS: continue
+      NOT_FOUND: exit
       VIOLATION: exit
       BACKEND_ERROR: exit
 
@@ -197,10 +201,12 @@ core:
     outputs: {}
     result_surface:
     - SUCCESS
+    - NOT_FOUND
     - VIOLATION
     - BACKEND_ERROR
     on_result:
       SUCCESS: continue
+      NOT_FOUND: exit
       VIOLATION: exit
       BACKEND_ERROR: exit
 
@@ -213,10 +219,12 @@ core:
     outputs: {}
     result_surface:
     - SUCCESS
+    - NOT_FOUND
     - VIOLATION
     - BACKEND_ERROR
     on_result:
       SUCCESS: continue
+      NOT_FOUND: exit
       VIOLATION: exit
       BACKEND_ERROR: exit
   - step: observe_rule_set_list
@@ -228,10 +236,12 @@ core:
     outputs: {}
     result_surface:
     - SUCCESS
+    - NOT_FOUND
     - VIOLATION
     - BACKEND_ERROR
     on_result:
       SUCCESS: continue
+      NOT_FOUND: exit
       VIOLATION: exit
       BACKEND_ERROR: exit
   - step: observe_behavior_logic_list
@@ -243,10 +253,12 @@ core:
     outputs: {}
     result_surface:
     - SUCCESS
+    - NOT_FOUND
     - VIOLATION
     - BACKEND_ERROR
     on_result:
       SUCCESS: continue
+      NOT_FOUND: exit
       VIOLATION: exit
       BACKEND_ERROR: exit
   - step: evaluate_rules

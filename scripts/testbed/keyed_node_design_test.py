@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import sys
 
-from transformation.build.render import render_all
+from transformation.build.render import _binding, render_all
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
 from transformation.design.p7_design_intent.rules import CONTRACT_OBSERVATION, rule_set
@@ -185,6 +185,17 @@ def test_a_contract_redeclared_whole_requires_only_what_it_now_declares():
 
     assert fired_with(design() + composition) == [], fired_with(design() + composition)
     assert fired_with(design()) == ["NODE_INPUT_UNBOUND"], "a contract only called keeps what it had"
+
+def test_an_input_written_as_an_object_that_does_not_parse_is_refused():
+    # Kept as a string, it handed the runtime a literal the design never meant (`3c` RT-6).
+    assert _binding("{'reason': 'late'}") == {"reason": "late"}
+    try:
+        _binding("{reason: late}")
+    except ValueError as exc:
+        assert "does not parse" in str(exc), exc
+    else:
+        raise AssertionError("an unparseable object was kept as a string")
+
 
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]

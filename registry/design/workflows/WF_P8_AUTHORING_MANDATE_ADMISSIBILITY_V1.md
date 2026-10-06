@@ -1,4 +1,4 @@
-# WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0
+# WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1
 
 ## Generated Artifact
 
@@ -10,6 +10,7 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 - **Generator sources** — one generator together, never separately:
   - `templates/p8_authoring_mandate_template_v0.md`
   - `transformation/design/p8_authoring_mandate/rules.py`
+  - `registry/design/capability_contracts/CC_JUDGE_AGAINST_SNAPSHOT_V1.md`
 
 To change what this phase judges, amend a source and invoke the generator.
 `tc phase emit --check` refuses a build in which the two disagree.
@@ -62,11 +63,10 @@ exact.
 ## Machine
 
 ```yaml
-fqdn: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0
-superseded_by:
-- transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1
+fqdn: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1
+supersedes: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
-version: v0
+version: v1
 governed_by: workflow::CONSTITUTION_WORKFLOW_V0
 authority: pgc.platform
 concern: design
@@ -91,7 +91,7 @@ core:
 
     CC_JUDGE_AGAINST_SNAPSHOT_V0:
       type: CC
-      code: CC_JUDGE_AGAINST_SNAPSHOT_V0
+      code: CC_JUDGE_AGAINST_SNAPSHOT_V1
       inputs:
         document_text: $.payload.register_text
         prior_texts: $.payload.prior_texts
@@ -358,6 +358,7 @@ core:
         SUCCESS: EXIT_JUDGED
         VIOLATION: EXIT_REJECTED
         BACKEND_ERROR: EXIT_REJECTED
+        NOT_FOUND: EXIT_REJECTED
 
     EXIT_JUDGED:
       type: EXIT

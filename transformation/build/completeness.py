@@ -72,20 +72,12 @@ def measure(p7: dict, p8: dict) -> Completeness:
     return Completeness(facts=requirements(p7, p8))
 
 
-# Narrowing — the failure completeness cannot see -----------------------------------------------
+# Amendments — what completeness cannot see -----------------------------------------------------
 #
-# Completeness asks whether every fact the design must state is stated. It cannot ask whether the
-# design states *enough* of an artifact that already exists, because it has no view of what exists.
-#
-# An artifact inventoried as EXTEND is rendered whole and replaces its predecessor, so a design that
-# names only what the change adds deletes everything it did not restate. CR-2 declared two new
-# stores and rendered a storage declaration carrying two stores where the composition had five —
-# reported at 100% completeness, because every fact the design stated was determined and the four it
-# did not state were facts it never claimed to have.
-#
-# This is where the guard belongs rather than at P7: the fact it needs is the *content* of an
-# existing artifact, one query per amended row, and a phase's observations are gathered once with no
-# parameters. It runs before anything is written, which is the property that matters.
+# Completeness asks whether every fact the design must state is stated. It cannot ask whether an
+# amendment keeps the artifact it amends, because it has no view of what exists. That comparison is
+# `sameness`, run by construction against the composition. What remains here is carrying forward the
+# explanation no register can state, so an amendment written whole does not lose it.
 
 def _leaves(value, path=""):
     """Every fact an artifact states, addressed by where it sits.
@@ -110,62 +102,6 @@ def _leaves(value, path=""):
     else:
         yield path, value
 
-
-def narrowing(rendered: list[dict], existing: dict[str, dict]) -> dict[str, list[str]]:
-    """Facts an amended artifact would lose, per artifact code.
-
-    `existing` maps a bare code to the machine block the composition holds for it. An artifact the
-    composition does not hold cannot be narrowed — it is being authored, not amended.
-    """
-    out: dict[str, list[str]] = {}
-    for artifact in rendered:
-        code = artifact["path"].rsplit("/", 1)[-1].removesuffix(".md")
-        prior = existing.get(code)
-        if not prior:
-            continue
-        was = dict(_leaves(prior))
-        now = dict(_leaves(artifact["machine"]))
-        # A fact survives when the path is still there, or when something beneath it is: a binding
-        # that was a value and is now an object or a list of values has been refined, not deleted, and a
-        # comparison that could not tell those apart would refuse every amendment that adds detail.
-        lost = sorted(fact for fact in was
-                      if fact not in now
-                      and not any(later.startswith((fact + ".", fact + "[")) for later in now))
-        # A leaf the design has no register for is not one the amendment chose to drop. Prose
-        # descriptions are the case, and the renderer preserves them rather than deleting what the
-        # design cannot speak about — so they are carried into the render before this comparison and
-        # never appear here. Anything still listed is a fact the design could have stated and did not.
-        if lost:
-            out[code] = lost
-    return out
-
-
-
-def withdraw(lost: dict[str, list[str]], withdrawals: dict[str, list[str]]
-             ) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
-    """Split what an amendment loses into what it withdrew and what it merely omitted.
-
-    A withdrawal names a place in the machine block and covers every lost fact at or beneath it, so
-    a design withdraws an input by naming the input rather than each of its attributes. Returns the
-    facts still lost — omitted, and refused — and the withdrawals that cover nothing: a place where
-    the artifact still states the fact, or never held it. Both are refusals; the second is a design
-    claiming a decision that made no difference, which is a design that has misread its artifact.
-    """
-    remaining: dict[str, list[str]] = {}
-    for code, facts in lost.items():
-        places = withdrawals.get(code, [])
-        kept = [f for f in facts if not any(f == w or f.startswith(w + ".") or f.startswith(w + "[")
-                                            for w in places)]
-        if kept:
-            remaining[code] = kept
-    unfounded: dict[str, list[str]] = {}
-    for code, places in withdrawals.items():
-        facts = lost.get(code, [])
-        empty = [w for w in places if not any(f == w or f.startswith(w + ".") or f.startswith(w + "[")
-                                              for f in facts)]
-        if empty:
-            unfounded[code] = empty
-    return remaining, unfounded
 
 def carry_forward(rendered: list[dict], existing: dict[str, dict]) -> None:
     """Preserve, in each amended artifact, the leaves no register of the design can express.
@@ -193,7 +129,11 @@ def carry_forward(rendered: list[dict], existing: dict[str, dict]) -> None:
             target, *rest = path.lstrip(".").split(".")
             cursor = artifact["machine"]
             ok = True
-            for key in [target] + rest[:-1]:
+            for depth, key in enumerate([target] + rest[:-1]):
+                # A description may sit under a block the design renders nothing else into, as a
+                # contract's `extensions` does; that block is made to hold it, at the top level only.
+                if depth == 0 and len(rest) == 1 and isinstance(cursor, dict) and key not in cursor:
+                    cursor[key] = {}
                 if not isinstance(cursor, dict) or key not in cursor:
                     ok = False
                     break

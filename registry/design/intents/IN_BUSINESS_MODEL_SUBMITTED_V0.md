@@ -23,7 +23,7 @@ concern: design
 
 core:
   summary: Offer a Business Model register for admissibility judgement
-  workflow: WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0
+  workflow: WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1
 
   inputs:
     register_text:

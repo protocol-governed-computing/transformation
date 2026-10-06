@@ -1,4 +1,4 @@
-# WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
+# WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
 
 ## Generated Artifact
 
@@ -10,6 +10,7 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 - **Generator sources** — one generator together, never separately:
   - `templates/p7_design_intent_template_v0.md`
   - `transformation/design/p7_design_intent/rules.py`
+  - `registry/design/capability_contracts/CC_JUDGE_AGAINST_SNAPSHOT_V1.md`
 
 To change what this phase judges, amend a source and invoke the generator.
 `tc phase emit --check` refuses a build in which the two disagree.
@@ -51,11 +52,10 @@ nobody owns.
 ## Machine
 
 ```yaml
-fqdn: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
-superseded_by:
-- transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
+fqdn: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
+supersedes: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
-version: v0
+version: v1
 governed_by: workflow::CONSTITUTION_WORKFLOW_V0
 authority: pgc.platform
 concern: design
@@ -80,7 +80,7 @@ core:
 
     CC_JUDGE_AGAINST_SNAPSHOT_V0:
       type: CC
-      code: CC_JUDGE_AGAINST_SNAPSHOT_V0
+      code: CC_JUDGE_AGAINST_SNAPSHOT_V1
       inputs:
         document_text: $.payload.register_text
         prior_texts: $.payload.prior_texts
@@ -247,6 +247,7 @@ core:
             - REPLACE
             - REUSE
             - EXTEND
+            - REPOINT
             - REVIEW
           intent: Action is a controlled vocabulary declared by the template
         - id: ROW_WITHOUT_SOURCE_FINDING
@@ -2001,13 +2002,13 @@ core:
             phase_workflows:
               p0: transformation::WF_P0_SEED_ADMISSIBILITY_V0
               p1: transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0
-              p2: transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V0
-              p3: transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0
-              p4: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V0
-              p5: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0
-              p6: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
-              p7: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
-              p8: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0
+              p2: transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1
+              p3: transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1
+              p4: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1
+              p5: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1
+              p6: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1
+              p7: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
+              p8: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1
           intent: a rule said to carry out a refusal is really in force where the design is pinned
         - id: DISCHARGE_NOT_IN_TOPOLOGY
           check: DISCHARGE_GROUNDED_IN_TOPOLOGY
@@ -2215,6 +2216,13 @@ core:
             detail: a carried value is updated from {value!r}; it is taken from what the pass produced, results.<field>,
               or the loop carries forward something no pass computed
           intent: what a loop carries forward is what each pass produced
+        - id: WITHDRAWAL_IS_A_CHANGE_OF_MEANING
+          check: TABLE_ROW_COUNT
+          register: withdrawn_facts
+          params:
+            maximum: 0
+            detail: a withdrawal changes what an artifact means — author its successor and REPLACE it instead
+          intent: an amendment withdraws nothing; a change of meaning is a new identity
         - id: TRANSFORM_WITHOUT_VECTOR
           check: REGISTER_COVERS_REGISTER
           register: test_cases
@@ -2296,17 +2304,6 @@ core:
             detail: value {value!r} is not a YAML literal ({problem}) — construction would keep it as text; quote
               it if text is meant
           intent: every value is read as the design wrote it
-        - id: WITHDRAWAL_NOT_AN_AMENDMENT
-          check: CELL_RESOLVES_IN_REGISTER
-          register: withdrawn_facts
-          params:
-            column: Artifact
-            target_register: existing_inventory
-            target_column: FQDN
-            target_only_when_column: Action
-            target_only_when_value: EXTEND
-            detail: a fact is withdrawn only from an artifact this design extends
-          intent: only an amendment has facts to withdraw
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts
@@ -2345,6 +2342,7 @@ core:
         SUCCESS: EXIT_JUDGED
         VIOLATION: EXIT_REJECTED
         BACKEND_ERROR: EXIT_REJECTED
+        NOT_FOUND: EXIT_REJECTED
 
     EXIT_JUDGED:
       type: EXIT

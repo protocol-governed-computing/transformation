@@ -165,7 +165,7 @@ that owns it.
 
 ## 2. Artifact Inventory — Existing Artifacts
 
-*All existing PPS artifacts touched by this CR. Action ∈ REPLACE | REUSE | EXTEND | REVIEW. `fqdn` is the existing artifact, cited by exact FQDN.*
+*All existing PPS artifacts touched by this CR. Action ∈ REPLACE | REUSE | EXTEND | REPOINT | REVIEW. `fqdn` is the existing artifact, cited by exact FQDN.*
 
 **An `EXTEND` is a whole redeclaration, not a delta.** Construction renders an amended artifact from
 this design alone and the result replaces its predecessor, so every register that describes it must
@@ -176,15 +176,22 @@ doing it, because completeness asks whether the design's own claims are determin
 the composition already holds.
 
 *The word invites the wrong reading and the reading is expensive: it produced a storage declaration
-carrying two stores where five existed. `tc construction check --snapshot` compares each amendment
-with the artifact it replaces and refuses one that narrows it.*
+carrying two stores where five existed. **An `EXTEND` keeps the artifact's meaning.** Construction
+compares each amendment with the artifact the composition holds, by the platform's declaration of
+what carries no meaning, and refuses any difference it does not excuse: a fact added, altered or
+removed. A change of meaning is a new identity — a new artifact that the old one is `REPLACE`d by.*
+
+*A `REPOINT` is an artifact that names one this design replaces. Construction rewrites each such
+name in it to the replaced artifact's declared successor and changes nothing else; the artifact
+keeps its identity. Every live artifact that names one this design replaces is `REPLACE`d,
+`EXTEND`ed or `REPOINT`ed here, or construction refuses the design and names it.*
 
 *`Summary` states what the artifact **is**, where `Reason` states why this change touches it. It is
 required for an `EXTEND`, because a rendered artifact without its summary is one this change
-silently emptied. A `REUSE` or `REVIEW` row is not rendered and may leave it blank.*
+silently emptied. A `REUSE`, `REPOINT` or `REVIEW` row is not rendered and may leave it blank.*
 
 <!-- register:existing_inventory -->
-| FQDN | Action (REPLACE, REUSE, EXTEND, REVIEW) | Summary | Reason | Source Finding |
+| FQDN | Action (REPLACE, REUSE, EXTEND, REPOINT, REVIEW) | Summary | Reason | Source Finding |
 |------|------------------------------------------|---------|--------|----------------|
 
 ---
@@ -609,25 +616,14 @@ nothing else; a case expecting `VIOLATION` states none.*
 
 ## 25. Withdrawn Facts
 
-*What an amendment takes away. An artifact this design extends is rendered whole and replaces the one
-the composition holds, so every fact the design does not state is a fact the artifact loses — and
-construction refuses the loss, because an omission and a decision read the same in a rendered
-artifact. This register is where the decision is stated. A fact listed here is one the design
-removes on purpose; any other fact the artifact held and the design omits is still refused.*
-
-*`Artifact` is an artifact this design extends, by binding FQDN, carried in `existing_inventory` as
-`EXTEND`. `Fact` is where the fact sits in the artifact's machine block, written as construction
-reports it — `.core.inputs.registration_schema` — and it withdraws every fact at or beneath that
-place. A withdrawal naming a place where nothing is lost is refused at construction: it withdraws a
-fact the artifact still states, or one it never held.*
-
-*`Reason` says why the fact goes, in the words of the decision that removes it.*
+*A withdrawal is a change of meaning. An amendment keeps the artifact's meaning, so it can withdraw
+nothing: a fact removed from an artifact is a new artifact that the old one is `REPLACE`d by. This
+register is kept so that what a design may cite does not change, and it must be empty — a row here
+is refused.*
 
 <!-- register:withdrawn_facts optional -->
 | Artifact | Fact | Reason | Source Finding |
 |----------|------|--------|----------------|
-
----
 
 ---
 

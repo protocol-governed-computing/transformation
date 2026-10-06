@@ -71,6 +71,10 @@ DOMAINS = (
      WORKSPACE / "business_domains/blockchain/registry", True),
     (WORKSPACE / "business_domains/causal_language_model/cr_dossiers",
      WORKSPACE / "business_domains/causal_language_model/registry", True),
+    # ai_governance's registry predates the lifecycle: its change requests determine a few of its
+    # artifacts, and the rest were authored by hand.
+    (WORKSPACE / "business_domains/ai_governance/cr_dossiers",
+     WORKSPACE / "business_domains/ai_governance/registry", False),
     (WORKSPACE / "software_governance/dossiers",
      WORKSPACE / "software_governance/registry", False),
     (WORKSPACE / "transformation/dossiers",

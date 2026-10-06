@@ -50,6 +50,8 @@ and every capability in the outcome was placed in the ownership register first.
 
 ```yaml
 fqdn: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V0
+superseded_by:
+- transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1
 artifact_kind: WORKFLOW
 version: v0
 governed_by: workflow::CONSTITUTION_WORKFLOW_V0

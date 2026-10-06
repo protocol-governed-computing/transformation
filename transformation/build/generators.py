@@ -55,6 +55,9 @@ class Context:
     # Absent when the caller is only measuring a design. A generator that writes into a domain says
     # so with `needs_root`, and is asked nothing it cannot answer.
     domain_root: Path | None = None
+    # The composition a generator observes. The phase workflows' observing steps answer what the
+    # snapshot capability declares, which only a composition can say.
+    snapshot_root: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -65,10 +68,17 @@ class Generator:
     invoke: Callable[[Context], list[Path]]
     stale: Callable[[Context], list[str]]
     summary: str
+    # Each artifact as the generator would write it, by code, without writing. Construction compares
+    # a generated amendment with the composition before anything is written, as it does a rendered
+    # one: an amendment that changes meaning is refused whoever produces it.
+    preview: Callable[[Context], dict[str, dict]] = lambda ctx: {}
     # Whether the generator can answer at all without a domain to write into. Declared rather than
     # discovered, so a caller that cannot supply one reports that the question went unasked instead
     # of reading an empty answer as agreement.
     needs_root: bool = False
+    # Whether it observes a composition, and so cannot answer without `snapshot_root`. Declared for
+    # the same reason as `needs_root`.
+    needs_snapshot: bool = False
     # Whether the generator reads the design in front of it, or its own sources.
     #
     # The distinction decides what a disagreement *means*, and getting it wrong makes the agreement
@@ -87,11 +97,19 @@ class Generator:
 
 
 def _phase_workflows_invoke(ctx: Context) -> list[Path]:
-    return [phase_emit.WORKFLOWS / e.filename for e in phase_emit.emit_rule_sets()]
+    return [phase_emit.WORKFLOWS / e.filename for e in phase_emit.emit_rule_sets(ctx.snapshot_root)]
 
 
 def _phase_workflows_stale(ctx: Context) -> list[str]:
-    return [e.filename for e in phase_emit.check()]
+    return [e.filename for e in phase_emit.check(ctx.snapshot_root)]
+
+
+def _phase_workflows_preview(ctx: Context) -> dict[str, dict]:
+    out: dict[str, dict] = {}
+    for code, text in phase_emit.preview(ctx.snapshot_root).items():
+        found = MACHINE_BLOCK.search(text)
+        out[code] = (yaml.safe_load(found.group(1)) or {}) if found else {}
+    return out
 
 
 # The domain build manifest -----------------------------------------------------------------------
@@ -129,6 +147,11 @@ def _build_manifest_invoke(ctx: Context) -> list[Path]:
     return [path]
 
 
+def _build_manifest_preview(ctx: Context) -> dict[str, dict]:
+    manifest, _ = _manifest(ctx)
+    return {} if manifest is None else {manifest["fqdn"].split("::")[-1]: manifest}
+
+
 def _build_manifest_stale(ctx: Context) -> list[str]:
     """Whether the manifest on disk is what the mandate determines.
 
@@ -151,12 +174,15 @@ GENERATORS: dict[str, Generator] = {
         name=phase_emit.GENERATOR,
         invoke=_phase_workflows_invoke,
         stale=_phase_workflows_stale,
+        preview=_phase_workflows_preview,
         summary="the phase workflows and the rule set each of them seals",
+        needs_snapshot=True,
     ),
     MANIFEST_GENERATOR: Generator(
         name=MANIFEST_GENERATOR,
         invoke=_build_manifest_invoke,
         stale=_build_manifest_stale,
+        preview=_build_manifest_preview,
         summary="the domain build manifest, derived from the domain, its subdomains and its families",
         needs_root=True,
         derived_from_design=True,
