@@ -38,7 +38,8 @@ import yaml
 # `MACHINE_BLOCK` is one spelling of where a machine block ends, owned by the module
 # that renders them — there were three spellings and two of them disagreed.
 from transformation.build.render import MACHINE_BLOCK as MACHINE
-from transformation.build.render import render_all, bare
+from transformation.build import sameness
+from transformation.build.render import render_all, bare, cell, rows, supersessions
 from transformation.design.read import read_seed
 
 REPO = Path(__file__).resolve().parents[2]
@@ -163,6 +164,20 @@ DOCUMENTATION = {"description", "isolation", "resolution", "storage_roots", "ext
 STOOD_DOWN = {"superseded_by"}
 
 
+def repointed(artifact: dict, successor: dict[str, str]) -> dict:
+    """An earlier design's artifact as a later design's REPOINT leaves it: each name the later
+    design replaces, rewritten to its successor where it is a reference and nowhere else.
+
+    A REPOINT renders nothing of its own: construction rewrites the one reference in the artifact
+    as built. Reproducing the artifact from the design that last rendered it, without the re-point,
+    would report the re-point as a construction defect. Applied by the same function construction
+    applies, against the declaration it reads.
+    """
+    text = "```yaml\n" + yaml.safe_dump(artifact["machine"], sort_keys=False, allow_unicode=True) + "```"
+    moved = sameness.repoint(text, successor, sameness.read(WORKSPACE / "snapshot"))
+    return {**artifact, "machine": yaml.safe_load(sameness.MACHINE.search(moved).group(1))}
+
+
 def diff(expected, actual, path: str = "") -> list[str]:
     """Every leaf where two Machine blocks disagree, addressed by dotted path."""
     if isinstance(expected, dict) and isinstance(actual, dict):
@@ -229,6 +244,13 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
                 return 0, 1, 0
             rendered[code] = artifact
             determined_by[code] = dossier.name
+
+        # A later design's re-points move references in artifacts an earlier design rendered.
+        successor = sameness.successors(supersessions(p7))
+        for row in rows(p7, "existing_inventory"):
+            code = bare(cell(row, "FQDN"))
+            if cell(row, "Action").upper() == "REPOINT" and code in rendered:
+                rendered[code] = repointed(rendered[code], successor)
 
         # The domain build manifest is no longer compared, because construction no longer produces
         # one. It was generated rather than rendered, and its domain was read from the namespace of
