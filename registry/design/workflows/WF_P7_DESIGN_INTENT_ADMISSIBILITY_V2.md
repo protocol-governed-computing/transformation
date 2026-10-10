@@ -1,4 +1,4 @@
-# WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
+# WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
 
 ## Generated Artifact
 
@@ -52,12 +52,10 @@ nobody owns.
 ## Machine
 
 ```yaml
-fqdn: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
-superseded_by:
-- transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
-supersedes: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
+fqdn: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
+supersedes: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
 artifact_kind: WORKFLOW
-version: v1
+version: v2
 governed_by: workflow::CONSTITUTION_WORKFLOW_V0
 authority: pgc.platform
 concern: design
@@ -1871,7 +1869,7 @@ core:
           register: step_bindings
           params:
             output_pattern: ^(?:capability_result\.[A-Za-z_][A-Za-z0-9_]*|result_status)$
-            input_pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|payload\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|[A-Za-z_][A-Za-z0-9_]*)$
+            input_pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|payload\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|"[^"]*"|'[^']*'|-?[0-9]+(?:\.[0-9]+)?|[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_-]*)$
             detail: an output is written to capability_result.<field> or result_status; an input reads inputs.<field>,
               payload.<field>, results.<step>.<field>, or is a literal
           intent: a reference the runtime cannot resolve is indistinguishable from one it can
@@ -1904,6 +1902,19 @@ core:
             detail: '{value} is generated twice, first at row {first} — an artifact has exactly one producer,
               and two producers of one truth drift'
           intent: one artifact, one producer, so agreement with the generator means something
+        - id: GENERATED_SOURCE_WITHOUT_GENERATOR
+          check: CELL_RESOLVES_IN_REGISTER
+          register: step_bindings
+          params:
+            column: Owner
+            only_when_column: Bound To
+            only_when_value: generated
+            target_registers:
+            - generation_provenance
+            target_column: Artifact
+            detail: binds a generated value, and its owner names no generator — a generator determines only what
+              the design says it does
+          intent: a value is declared generated only where the design names its generator
         - id: GENERATOR_UNNAMED
           check: CELL_NOT_EMPTY
           register: generation_provenance
@@ -2009,7 +2020,7 @@ core:
               p4: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1
               p5: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1
               p6: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1
-              p7: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
+              p7: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
               p8: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1
           intent: a rule said to carry out a refusal is really in force where the design is pinned
         - id: DISCHARGE_NOT_IN_TOPOLOGY
@@ -2203,7 +2214,7 @@ core:
           register: molecule_step_bindings
           params:
             column: Bound To
-            pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_.]*|iterator|accumulator\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|""|-?[0-9]+|[A-Za-z_][A-Za-z0-9_-]*)$
+            pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_.]*|iterator|accumulator\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|"[^"]*"|'[^']*'|-?[0-9]+(?:\.[0-9]+)?|[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_-]*)$
             detail: source is {value!r}; a molecule binding reads inputs.<field>, results.<step>.<field>, iterator,
               accumulator.<field>, or is a literal
           intent: a reference the runtime cannot resolve is indistinguishable from one it can

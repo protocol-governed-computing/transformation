@@ -321,8 +321,11 @@ def determines_artifacts(dossier: Path) -> bool:
     """True when a dossier's design schedules an artifact for construction to render.
 
     A dossier that only amends existing artifacts renders nothing, so acceptance has nothing to
-    compare and its absence from the corpus is not a gap.
+    compare and its absence from the corpus is not a gap. Neither does one with no mandate: a design
+    still in flight has scheduled nothing, and only a mandate hands construction anything to render.
     """
+    if not any(dossier.glob("p8_*.md")):
+        return False
     for p7 in dossier.glob("p7_*.md"):
         rows = registers(p7).get("new_artifacts") or []
         if any(_cell_of(row, "Code") for row in rows):

@@ -136,7 +136,7 @@ PHASES = {
         ],
     },
     "P7": {
-        "wf": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1",
+        "wf": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2",
         "rules": p7_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [

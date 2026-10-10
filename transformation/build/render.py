@@ -650,6 +650,13 @@ def _binding(bound_to: str) -> str:
                              f"parse: {exc}") from exc
     if bound_to.startswith(("payload.", "results.", "inputs.", "capability_result.", "result_status")):
         return f"$.{bound_to}"
+    # A quoted literal states the value between its quotes — the only spelling a value with a dot
+    # in it has, since unquoted it reads as a reference. Handing the runtime the quote marks gave it
+    # a value no design stated, and the measure called it determined.
+    if len(bound_to) >= 2 and bound_to[0] == bound_to[-1] and bound_to[0] in ("'", '"'):
+        return bound_to[1:-1]
+    if re.fullmatch(r"-?[0-9]+\.[0-9]+", bound_to):
+        return float(bound_to)
     return _literal(bound_to)
 
 

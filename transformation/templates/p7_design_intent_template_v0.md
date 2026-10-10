@@ -276,6 +276,14 @@ intent, `<node>.<field>` names an earlier node's output in this same workflow, a
 a constant the design fixes (an operation name, a status). Rendering that into `$.payload.x` is
 construction's business — the design states the source, not the syntax.*
 
+*A literal is a single word, a qualified identity (`domain::CODE_V0`), a number, or a value opening
+with a quote, bracket or brace. A value with a dot in it is written quoted — `"si.artifact.list"` —
+or it reads as a reference. Every rule that judges a binding reads a literal this way.*
+
+*`generated` is reserved. It states that the generator of the binding's owner determines the value,
+as a phase workflow's sealed rule set is, and it is admitted only for an owner §16 lists as
+generated. A design that means the word itself writes it quoted.*
+
 <!-- register:step_bindings optional -->
 | Owner | Step | Direction (INPUT, OUTPUT) | Field | Bound To | Source Finding |
 |-------|------|--------------------------|-------|----------|----------------|

@@ -107,7 +107,7 @@ def test_each_key_renders_as_a_node_running_its_contract_with_its_own_inputs():
     for key, reason in (("RECORD_ACCEPTED", "accepted"), ("RECORD_UNKNOWN", "unknown"),
                         ("RECORD_DENIED", "denied")):
         assert rendered[key]["code"] == "CC_RECORD_V0", rendered[key]
-        assert rendered[key]["inputs"]["reason"] == f'"{reason}"', rendered[key]
+        assert rendered[key]["inputs"]["reason"] == reason, rendered[key]
     assert rendered["CC_CHECK_V0"]["code"] == "CC_CHECK_V0"
     assert rendered["CC_CHECK_V0"]["next"]["NOT_FOUND"] == "RECORD_UNKNOWN", rendered["CC_CHECK_V0"]
 

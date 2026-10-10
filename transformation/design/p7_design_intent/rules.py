@@ -697,6 +697,24 @@ STORE_FORMATS = {
 BINDING_ROOTS = ["payload", "inputs", "results", "capability_result", "result_status"]
 BINDING_VALUE_ROOTS = ["result_status"]
 
+# What a literal is, stated once for every rule that judges a binding's form. The rooting rule reads
+# a quoted value, a qualified identity and a number as literals; the form rules admitted a single
+# word or an inline list or mapping, and refused the rest. A dotted operation name then had no
+# spelling both admitted — plain it was an unrooted reference, quoted it was malformed — and no
+# design could redeclare a contract that observes the composition.
+LITERAL_FORMS = (
+    r"[\[{].*[\]}]"
+    r'|"[^"]*"'
+    r"|'[^']*'"
+    r"|-?[0-9]+(?:\.[0-9]+)?"
+    r"|[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*"
+    r"|[A-Za-z_][A-Za-z0-9_-]*"
+)
+
+# The source a design writes for a value the generator of the binding's owner determines. A word, so
+# it is a literal to every form rule; GENERATED_SOURCE_WITHOUT_GENERATOR is what gives it meaning.
+GENERATED_SOURCE = "generated"
+
 INTERFACE_RULES: list[Rule] = [
     Rule(
         id="BINDING_STEP_OWNER_UNDECLARED",
@@ -958,8 +976,7 @@ COMPOSITION_INTEGRITY_RULES: list[Rule] = [
                 r"^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*"
                 r"|payload\.[A-Za-z_][A-Za-z0-9_.]*"
                 r"|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*"
-                r"|[\[{].*[\]}]"
-                r"|[A-Za-z_][A-Za-z0-9_]*)$"
+                rf"|{LITERAL_FORMS})$"
             ),
             "detail": (
                 "an output is written to capability_result.<field> or result_status; an input "
@@ -1019,6 +1036,27 @@ GENERATION_RULES: list[Rule] = [
             ),
         },
         intent="one artifact, one producer, so agreement with the generator means something",
+    ),
+    # A value a generator writes — the rule set a phase workflow hands its judge — had no statement:
+    # unbound it was a missing input, bound to a description it was malformed, bound to an invented
+    # literal it passed and said something false. The reserved source says it, and only where the
+    # design names the generator; anywhere else it would be a value nobody accounts for.
+    Rule(
+        id="GENERATED_SOURCE_WITHOUT_GENERATOR",
+        check="CELL_RESOLVES_IN_REGISTER",
+        register="step_bindings",
+        params={
+            "column": "Owner",
+            "only_when_column": "Bound To",
+            "only_when_value": GENERATED_SOURCE,
+            "target_registers": ["generation_provenance"],
+            "target_column": "Artifact",
+            "detail": (
+                "binds a generated value, and its owner names no generator — a generator "
+                "determines only what the design says it does"
+            ),
+        },
+        intent="a value is declared generated only where the design names its generator",
     ),
     Rule(
         id="GENERATOR_UNNAMED",
@@ -1243,10 +1281,7 @@ MOLECULE_SOURCE_PATTERN = (
     r"|results\.[A-Za-z_][A-Za-z0-9_.]*"
     r"|iterator"
     r"|accumulator\.[A-Za-z_][A-Za-z0-9_.]*"
-    r"|[\[{].*[\]}]"
-    r'|""'
-    r"|-?[0-9]+"
-    r"|[A-Za-z_][A-Za-z0-9_-]*)$"
+    rf"|{LITERAL_FORMS})$"
 )
 
 MOLECULE_RULES: list[Rule] = [
