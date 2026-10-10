@@ -96,7 +96,7 @@ what was found.
 | Judges a document against the composition | transformation::CC_JUDGE_AGAINST_SNAPSHOT_V1 | Composes the reading and the judging with the facts the snapshot answers. | PARTIAL | The same. |
 | Judges a seed | transformation::WF_P0_SEED_ADMISSIBILITY_V0 | Carries the seed's rule set and renders its verdict. | PARTIAL | Carries no rule-set identity. |
 | Judges a change request | transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0 | Carries the change request's rule set and renders its verdict. | PARTIAL | The same. |
-| Judges a design | transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1 | Carries the design's rule set and renders its verdict. | PARTIAL | The same. |
+| Judges a design | transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2 | Carries the design's rule set and renders its verdict. | PARTIAL | The same. |
 | Judges a mandate | transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1 | Carries the mandate's rule set and gates the approval that ends design. | PARTIAL | The approval it gates names no rule set. |
 | Declares what the domain compiles | transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0 | Declares the design and build subdomains and their sources. | EXACT | Nothing about the form of a document or its rule set. |
 

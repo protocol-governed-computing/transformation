@@ -80,7 +80,7 @@ changed, so no subdomain is declared.
 | transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1 | The same. | REPLACE | S4 gap_register GAP-2 |
 | transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1 | The same. | REPLACE | S4 gap_register GAP-2 |
 | transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1 | The same. | REPLACE | S4 gap_register GAP-2 |
-| transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1 | The same. | REPLACE | S4 gap_register GAP-2 |
+| transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2 | The same. | REPLACE | S4 gap_register GAP-2 |
 | transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1 | The same. | REPLACE | S4 gap_register GAP-2 |
 | transformation::CC_CONSTRUCT_ARTIFACTS_V0 | Receives registers from the shared reading and splits values inside cells itself. Unchanged here. | REVIEW | S4 dependency_graph #2 |
 | transformation::AC_GATE_REVIEWER_V0 | The person who closes a gate. Also the one who re-confirms an approval. | REUSE | S4 actors #2 |

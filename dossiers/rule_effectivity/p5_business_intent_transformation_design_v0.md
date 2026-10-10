@@ -123,7 +123,7 @@ and the verdict it receives.
 | design | WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V2 | WF | Decide whether a business model is admissible, under a rule set with an identity | S4 gap_register GAP-2 |
 | design | WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V2 | WF | Decide whether a business intent is admissible, under a rule set with an identity | S4 gap_register GAP-2 |
 | design | WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V2 | WF | Decide whether a governance intent is admissible, under a rule set with an identity | S4 gap_register GAP-2 |
-| design | WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2 | WF | Decide whether a design intent is admissible, under a rule set with an identity | S4 gap_register GAP-2 |
+| design | WF_P7_DESIGN_INTENT_ADMISSIBILITY_V3 | WF | Decide whether a design intent is admissible, under a rule set with an identity | S4 gap_register GAP-2 |
 | design | WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V2 | WF | Decide whether an authoring mandate is admissible, under a rule set with an identity | S4 gap_register GAP-2 |
 | design | VOCAB_DOCUMENT_STANDING_V0 | VOCAB | The standings a phase document may hold: approved, migrated or re-confirmed | S4 gap_register GAP-6 |
 | design | VOCAB_APPROVAL_STANDING_V0 | VOCAB | The standings an approval may hold under a rule set: confirmed or unconfirmed | S4 gap_register GAP-5 |

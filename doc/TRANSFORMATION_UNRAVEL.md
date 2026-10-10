@@ -698,10 +698,11 @@ v5. The v5 composition, its dossiers and its evidence remain as published, at ta
 - [x] The work is four changes, in order and not conflated: format, then structure, then the design
   unravel, then construction. The protocol fixes are a separate track (§9.9, §9.7).
 - [x] `rule_effectivity` is re-authored from p0 as the format change. Its asks become that change's
-  acceptance obligations (§9.6).
+  acceptance obligations (§9.6). **Superseded by §9.10 R2:** re-authored as the format change alone.
 - [x] No Markdown reader survives into v6. Delivered v5 dossiers are neither converted nor read. The
   test corpus is converted once, mechanically, and the old reader is used only to prove that
-  conversion (§9.9).
+  conversion (§9.9). Qualified by §9.10 R3: test copies of delivered dossiers are converted as
+  fixtures; the originals are not.
 - [x] No `IV_` kind. Transformation invariants reuse `INVARIANT`, with
   `enforcement_stage: enforced_elsewhere` (§2, §6.6).
 - [x] Protocol defects are fixed only by designed, versioned changes, never in place (§9.4).
@@ -725,11 +726,22 @@ v5. The v5 composition, its dossiers and its evidence remain as published, at ta
   schema holds its `$id`, a digest of the rule set sealed in its `WF_P*`, and its revision history.
   `phase emit --check` refuses sealed rules that differ from the digest unless a revision records
   the change, and a retroactive revision takes a new `$id`. The design unravel fills in the shape
-  under the same `$id`, as a non-retroactive revision (§9.6, §9.9).
+  under the same `$id`, as a non-retroactive revision (§9.6, §9.9). **Withdrawn by §9.10 R4.**
+- [x] **The re-cut (§9.10, R1).** Change 1 is the format alone. Rule effectivity becomes its own
+  change, after the design unravel, on real register schemas. Five changes: format, structure,
+  design unravel, rule effectivity, construction.
+- [x] **`rule_effectivity` is re-authored from p0 as the format change (R2).** Its problem statement
+  narrows to the first problem; the second is kept for the rule-effectivity change's p0.
+- [x] **Construction acceptance keeps its coverage (R3 (b)).** Copies of the delivered dossiers are
+  converted into test fixtures before the table reader is deleted. The originals stay untouched at
+  tag `v5`.
+- [x] **The identity-only schema placeholder is withdrawn (R4).** The digest-and-revision mechanism is
+  reconsidered in the rule-effectivity change.
 - [x] **In-flight dossiers need no special handling.** A dossier open when its rule set changes falls
   under the re-confirmation policy (§9.6).
 
 **Proposed; awaiting confirmation.**
+
 
 - [ ] **Tier B dispositions.** R 7 / S 2 / T 7 / G 12 (§9.3).
 - [ ] **Invariant set and names.** 14 design and 4 construction invariants. `NOTHING_DROPPED` and
@@ -1453,6 +1465,107 @@ The protocol work (§9.4: the defects and the twelve G invariants) is a separate
 
 ---
 
+### 9.10 The re-cut: format alone, effectivity after the unravel
+
+**Status.** Decided: R1 re-cut, R2 re-author, R3 (b), R4 withdraw.
+
+**What happened.** `rule_effectivity` was re-authored as change 1 and designed through p8. On the way,
+change 1 grew a second concern. §9.9 defines change 1 as "registers move to a YAML Machine block,
+behaviour unchanged". The dossier added five things:
+
+- a rule-set identity;
+- a verdict that names its rule set;
+- an approval that names its rule set and is re-confirmed;
+- a record that a document was migrated;
+- a correction's declared effectivity.
+
+It also added three vocabularies and judging under two rule sets.
+
+**Why they were joined.** §9.6 argued that the format change needs asks 1 and 3: it cannot convert
+documents without saying which were converted.
+
+**Why that argument no longer holds.** Three later decisions removed its premise:
+
+- delivered v5 dossiers are neither converted nor read;
+- in-flight dossiers are re-authored, not converted;
+- only test documents are converted, and they carry no approval.
+
+So the format change migrates no approved document. It needs neither a migration record nor a
+rule-set identity.
+
+**The symptom.** The identity needed a carrier, and the carrier is the register schema's `$id`, which
+change 3 owns. The answer was a schema file arriving early with identity only: a `$id`, a digest of
+the rules and a revision history, and no shape. That is a placeholder created to satisfy an
+ordering. The digest mechanism exists only because the rules still live in code. Both are the
+force-fit the governing constraint rules out.
+
+**The cost.** Joining the concerns replaced every phase workflow and all three judging contracts:
+15 replacements, 3 vocabularies, 10 repoints, and generated-contract bookkeeping. The format alone
+replaces the two readers and re-points the contracts that bind them.
+
+**What is not drift.**
+
+- `binding_literals` and `quoted_literals` fixed real defects, each scoped to its own change. They
+  stay delivered whatever is decided here.
+- REPLACE rather than EXTEND for a change of meaning is right, and it applies to the readers.
+- The loss of construction acceptance over delivered dossiers follows from "no Markdown reader
+  survives". It arises in any form of change 1 (R3).
+
+**Proposal.**
+
+1. **Change 1 is the format alone, as §9.9 states it.**
+   - A YAML reader that returns the table reader's shape.
+   - A converter, which is the table reader serialising what it reads.
+   - The equivalence proof: every test document judged in both forms by the same rules, findings
+     compared by rule, register, row and detail.
+   - The writers: the nine templates, the seed-to-request projection, the fixture builders and the
+     design tests.
+   - The table reader retired once the proof holds.
+   - Artifacts: `CT_PURE_PARSE_REGISTERS_V1` and `CT_PURE_PARSE_PRIOR_PHASES_V1` replace the V0
+     readers. The four contracts that bind them are re-pointed and keep their identities. No phase
+     workflow changes.
+2. **Rule effectivity becomes its own change, after the design unravel.** By then each phase has a
+   JSON Schema register schema, and its `$id` is a real identity of real content. The five asks land
+   on carriers that exist: the document's Machine block names the `$id`, the verdict names it, the
+   approval names it, and the schema's revision history records effectivity. No placeholder, no
+   digest standing in for content.
+3. **The order becomes five changes:** format, structure, design unravel, rule effectivity,
+   construction. Rule effectivity does not depend on construction, and construction does not depend
+   on it.
+
+**What happens to the existing work.**
+
+- `rule_effectivity`'s p0 problem statement holds both problems. Its first problem, facts readable
+  only through code, is change 1's. Its second, rules that judged a document left unrecorded, is
+  the later change's.
+- Its p1–p8 and its generators are evidence of the design that was cut. They stay in history and are
+  removed from the tree when the dossier is re-authored, as its earlier halted design was.
+- The decisions on approvals, effectivity and the `$id` carry over to the later change unchanged.
+  Only the timing and the placeholder are withdrawn.
+
+**Decision points.**
+
+- **R1. Re-cut or keep.** Accept the re-cut, or keep change 1 as designed. Recommended: re-cut.
+- **R2. How change 1 is raised.** Re-author `rule_effectivity` from p0 as the format change, with its
+  problem statement narrowed to the first problem. Or raise a new dossier for the format and park
+  `rule_effectivity` for the later change. The child doctrine favours re-authoring, because the
+  format change touches the readers `rule_effectivity` declares. Recommended: re-author, and keep the
+  second problem's text for the later change's p0.
+- **R3. Construction acceptance after the table reader goes.** Acceptance reproduces 183 artifacts
+  from the delivered dossiers of seven domains, read in the old form.
+  - (a) Accept the loss. Acceptance restarts on v6 dossiers and covers only the converted fixtures
+    until new dossiers accumulate.
+  - (b) Convert copies of the delivered dossiers into test fixtures before the table reader is
+    deleted, as the catalog's fixtures already are. The originals stay untouched at tag `v5`.
+  - (c) Keep the table reader as a converter only, never a judge, until v6 dossiers cover those
+    domains.
+
+  Recommended: (b). The rule protects the published record, and a test copy is not that record. It
+  qualifies the decision that v5 dossiers are neither converted nor read, so it is the author's call.
+- **R4. The withdrawn placeholder.** The checklist item "the schema file arrives with the format
+  change, carrying identity only" is withdrawn. Its digest-and-revision mechanism is reconsidered
+  in the later change, where the schema holds the rules and a digest may be unnecessary.
+
 ## 10. Delivery
 
 Delivery follows the analysis. It is not started until §9 is settled.
@@ -1464,6 +1577,16 @@ judged under the rule set in force when it starts.
 **Four changes, in order (§9.9):** format (re-authored from `rule_effectivity`, §9.6), then
 structure, then the design unravel, then construction. Each is a dossier of its
 own, with its own acceptance test. The protocol work of §9.4 is a separate track.
+
+**Decided by §9.10: five changes.** Format alone, then structure, then the design unravel, then rule
+effectivity, then construction. Change 1 replaces the two readers and re-points the contracts that
+bind them. Rule effectivity carries the five asks of §9.6, on the register schemas the unravel
+creates.
+
+**Delivered on the way.** Two defects blocked change 1's first design and were fixed in sequence, each
+as its own dossier: `binding_literals` (one meaning for a literal, a statement for a generated value;
+`WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2`) and `quoted_literals` (construction renders a literal as its
+value). Their obligations on later changes are listed in §9.
 
 **Groundwork that precedes the dossier.** None of it changes behaviour:
 
