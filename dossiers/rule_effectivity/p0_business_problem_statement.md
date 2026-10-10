@@ -4,114 +4,136 @@
 
 ## 1. Context
 
-Each phase of the transformation lifecycle declares a rule set, and a document is admissible when it
-satisfies every rule its phase declares. The rule sets change: a correction adds a rule, widens a
-vocabulary, or requires a column that was not required before.
+Each phase of the transformation lifecycle judges a document against a rule set. A document is
+admissible when it satisfies every rule its phase declares. The rule sets change: a correction
+adds a rule, widens a vocabulary, or requires a column that was not required before.
 
-Documents do not change when rules do. A dossier authored last month sits on disk exactly as it was
-approved, and every rule written since is applied to it the next time anyone looks.
+A phase document holds two kinds of content. Its prose explains the change to a person. Its
+registers state the facts the rules judge. Today both live in one Markdown text, and each register
+is a table inside the prose.
 
 ---
 
 ## 2. Problem Statement
 
-**Every rule is retroactive to every document that has ever existed, and nothing records which rules a
-document was authored under.**
+**Only the current code can read a phase document's facts. And the document names no rules that
+judged it.**
 
-A correction that requires a new column invalidates every dossier that predates it. That happened:
-one column was added and every dossier ever authored became inadmissible at once — including three
-that were complete, approved, and delivered months earlier. Each was amended by hand and passed again.
+These are two problems with one remedy. A document needs a place for facts that a machine reads
+exactly, separate from the prose a person reads.
 
-Three things are wrong, and they are separable.
+### The rules that judged a document are unrecorded
 
-**A verdict has no date.** "This dossier is admissible" is a statement about now, not about when it
-was approved. Re-run it after any correction and the answer may differ, with nothing to say whether
-the document changed, the rules changed, or both.
+A document does not change when the rules do. Every rule written later applies to every document
+ever written, the next time anyone looks.
 
-**An approval does not survive the rules it was given under.** A gate closed on a design judged
-complete against the rules of that day. When the rules move, the approval is silently reopened —
-nobody is told, and the dossier does not know.
+- **A verdict has no rule set.** "This document is admissible" describes the rules of today, not the
+  rules it was approved under. A re-run after a correction may differ. Nothing says whether the
+  document changed, the rules changed, or both.
+- **An approval is silently reopened.** A gate closes on a document judged against the rules of that
+  day. When the rules move, nobody is told, and the document does not know.
+- **A migration looks like an authoring.** A document amended to satisfy a later rule reads exactly
+  like one written under that rule from the start. The second is a stronger claim than the first.
 
-**A migration is indistinguishable from an authoring.** A dossier amended to satisfy a rule written
-after it was approved looks exactly like one authored under that rule from the start. The record
-cannot tell a document that always said this from one taught to say it afterwards, and the second is
-a weaker claim.
+This has happened and has been measured. One added column made every dossier inadmissible at once,
+and five delivered dossiers were amended by hand to pass again. Today, 32 of 273 delivered
+documents fail rules that were added after their approval.
 
-This change shall:
+### The facts are readable only through code
 
-- give a rule set a version, so a document can say which one it was authored under;
-- let a verdict state the rule set it was rendered against;
-- distinguish a dossier migrated to a later rule set from one authored under it;
-- say what happens to an approval when the rules it was given under change.
+The rules read each register through conventions that only the code states:
+
+- a column is found by the start of its name;
+- a row reading `NONE IDENTIFIED` means the register is empty;
+- a dash means the cell says nothing;
+- routing is written as text, `OUTCOME -> target`, and the code splits it.
+
+Fourteen such reading conventions and seven formats inside cells exist today. A person who wants to
+reproduce a verdict without this code cannot, because the conventions are written nowhere else. The
+same form also leaves the document no exact place to name its rule set.
+
+### This change shall
+
+- carry every register as structured data in a block of its own, apart from the prose, as an
+  artifact carries its Machine block;
+- keep the prose as prose;
+- let a document name the rule set it was authored under, by an identity that changes only when
+  the rules change;
+- let a verdict name the rule set it was rendered against, by the same identity;
+- record a document amended to satisfy a later rule set as migrated, apart from one authored under
+  that rule set;
+- make an approval name its rule set, and leave it unconfirmed under a later rule set until a person
+  re-confirms it;
+- give every document the same verdict and the same findings in its old form and its new form.
+
+### What a caller sees
+
+Authors write registers as structured data, beside their prose. Every verdict names the rule set
+that rendered it. No document changes verdict because its form changed.
+
+### Constraints decided by the business
+
+- **No compatibility with v5.** Dossiers approved under v5 stay as published. This change neither
+  converts nor reads them. The old reading retires once this change shows that the old and new forms
+  receive the same verdicts.
+- **One form for every document that carries registers**, from the seed to the mandate. The business
+  problem statement has no registers and stays prose.
+- **One form after this change.** The new form replaces the old form. The two never coexist.
 
 ### What this change does not decide
 
-- **Whether a correction should be retroactive.** Some must be. This change makes the question
-  askable, not answered.
-- **Whether old dossiers must be migrated.** That is a judgement per correction.
-- **Anything about generated artifacts.** A separate problem with its own change.
+- **How a value inside a register is structured.** Routing written as text stays text here. Giving
+  such values a structure is the next change.
+- **Where the rules are declared, and in what language.** That is a later change.
+- **Whether a given correction is retroactive.** The correction declares that itself (§3).
 
 ### Left for later changes
 
+- **The structure of values inside registers.**
+- **Declaring the design compiler's rules outside its code.**
+- **Governing and specifying construction on its own.**
 - **Rule sets that differ per composition** rather than per version. Nothing has needed it.
 
 ---
 
 ## 3. Clarifications — answered and outstanding
 
-Four were answered by the business author. Two remain open and no phase may proceed on a guess about
-them.
+The business author answered seven questions. None remain open.
 
 ### Answered
 
-- **When the rules change, is an existing approval still an approval?** Yes. **An approval remains
-  valid under the rules it was given, and re-evaluation under current rules is a separate act that is
-  recorded.** Anything else destroys the meaning of a gate: if an approval is only ever a statement
-  about today's rules, then no gate was ever closed — it was provisionally closed pending every
-  future rule, and "approved" means "not yet invalidated". A closed gate is a fact about a moment.
+- **When the rules change, is an existing approval still an approval?** **An approval is a fact about
+  the rule set it was given under, and it stays that fact.** Under a later rule set, the approval
+  stands unconfirmed until a person re-confirms it against that set. An approval that the next rule
+  silently erased would mean no gate was ever closed. An approval that silently carried over would
+  claim a judgement nobody made.
 
 - **Should a document be judged against the rules it was authored under, the current rules, or both?**
-  Both, because they answer different questions. Judged under the rules it was authored under, the
-  question is whether the approval was sound. Judged under current rules, the question is whether the
-  document would be approved today. Neither answer substitutes for the other, and a verdict that does
-  not say which rules it was rendered against answers neither.
+  Both, because they answer different questions. The rules it was authored under answer whether its
+  approval was sound. The current rules answer whether it would be approved today. A verdict that
+  does not name its rule set answers neither.
 
-- **Is a dossier that satisfies today's rules only because it was amended making the same claim as
-  one that satisfied them when written?** No. There are three states, not two: **approved** — closed
-  under a rule set and still so; **migrated** — amended to satisfy a later rule set, passing now and
-  taught to; **re-approved** — re-judged whole under the later rule set and re-gated by a human. Five
-  dossiers were migrated and none re-approved, because no human re-closed a gate on them.
+- **Is a document that passes today's rules only because it was amended making the same claim as one
+  that passed them when written?** No. A document stands in one of three states:
+  - **approved**: a person closed its gate under a rule set;
+  - **migrated**: it was amended to satisfy a later rule set, and nobody has re-confirmed it;
+  - **re-confirmed**: a person judged it whole under the later rule set and closed its gate again.
 
-- **Must every dossier be migrated when a rule set moves, or may one be left at the version it was
-  approved under?** It may be left. A completed change is not obliged to answer rules written after
-  it closed, for the same reason its baseline is never re-pinned forward: approving a document
-  against a rule set that arrived later asserts a re-reading of facts already settled.
+- **Must every document move to each new rule set?** No. A completed change need not answer rules
+  written after it closed. A document left behind stays approved under its own rule set and stands
+  unconfirmed under the later one.
 
-**The consequence, accepted deliberately:** a document must carry the rule-set version it was
-approved under, or none of the above is recordable and the distinction between approved and migrated
-cannot be made at all.
+- **What gives a rule set a new version: every change, or only one that can invalidate a document?**
+  **Only a change that can alter a prior document's admissibility.** If every change created a
+  version, documents would fall behind for corrections that could never affect them. "Migrated"
+  would then distinguish nothing. A new version means that documents approved before it may no
+  longer pass.
 
-- **What versions a rule set: every change, or only one that can invalidate a document?** **Only one
-  that can alter a prior dossier's admissibility.** Versioning every change makes the version
-  meaningless as a signal: a document would fall behind constantly for corrections that could never
-  have affected it, and "migrated" would stop distinguishing anything. A version means *documents
-  approved before this may no longer pass*.
+- **Who decides that a correction is retroactive: the correction, or the rule set?** **The correction
+  declares its own effectivity, retroactive or not, and the rule set records the declaration as
+  governed history.** Only the change knows whether it can invalidate a document, because it knows
+  what it added and why. A retroactive correction creates a new version and names the documents it
+  affects. A non-retroactive correction creates no version and disturbs no document.
 
-- **Who decides that a correction is retroactive — the correction, or the rule set?** **The
-  correction declares its own effectivity — non-retroactive or retroactive — and the rule set records
-  that declaration as governed history.** Only the change knows whether it can invalidate, because it
-  knows what it added and why. But a claim held only in a commit message is what exists today, and it
-  is why five dossiers were migrated with the reasoning surviving in one commit body.
-
-**What follows, and it is more than the two answers:**
-
-- **Each approval pins the rule-set version it was given under.** Without that pin nothing can
-  distinguish an approval that still stands from one whose rules have moved.
-- **A retroactive change creates a new version and identifies the dossiers it affects**, each to be
-  migrated or re-approved. Naming them is part of the change, not a later discovery.
-- **A non-retroactive correction does neither.** No version, no migration, no dossier disturbed —
-  and the declaration is what makes that claim checkable rather than assumed.
-
-Applied to this session: the diagnostic-message improvement changed no verdict and should have
-declared itself non-retroactive. The Subdomain column invalidated every dossier that existed and
-should have declared itself retroactive, created a version, and named all five.
+- **Must dossiers approved before this change move to the new form?** No. v6 does not read v5
+  dossiers. They remain the published evidence of v5.
