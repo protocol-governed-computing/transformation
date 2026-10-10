@@ -736,6 +736,20 @@ v5. The v5 composition, its dossiers and its evidence remain as published, at ta
   `NOTHING_INVENTED` are kept separate (§9.5).
 - [ ] **Constitutions.** Two, one per concern: `design` and `build` (§9.5).
 
+**Obligations carried into later changes.** Found while delivering `binding_literals` and
+`quoted_literals`, which change 1 waited on. Each is owned by the change named, and closes there.
+
+- [ ] **Structure (change 2): `generated` becomes a typed marker.** It is a reserved word in a string
+  cell today, read case-insensitively. That is a sub-grammar, which is what change 2 removes. Under
+  YAML a generated value is stated by its own key or tag, never by a word a literal could also spell.
+- [ ] **Design unravel (change 3): one specification of a literal.** The design side defines a literal
+  in `LITERAL_FORMS` (`p7_design_intent/rules.py`) and construction in `render._binding`. They agree
+  today and nothing holds them together. The language specification states it once, and both read it.
+- [ ] **Construction (change 4): the render transform's vectors pin how a literal renders.**
+  `quoted_literals` corrected `CT_PURE_RENDER_ARTIFACTS_V0`'s implementation without a new identity,
+  because its declaration says nothing about literals. A behaviour the declaration does not state is
+  one sameness cannot see; test vectors make it declared.
+
 **Separate track, outside `transformation`.**
 
 - [ ] Propose the 12 G properties as `software_governance` invariants, initially

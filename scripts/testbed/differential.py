@@ -31,6 +31,7 @@ from transformation.design.read import read_seed
 # would be two answers to "what judged this document".
 from transformation.design.meta import RULE_MODULES
 from transformation.design.sealed import sealed_rule_set
+from transformation.design.emit import workflow_fqdn
 from transformation.design.p0_change_seed.rules import rule_set as p0_rule_set
 from transformation.design.p1_change_request.rules import rule_set as p1_rule_set
 from transformation.design.p2_domain_model.rules import rule_set as p2_rule_set
@@ -65,7 +66,7 @@ from meta_test import assert_consistent
 # corpus is part of the declaration rather than discovered.
 PHASES = {
     "P0": {
-        "wf": "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
+        "wf": workflow_fqdn("p0"),
         "rules": p0_rule_set,
         "corpus": [
             REPO / "dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md",
@@ -74,7 +75,7 @@ PHASES = {
         ],
     },
     "P1": {
-        "wf": "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
+        "wf": workflow_fqdn("p1"),
         "rules": p1_rule_set,
         "corpus": [
             REPO / "dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
@@ -83,7 +84,7 @@ PHASES = {
         ],
     },
     "P2": {
-        "wf": "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1",
+        "wf": workflow_fqdn("p2"),
         "rules": p2_rule_set,
         # P2 grounds claims against the composition, so the differential must supply the same
         # observation the compiled workflow gathers. Comparing two ungrounded runs would agree
@@ -97,7 +98,7 @@ PHASES = {
         ],
     },
     "P3": {
-        "wf": "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1",
+        "wf": workflow_fqdn("p3"),
         "rules": p3_rule_set,
         # Two observations, answering different questions: does this identity exist, and may this
         # domain be drawn on at all. A differential that supplied only the first would agree with
@@ -109,7 +110,7 @@ PHASES = {
         ],
     },
     "P4": {
-        "wf": "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1",
+        "wf": workflow_fqdn("p4"),
         "rules": p4_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -118,7 +119,7 @@ PHASES = {
         ],
     },
     "P5": {
-        "wf": "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1",
+        "wf": workflow_fqdn("p5"),
         "rules": p5_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -127,7 +128,7 @@ PHASES = {
         ],
     },
     "P6": {
-        "wf": "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1",
+        "wf": workflow_fqdn("p6"),
         "rules": p6_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -136,7 +137,7 @@ PHASES = {
         ],
     },
     "P7": {
-        "wf": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2",
+        "wf": workflow_fqdn("p7"),
         "rules": p7_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
@@ -145,7 +146,7 @@ PHASES = {
         ],
     },
     "P8": {
-        "wf": "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1",
+        "wf": workflow_fqdn("p8"),
         "rules": p8_rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
