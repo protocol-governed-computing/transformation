@@ -8,19 +8,15 @@ Each phase of the transformation lifecycle judges a document against a rule set.
 admissible when it satisfies every rule its phase declares. The rule sets change: a correction
 adds a rule, widens a vocabulary, or requires a column that was not required before.
 
-A phase document holds two kinds of content. Its prose explains the change to a person. Its
-registers state the facts the rules judge. Today both live in one Markdown text, and each register
-is a table inside the prose.
+A phase document carries its registers as structured data in a block of its own, apart from its
+prose. Each phase declares its registers in a register schema, and the schema's identity is the
+identity of the rules it declares.
 
 ---
 
 ## 2. Problem Statement
 
-**Only the current code can read a phase document's facts. And the document names no rules that
-judged it.**
-
-These are two problems with one remedy. A document needs a place for facts that a machine reads
-exactly, separate from the prose a person reads.
+**The document names no rules that judged it.**
 
 ### The rules that judged a document are unrecorded
 
@@ -39,66 +35,33 @@ This has happened and has been measured. One added column made every dossier ina
 and five delivered dossiers were amended by hand to pass again. Today, 32 of 273 delivered
 documents fail rules that were added after their approval.
 
-### The facts are readable only through code
-
-The rules read each register through conventions that only the code states:
-
-- a column is found by the start of its name;
-- a row reading `NONE IDENTIFIED` means the register is empty;
-- a dash means the cell says nothing;
-- routing is written as text, `OUTCOME -> target`, and the code splits it.
-
-Fourteen such reading conventions and seven formats inside cells exist today. A person who wants to
-reproduce a verdict without this code cannot, because the conventions are written nowhere else. The
-same form also leaves the document no exact place to name its rule set.
-
 ### This change shall
 
-- carry every register as structured data in a block of its own, apart from the prose, as an
-  artifact carries its Machine block;
-- keep the prose as prose;
 - let a document name the rule set it was authored under, by an identity that changes only when
   the rules change;
 - let a verdict name the rule set it was rendered against, by the same identity;
 - record a document amended to satisfy a later rule set as migrated, apart from one authored under
   that rule set;
 - make an approval name its rule set, and leave it unconfirmed under a later rule set until a person
-  re-confirms it;
-- give every document the same verdict and the same findings in its old form and its new form.
+  re-confirms it.
 
 ### What a caller sees
 
-Authors write registers as structured data, beside their prose. Every verdict names the rule set
-that rendered it. No document changes verdict because its form changed.
-
-### Constraints decided by the business
-
-- **No compatibility with v5.** Dossiers approved under v5 stay as published. This change neither
-  converts nor reads them. The old reading retires once this change shows that the old and new forms
-  receive the same verdicts.
-- **One form for every document that carries registers**, from the seed to the mandate. The business
-  problem statement has no registers and stays prose.
-- **One form after this change.** The new form replaces the old form. The two never coexist.
+Every verdict names the rule set that rendered it.
 
 ### What this change does not decide
 
-- **How a value inside a register is structured.** Routing written as text stays text here. Giving
-  such values a structure is the next change.
-- **Where the rules are declared, and in what language.** That is a later change.
 - **Whether a given correction is retroactive.** The correction declares that itself (§3).
 
 ### Left for later changes
 
-- **The structure of values inside registers.**
-- **Declaring the design compiler's rules outside its code.**
-- **Governing and specifying construction on its own.**
 - **Rule sets that differ per composition** rather than per version. Nothing has needed it.
 
 ---
 
 ## 3. Clarifications — answered and outstanding
 
-The business author answered seven questions. None remain open.
+The business author answered six questions. None remain open.
 
 ### Answered
 
@@ -134,6 +97,3 @@ The business author answered seven questions. None remain open.
   governed history.** Only the change knows whether it can invalidate a document, because it knows
   what it added and why. A retroactive correction creates a new version and names the documents it
   affects. A non-retroactive correction creates no version and disturbs no document.
-
-- **Must dossiers approved before this change move to the new form?** No. v6 does not read v5
-  dossiers. They remain the published evidence of v5.

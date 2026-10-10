@@ -701,8 +701,8 @@ v5. The v5 composition, its dossiers and its evidence remain as published, at ta
   acceptance obligations (§9.6). **Superseded by §9.10 R2:** re-authored as the format change alone.
 - [x] No Markdown reader survives into v6. Delivered v5 dossiers are neither converted nor read. The
   test corpus is converted once, mechanically, and the old reader is used only to prove that
-  conversion (§9.9). Qualified by §9.10 R3: test copies of delivered dossiers are converted as
-  fixtures; the originals are not.
+  conversion (§9.9). §9.10 R3 adds test copies of delivered dossiers to what is converted, for
+  construction acceptance's coverage.
 - [x] No `IV_` kind. Transformation invariants reuse `INVARIANT`, with
   `enforcement_stage: enforced_elsewhere` (§2, §6.6).
 - [x] Protocol defects are fixed only by designed, versioned changes, never in place (§9.4).
@@ -730,11 +730,13 @@ v5. The v5 composition, its dossiers and its evidence remain as published, at ta
 - [x] **The re-cut (§9.10, R1).** Change 1 is the format alone. Rule effectivity becomes its own
   change, after the design unravel, on real register schemas. Five changes: format, structure,
   design unravel, rule effectivity, construction.
-- [x] **`rule_effectivity` is re-authored from p0 as the format change (R2).** Its problem statement
-  narrows to the first problem; the second is kept for the rule-effectivity change's p0.
+- [x] **`rule_effectivity` is re-authored from p0 as the format change (R2), renamed
+  `register_format`.** Its problem statement narrows to the first problem. The second is kept word
+  for word as `dossiers/rule_effectivity/p0_business_problem_statement.md`, the rule-effectivity
+  change's p0, which is not in flight until the design unravel is delivered.
 - [x] **Construction acceptance keeps its coverage (R3 (b)).** Copies of the delivered dossiers are
-  converted into test fixtures before the table reader is deleted. The originals stay untouched at
-  tag `v5`.
+  converted into test fixtures before the table reader is deleted. This is a test concern, not
+  compatibility: v5 is archived at its tag, and v6 owes it nothing.
 - [x] **The identity-only schema placeholder is withdrawn (R4).** The digest-and-revision mechanism is
   reconsidered in the rule-effectivity change.
 - [x] **In-flight dossiers need no special handling.** A dossier open when its rule set changes falls
@@ -761,6 +763,42 @@ v5. The v5 composition, its dossiers and its evidence remain as published, at ta
   `quoted_literals` corrected `CT_PURE_RENDER_ARTIFACTS_V0`'s implementation without a new identity,
   because its declaration says nothing about literals. A behaviour the declaration does not state is
   one sameness cannot see; test vectors make it declared.
+
+**Version management: a policy, not a standards change.**
+
+Three things travel together under "version management". The platform enforces two and assumes the
+third:
+
+1. **Identity.** A name stands for one meaning; a change of meaning is a new `_V<n>` (ID-5, SU-11).
+2. **Succession.** A replaced version names its successor, and what named it is re-pointed.
+3. **Retention.** A replaced version stays in the live composition.
+
+Identity and succession stay mandatory. Retention is bounded by the standard already: SU-7 requires it
+only while a retention condition holds (`4e` §6.1), and SU-12 lets a person delete once none holds,
+as a governed transformation whose record names the deleted identity, the deciding party, and the
+determination that no condition held. The standard keeps the discipline of versions coexisting, and
+it does not change.
+
+- [x] **During development, nothing in the live tree is retained for its own sake.** An archived release
+  retains its versions inside its sealed snapshot, at its tag and under its DOI; the live tree owes it
+  nothing. 33 of 498 artifacts are carried stood down today, at a real cost in checks and code.
+- [x] **A deleted name is never reused.** Citations name v1–v5 identities, and a reused name would
+  change what a citation means. This rule costs nothing and is not deferred.
+- [x] **Every deletion is a recorded human act**, made through a dossier that states the three things
+  SU-12 requires. `register_format` is the first: it deletes the two readers it replaces, because
+  their implementation is the table reader it retires. SU-12 is rated Vacuous in the realization map
+  until then.
+- [ ] **The policy is declared, not hard-coded.** Version handling is assumed in several places:
+  `emit.SEALED_IN`, construction's REPLACE and REPOINT paths, `implementation_closure` (which ignores
+  supersession) and the published-identity check. Each should read one declared retention policy —
+  none during development, a list of conditions later — rather than assume retention. Owned by its
+  own change.
+- [ ] **The exit is written down.** Development ends, and retention conditions begin to bind, at a
+  declared point: a stable baseline. Naming that point makes the switch a decision rather than drift.
+  `protocol-governed-computing` is already on PyPI; its users pin a version, which the tag covers.
+- [ ] **The rule-effectivity change does not rely on retention.** It planned to judge a document under
+  the rule set it names by keeping superseded `WF_P*` versions. The register schema's revision
+  history is the carrier instead.
 
 **Separate track, outside `transformation`.**
 
@@ -1570,39 +1608,45 @@ replaces the two readers and re-points the contracts that bind them.
 
 Delivery follows the analysis. It is not started until §9 is settled.
 
-**The vehicle.** The generated-artifacts exception has been spent, so each change travels as a
-transformation dossier, P0 through P8, like any other lifecycle change. Its own documents are
-judged under the rule set in force when it starts.
+**The vehicle.** `REBUILD_CHARTER.md` replaces the dossier-per-change plan below. The five changes
+are designed as one and rebuilt against the frozen module as an oracle, because the tool cannot judge
+its own redesign without each defect blocking its own fix. The plan below is kept as the record of
+what the charter replaced, and its acceptance items carry into the charter.
 
-**Four changes, in order (§9.9):** format (re-authored from `rule_effectivity`, §9.6), then
-structure, then the design unravel, then construction. Each is a dossier of its
-own, with its own acceptance test. The protocol work of §9.4 is a separate track.
-
-**Decided by §9.10: five changes.** Format alone, then structure, then the design unravel, then rule
-effectivity, then construction. Change 1 replaces the two readers and re-points the contracts that
-bind them. Rule effectivity carries the five asks of §9.6, on the register schemas the unravel
-creates.
+**Five changes, in order (§9.9, as re-cut by §9.10):** format alone (`register_format`), then
+structure, then the design unravel, then rule effectivity, then construction. Each is a dossier of
+its own, with its own acceptance test. Change 1 replaces the two readers and re-points the contracts
+that bind them. Rule effectivity carries the five asks of §9.6, on the register schemas the unravel
+creates. The protocol work of §9.4 is a separate track.
 
 **Delivered on the way.** Two defects blocked change 1's first design and were fixed in sequence, each
 as its own dossier: `binding_literals` (one meaning for a literal, a statement for a generated value;
 `WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2`) and `quoted_literals` (construction renders a literal as its
 value). Their obligations on later changes are listed in §9.
 
-**Groundwork that precedes the dossier.** None of it changes behaviour:
+**Acceptance, per change.** Each change proves what it claims, and no more.
 
-- the recorded baseline: each corpus document's verdict and findings, with its observations and
-  priors captured for replay (§7.3, §8.4);
-- a rule identity on expanded rules (§9.2), so that a difference or a coverage gap names the rule it
-  concerns;
-- a structured locator on findings (§4.6), needed before any independent evaluator is compared.
+- **Format (`register_format`).** One evaluator, two forms. Every test document is converted by the
+  table reader and judged in both forms by the same rule set; the findings must be identical, rule,
+  register, row and detail. Construction reproduces every artifact it reproduces today, from the
+  converted fixture copies (§9.10 R3). It needs no groundwork: the rule ids and finding text it
+  compares already exist, and the comparison is live, not replayed.
+- **Structure.** The same proof over the converted corpus, with values inside cells given structure.
+- **Design unravel.** The rules move out of code, so behaviour must be shown unchanged against a
+  record, and each rule must be nameable. Its groundwork, none of which changes behaviour:
+  - the recorded baseline: each corpus document's verdict and findings, with its observations and
+    priors captured for replay (§7.3, §8.4);
+  - a rule identity on expanded rules (§9.2), the schema `$id` plus a JSON Pointer, which exists only
+    once the register schemas do, so that a difference or a coverage gap names the rule it concerns;
+  - a structured locator on findings (§4.6), needed before any independent evaluator is compared.
 
-**Acceptance.** Two levels (§8.5):
+  Its acceptance has two levels (§8.5):
+  1. **Declaration identity.** The expanded rule set after the change equals the one before it, rule
+     for rule.
+  2. **Behavioural identity.** The recorded baseline replays identically.
+- **Rule effectivity** and **construction** state their acceptance in their own dossiers.
 
-1. **Declaration identity.** The expanded rule set after the change equals the one before it, rule
-   for rule.
-2. **Behavioural identity.** The recorded baseline replays identically.
-
-`phase meta`, the differential and `e2e_phases_test.py` stay green throughout.
+`phase meta`, the differential and `e2e_phases_test.py` stay green throughout every change.
 
 **Behaviour-changing work comes after.** Re-expressing tier-B kinds and writing an independent
 evaluator from the specification both change or test behaviour. Each needs a negative for every
