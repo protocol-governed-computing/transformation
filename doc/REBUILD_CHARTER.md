@@ -47,7 +47,8 @@ module and the composition it produced are the baseline the rebuild is measured 
 2. **Structure.** Values inside cells given structure: routing, bindings, literals and generated
    values (§9.9, and the obligations in §9).
 3. **Design unravel.** Rules declared as artifacts, not code (§3, §6):
-   - transformation invariants under a transformation constitution;
+   - transformation invariants under transformation constitutions, declared in the platform's
+     governance surface (§6a);
    - a register schema per phase;
    - each expanded rule identified by schema `$id` and JSON Pointer (§9.2);
    - findings with structured locators (§4.6);
@@ -139,6 +140,38 @@ platform's surface closure refuses that today. The fix is decided (option B):
 - delivered dossiers, in their original form;
 - generator scripts kept under `.github/process/notes/` (v5 ruling C1);
 - the parked dossiers (§9).
+
+## 6a. Allocation
+
+The rebuild splits declarations from code, as the platform splits `software_governance` from
+`protocol_compiler`.
+
+**Governance goes to `software_governance`.** The transformation invariants and constitutions live
+in `software_governance/registry/transformation/`.
+- **Why.** A domain build cannot author an INVARIANT or a CONSTITUTION. The chain relations that make
+  one authoritative (declared by a constitution rule, resolved, paired with its ASSERT) are proved
+  only on the platform surface, and `governance_chain_closure` refuses a domain build that admits
+  either kind.
+- **Identity.** They keep the `transformation::` namespace, which joins the authorized namespaces in
+  the platform's identity rules. The platform and the transformation domain then both hold
+  `transformation::` identities, and assembly accepts it.
+- **`enforced_by` is prose.** A platform artifact cannot name a domain artifact, so each invariant
+  states its mechanism in words, as platform invariants enforced elsewhere already do: the design
+  compiler evaluating a phase's sealed rule set, or the construction compiler measuring a design.
+- **Proved in scratch.** The platform compiles with the 20 invariants and 2 constitutions; the
+  platform, transformation, inspection and collatz assemble into one sealed snapshot, and composition
+  conformance passes.
+
+**Code and composition stay in the transformation repository.** It keeps both compilers, the CLI,
+the transform implementations, and the tool domain that dispatches them: the phase and construction
+workflows, the judging contracts, the transforms, intents and bindings. The platform hosts no
+workflows or contracts, and the compilers stay replaceable code behind declared rules.
+
+**The repository is renamed `transformation_compilers` at the swap.** The import package, the
+domain name and the `transformation::` namespace do not change, so no published identity moves. The
+rename touches workspace paths (the regression's domain list, the assembler's candidates,
+`release.sh`, `pgc_install`, the snapshot profiles and the instruction files) and the GitHub
+repository name. The swap replaces the repository whole, so the rename rides with it.
 
 ## 7. Governance exception
 
@@ -294,14 +327,17 @@ The human runs every git command.
 **Repositories.**
 - `transformation` carries the rebuild.
 - `.github` carries the expectations, the ledger and the runbook that change with it.
+- `software_governance` carries the transformation invariants and constitutions (§6a) on a rebuild
+  branch.
 - `software_governance` and `protocol_compiler` take the platform fix (§6) on `dev/18`, through the
-  lifecycle. They need no rebuild branch.
+  lifecycle.
 
 | Repository | Ref | Purpose |
 |---|---|---|
 | transformation | tag `oracle/transformation` on `dev/18` | The frozen oracle. It never moves. |
 | transformation | `rebuild/transformation`, cut from the tag | All rebuild work. |
 | .github | `rebuild/transformation`, cut from `dev/18` | Expectations and ledger entries that match the rebuild. |
+| software_governance | `rebuild/transformation`, cut from `dev/18` | The transformation invariants and constitutions, and the authorized namespace (§6a). |
 | transformation | `dev/18` | Frozen (§3). A fix the workspace needs lands here and is cherry-picked onto the rebuild branch. |
 | every other repository | `dev/18` | Unchanged. The platform fix lands here before the swap. |
 
@@ -312,23 +348,29 @@ the rebuild.
   environment, never through `sys.path`.
 
 **Switching.**
-- To work on the rebuild, check out `rebuild/transformation` in both `transformation` and `.github`.
-- To work on anything else, return both to `dev/18`. Run the regression there to confirm the oracle
+- To work on the rebuild, check out `rebuild/transformation` in `transformation`, `.github` and
+  `software_governance`.
+- To work on anything else, return all three to `dev/18`. Run the regression there to confirm the oracle
   composition still passes.
 
 **Backup.**
 - `dev/18` is pushed to the remote.
-- The oracle tag and both rebuild branches are pushed as well, so the oracle and the work in progress
+- The oracle tag and the rebuild branches are pushed as well, so the oracle and the work in progress
   survive the loss of this machine.
 
 **The swap.**
 1. Squash `rebuild/transformation` into `dev/18` in `transformation`, as one commit.
 2. Squash it into `dev/18` in `.github`, as one commit. The deferred ledger entries
    (`.github/process/notes/rebuild-retirements.yaml`) join `retired_identities.yaml` in this commit.
-3. Run `regression.sh --all` on `dev/18`.
-4. After confirmation, rename both branches `archive/rebuild-transformation`. The oracle tag stays.
+3. Squash it into `dev/18` in `software_governance`, as one commit.
+4. Rename the repository `transformation` to `transformation_compilers`, on GitHub and in the
+   workspace, with the path changes of §6a.
+5. Run `regression.sh --all` on `dev/18`.
+6. After confirmation, rename the three branches `archive/rebuild-transformation`. The oracle tag
+   stays.
 
-**Rollback.** Before step 4, `dev/18` in `transformation` returns to the tag. That reset is
+**Rollback.** Before step 6, `dev/18` in `transformation` returns to the tag, `software_governance`
+and `.github` return to their commits before the swap, and the repository rename is undone. That reset is
 destructive, so a human decides it.
 
 After the swap, `dev/18` collects for v6 as before.
