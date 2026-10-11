@@ -380,5 +380,297 @@
         }
       }
     }
+  },
+  "allOf": [
+    {
+      "x-register": "purpose_provenance",
+      "x-finding": {
+        "code": "PURPOSE_PROVENANCE_NOT_SINGULAR",
+        "intent": "a register owing one answer may not carry several",
+        "detail": "the register answers one question — whether this phase inherited the seed's purpose or refined it — and two rows are two answers to it"
+      },
+      "maxItems": 1
+    },
+    {
+      "x-register": "purpose_provenance",
+      "x-finding": {
+        "code": "PURPOSE_NOT_CARRIED_FROM_SEED",
+        "intent": "the one narrative no artifact can derive is authored once and never quietly replaced",
+        "detail": "the purpose is declared INHERITED and does not match the seed's — inherit it word for word, or declare REFINED and say what this phase adds"
+      },
+      "x-carriage": {
+        "mode": "prose",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "subdomain_purpose",
+          "prose_register": "subdomain_purpose",
+          "column": "Disposition",
+          "inherited_value": "INHERITED",
+          "detail": "the purpose is declared INHERITED and does not match the seed's — inherit it word for word, or declare REFINED and say what this phase adds"
+        }
+      }
+    },
+    {
+      "x-register": "purpose_provenance",
+      "x-finding": {
+        "code": "REFINEMENT_NOT_STATED",
+        "intent": "superseding upstream content is allowed, doing it without saying so is not",
+        "detail": "a refined purpose must state what it adds that the seed did not say; silence here is the silent replacement this register exists to prevent"
+      },
+      "items": {
+        "if": {
+          "properties": {
+            "disposition": {
+              "const": "REFINED"
+            }
+          },
+          "required": [
+            "disposition"
+          ]
+        },
+        "then": {
+          "properties": {
+            "refinement": {
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "subdomain_purposes",
+      "x-finding": {
+        "code": "TOUCHED_SUBDOMAIN_WITHOUT_PURPOSE",
+        "intent": "every subdomain a change touches has its purpose stated"
+      },
+      "x-carriage": {
+        "mode": "identities_covered",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "cr_type",
+          "prior_column": "Subdomain",
+          "column": "Subdomain",
+          "require": "prior_in_here"
+        }
+      }
+    },
+    {
+      "x-register": "provisional_codes",
+      "x-finding": {
+        "code": "TOUCHED_SUBDOMAIN_AUTHORS_NOTHING",
+        "intent": "a subdomain a change authors into names the artifacts it authors"
+      },
+      "x-carriage": {
+        "mode": "identities_covered",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "cr_type",
+          "prior_column": "Subdomain",
+          "column": "Subdomain",
+          "require": "prior_in_here",
+          "prior_only_when_column": "Classification",
+          "prior_only_when_values": [
+            "NEW_SUBDOMAIN",
+            "EXTEND_SUBDOMAIN"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "provisional_codes",
+      "x-finding": {
+        "code": "PROVISIONAL_CODE_ALREADY_BOUND",
+        "intent": "a provisional code names what to build, never where it will live",
+        "detail": "{token!r} in {column!r} — a provisional code carrying a namespace has already been placed, and placement is Stage 7's decision"
+      },
+      "items": {
+        "properties": {
+          "provisional_code": {
+            "not": {
+              "pattern": "::"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "provisional_codes",
+      "x-finding": {
+        "code": "PROVISIONAL_CODE_MALFORMED",
+        "intent": "a provisional code is readable as a family, a name and a version",
+        "detail": "provisional code must be FAMILY_NAME_V<n> with no namespace"
+      },
+      "items": {
+        "properties": {
+          "provisional_code": {
+            "pattern": "^(?:AC|IN|WF|CC|CT|EV|RB|VOCAB|STRUCTURE|TI|TE)_[A-Z0-9_]+_V\\d+$"
+          }
+        }
+      }
+    },
+    {
+      "x-register": "provisional_codes",
+      "x-finding": {
+        "code": "PROVISIONAL_FAMILY_MISMATCH",
+        "intent": "a code and the family it is filed under agree"
+      },
+      "x-procedure": {
+        "name": "CELL_PREFIXED_BY_COLUMN",
+        "params": {
+          "column": "Provisional Code",
+          "prefix_column": "Family"
+        }
+      }
+    },
+    {
+      "x-register": "cross_subdomain_refs",
+      "x-finding": {
+        "code": "CROSS_SUBDOMAIN_REF_UNRESOLVED",
+        "intent": "a capability borrowed from elsewhere must be one that really exists"
+      },
+      "x-grounding": {
+        "mode": "exists",
+        "params": {
+          "column": "CC Code",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.artifact.list"
+        }
+      }
+    },
+    {
+      "x-register": "business_objects",
+      "x-finding": {
+        "code": "BINDING_LEAKED_INTO_INTENT",
+        "intent": "intent says what must be true, never how it is wired",
+        "detail": "{token!r} in {column!r} — a path, a binding expression or a hash is an implementation decision, and Stage 7 owns those"
+      },
+      "items": {
+        "properties": {
+          "store_name": {
+            "not": {
+              "pattern": "\\$\\.[A-Za-z_]|/[a-z_]+/|\\b[0-9a-f]{16,}\\b"
+            }
+          },
+          "record_model": {
+            "not": {
+              "pattern": "\\$\\.[A-Za-z_]|/[a-z_]+/|\\b[0-9a-f]{16,}\\b"
+            }
+          },
+          "business_rationale": {
+            "not": {
+              "pattern": "\\$\\.[A-Za-z_]|/[a-z_]+/|\\b[0-9a-f]{16,}\\b"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "invariants",
+      "x-finding": {
+        "code": "INVARIANT_WITHOUT_BUSINESS_REASON",
+        "intent": "every invariant is answerable to the business, not to the design",
+        "detail": "invariant states no business reason — a rule without one is a technical constraint and belongs elsewhere"
+      },
+      "items": {
+        "properties": {
+          "business_reason": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "identity_semantics",
+      "x-finding": {
+        "code": "IDENTITY_WITHOUT_UNIQUENESS_RULE",
+        "intent": "identity semantics are stated, never inferred from field names",
+        "detail": "identity declares no uniqueness rule — what a duplicate means is irreducible business knowledge the compiler cannot infer"
+      },
+      "items": {
+        "properties": {
+          "uniqueness_rule": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "provisional_codes",
+      "x-finding": {
+        "code": "EVENT_CODE_NOT_PAST_PARTICIPLE",
+        "intent": "an event names an occurrence, and a code in the imperative names an operation",
+        "detail": "{value!r} does not name a moment that has happened — an event code reads EV_<subject>_<participle>, as EV_ACTOR_REGISTERED_V0 does"
+      },
+      "items": {
+        "if": {
+          "properties": {
+            "family": {
+              "const": "EV"
+            }
+          },
+          "required": [
+            "family"
+          ]
+        },
+        "then": {
+          "properties": {
+            "provisional_code": {
+              "pattern": "^(?:[a-z][a-z0-9_.]*::)?EV_[A-Z0-9_]+ED_V\\d+$"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "REGISTER_CELL_UNRESOLVED",
+        "intent": "an unanswered question left in a register reads as decided to every later phase",
+        "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+      },
+      "x-procedure": {
+        "name": "UNRESOLVED_MARKER_ABSENT",
+        "params": {
+          "exempt": [],
+          "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "HEADER_FIELD_MISSING",
+        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
+      },
+      "properties": {
+        "header": {
+          "required": [
+            "Stage",
+            "CR",
+            "Status",
+            "Feeds"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
+      },
+      "properties": {
+        "header": {
+          "properties": {
+            "Status": {
+              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-priors": [
+    "p0"
+  ],
+  "x-observations": {
+    "si.artifact.list": "artifacts"
   }
 }

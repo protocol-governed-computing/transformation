@@ -638,5 +638,928 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "x-register": "system_beliefs",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "system_beliefs",
+          "prior_key_column": "Belief",
+          "key_column": "Belief"
+        }
+      }
+    },
+    {
+      "x-register": "requested_outcomes",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "requested_outcomes",
+          "prior_key_column": "Outcome",
+          "key_column": "Outcome"
+        }
+      }
+    },
+    {
+      "x-register": "business_invariants",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "business_invariants",
+          "prior_key_column": "Invariant",
+          "key_column": "Invariant"
+        }
+      }
+    },
+    {
+      "x-register": "acceptance_criteria",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "acceptance_criteria",
+          "prior_key_column": "Criterion",
+          "key_column": "Criterion"
+        }
+      }
+    },
+    {
+      "x-register": "known_facts",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "known_facts",
+          "prior_key_column": "Fact",
+          "key_column": "Fact"
+        }
+      }
+    },
+    {
+      "x-register": "business_vocabulary",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "business_vocabulary",
+          "prior_key_column": "Term",
+          "key_column": "Term"
+        }
+      }
+    },
+    {
+      "x-register": "constraints",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "constraints",
+          "prior_key_column": "Constraint",
+          "key_column": "Constraint"
+        }
+      }
+    },
+    {
+      "x-register": "assumptions",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "assumptions",
+          "prior_key_column": "Assumption",
+          "key_column": "Assumption"
+        }
+      }
+    },
+    {
+      "x-register": "business_events",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "business_events",
+          "prior_key_column": "Event",
+          "key_column": "Event"
+        }
+      }
+    },
+    {
+      "x-register": "authority_boundaries",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "authority_boundaries",
+          "prior_key_column": "Business Object",
+          "key_column": "Business Object"
+        }
+      }
+    },
+    {
+      "x-register": "out_of_scope",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "out_of_scope",
+          "prior_key_column": "Item",
+          "key_column": "Item"
+        }
+      }
+    },
+    {
+      "x-register": "governance_scope",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "governance_scope",
+          "prior_key_column": "Scope Item",
+          "key_column": "Scope Item"
+        }
+      }
+    },
+    {
+      "x-register": "identity_and_sameness",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "identity_and_sameness",
+          "prior_key_column": "Business Object",
+          "key_column": "Business Object"
+        }
+      }
+    },
+    {
+      "x-register": "authority_deferrals",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "authority_deferrals",
+          "prior_key_column": "Business Object",
+          "key_column": "Business Object"
+        }
+      }
+    },
+    {
+      "x-register": "lifecycle_states",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "lifecycle_states",
+          "prior_key_column": [
+            "Object",
+            "State"
+          ],
+          "key_column": [
+            "Object",
+            "State"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "lifecycle_transitions",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "lifecycle_transitions",
+          "prior_key_column": [
+            "Object",
+            "From State",
+            "To State"
+          ],
+          "key_column": [
+            "Object",
+            "From State",
+            "To State"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "operation_refusals",
+      "x-finding": {
+        "code": "SEED_ROW_NOT_CARRIED",
+        "intent": "P0 reorganizes and P1 restates; neither may drop what the business said"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "operation_refusals",
+          "prior_key_column": [
+            "Operation",
+            "Refused When"
+          ],
+          "key_column": [
+            "Operation",
+            "Refused When"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "system_beliefs",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "system_beliefs",
+          "prior_key_column": "Belief",
+          "key_column": "Belief"
+        }
+      }
+    },
+    {
+      "x-register": "requested_outcomes",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "requested_outcomes",
+          "prior_key_column": "Outcome",
+          "key_column": "Outcome"
+        }
+      }
+    },
+    {
+      "x-register": "business_invariants",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "business_invariants",
+          "prior_key_column": "Invariant",
+          "key_column": "Invariant"
+        }
+      }
+    },
+    {
+      "x-register": "acceptance_criteria",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "acceptance_criteria",
+          "prior_key_column": "Criterion",
+          "key_column": "Criterion"
+        }
+      }
+    },
+    {
+      "x-register": "known_facts",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "known_facts",
+          "prior_key_column": "Fact",
+          "key_column": "Fact"
+        }
+      }
+    },
+    {
+      "x-register": "business_vocabulary",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "business_vocabulary",
+          "prior_key_column": "Term",
+          "key_column": "Term"
+        }
+      }
+    },
+    {
+      "x-register": "constraints",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "constraints",
+          "prior_key_column": "Constraint",
+          "key_column": "Constraint"
+        }
+      }
+    },
+    {
+      "x-register": "assumptions",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "assumptions",
+          "prior_key_column": "Assumption",
+          "key_column": "Assumption"
+        }
+      }
+    },
+    {
+      "x-register": "business_events",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "business_events",
+          "prior_key_column": "Event",
+          "key_column": "Event"
+        }
+      }
+    },
+    {
+      "x-register": "authority_boundaries",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "authority_boundaries",
+          "prior_key_column": "Business Object",
+          "key_column": "Business Object"
+        }
+      }
+    },
+    {
+      "x-register": "out_of_scope",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "out_of_scope",
+          "prior_key_column": "Item",
+          "key_column": "Item"
+        }
+      }
+    },
+    {
+      "x-register": "governance_scope",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "governance_scope",
+          "prior_key_column": "Scope Item",
+          "key_column": "Scope Item"
+        }
+      }
+    },
+    {
+      "x-register": "identity_and_sameness",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "identity_and_sameness",
+          "prior_key_column": "Business Object",
+          "key_column": "Business Object"
+        }
+      }
+    },
+    {
+      "x-register": "authority_deferrals",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "authority_deferrals",
+          "prior_key_column": "Business Object",
+          "key_column": "Business Object"
+        }
+      }
+    },
+    {
+      "x-register": "lifecycle_states",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "lifecycle_states",
+          "prior_key_column": [
+            "Object",
+            "State"
+          ],
+          "key_column": [
+            "Object",
+            "State"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "lifecycle_transitions",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "lifecycle_transitions",
+          "prior_key_column": [
+            "Object",
+            "From State",
+            "To State"
+          ],
+          "key_column": [
+            "Object",
+            "From State",
+            "To State"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "operation_refusals",
+      "x-finding": {
+        "code": "ROW_NOT_IN_SEED",
+        "intent": "P1 interrogates and restates; business content enters at P0 or not at all"
+      },
+      "x-carriage": {
+        "mode": "confined",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "operation_refusals",
+          "prior_key_column": [
+            "Operation",
+            "Refused When"
+          ],
+          "key_column": [
+            "Operation",
+            "Refused When"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "cr_type",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "business_vocabulary",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "requested_outcomes",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "known_facts",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "system_beliefs",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "assumptions",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "constraints",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "business_invariants",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "lifecycle_states",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "business_events",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "authority_boundaries",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "out_of_scope",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "governance_scope",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "clarification_requests",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "acceptance_criteria",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "identity_and_sameness",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "lifecycle_transitions",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "operation_refusals",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "authority_deferrals",
+      "x-finding": {
+        "code": "CITATION_ROW_UNRESOLVED",
+        "intent": "a citation that resolves to nothing is evidence of nothing"
+      },
+      "x-carriage": {
+        "mode": "citation_rows",
+        "params": {
+          "column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "REGISTER_CELL_UNRESOLVED",
+        "intent": "an unanswered question left in a register reads as decided to every later phase",
+        "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+      },
+      "x-procedure": {
+        "name": "UNRESOLVED_MARKER_ABSENT",
+        "params": {
+          "exempt": [
+            "clarification_requests"
+          ],
+          "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+        }
+      }
+    },
+    {
+      "x-register": "clarification_requests",
+      "x-finding": {
+        "code": "BLOCKING_CLARIFICATION_OUTSTANDING",
+        "intent": "a blocking question the next phase never sees is answered by invention",
+        "detail": "a blocking clarification is unanswered — resolve it with the named owner and fold the answer into the document before any phase consumes it"
+      },
+      "items": {
+        "not": {
+          "properties": {
+            "blocking": {
+              "const": "YES"
+            }
+          },
+          "required": [
+            "blocking"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "clarification_requests",
+      "x-finding": {
+        "code": "BUSINESS_CLARIFICATION_OUTSTANDING",
+        "intent": "a business question that outlives the seed is answered downstream by inference",
+        "detail": "only the business can answer this — ask it, fold the answer into the problem statement, and re-author the seed rather than carrying the question forward"
+      },
+      "items": {
+        "not": {
+          "properties": {
+            "owner": {
+              "const": "HUMAN"
+            }
+          },
+          "required": [
+            "owner"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "HEADER_FIELD_MISSING",
+        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
+      },
+      "properties": {
+        "header": {
+          "required": [
+            "Stage",
+            "CR",
+            "Status",
+            "Feeds"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
+      },
+      "properties": {
+        "header": {
+          "properties": {
+            "Status": {
+              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-priors": [
+    "p0"
+  ]
 }

@@ -1947,10 +1947,12 @@ core:
           params:
             prior_phase: p0
             prior_register: operation_refusals
-            prior_key_column: &id002
+            prior_key_column:
             - Operation
             - Refused When
-            key_column: *id002
+            key_column:
+            - Operation
+            - Refused When
             registers:
             - refusal_discharge
             - refusal_deferrals
@@ -1962,8 +1964,12 @@ core:
           params:
             prior_phase: p0
             prior_register: operation_refusals
-            prior_key_column: *id002
-            key_column: *id002
+            prior_key_column:
+            - Operation
+            - Refused When
+            key_column:
+            - Operation
+            - Refused When
           intent: a discharge answers a refusal the business declared, never one the design invented
         - id: DEFERRAL_UNDECLARED_REFUSAL
           check: ROWS_CONFINED_TO_PRIOR
@@ -1971,8 +1977,12 @@ core:
           params:
             prior_phase: p0
             prior_register: operation_refusals
-            prior_key_column: *id002
-            key_column: *id002
+            prior_key_column:
+            - Operation
+            - Refused When
+            key_column:
+            - Operation
+            - Refused When
           intent: a deferral hands on a refusal the business declared, never one nobody approved
         - id: DEFERRAL_OWNER_UNNAMED
           check: CELL_NOT_EMPTY
@@ -1988,8 +1998,12 @@ core:
           params:
             prior_phase: p0
             prior_register: operation_refusals
-            prior_key_column: *id002
-            key_column: *id002
+            prior_key_column:
+            - Operation
+            - Refused When
+            key_column:
+            - Operation
+            - Refused When
           intent: the governance surface is cited for a refusal the business declared, never for one it did not
         - id: GOVERNING_RULE_PHASE_MALFORMED
           check: CELL_MATCHES
@@ -2062,9 +2076,9 @@ core:
           register: implementation_bindings
           params:
             column: Module
+            pattern: ^(?:—|-)$
             only_when_column: Kind
             only_when_value: molecule
-            pattern: ^(?:—|-)$
             detail: a molecule names module {value!r}; a molecule is run as its declared steps, and a module beside
               them is a second account of what it does
           intent: a molecule is its steps, never an implementation as well
@@ -2147,9 +2161,9 @@ core:
           register: molecule_steps
           params:
             column: Over
+            pattern: ^inputs\.[A-Za-z_][A-Za-z0-9_.]*$
             only_when_column: Kind
             only_when_value: loop
-            pattern: ^inputs\.[A-Za-z_][A-Za-z0-9_.]*$
             detail: loop runs over {value!r}; a loop's collection is a field the molecule is handed, inputs.<field>,
               so its length is fixed before the first pass and never by one
           intent: a loop's length never depends on the data it computes
@@ -2167,11 +2181,11 @@ core:
           register: molecule_steps
           params:
             column: Over
+            pattern: ^(?:—|-)$
             only_when_column: Kind
             only_when_values:
             - atom
             - molecule
-            pattern: ^(?:—|-)$
             detail: a step that is not a loop names collection {value!r}, which nothing reads
           intent: a collection is stated where it bounds something
         - id: MOLECULE_WITHOUT_EMISSION
@@ -2224,9 +2238,9 @@ core:
           register: molecule_step_bindings
           params:
             column: Bound To
+            pattern: ^results\.[A-Za-z_][A-Za-z0-9_.]*$
             only_when_column: Role
             only_when_value: UPDATE
-            pattern: ^results\.[A-Za-z_][A-Za-z0-9_.]*$
             detail: a carried value is updated from {value!r}; it is taken from what the pass produced, results.<field>,
               or the loop carries forward something no pass computed
           intent: what a loop carries forward is what each pass produced

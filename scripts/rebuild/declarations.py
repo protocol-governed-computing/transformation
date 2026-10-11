@@ -1,8 +1,9 @@
 """Declaration identity: the rebuild's rules equal the oracle's, rule for rule (REBUILD_DESIGN §8.2).
 
 Each side prints every phase's declared rule set as JSON: id, check, register, section title, params
-and intent, in declaration order. The two are compared phase by phase. A rule the rebuild changes on
-purpose is a divergence declared in the charter, and is listed here by phase and position.
+and intent. The two are compared phase by phase, as sets. Order is checked elsewhere: a sealed rule
+set is an ordered list, and `tc phase emit --check` refuses a workflow whose rules moved. A rule the
+rebuild changes on purpose is a divergence declared in the charter, and is reported by name.
 
     python scripts/rebuild/declarations.py            compare
     python scripts/rebuild/declarations.py --dump     print this side's rules (used by compare)
@@ -15,6 +16,7 @@ import json
 import os
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 
 ORACLE = Path.home() / "pgc-oracle" / "transformation"
@@ -64,6 +66,10 @@ def side(pythonpath: str | None, cwd: Path) -> dict:
     return json.loads(done.stdout)
 
 
+def _signature(rule: dict) -> str:
+    return json.dumps(rule, sort_keys=True)
+
+
 def main(argv: list[str]) -> int:
     if "--dump" in argv:
         json.dump(dump(), sys.stdout, default=list)
@@ -71,28 +77,31 @@ def main(argv: list[str]) -> int:
     was, now = side(str(ORACLE), ORACLE), side(None, REBUILD)
     differ = 0
     for phase in was:
-        a, b = was[phase], now.get(phase, [])
-        if a == b:
-            continue
-        if len(a) != len(b):
+        a = Counter(_signature(r) for r in was[phase])
+        b = Counter(_signature(r) for r in now.get(phase, []))
+        only_a = [json.loads(x) for x in (a - b).elements()]
+        only_b = [json.loads(x) for x in (b - a).elements()]
+        explained = []
+        for ra in list(only_a):
+            match = next((rb for rb in only_b if _declared(phase, ra, rb)), None)
+            if match is not None:
+                explained.append(_declared(phase, ra, match))
+                only_a.remove(ra)
+                only_b.remove(match)
+        for name in explained:
+            print(f"{phase}: declared divergence {name}")
+        if only_a or only_b:
             differ += 1
-        print(f"\n{phase}: oracle {len(a)} rules, rebuild {len(b)}")
-        for i in range(max(len(a), len(b))):
-            ra = a[i] if i < len(a) else None
-            rb = b[i] if i < len(b) else None
-            if ra != rb and _declared(phase, ra, rb):
-                print(f"   #{i + 1} declared divergence {_declared(phase, ra, rb)}")
-                continue
-            if ra != rb:
-                differ += 1
-                print(f"   #{i + 1}")
-                print(f"     oracle:  {json.dumps(ra)[:400]}")
-                print(f"     rebuild: {json.dumps(rb)[:400]}")
+            print(f"\n{phase}: {len(only_a)} rule(s) only in the oracle, {len(only_b)} only in the rebuild")
+            for r in only_a:
+                print(f"   oracle:  {json.dumps(r)[:400]}")
+            for r in only_b:
+                print(f"   rebuild: {json.dumps(r)[:400]}")
     total = sum(len(v) for v in was.values())
     if differ:
         print(f"\nDECLARATIONS DIFFER — {differ} phase(s)")
         return 1
-    print(f"DECLARATIONS IDENTICAL — {total} rules over {len(was)} phases")
+    print(f"DECLARATIONS IDENTICAL — {total} rules over {len(was)} phases, compared as sets")
     return 0
 
 

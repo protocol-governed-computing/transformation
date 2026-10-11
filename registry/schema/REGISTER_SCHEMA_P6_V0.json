@@ -238,5 +238,274 @@
         }
       }
     }
+  },
+  "allOf": [
+    {
+      "x-register": "ownership",
+      "x-finding": {
+        "code": "PROVISIONAL_CODE_IN_PLACEMENT",
+        "intent": "placement names a subdomain, never an artifact",
+        "detail": "{token!r} in {column!r} — this stage places capabilities in subdomains; naming an artifact answers a question Stage 7 owns"
+      },
+      "items": {
+        "properties": {
+          "capability": {
+            "not": {
+              "pattern": "\\b(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\\d+\\b"
+            }
+          },
+          "owner_subdomain": {
+            "not": {
+              "pattern": "\\b(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\\d+\\b"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "storage_governance",
+      "x-finding": {
+        "code": "STORAGE_CODE_IN_PLACEMENT",
+        "intent": "a store is described by what it holds, not by what will write it",
+        "detail": "{token!r} in {column!r} — a storage need is business language, not an artifact"
+      },
+      "items": {
+        "properties": {
+          "storage_need": {
+            "not": {
+              "pattern": "\\b(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\\d+\\b"
+            }
+          },
+          "purpose": {
+            "not": {
+              "pattern": "\\b(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\\d+\\b"
+            }
+          },
+          "subdomain": {
+            "not": {
+              "pattern": "\\b(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\\d+\\b"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "ownership",
+      "x-finding": {
+        "code": "SATISFIED_WITHOUT_EXISTING_ARTIFACT",
+        "intent": "a satisfied capability names what satisfies it",
+        "detail": "capability is SATISFIED but names no existing artifact — a claim that something already covers this needs the something"
+      },
+      "items": {
+        "if": {
+          "properties": {
+            "disposition": {
+              "const": "SATISFIED"
+            }
+          },
+          "required": [
+            "disposition"
+          ]
+        },
+        "then": {
+          "properties": {
+            "existing_artifact": {
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "ownership",
+      "x-finding": {
+        "code": "EXISTING_ARTIFACT_UNRESOLVED",
+        "intent": "an artifact said to cover a capability must be one that really exists"
+      },
+      "x-grounding": {
+        "mode": "exists",
+        "params": {
+          "column": "Existing Artifact",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.artifact.list"
+        }
+      }
+    },
+    {
+      "x-register": "pps_artifacts_requiring_action",
+      "x-finding": {
+        "code": "PPS_ACTION_IDENTITY_UNRESOLVED",
+        "intent": "an artifact this change will act on must be one the composition carries"
+      },
+      "x-grounding": {
+        "mode": "exists",
+        "params": {
+          "column": "FQDN",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.artifact.list"
+        }
+      }
+    },
+    {
+      "x-register": "cross_subdomain_deps",
+      "x-finding": {
+        "code": "DEPENDENCY_DIRECTION_MALFORMED",
+        "intent": "a dependency states which way it crosses the boundary",
+        "detail": "direction {value!r} must read `this_subdomain -> peer` — a boundary has two sides"
+      },
+      "items": {
+        "properties": {
+          "direction": {
+            "pattern": "^[a-z][a-z0-9_]*\\s*(?:->|→)\\s*[a-z][a-z0-9_]*$"
+          }
+        }
+      }
+    },
+    {
+      "x-register": "cross_subdomain_deps",
+      "x-finding": {
+        "code": "DEPENDENCY_SATISFIED_WITHOUT_ARTIFACT",
+        "intent": "a satisfied dependency names the artifact that satisfies it",
+        "detail": "dependency is SATISFIED but names no existing artifact — an unsatisfied dependency declared satisfied is how a gap goes missing"
+      },
+      "items": {
+        "if": {
+          "properties": {
+            "status": {
+              "const": "SATISFIED"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "then": {
+          "properties": {
+            "existing_artifact": {
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "governance_outcome",
+      "x-finding": {
+        "code": "OUTCOME_CAPABILITY_UNPLACED",
+        "intent": "the outcome restates placement, it does not introduce it"
+      },
+      "x-reference": {
+        "mode": "resolves",
+        "params": {
+          "column": "Capability",
+          "target_register": "ownership",
+          "target_column": "Capability"
+        }
+      }
+    },
+    {
+      "x-register": "ownership",
+      "x-finding": {
+        "code": "IN_SCOPE_CAPABILITY_UNPLACED",
+        "intent": "a capability declared in scope and given no owner is in nobody's scope"
+      },
+      "x-carriage": {
+        "mode": "present_by_key",
+        "params": {
+          "prior_phase": "p5",
+          "prior_register": "scope_boundary",
+          "prior_key_column": "Capability",
+          "key_column": "Capability",
+          "prior_only_when_column": "Status",
+          "prior_only_when_value": "IN_SCOPE"
+        }
+      }
+    },
+    {
+      "x-register": "cross_subdomain_deps",
+      "x-finding": {
+        "code": "BORROWED_CAPABILITY_NOT_DECLARED_CROSSING",
+        "intent": "a capability borrowed across a subdomain boundary is a dependency, declared as one"
+      },
+      "x-carriage": {
+        "mode": "identities_covered",
+        "params": {
+          "prior_phase": "p5",
+          "prior_register": "cross_subdomain_refs",
+          "prior_column": "CC Code",
+          "column": "Existing Artifact",
+          "require": "prior_in_here"
+        }
+      }
+    },
+    {
+      "x-register": "ownership",
+      "x-finding": {
+        "code": "TOUCHED_SUBDOMAIN_UNOWNED",
+        "intent": "every subdomain a change touches has its owner declared"
+      },
+      "x-carriage": {
+        "mode": "identities_covered",
+        "params": {
+          "prior_phase": "p0",
+          "prior_register": "cr_type",
+          "prior_column": "Subdomain",
+          "column": "Owner Subdomain",
+          "require": "prior_in_here"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "REGISTER_CELL_UNRESOLVED",
+        "intent": "an unanswered question left in a register reads as decided to every later phase",
+        "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+      },
+      "x-procedure": {
+        "name": "UNRESOLVED_MARKER_ABSENT",
+        "params": {
+          "exempt": [],
+          "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "HEADER_FIELD_MISSING",
+        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
+      },
+      "properties": {
+        "header": {
+          "required": [
+            "Stage",
+            "CR",
+            "Status",
+            "Feeds"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
+      },
+      "properties": {
+        "header": {
+          "properties": {
+            "Status": {
+              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-priors": [
+    "p5",
+    "p0"
+  ],
+  "x-observations": {
+    "si.artifact.list": "artifacts"
   }
 }

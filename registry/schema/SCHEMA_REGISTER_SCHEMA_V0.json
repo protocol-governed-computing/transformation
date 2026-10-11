@@ -72,6 +72,32 @@
           }
         }
       }
+    },
+    "allOf": {
+      "type": "array",
+      "description": "The rules the phase declares beyond its shape, in declaration order: a sealed rule set is an ordered list.",
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    },
+    "x-priors": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^p[0-8]$"
+      },
+      "uniqueItems": true
+    },
+    "x-observations": {
+      "type": "object",
+      "description": "The composition facts a phase grounds against: inspection operation (optionally #field) to the key its result is read under.",
+      "propertyNames": {
+        "pattern": "^si\\.[a-z_.]+(#[a-z_]+)?$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z_]+$"
+      }
     }
   },
   "$defs": {
@@ -223,6 +249,189 @@
         "minLength": 1
       },
       "uniqueItems": true
+    },
+    "finding": {
+      "type": "object",
+      "required": [
+        "code",
+        "intent"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "intent": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    },
+    "value_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "minLength": {
+          "const": 1
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "const": {},
+        "enum": {
+          "type": "array",
+          "minItems": 1
+        },
+        "not": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pattern"
+          ],
+          "properties": {
+            "pattern": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "row_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/value_test"
+          }
+        },
+        "required": {
+          "$ref": "#/$defs/names"
+        },
+        "not": {
+          "$ref": "#/$defs/row_test"
+        },
+        "if": {
+          "$ref": "#/$defs/row_test"
+        },
+        "then": {
+          "$ref": "#/$defs/row_test"
+        }
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "required": [
+        "mode",
+        "params"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "pattern": "^[a-z_]+$"
+        },
+        "params": {
+          "type": "object"
+        }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "description": "One declared rule. It names the register it governs, unless it is about the whole document, and states one constraint, annotation or procedure.",
+      "required": [
+        "x-finding"
+      ],
+      "additionalProperties": false,
+      "minProperties": 2,
+      "maxProperties": 4,
+      "properties": {
+        "x-register": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "x-finding": {
+          "$ref": "#/$defs/finding"
+        },
+        "x-columns": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "items": {
+          "$ref": "#/$defs/row_test"
+        },
+        "minItems": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "header"
+          ],
+          "properties": {
+            "header": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "required": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "properties": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/$defs/value_test"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-key": {
+          "$ref": "#/$defs/annotation"
+        },
+        "x-reference": {
+          "$ref": "#/$defs/annotation"
+        },
+        "x-carriage": {
+          "$ref": "#/$defs/annotation"
+        },
+        "x-grounding": {
+          "$ref": "#/$defs/annotation"
+        },
+        "x-procedure": {
+          "type": "object",
+          "required": [
+            "name",
+            "params"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*$"
+            },
+            "params": {
+              "type": "object"
+            }
+          }
+        }
+      }
     }
   }
 }

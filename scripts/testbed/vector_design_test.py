@@ -22,7 +22,7 @@ import machine
 from transformation.build.render import build_manifest, render_all, requirements
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import VECTOR_RULES, rule_set
+from transformation.design.p7_design_intent.rules import rule_set
 from transformation.design.read import parse_text
 
 D = "probe"
@@ -80,7 +80,11 @@ def registers(text: str) -> dict[str, list[dict]]:
 
 MANDATE = {"build_order": [{"Code": code} for _, code in NEW],
            "field_declarations": [{"Code": code, "Subdomain Field": "words"} for _, code in NEW]}
-HELD = {r.id for r in VECTOR_RULES}
+# The vector rules: every finding a transform's test cases and their values can raise.
+HELD = {"AMENDED_TRANSFORM_WITHOUT_VECTOR", "TEST_CASE_NAME_MALFORMED",
+        "TEST_CASE_TRANSFORM_UNDECLARED", "TEST_CASE_UNNAMED", "TEST_VALUE_CASE_UNDECLARED",
+        "TEST_VALUE_EMPTY", "TEST_VALUE_UNPARSEABLE", "TEST_VALUE_WITHOUT_FIELD",
+        "TRANSFORM_WITHOUT_VECTOR"}
 # The declaration the compiler validates a vector against, read as a file: this repo never imports the
 # compiler, and the schema is the platform's declaration rather than the compiler's code.
 SCHEMA = json.loads((Path(__file__).resolve().parents[3]

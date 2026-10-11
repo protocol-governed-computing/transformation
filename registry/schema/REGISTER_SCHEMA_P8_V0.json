@@ -234,5 +234,261 @@
         }
       }
     }
+  },
+  "allOf": [
+    {
+      "x-register": "build_order",
+      "x-finding": {
+        "code": "BUILD_STEPS_NOT_CONTIGUOUS",
+        "intent": "the build sequence is total and gapless, because a gap is a dropped artifact"
+      },
+      "x-key": {
+        "mode": "contiguous",
+        "params": {
+          "column": "Step",
+          "start": 1
+        }
+      }
+    },
+    {
+      "x-register": "build_order",
+      "x-finding": {
+        "code": "DEPENDENCY_SCHEDULED_LATER",
+        "intent": "everything a step depends on is built before it — this is what makes it a sort"
+      },
+      "x-procedure": {
+        "name": "DEPENDENCY_PRECEDES",
+        "params": {
+          "column": "Code",
+          "depends_column": "Depends On",
+          "order_column": "Step"
+        }
+      }
+    },
+    {
+      "x-register": "build_order",
+      "x-finding": {
+        "code": "BUILD_CODE_MALFORMED",
+        "intent": "a mandate orders binding identities, never re-typed approximations",
+        "detail": "build code {value!r} must be a binding FQDN copied verbatim from Stage 7"
+      },
+      "items": {
+        "properties": {
+          "code": {
+            "pattern": "^[a-z][a-z0-9_.]*::(?:STRUCTURE|TEST_DATA|VOCAB|AC|IN|WF|CC|CT|CS|RB|EV|TI|TE)_[A-Z0-9_]+_V\\d+$"
+          }
+        }
+      }
+    },
+    {
+      "x-register": "build_order",
+      "x-finding": {
+        "code": "BUILD_CODE_ALREADY_EXISTS",
+        "intent": "an artifact mandated for authoring must not already be in the composition"
+      },
+      "x-grounding": {
+        "mode": "absent",
+        "params": {
+          "column": "Code",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.artifact.list"
+        }
+      }
+    },
+    {
+      "x-register": "critical_path",
+      "x-finding": {
+        "code": "CRITICAL_PATH_NOT_IN_BUILD_ORDER",
+        "intent": "the critical path is a path through this build order",
+        "detail": "the critical path runs through steps the mandate schedules, not past them"
+      },
+      "x-reference": {
+        "mode": "resolves",
+        "params": {
+          "column": "Code",
+          "target_register": "build_order",
+          "target_column": "Code",
+          "detail": "the critical path runs through steps the mandate schedules, not past them"
+        }
+      }
+    },
+    {
+      "x-register": "critical_path",
+      "x-finding": {
+        "code": "CRITICAL_PATH_NOT_CONTIGUOUS",
+        "intent": "a path is an ordered chain, not an unordered set of steps"
+      },
+      "x-key": {
+        "mode": "contiguous",
+        "params": {
+          "column": "Position",
+          "start": 1
+        }
+      }
+    },
+    {
+      "x-register": "new_capabilities",
+      "x-finding": {
+        "code": "CAPABILITY_WITHOUT_PURPOSE",
+        "intent": "a mandated capability says what it is for",
+        "detail": "capability states no purpose — a builder needs to know what to build, not only its name"
+      },
+      "items": {
+        "properties": {
+          "purpose": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "new_intents",
+      "x-finding": {
+        "code": "INTENT_WITHOUT_WORKFLOW",
+        "intent": "every mandated intent names the workflow it starts",
+        "detail": "intent names no workflow — an entry point that starts nothing cannot be authored"
+      },
+      "items": {
+        "properties": {
+          "workflow": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "build_order",
+      "x-finding": {
+        "code": "DESIGNED_ARTIFACT_NOT_SCHEDULED",
+        "intent": "an artifact the design declared and the mandate never schedules is not deferred, it is lost"
+      },
+      "x-carriage": {
+        "mode": "identities_covered",
+        "params": {
+          "prior_phase": "p7",
+          "prior_register": "new_artifacts",
+          "prior_column": "Code",
+          "column": "Code",
+          "require": "prior_in_here"
+        }
+      }
+    },
+    {
+      "x-register": "build_order",
+      "x-finding": {
+        "code": "SCHEDULED_ARTIFACT_NOT_DESIGNED",
+        "intent": "a mandate orders the build; it does not get to add to it"
+      },
+      "x-carriage": {
+        "mode": "identities_covered",
+        "params": {
+          "prior_phase": "p7",
+          "prior_register": "new_artifacts",
+          "prior_column": "Code",
+          "column": "Code",
+          "require": "here_in_prior"
+        }
+      }
+    },
+    {
+      "x-register": "field_declarations",
+      "x-finding": {
+        "code": "SCHEDULED_ARTIFACT_UNPLACED",
+        "intent": "every artifact the mandate schedules declares the subdomain it is built into"
+      },
+      "x-reference": {
+        "mode": "covers",
+        "params": {
+          "source_register": "build_order",
+          "source_column": "Code",
+          "column": "Code"
+        }
+      }
+    },
+    {
+      "x-register": "field_declarations",
+      "x-finding": {
+        "code": "AMENDED_ARTIFACT_UNPLACED",
+        "intent": "an artifact this change amends declares the subdomain it is placed in, as a scheduled one does"
+      },
+      "x-carriage": {
+        "mode": "identities_covered",
+        "params": {
+          "prior_phase": "p7",
+          "prior_register": "existing_inventory",
+          "prior_column": "FQDN",
+          "column": "Code",
+          "require": "prior_in_here",
+          "match_on": "bare_code",
+          "prior_only_when_column": "Action",
+          "prior_only_when_values": [
+            "EXTEND"
+          ],
+          "prior_only_when_prefixes": [
+            "AC_",
+            "IN_",
+            "WF_",
+            "CC_",
+            "CT_",
+            "EV_",
+            "RB_",
+            "VOCAB_",
+            "TI_",
+            "TE_"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "REGISTER_CELL_UNRESOLVED",
+        "intent": "an unanswered question left in a register reads as decided to every later phase",
+        "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+      },
+      "x-procedure": {
+        "name": "UNRESOLVED_MARKER_ABSENT",
+        "params": {
+          "exempt": [],
+          "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "HEADER_FIELD_MISSING",
+        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
+      },
+      "properties": {
+        "header": {
+          "required": [
+            "Stage",
+            "CR",
+            "Status",
+            "Feeds"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
+      },
+      "properties": {
+        "header": {
+          "properties": {
+            "Status": {
+              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-priors": [
+    "p7"
+  ],
+  "x-observations": {
+    "si.artifact.list": "artifacts"
   }
 }

@@ -205,3 +205,26 @@ def coverage(template: PhaseTemplate) -> dict[str, int]:
         "traceable_registers": sum(1 for r in template.registers if r.traceable),
         "optional_registers": sum(1 for r in template.registers if r.optional),
     }
+
+
+def declared_rules(shape: PhaseTemplate) -> list[Rule]:
+    """The rules a schema declares beyond its shape: each `allOf` entry, decoded, in order.
+
+    An entry about one register names it with `x-register`; one without is about the whole document.
+    """
+    from transformation.design.declared import Columns, decode
+
+    out = []
+    for entry in shape.entries:
+        register_id = entry.get("x-register")
+        if register_id is None:
+            out.append(decode(entry, None, None))
+            continue
+        register = shape.register(register_id)
+        out.append(decode(entry, register_id, Columns(dict(zip(register.columns, register.keys)))))
+    return out
+
+
+def expanded_rules(shape: PhaseTemplate) -> list[Rule]:
+    """A phase's whole rule set: what its shape implies, then what it declares beyond that."""
+    return derived_rules(shape) + declared_rules(shape)

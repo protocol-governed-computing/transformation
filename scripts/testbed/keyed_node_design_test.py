@@ -19,9 +19,11 @@ import machine
 from transformation.build.render import _binding, render_all
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import CONTRACT_OBSERVATION, rule_set
+from transformation.design.p7_design_intent.rules import rule_set
 from transformation.design.read import parse_text
 
+# The observation the rule under test reads, as its schema entry names it.
+CONTRACT_OBSERVATION = "si.capability.surface#contracts"
 D = "probe"
 WF, CHECK, RECORD = f"{D}::WF_SUBMIT_V0", f"{D}::CC_CHECK_V0", f"{D}::CC_RECORD_V0"
 NEW = [("Submit", "WF", WF), ("Asked to submit", "IN", f"{D}::IN_SUBMIT_V0"), ("Check", "CC", CHECK),

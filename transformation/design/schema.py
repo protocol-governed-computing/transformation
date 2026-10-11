@@ -99,6 +99,11 @@ class PhaseShape:
     registers: tuple[Register, ...]
     consumes: tuple[str, ...] = ()
     emits: tuple[str, ...] = ()
+    # The upstream phases a document is judged against, and the rules the schema declares beyond
+    # its shape, in declaration order (`declared.py`).
+    priors: tuple[str, ...] = ()
+    observations: dict[str, str] = field(default_factory=dict)
+    entries: tuple[dict, ...] = ()
 
     def register(self, register_id: str) -> Register:
         for r in self.registers:
@@ -166,6 +171,9 @@ def read_schema(path: Path, phase: str) -> PhaseShape:
         registers=tuple(registers),
         consumes=tuple(declared.get("x-consumes") or ()),
         emits=tuple(declared.get("x-emits") or ()),
+        priors=tuple(declared.get("x-priors") or ()),
+        observations=dict(declared.get("x-observations") or {}),
+        entries=tuple(declared.get("allOf") or ()),
     )
 
 

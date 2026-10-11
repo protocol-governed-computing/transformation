@@ -409,5 +409,143 @@
         }
       }
     }
+  },
+  "allOf": [
+    {
+      "x-register": "pps_baseline_fqdns",
+      "x-finding": {
+        "code": "BASELINE_IDENTITY_UNRESOLVED",
+        "intent": "the baseline register records what already exists, so every row must be observable"
+      },
+      "x-grounding": {
+        "mode": "exists",
+        "params": {
+          "column": "FQDN",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.artifact.list",
+          "detail_missing": "baseline row names no artifact identity"
+        }
+      }
+    },
+    {
+      "x-register": "belief_verification",
+      "x-finding": {
+        "code": "VERIFIED_BELIEF_IDENTITY_UNRESOLVED",
+        "intent": "a belief grounded on an identity must be grounded on one that is really there"
+      },
+      "x-grounding": {
+        "mode": "exists",
+        "params": {
+          "column": "Evidence",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.artifact.list",
+          "only_when_column": "Result",
+          "only_when_value": "VERIFIED"
+        }
+      }
+    },
+    {
+      "x-register": "belief_verification",
+      "x-finding": {
+        "code": "BELIEF_WITHOUT_EVIDENCE",
+        "intent": "a result without evidence is an assertion, not a verification",
+        "detail": "belief has a result but records nothing about how it was reached"
+      },
+      "items": {
+        "properties": {
+          "evidence": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "belief_verification",
+      "x-finding": {
+        "code": "BELIEF_NOT_CARRIED_FROM_P1",
+        "intent": "a belief nobody carried forward is forgotten, not resolved"
+      },
+      "x-carriage": {
+        "mode": "cited",
+        "params": {
+          "prior_phase": "p1",
+          "prior_register": "system_beliefs",
+          "prior_key_column": "Belief",
+          "citation_column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-register": "belief_verification",
+      "x-finding": {
+        "code": "BELIEF_RESTATED_FROM_P1",
+        "intent": "a verification must resolve the belief it cites, not a substitute for it"
+      },
+      "x-carriage": {
+        "mode": "matches_cited",
+        "params": {
+          "prior_phase": "p1",
+          "prior_register": "system_beliefs",
+          "prior_key_column": "Belief",
+          "key_column": "Belief",
+          "citation_column": "Source Finding"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "REGISTER_CELL_UNRESOLVED",
+        "intent": "an unanswered question left in a register reads as decided to every later phase",
+        "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+      },
+      "x-procedure": {
+        "name": "UNRESOLVED_MARKER_ABSENT",
+        "params": {
+          "exempt": [
+            "gaps",
+            "open_questions",
+            "discovery_concerns"
+          ],
+          "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "HEADER_FIELD_MISSING",
+        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
+      },
+      "properties": {
+        "header": {
+          "required": [
+            "Stage",
+            "CR",
+            "Status",
+            "Feeds"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
+      },
+      "properties": {
+        "header": {
+          "properties": {
+            "Status": {
+              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-priors": [
+    "p1"
+  ],
+  "x-observations": {
+    "si.artifact.list": "artifacts"
   }
 }

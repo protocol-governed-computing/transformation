@@ -17,9 +17,11 @@ import sys
 import machine
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import INTENT_OBSERVATION, rule_set
+from transformation.design.p7_design_intent.rules import rule_set
 from transformation.design.read import parse_text
 
+# The observation the rule under test reads, as its schema entry names it.
+INTENT_OBSERVATION = "si.capability.surface#intents"
 D = "probe"
 RULE = [r for r in rule_set() if r.id == "ENTRANCE_UNDERSUPPLIES_GATE"]
 PINNED = {INTENT_OBSERVATION: [{"intent": f"{D}::IN_REGISTERED_V0", "workflow": "WF_REGISTER_V0",

@@ -233,7 +233,7 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
     # phase had refused. The vocabulary is authored in the template and cannot be generated from
     # here, so it is asserted instead.
     for phase_id, module in sorted(rule_modules.items()):
-        template = getattr(module, "TEMPLATE", None)
+        template = getattr(module, "SHAPE", None)
         if template is None:
             continue
         for register in template.registers:

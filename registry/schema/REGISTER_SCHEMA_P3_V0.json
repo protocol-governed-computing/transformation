@@ -305,5 +305,210 @@
         }
       }
     }
+  },
+  "allOf": [
+    {
+      "x-register": "authoring_decisions",
+      "x-finding": {
+        "code": "REUSE_CANDIDATE_NOT_ELIGIBLE",
+        "intent": "a change request may only be offered candidates from a domain that permits reuse"
+      },
+      "x-grounding": {
+        "mode": "reuse_eligible",
+        "params": {
+          "column": "Alternatives Checked",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.snapshot.summary",
+          "artifact_observation": "si.artifact.list",
+          "eligible": [
+            "substrate",
+            "business"
+          ]
+        }
+      }
+    },
+    {
+      "x-register": "authoring_decisions",
+      "x-finding": {
+        "code": "DECISION_WITHOUT_ALTERNATIVES",
+        "intent": "a committed decision shows the search that produced it",
+        "detail": "decision records no alternatives examined — 'I searched and found nothing' is credible only with the search shown"
+      },
+      "items": {
+        "properties": {
+          "alternatives_checked": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "authoring_decisions",
+      "x-finding": {
+        "code": "DECISION_WITHOUT_RATIONALE",
+        "intent": "every decision traces to a grounded reason",
+        "detail": "decision states no rationale — a classification without a reason is an assertion"
+      },
+      "items": {
+        "properties": {
+          "rationale": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "authoring_decisions",
+      "x-finding": {
+        "code": "CITED_ALTERNATIVE_UNRESOLVED",
+        "intent": "an alternative examined must be one that really exists"
+      },
+      "x-grounding": {
+        "mode": "exists",
+        "params": {
+          "column": "Alternatives Checked",
+          "pattern": "[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\\d+",
+          "observation": "si.artifact.list"
+        }
+      }
+    },
+    {
+      "x-register": "impact_analysis",
+      "x-finding": {
+        "code": "IMPACT_WITHOUT_EVIDENCE",
+        "intent": "impact is mechanically captured, never summarised from memory",
+        "detail": "impact row carries no evidence — consumer counts are observed, never estimated"
+      },
+      "items": {
+        "properties": {
+          "evidence": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "verification_results",
+      "x-finding": {
+        "code": "VERIFICATION_WITHOUT_EVIDENCE",
+        "intent": "an overturned answer is marked with what overturned it, never erased",
+        "detail": "verification records no evidence — grounding is not inherited, so a re-check that cites nothing did not happen"
+      },
+      "items": {
+        "properties": {
+          "evidence": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "saturation",
+      "x-finding": {
+        "code": "SATURATION_CRITERIA_INCOMPLETE",
+        "intent": "analysis is saturated only against every declared criterion; a claim resting on fewer is the gap the criteria exist to close"
+      },
+      "minItems": 5
+    },
+    {
+      "x-register": "saturation",
+      "x-finding": {
+        "code": "SATURATION_CLAIMED_WITHOUT_EVIDENCE",
+        "intent": "saturation is demonstrated, not declared",
+        "detail": "criterion is asserted satisfied with nothing to show for it"
+      },
+      "items": {
+        "properties": {
+          "evidence": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "x-register": "verification_results",
+      "x-finding": {
+        "code": "BELIEF_RESULT_NOT_REVERIFIED",
+        "intent": "a result nobody re-verified was inherited, and grounding is not inherited"
+      },
+      "x-carriage": {
+        "mode": "cited",
+        "params": {
+          "prior_phase": "p2",
+          "prior_register": "belief_verification",
+          "prior_key_column": "Belief",
+          "citation_column": "Origin"
+        }
+      }
+    },
+    {
+      "x-register": "verification_results",
+      "x-finding": {
+        "code": "BELIEF_RESULT_RESTATED_FROM_P2",
+        "intent": "a re-verification must address the result it cites, not a substitute for it"
+      },
+      "x-carriage": {
+        "mode": "matches_cited",
+        "params": {
+          "prior_phase": "p2",
+          "prior_register": "belief_verification",
+          "prior_key_column": "Belief",
+          "key_column": "Item",
+          "citation_column": "Origin"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "REGISTER_CELL_UNRESOLVED",
+        "intent": "an unanswered question left in a register reads as decided to every later phase",
+        "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+      },
+      "x-procedure": {
+        "name": "UNRESOLVED_MARKER_ABSENT",
+        "params": {
+          "exempt": [],
+          "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "HEADER_FIELD_MISSING",
+        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
+      },
+      "properties": {
+        "header": {
+          "required": [
+            "Stage",
+            "CR",
+            "Status",
+            "Feeds"
+          ]
+        }
+      }
+    },
+    {
+      "x-finding": {
+        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
+      },
+      "properties": {
+        "header": {
+          "properties": {
+            "Status": {
+              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-priors": [
+    "p2"
+  ],
+  "x-observations": {
+    "si.artifact.list": "artifacts",
+    "si.snapshot.summary": "reuse_visibility"
   }
 }
