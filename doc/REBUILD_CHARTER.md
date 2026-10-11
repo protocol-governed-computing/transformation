@@ -408,6 +408,24 @@ Rule counts: p0 88, p1 193, p2 87, p3 58, p4 93, p5 91, p6 63, p7 284, p8 39.
 - **Effectivity before the swap.** A schema is unpublished until the swap, so a change re-records
   revision 1 (`tc phase revise --amend`). p7 seals 280 rules.
 
+### Identity — the readers and the evaluator
+
+- **I-1, structure on a field.** `sameness` found the readers and the evaluator unchanged: their
+  declarations typed `header`, `registers` and `findings` only as `object` and `array`, so the new
+  form was invisible. A field now names the STRUCTURE its value conforms to with `structure`, a
+  reference key the platform already declares. The structure holds a JSON Schema in
+  `core.json_schema`. The compiler resolves the reference and refuses a dangling one. No platform
+  change: a JSON Schema `$ref` naming another artifact is not a declared reference, so
+  `STRUCTURE_PHASE_PRIORS_V0` writes its three forms out, and the test holds them equal.
+- **I-2, five structures:** `STRUCTURE_PHASE_HEADER_V0`, `_SECTIONS_V0`, `_REGISTERS_V0`,
+  `_PRIORS_V0`, `_FINDINGS_V0`.
+- **I-3, three successors.** `CT_PURE_PARSE_REGISTERS_V1`, `CT_PURE_PARSE_PRIOR_PHASES_V1` and
+  `CT_PURE_EVALUATE_RULES_V1` name the structures and supersede their V0s, which stand down until the
+  swap. Their implementations are modules named for the new codes. The four live contracts that
+  compose them re-point and keep their identity (`sameness` with the successor map).
+- **I-4, held.** `interface_structures_test`: each structure is a valid JSON Schema, and every
+  output conforms over the corpus (159 documents parsed and judged).
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.

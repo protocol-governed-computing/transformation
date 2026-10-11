@@ -39,11 +39,11 @@ so the number of upstream documents a phase reads must not change the contract's
 
 | Step | Capability | Type | Operation |
 |------|------------|------|-----------|
-| 1 | CT_PURE_PARSE_REGISTERS_V0 | CT | Parse |
-| 2 | CT_PURE_PARSE_PRIOR_PHASES_V0 | CT | Parse priors |
+| 1 | CT_PURE_PARSE_REGISTERS_V1 | CT | Parse |
+| 2 | CT_PURE_PARSE_PRIOR_PHASES_V1 | CT | Parse priors |
 | 3 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.artifact.list) |
 | 4 | CS_SNAPSHOT_QUERY_V0 | CS | QUERY (si.snapshot.summary) |
-| 5 | CT_PURE_EVALUATE_RULES_V0 | CT | Evaluate |
+| 5 | CT_PURE_EVALUATE_RULES_V1 | CT | Evaluate |
 
 ---
 
@@ -89,7 +89,7 @@ core:
     on_input_failure: VIOLATION
   pipeline:
   - step: parse_registers
-    transform: transformation::CT_PURE_PARSE_REGISTERS_V0
+    transform: transformation::CT_PURE_PARSE_REGISTERS_V1
     inputs:
       document_text: $.inputs.document_text
     outputs: {}
@@ -101,7 +101,7 @@ core:
       VIOLATION: exit
 
   - step: parse_priors
-    transform: transformation::CT_PURE_PARSE_PRIOR_PHASES_V0
+    transform: transformation::CT_PURE_PARSE_PRIOR_PHASES_V1
     inputs:
       prior_texts: $.inputs.prior_texts
     outputs: {}
@@ -151,7 +151,7 @@ core:
       BACKEND_ERROR: exit
 
   - step: evaluate_rules
-    transform: transformation::CT_PURE_EVALUATE_RULES_V0
+    transform: transformation::CT_PURE_EVALUATE_RULES_V1
     inputs:
       header: $.results.parse_registers.capability_result.header
       sections: $.results.parse_registers.capability_result.sections

@@ -35,7 +35,7 @@ WORKSPACE = REPO.parent
 PAYLOADS = REPO / "testbed" / "phases" / "test_payloads"
 # The capability the judging step runs. A step record names the capability it ran, not the step, so
 # this is how a trace shows that a phase judged.
-JUDGING_CAPABILITY = "transformation::CT_PURE_EVALUATE_RULES_V0"
+JUDGING_CAPABILITY = "transformation::CT_PURE_EVALUATE_RULES_V1"
 
 
 def trace(result) -> list[dict]:

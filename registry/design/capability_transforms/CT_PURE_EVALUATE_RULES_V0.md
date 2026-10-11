@@ -30,6 +30,8 @@ unevaluated subject.
 
 ```yaml
 fqdn: transformation::CT_PURE_EVALUATE_RULES_V0
+superseded_by:
+- transformation::CT_PURE_EVALUATE_RULES_V1
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
 governed_by: capability_transforms::CONSTITUTION_DETERMINISTIC_ATOMS_V0

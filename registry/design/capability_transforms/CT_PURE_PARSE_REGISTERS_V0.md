@@ -23,6 +23,8 @@ where the author needs a governance finding. Deciding admissibility belongs to t
 
 ```yaml
 fqdn: transformation::CT_PURE_PARSE_REGISTERS_V0
+superseded_by:
+- transformation::CT_PURE_PARSE_REGISTERS_V1
 artifact_kind: CAPABILITY_TRANSFORM
 version: v0
 governed_by: capability_transforms::CONSTITUTION_DETERMINISTIC_ATOMS_V0
