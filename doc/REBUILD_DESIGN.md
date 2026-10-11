@@ -124,7 +124,7 @@ Four constructs, the relational part of a schema plus the two the lifecycle adds
 | `x-carriage` | rows of a prior phase's register are carried here: none dropped, none invented, restatements match | p1 constraints carry the seed's constraints |
 | `x-grounding` | a field names an identity that must exist, or must not exist, in the pinned composition | a `NEW` code is unused |
 
-Each annotation names the invariant it realises (`x-realises: transformation::INVARIANT_…_V0`).
+Each annotation names the invariant it realises (`x-realises: lifecycle::INVARIANT_…_V0`).
 
 ### 3.4 Named procedures
 
@@ -165,15 +165,16 @@ can take from JSON Schema's own specification:
 
 ### 3.7 Invariants and constitutions
 
-**Two constitutions,** one per concern, matching the subdomains: `CONSTITUTION_DESIGN_V0` (design
-admissibility) and `CONSTITUTION_BUILD_V0` (construction determinacy) (U§9.5).
+**Two constitutions,** one per concern: `lifecycle::CONSTITUTION_CHANGE_MGMT_V1` (design
+admissibility) and `lifecycle::CONSTITUTION_CONSTRUCTION_V1` (construction determinacy), superseding
+the platform's RI-0 lifecycle constitutions (charter §6a).
 
-**Eighteen invariants,** `artifact_kind: INVARIANT`, `enforcement_stage: enforced_elsewhere`, with
-`enforced_by` naming the phase workflow or the construction workflow (U§6.6).
+**Twenty invariants,** `lifecycle::INVARIANT_…_V0`, `enforcement_stage: enforced_elsewhere`, with
+`enforced_by` stating in prose the compiler that enforces each (U§6.6, charter §6a).
 
 | Concern | Invariants |
 |---|---|
-| design (14) | `ROW_PROVENANCE_CITED`, `UPSTREAM_COMMITMENT_CARRIED`, `CONTENT_ENTERS_AT_OWNING_PHASE`, `RESTATEMENT_MATCHES_SOURCE`, `EXISTING_ARTIFACT_OBSERVED`, `NEW_IDENTITY_UNUSED`, `REUSE_FROM_PERMITTING_DOMAIN`, `NO_QUESTION_LEFT_OPEN`, `PHASE_SPEAKS_ITS_RUNG`, `TOUCHED_SUBDOMAIN_DECLARED`, `BUSINESS_REFUSAL_DISCHARGED`, `ANNOUNCEMENT_FROM_COMPLETING_ENDING`, `REACH_DECLARED_AND_USED`, `BUILD_ORDER_TOPOLOGICAL` |
+| design (16) | `ROW_PROVENANCE_CITED`, `UPSTREAM_COMMITMENT_CARRIED`, `CONTENT_ENTERS_AT_OWNING_PHASE`, `RESTATEMENT_MATCHES_SOURCE`, `EXISTING_ARTIFACT_OBSERVED`, `NEW_IDENTITY_UNUSED`, `REUSE_FROM_PERMITTING_DOMAIN`, `NO_QUESTION_LEFT_OPEN`, `PHASE_SPEAKS_ITS_RUNG`, `TOUCHED_SUBDOMAIN_DECLARED`, `BUSINESS_REFUSAL_DISCHARGED`, `ANNOUNCEMENT_FROM_COMPLETING_ENDING`, `REACH_DECLARED_AND_USED`, `BUILD_ORDER_TOPOLOGICAL`, `DESIGN_NAMES_RESOLVE`, `DECLARED_ARTIFACT_FULLY_STATED` |
 | build (4) | `DESIGN_UNIQUELY_DETERMINES_ARTIFACT`, `RENDER_INVENTS_NOTHING`, `ONE_PRODUCER_PER_ARTIFACT`, `MEANING_CHANGE_IS_NEW_IDENTITY` |
 
 Phase key rules stay in the dispatch as each phase's summary, naming the invariants they profile.

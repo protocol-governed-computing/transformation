@@ -337,6 +337,7 @@
         "code": "BUILD_STEPS_NOT_CONTIGUOUS",
         "intent": "the build sequence is total and gapless, because a gap is a dropped artifact"
       },
+      "x-realises": "lifecycle::INVARIANT_BUILD_ORDER_TOPOLOGICAL_V0",
       "x-key": {
         "mode": "contiguous",
         "params": {
@@ -351,6 +352,7 @@
         "code": "DEPENDENCY_SCHEDULED_LATER",
         "intent": "everything a step depends on is built before it — this is what makes it a sort"
       },
+      "x-realises": "lifecycle::INVARIANT_BUILD_ORDER_TOPOLOGICAL_V0",
       "x-procedure": {
         "name": "DEPENDENCY_PRECEDES",
         "params": {
@@ -381,6 +383,7 @@
         "code": "BUILD_CODE_ALREADY_EXISTS",
         "intent": "an artifact mandated for authoring must not already be in the composition"
       },
+      "x-realises": "lifecycle::INVARIANT_NEW_IDENTITY_UNUSED_V0",
       "x-grounding": {
         "mode": "absent",
         "params": {
@@ -397,6 +400,7 @@
         "intent": "the critical path is a path through this build order",
         "detail": "the critical path runs through steps the mandate schedules, not past them"
       },
+      "x-realises": "lifecycle::INVARIANT_BUILD_ORDER_TOPOLOGICAL_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -413,6 +417,7 @@
         "code": "CRITICAL_PATH_NOT_CONTIGUOUS",
         "intent": "a path is an ordered chain, not an unordered set of steps"
       },
+      "x-realises": "lifecycle::INVARIANT_BUILD_ORDER_TOPOLOGICAL_V0",
       "x-key": {
         "mode": "contiguous",
         "params": {
@@ -457,6 +462,7 @@
         "code": "DESIGNED_ARTIFACT_NOT_SCHEDULED",
         "intent": "an artifact the design declared and the mandate never schedules is not deferred, it is lost"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -474,6 +480,7 @@
         "code": "SCHEDULED_ARTIFACT_NOT_DESIGNED",
         "intent": "a mandate orders the build; it does not get to add to it"
       },
+      "x-realises": "lifecycle::INVARIANT_CONTENT_ENTERS_AT_OWNING_PHASE_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -491,6 +498,7 @@
         "code": "SCHEDULED_ARTIFACT_UNPLACED",
         "intent": "every artifact the mandate schedules declares the subdomain it is built into"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -506,6 +514,7 @@
         "code": "AMENDED_ARTIFACT_UNPLACED",
         "intent": "an artifact this change amends declares the subdomain it is placed in, as a scheduled one does"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -540,6 +549,7 @@
         "intent": "an unanswered question left in a register reads as decided to every later phase",
         "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
       },
+      "x-realises": "lifecycle::INVARIANT_NO_QUESTION_LEFT_OPEN_V0",
       "x-procedure": {
         "name": "UNRESOLVED_MARKER_ABSENT",
         "params": {

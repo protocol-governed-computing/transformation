@@ -586,6 +586,7 @@
         "intent": "a capability points only at a gap the document itself declares",
         "detail": "a consolidation may only point at what it consolidated"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -635,6 +636,7 @@
         "intent": "scope points only at a gap the document itself declares",
         "detail": "a consolidation may only point at what it consolidated"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -651,6 +653,7 @@
         "code": "DEPENDENCY_IDENTITY_UNRESOLVED",
         "intent": "a dependency on an existing artifact must be one that really exists"
       },
+      "x-realises": "lifecycle::INVARIANT_EXISTING_ARTIFACT_OBSERVED_V0",
       "x-grounding": {
         "mode": "exists",
         "params": {
@@ -681,6 +684,7 @@
         "code": "AUTHORING_DECISION_NOT_CONSOLIDATED",
         "intent": "a capability P3 decided and P4 never consolidated is dropped, not deferred"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "present_by_key",
         "params": {
@@ -697,6 +701,7 @@
         "intent": "an unanswered question left in a register reads as decided to every later phase",
         "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
       },
+      "x-realises": "lifecycle::INVARIANT_NO_QUESTION_LEFT_OPEN_V0",
       "x-procedure": {
         "name": "UNRESOLVED_MARKER_ABSENT",
         "params": {

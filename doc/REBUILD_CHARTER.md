@@ -47,8 +47,7 @@ module and the composition it produced are the baseline the rebuild is measured 
 2. **Structure.** Values inside cells given structure: routing, bindings, literals and generated
    values (§9.9, and the obligations in §9).
 3. **Design unravel.** Rules declared as artifacts, not code (§3, §6):
-   - transformation invariants under transformation constitutions, declared in the platform's
-     governance surface (§6a);
+   - transformation invariants under the platform's lifecycle constitutions (§6a);
    - a register schema per phase;
    - each expanded rule identified by schema `$id` and JSON Pointer (§9.2);
    - findings with structured locators (§4.6);
@@ -146,21 +145,27 @@ platform's surface closure refuses that today. The fix is decided (option B):
 The rebuild splits declarations from code, as the platform splits `software_governance` from
 `protocol_compiler`.
 
-**Governance goes to `software_governance`.** The transformation invariants and constitutions live
-in `software_governance/registry/transformation/`.
+**Governance goes to `software_governance`.** The transformation invariants live in
+`software_governance/registry/lifecycle/invariants/`, as `lifecycle::INVARIANT_…_V0`.
 - **Why.** A domain build cannot author an INVARIANT or a CONSTITUTION. The chain relations that make
   one authoritative (declared by a constitution rule, resolved, paired with its ASSERT) are proved
   only on the platform surface, and `governance_chain_closure` refuses a domain build that admits
   either kind.
-- **Identity.** They keep the `transformation::` namespace, which joins the authorized namespaces in
-  the platform's identity rules. The platform and the transformation domain then both hold
-  `transformation::` identities, and assembly accepts it.
+- **The `lifecycle` namespace.** It is already authorized, and already governs this lifecycle:
+  `lifecycle::CONSTITUTION_CHANGE_MGMT_V0` the design pipeline and `CONSTITUTION_CONSTRUCTION_V0`
+  construction, both enforced by process alone and written in RI-0's stages. A `transformation`
+  namespace on the platform would change the published `STRUCTURE_IDENTITY_V0`, which the compiler
+  loads by name.
+- **The constitutions are superseded, not added to.** `CONSTITUTION_CHANGE_MGMT_V1` names the 16
+  design invariants and the human gates; `CONSTITUTION_CONSTRUCTION_V1` names the 4 construction
+  invariants. Both restate their concern in phases. Both V0s are deleted at the swap and recorded
+  in the ledger (`.github/process/notes/rebuild-retirements.yaml`): the next release starts from the
+  live tree, and v5 keeps them at its tag.
 - **`enforced_by` is prose.** A platform artifact cannot name a domain artifact, so each invariant
   states its mechanism in words, as platform invariants enforced elsewhere already do: the design
   compiler evaluating a phase's sealed rule set, or the construction compiler measuring a design.
-- **Proved in scratch.** The platform compiles with the 20 invariants and 2 constitutions; the
-  platform, transformation, inspection and collatz assemble into one sealed snapshot, and composition
-  conformance passes.
+- **Proved.** The platform compiles them, the governance chain closes, published identity holds,
+  and the composition assembles.
 
 **Code and composition stay in the transformation repository.** It keeps both compilers, the CLI,
 the transform implementations, and the tool domain that dispatches them: the phase and construction
@@ -294,6 +299,24 @@ carry parameters for one rule each. `CELL_PREFIXED_BY_COLUMN` relates two cells 
 `UNRESOLVED_MARKER_ABSENT` reads every cell of every register but the exempt. Each is specified in
 M3.4b. `IMPLEMENTATION_MODULE_CONFORMS` goes with its column in M5 (D6). 26 procedures remain.
 
+### M3.4b — governance, built
+
+- **Twenty invariants,** `lifecycle::INVARIANT_…_V0` in `software_governance` (§6a): the 18 the
+  design names, and two it did not. 49 rules state that a design agrees with itself and is complete
+  (references that resolve, keys, coverage), and none of the 18 covered them:
+  `DESIGN_NAMES_RESOLVE` and `DECLARED_ARTIFACT_FULLY_STATED` do. 16 are design invariants, 4
+  construction.
+- **Two constitutions superseded,** `lifecycle::CONSTITUTION_CHANGE_MGMT_V1` and
+  `CONSTITUTION_CONSTRUCTION_V1`, naming the invariants (§6a).
+- **`x-realises`** on every annotation and procedure, and on the seven constraints that realise an
+  invariant: an invariant's identity, or for a procedure the protocol has not declared, its statement
+  in `DESIGN_LANGUAGE.md`.
+- **`DESIGN_LANGUAGE.md`,** the language standard: the document form, the schema, the derived and
+  declared rules, the four annotation constructs, every procedure by its invariant or statement,
+  findings and evaluation semantics.
+
+No rule changes: sealed rule sets, declarations and the comparison are unchanged.
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.
@@ -327,8 +350,8 @@ The human runs every git command.
 **Repositories.**
 - `transformation` carries the rebuild.
 - `.github` carries the expectations, the ledger and the runbook that change with it.
-- `software_governance` carries the transformation invariants and constitutions (§6a) on a rebuild
-  branch.
+- `software_governance` carries the lifecycle invariants and constitution successors (§6a) on a
+  rebuild branch.
 - `software_governance` and `protocol_compiler` take the platform fix (§6) on `dev/18`, through the
   lifecycle.
 
@@ -337,7 +360,7 @@ The human runs every git command.
 | transformation | tag `oracle/transformation` on `dev/18` | The frozen oracle. It never moves. |
 | transformation | `rebuild/transformation`, cut from the tag | All rebuild work. |
 | .github | `rebuild/transformation`, cut from `dev/18` | Expectations and ledger entries that match the rebuild. |
-| software_governance | `rebuild/transformation`, cut from `dev/18` | The transformation invariants and constitutions, and the authorized namespace (§6a). |
+| software_governance | `rebuild/transformation`, cut from `dev/18` | The lifecycle invariants and the two constitution successors (§6a). |
 | transformation | `dev/18` | Frozen (§3). A fix the workspace needs lands here and is cherry-picked onto the rebuild branch. |
 | every other repository | `dev/18` | Unchanged. The platform fix lands here before the swap. |
 

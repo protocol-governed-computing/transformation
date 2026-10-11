@@ -1677,6 +1677,7 @@
         "code": "NEW_CODE_ALREADY_EXISTS",
         "intent": "an identity assigned as new must not already name something else"
       },
+      "x-realises": "lifecycle::INVARIANT_NEW_IDENTITY_UNUSED_V0",
       "x-grounding": {
         "mode": "absent",
         "params": {
@@ -1707,6 +1708,7 @@
         "code": "EXISTING_INVENTORY_UNRESOLVED",
         "intent": "an artifact carried over from the composition must really be in it"
       },
+      "x-realises": "lifecycle::INVARIANT_EXISTING_ARTIFACT_OBSERVED_V0",
       "x-grounding": {
         "mode": "exists",
         "params": {
@@ -1776,6 +1778,7 @@
         "code": "TOPOLOGY_WORKFLOW_UNDECLARED",
         "intent": "a workflow in the topology is one this design declared or carried over"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -1799,6 +1802,7 @@
         "intent": "every node in the topology runs an identity this design actually assigned",
         "detail": "a binding identity is immutable, so a spelling variant is a second artifact rather than a synonym"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -1826,6 +1830,7 @@
         "code": "TOPOLOGY_NODE_REPEATED",
         "intent": "a node names one place in its workflow"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-key": {
         "mode": "unique",
         "params": {
@@ -1843,6 +1848,7 @@
         "code": "TOPOLOGY_ROUTE_UNRESOLVED",
         "intent": "control reaches only a node the workflow declares or already has, or an ending"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#topology_route_resolves",
       "x-procedure": {
         "name": "TOPOLOGY_ROUTE_RESOLVES",
         "params": {
@@ -1859,6 +1865,7 @@
         "code": "RB_BINDS_UNDECLARED_WORKFLOW",
         "intent": "a runtime binding binds a workflow that exists in this design"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -1881,6 +1888,7 @@
         "code": "RB_CODE_UNDECLARED",
         "intent": "a runtime binding is itself a declared artifact, never implicit"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -1903,6 +1911,7 @@
         "code": "COMPOSITION_CC_UNDECLARED",
         "intent": "a composition belongs to a capability contract this design declared"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -1925,6 +1934,7 @@
         "code": "COMPOSITION_STEP_UNDECLARED",
         "intent": "a step invokes a capability that is declared new or carried over, never invented inline"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -1948,6 +1958,7 @@
         "intent": "an outcome the operation cannot answer names the transform that produces it",
         "detail": "branches on {outcomes}, which {operation} does not answer — it answers {answers}. An outcome the store cannot produce comes from an interpretation, and this step names none, so the branch is a decision nothing makes"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#outcome_grounded_in_operation",
       "x-procedure": {
         "name": "OUTCOME_GROUNDED_IN_OPERATION",
         "params": {
@@ -1968,6 +1979,7 @@
         "intent": "an interpretation names the outcome it yields, closing the route",
         "detail": "routes on {outcomes} and declares no semantic status — {operation} answers {answers}, so the outcome routed on is an interpretation's, and the workflow branch it feeds has nothing declared to route on"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#outcome_grounded_in_operation",
       "x-procedure": {
         "name": "OUTCOME_GROUNDED_IN_OPERATION",
         "params": {
@@ -1987,6 +1999,7 @@
         "code": "STORE_UNGROUNDED_IN_CAPABILITY",
         "intent": "a step addresses a store exactly when its capability keeps one"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#store_grounded_in_capability",
       "x-procedure": {
         "name": "STORE_GROUNDED_IN_CAPABILITY",
         "params": {
@@ -2006,6 +2019,7 @@
         "intent": "a step consuming nothing invokes an operation that takes nothing",
         "detail": "consumes nothing and invokes {operation}, which accepts {accepts} — the operation receives no value for what it takes, and the step reports success on having addressed nothing"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#consumption_grounded_in_operation",
       "x-procedure": {
         "name": "CONSUMPTION_GROUNDED_IN_OPERATION",
         "params": {
@@ -2025,6 +2039,7 @@
         "intent": "every reach an act declares is used by a read that act performs",
         "detail": "declares a reach to {binding} and reads nothing it covers — that binding answers for {stores}, and no step this act runs addresses any of them. A permission granted for nothing is one whose purpose nobody reviewed"
       },
+      "x-realises": "lifecycle::INVARIANT_REACH_DECLARED_AND_USED_V0",
       "x-procedure": {
         "name": "REACH_IS_USED",
         "params": {
@@ -2044,6 +2059,7 @@
         "intent": "an act reads nothing it did not declare a reach to",
         "detail": "reads {store}, which {binding} does not cover and no declared reach names — the act reaches records another part of the business owns and its design does not say so, which is invisible until the act runs"
       },
+      "x-realises": "lifecycle::INVARIANT_REACH_DECLARED_AND_USED_V0",
       "x-procedure": {
         "name": "READ_IS_DECLARED",
         "params": {
@@ -2063,6 +2079,7 @@
         "code": "CROSS_SUBDOMAIN_WRITE",
         "intent": "an act reaching into another subdomain reads what it holds and never changes it"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#cross_subdomain_reach_read_only",
       "x-procedure": {
         "name": "CROSS_SUBDOMAIN_REACH_READ_ONLY",
         "params": {
@@ -2081,6 +2098,7 @@
         "intent": "the transform that turns an observation into a decision is itself governed",
         "detail": "an interpreting transform is an artifact like any other, declared or carried over"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -2134,6 +2152,7 @@
         "code": "SATISFIED_DEPENDENCY_NOT_INVENTORIED",
         "intent": "a dependency declared satisfied by an existing artifact must be inventoried as reuse"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -2151,6 +2170,7 @@
         "code": "PROVISIONAL_CODE_NEVER_BOUND",
         "intent": "a capability the business asked for and the design never bound is declined, not deferred"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -2177,6 +2197,7 @@
         "code": "AUTHORED_ARTIFACT_WITHOUT_INTENT",
         "intent": "an artifact the design authors is one the business asked for, never one it invented"
       },
+      "x-realises": "lifecycle::INVARIANT_CONTENT_ENTERS_AT_OWNING_PHASE_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -2195,6 +2216,7 @@
         "code": "WORKFLOW_WITHOUT_TOPOLOGY",
         "intent": "a workflow with no declared graph is a workflow construction would have to invent"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -2212,6 +2234,7 @@
         "code": "WORKFLOW_WITHOUT_RUNTIME_BINDING",
         "intent": "a workflow with no runtime binding cannot resolve the capabilities it composes"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -2229,6 +2252,7 @@
         "code": "CONTRACT_WITHOUT_COMPOSITION",
         "intent": "a capability contract with no declared pipeline specifies nothing to build"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -2246,6 +2270,7 @@
         "code": "TRANSFORM_WITHOUT_IMPLEMENTATION",
         "intent": "a transform is the one family that points outside the composition; the path is designed, not discovered"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -2263,6 +2288,7 @@
         "code": "REPLACED_ARTIFACT_WITHOUT_SUCCESSOR",
         "intent": "an artifact this design replaces is named by whatever supersedes it"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -2312,6 +2338,7 @@
         "code": "VOCABULARY_WITHOUT_VALUES",
         "intent": "a vocabulary that declares no value admits nothing"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -2329,6 +2356,7 @@
         "code": "BINDING_STEP_OWNER_UNDECLARED",
         "intent": "a binding belongs to a workflow or contract this design declared"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -2351,6 +2379,7 @@
         "code": "INTERFACE_ARTIFACT_UNDECLARED",
         "intent": "a field belongs to an artifact this design declared"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -2373,6 +2402,7 @@
         "code": "BINDING_READS_UNPUBLISHED_FIELD",
         "intent": "a binding reads a field the operation yields, never one it was hoped would exist"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#binding_source_published",
       "x-procedure": {
         "name": "BINDING_SOURCE_PUBLISHED",
         "params": {
@@ -2387,6 +2417,7 @@
         "code": "STEP_NAMES_UNPUBLISHED_OPERATION",
         "intent": "a step invokes an operation the capability offers, never one it was assumed to have"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#step_operation_published",
       "x-procedure": {
         "name": "STEP_OPERATION_PUBLISHED",
         "params": {
@@ -2400,6 +2431,7 @@
         "code": "STEP_CONSUMES_UNDECLARED_INPUT",
         "intent": "a step hands an operation fields it accepts, never ones it was hoped would exist"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#step_consumes_published",
       "x-procedure": {
         "name": "STEP_CONSUMES_PUBLISHED",
         "params": {
@@ -2479,6 +2511,7 @@
         "code": "IMPLEMENTATION_MODULE_MISPLACED",
         "intent": "a transform's module is where its domain resolves implementations, named for the artifact"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-procedure": {
         "name": "IMPLEMENTATION_MODULE_CONFORMS",
         "params": {
@@ -2530,6 +2563,7 @@
         "code": "INTERPRETATION_TRANSFORM_CANNOT_REFUSE",
         "intent": "an interpretation can fail, or the branch it feeds is unreachable"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#interpretation_transform_refuses",
       "x-procedure": {
         "name": "INTERPRETATION_TRANSFORM_REFUSES",
         "params": {
@@ -2674,6 +2708,7 @@
         "code": "NODE_INPUT_UNBOUND",
         "intent": "a workflow hands a contract everything that contract says it requires"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#node_input_bound",
       "x-procedure": {
         "name": "NODE_INPUT_BOUND",
         "params": {
@@ -2690,6 +2725,7 @@
         "code": "ENTRANCE_UNDERSUPPLIES_GATE",
         "intent": "an entrance supplies everything the gate it reaches requires"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#entrance_supplies_gate",
       "x-procedure": {
         "name": "ENTRANCE_SUPPLIES_GATE",
         "params": {
@@ -2705,6 +2741,7 @@
         "code": "BINDING_SOURCE_UNREACHABLE",
         "intent": "a source that names another node must name one this workflow reaches"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#binding_source_reachable",
       "x-procedure": {
         "name": "BINDING_SOURCE_REACHABLE",
         "params": {
@@ -2719,6 +2756,7 @@
         "code": "STEP_INTERFACE_NOT_CONFORMANT",
         "intent": "a transform handed an input it does not declare receives nothing under that name"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#step_interface_conforms",
       "x-procedure": {
         "name": "STEP_INTERFACE_CONFORMS",
         "params": {
@@ -2732,6 +2770,7 @@
         "code": "STEP_BINDING_NOT_IN_INTERFACE",
         "intent": "a binding outside the interface feeds a capability input that does not exist"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-procedure": {
         "name": "STEP_BINDINGS_MATCH_INTERFACE",
         "params": {
@@ -2745,6 +2784,7 @@
         "code": "STEP_INPUT_UNBOUND",
         "intent": "a capability handed no value for an input it declares receives a null"
       },
+      "x-realises": "DESIGN_LANGUAGE.md#step_inputs_bound",
       "x-procedure": {
         "name": "STEP_INPUTS_BOUND",
         "params": {
@@ -2813,6 +2853,7 @@
         "code": "CONTRACT_OUTPUT_UNPRODUCED",
         "intent": "a declared output no step emits gives every caller a name that resolves to nothing"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-procedure": {
         "name": "CONTRACT_OUTPUT_PRODUCED",
         "params": {
@@ -2827,6 +2868,7 @@
         "intent": "provenance belongs to an artifact the design actually declares",
         "detail": "provenance is stated about an artifact this design neither authors nor carries over — a generator for something nothing schedules produces nothing"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -2851,6 +2893,7 @@
         "intent": "one artifact, one producer, so agreement with the generator means something",
         "detail": "{value} is generated twice, first at row {first} — an artifact has exactly one producer, and two producers of one truth drift"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-key": {
         "mode": "unique",
         "params": {
@@ -2866,6 +2909,7 @@
         "intent": "a value is declared generated only where the design names its generator",
         "detail": "binds a generated value, and its owner names no generator — a generator determines only what the design says it does"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -2933,6 +2977,7 @@
         "code": "REFUSAL_UNACCOUNTED",
         "intent": "every refusal the business declared is carried out here or owned by someone else"
       },
+      "x-realises": "lifecycle::INVARIANT_BUSINESS_REFUSAL_DISCHARGED_V0",
       "x-carriage": {
         "mode": "present_by_key",
         "params": {
@@ -2960,6 +3005,7 @@
         "code": "DISCHARGE_UNDECLARED_REFUSAL",
         "intent": "a discharge answers a refusal the business declared, never one the design invented"
       },
+      "x-realises": "lifecycle::INVARIANT_CONTENT_ENTERS_AT_OWNING_PHASE_V0",
       "x-carriage": {
         "mode": "confined",
         "params": {
@@ -2982,6 +3028,7 @@
         "code": "DEFERRAL_UNDECLARED_REFUSAL",
         "intent": "a deferral hands on a refusal the business declared, never one nobody approved"
       },
+      "x-realises": "lifecycle::INVARIANT_CONTENT_ENTERS_AT_OWNING_PHASE_V0",
       "x-carriage": {
         "mode": "confined",
         "params": {
@@ -3019,6 +3066,7 @@
         "code": "GOVERNANCE_DISCHARGE_UNDECLARED_REFUSAL",
         "intent": "the governance surface is cited for a refusal the business declared, never for one it did not"
       },
+      "x-realises": "lifecycle::INVARIANT_CONTENT_ENTERS_AT_OWNING_PHASE_V0",
       "x-carriage": {
         "mode": "confined",
         "params": {
@@ -3071,6 +3119,7 @@
         "code": "GOVERNING_RULE_NOT_IN_FORCE",
         "intent": "a rule said to carry out a refusal is really in force where the design is pinned"
       },
+      "x-realises": "lifecycle::INVARIANT_BUSINESS_REFUSAL_DISCHARGED_V0",
       "x-procedure": {
         "name": "GOVERNING_RULE_IN_SEALED_SET",
         "params": {
@@ -3095,6 +3144,7 @@
         "code": "DISCHARGE_NOT_IN_TOPOLOGY",
         "intent": "a discharge names a step the act has and an outcome that step reports"
       },
+      "x-realises": "lifecycle::INVARIANT_BUSINESS_REFUSAL_DISCHARGED_V0",
       "x-procedure": {
         "name": "DISCHARGE_GROUNDED_IN_TOPOLOGY",
         "params": {}
@@ -3106,6 +3156,7 @@
         "code": "DISCHARGE_DOES_NOT_REFUSE",
         "intent": "the outcome a discharge names stops the act rather than continuing it"
       },
+      "x-realises": "lifecycle::INVARIANT_BUSINESS_REFUSAL_DISCHARGED_V0",
       "x-procedure": {
         "name": "DISCHARGE_OUTCOME_REFUSES",
         "params": {}
@@ -3117,6 +3168,7 @@
         "code": "EMISSION_NOT_FROM_COMPLETING_ENDING",
         "intent": "a moment is announced from an ending the act has, and one that completes it — or, for a moment declared a refusal, one that refuses it"
       },
+      "x-realises": "lifecycle::INVARIANT_ANNOUNCEMENT_FROM_COMPLETING_ENDING_V0",
       "x-procedure": {
         "name": "EMISSION_GROUNDED_IN_ENDING",
         "params": {
@@ -3133,6 +3185,7 @@
         "intent": "an act announces a moment that exists, never one nothing declares",
         "detail": "an announced moment must be an identity this design declares"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -3188,6 +3241,7 @@
         "code": "MOLECULE_WITHOUT_STEPS",
         "intent": "a molecule with no declared steps specifies nothing to run"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -3206,6 +3260,7 @@
         "intent": "only a molecule has steps",
         "detail": "steps belong to a transform this design declares a molecule"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -3261,6 +3316,7 @@
         "intent": "a step runs something that exists",
         "detail": "a step runs a transform this design declares or carries over"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -3437,6 +3493,7 @@
         "code": "MOLECULE_WITHOUT_EMISSION",
         "intent": "a molecule yields a value, and says which step it comes from"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -3456,6 +3513,7 @@
         "intent": "a molecule yields exactly one value",
         "detail": "{value} emits a second value, first at row {first} — a molecule yields exactly one, and two leave a caller to guess which it was handed"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-key": {
         "mode": "unique",
         "params": {
@@ -3472,6 +3530,7 @@
         "intent": "a binding hands a value to a step that exists",
         "detail": "a binding belongs to a step this design declares"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -3554,6 +3613,7 @@
         "code": "TRANSFORM_WITHOUT_VECTOR",
         "intent": "a transform authored here enters the composition with its proof"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -3571,6 +3631,7 @@
         "code": "AMENDED_TRANSFORM_WITHOUT_VECTOR",
         "intent": "a transform this change amends is proven as it will be"
       },
+      "x-realises": "lifecycle::INVARIANT_DECLARED_ARTIFACT_FULLY_STATED_V0",
       "x-reference": {
         "mode": "covers",
         "params": {
@@ -3590,6 +3651,7 @@
         "intent": "a case tests something that exists",
         "detail": "a case proves a transform this design declares or carries over"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -3644,6 +3706,7 @@
         "intent": "a value is handed to, or expected of, a case that exists",
         "detail": "a value belongs to a case this design declares"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -3715,6 +3778,7 @@
         "intent": "an unanswered question left in a register reads as decided to every later phase",
         "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
       },
+      "x-realises": "lifecycle::INVARIANT_NO_QUESTION_LEFT_OPEN_V0",
       "x-procedure": {
         "name": "UNRESOLVED_MARKER_ABSENT",
         "params": {

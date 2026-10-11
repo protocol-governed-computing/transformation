@@ -428,6 +428,7 @@
         "code": "REUSE_CANDIDATE_NOT_ELIGIBLE",
         "intent": "a change request may only be offered candidates from a domain that permits reuse"
       },
+      "x-realises": "lifecycle::INVARIANT_REUSE_FROM_PERMITTING_DOMAIN_V0",
       "x-grounding": {
         "mode": "reuse_eligible",
         "params": {
@@ -478,6 +479,7 @@
         "code": "CITED_ALTERNATIVE_UNRESOLVED",
         "intent": "an alternative examined must be one that really exists"
       },
+      "x-realises": "lifecycle::INVARIANT_EXISTING_ARTIFACT_OBSERVED_V0",
       "x-grounding": {
         "mode": "exists",
         "params": {
@@ -546,6 +548,7 @@
         "code": "BELIEF_RESULT_NOT_REVERIFIED",
         "intent": "a result nobody re-verified was inherited, and grounding is not inherited"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "cited",
         "params": {
@@ -562,6 +565,7 @@
         "code": "BELIEF_RESULT_RESTATED_FROM_P2",
         "intent": "a re-verification must address the result it cites, not a substitute for it"
       },
+      "x-realises": "lifecycle::INVARIANT_RESTATEMENT_MATCHES_SOURCE_V0",
       "x-carriage": {
         "mode": "matches_cited",
         "params": {
@@ -579,6 +583,7 @@
         "intent": "an unanswered question left in a register reads as decided to every later phase",
         "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
       },
+      "x-realises": "lifecycle::INVARIANT_NO_QUESTION_LEFT_OPEN_V0",
       "x-procedure": {
         "name": "UNRESOLVED_MARKER_ABSENT",
         "params": {

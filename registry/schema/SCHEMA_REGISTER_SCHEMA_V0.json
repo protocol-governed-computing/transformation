@@ -381,13 +381,13 @@
     },
     "entry": {
       "type": "object",
-      "description": "One declared rule. It names the register it governs, unless it is about the whole document, and states one constraint, annotation or procedure.",
+      "description": "One declared rule. It names the register it governs, unless it is about the whole document, states one constraint, annotation or procedure, and names what it realises.",
       "required": [
         "x-finding"
       ],
       "additionalProperties": false,
       "minProperties": 2,
-      "maxProperties": 4,
+      "maxProperties": 5,
       "properties": {
         "x-register": {
           "type": "string",
@@ -395,6 +395,11 @@
         },
         "x-finding": {
           "$ref": "#/$defs/finding"
+        },
+        "x-realises": {
+          "type": "string",
+          "description": "What the rule realises: a lifecycle invariant, or for a procedure specified by a statement, its anchor in DESIGN_LANGUAGE.md.",
+          "pattern": "^(?:lifecycle::INVARIANT_[A-Z0-9_]+_V[0-9]+|DESIGN_LANGUAGE\\.md#[a-z0-9_]+)$"
         },
         "x-columns": {
           "type": "object",

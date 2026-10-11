@@ -325,6 +325,7 @@
         "intent": "placement names a subdomain, never an artifact",
         "detail": "{token!r} in {column!r} — this stage places capabilities in subdomains; naming an artifact answers a question Stage 7 owns"
       },
+      "x-realises": "lifecycle::INVARIANT_PHASE_SPEAKS_ITS_RUNG_V0",
       "items": {
         "properties": {
           "capability": {
@@ -347,6 +348,7 @@
         "intent": "a store is described by what it holds, not by what will write it",
         "detail": "{token!r} in {column!r} — a storage need is business language, not an artifact"
       },
+      "x-realises": "lifecycle::INVARIANT_PHASE_SPEAKS_ITS_RUNG_V0",
       "items": {
         "properties": {
           "storage_need": {
@@ -400,6 +402,7 @@
         "code": "EXISTING_ARTIFACT_UNRESOLVED",
         "intent": "an artifact said to cover a capability must be one that really exists"
       },
+      "x-realises": "lifecycle::INVARIANT_EXISTING_ARTIFACT_OBSERVED_V0",
       "x-grounding": {
         "mode": "exists",
         "params": {
@@ -415,6 +418,7 @@
         "code": "PPS_ACTION_IDENTITY_UNRESOLVED",
         "intent": "an artifact this change will act on must be one the composition carries"
       },
+      "x-realises": "lifecycle::INVARIANT_EXISTING_ARTIFACT_OBSERVED_V0",
       "x-grounding": {
         "mode": "exists",
         "params": {
@@ -472,6 +476,7 @@
         "code": "OUTCOME_CAPABILITY_UNPLACED",
         "intent": "the outcome restates placement, it does not introduce it"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-reference": {
         "mode": "resolves",
         "params": {
@@ -487,6 +492,7 @@
         "code": "IN_SCOPE_CAPABILITY_UNPLACED",
         "intent": "a capability declared in scope and given no owner is in nobody's scope"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "present_by_key",
         "params": {
@@ -505,6 +511,7 @@
         "code": "BORROWED_CAPABILITY_NOT_DECLARED_CROSSING",
         "intent": "a capability borrowed across a subdomain boundary is a dependency, declared as one"
       },
+      "x-realises": "lifecycle::INVARIANT_TOUCHED_SUBDOMAIN_DECLARED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -522,6 +529,7 @@
         "code": "TOUCHED_SUBDOMAIN_UNOWNED",
         "intent": "every subdomain a change touches has its owner declared"
       },
+      "x-realises": "lifecycle::INVARIANT_TOUCHED_SUBDOMAIN_DECLARED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -539,6 +547,7 @@
         "intent": "an unanswered question left in a register reads as decided to every later phase",
         "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
       },
+      "x-realises": "lifecycle::INVARIANT_NO_QUESTION_LEFT_OPEN_V0",
       "x-procedure": {
         "name": "UNRESOLVED_MARKER_ABSENT",
         "params": {

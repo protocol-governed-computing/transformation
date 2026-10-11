@@ -522,6 +522,7 @@
         "intent": "the one narrative no artifact can derive is authored once and never quietly replaced",
         "detail": "the purpose is declared INHERITED and does not match the seed's — inherit it word for word, or declare REFINED and say what this phase adds"
       },
+      "x-realises": "lifecycle::INVARIANT_UPSTREAM_COMMITMENT_CARRIED_V0",
       "x-carriage": {
         "mode": "prose",
         "params": {
@@ -567,6 +568,7 @@
         "code": "TOUCHED_SUBDOMAIN_WITHOUT_PURPOSE",
         "intent": "every subdomain a change touches has its purpose stated"
       },
+      "x-realises": "lifecycle::INVARIANT_TOUCHED_SUBDOMAIN_DECLARED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -584,6 +586,7 @@
         "code": "TOUCHED_SUBDOMAIN_AUTHORS_NOTHING",
         "intent": "a subdomain a change authors into names the artifacts it authors"
       },
+      "x-realises": "lifecycle::INVARIANT_TOUCHED_SUBDOMAIN_DECLARED_V0",
       "x-carriage": {
         "mode": "identities_covered",
         "params": {
@@ -638,6 +641,7 @@
         "code": "PROVISIONAL_FAMILY_MISMATCH",
         "intent": "a code and the family it is filed under agree"
       },
+      "x-realises": "lifecycle::INVARIANT_DESIGN_NAMES_RESOLVE_V0",
       "x-procedure": {
         "name": "CELL_PREFIXED_BY_COLUMN",
         "params": {
@@ -652,6 +656,7 @@
         "code": "CROSS_SUBDOMAIN_REF_UNRESOLVED",
         "intent": "a capability borrowed from elsewhere must be one that really exists"
       },
+      "x-realises": "lifecycle::INVARIANT_EXISTING_ARTIFACT_OBSERVED_V0",
       "x-grounding": {
         "mode": "exists",
         "params": {
@@ -668,6 +673,7 @@
         "intent": "intent says what must be true, never how it is wired",
         "detail": "{token!r} in {column!r} — a path, a binding expression or a hash is an implementation decision, and Stage 7 owns those"
       },
+      "x-realises": "lifecycle::INVARIANT_PHASE_SPEAKS_ITS_RUNG_V0",
       "items": {
         "properties": {
           "store_name": {
@@ -751,6 +757,7 @@
         "intent": "an unanswered question left in a register reads as decided to every later phase",
         "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
       },
+      "x-realises": "lifecycle::INVARIANT_NO_QUESTION_LEFT_OPEN_V0",
       "x-procedure": {
         "name": "UNRESOLVED_MARKER_ABSENT",
         "params": {
