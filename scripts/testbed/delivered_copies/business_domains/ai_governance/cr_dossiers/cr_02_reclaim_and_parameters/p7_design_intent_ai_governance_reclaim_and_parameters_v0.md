@@ -13,74 +13,74 @@ registers:
   - decision: The removal step ends the contract on a refused removal
     business_fact: No reclaim carries on past a removal the registry refused
     resolution: The deregister_license step of ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1 routes VIOLATION to exit
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - decision: A refused removal ends as still active
     business_fact: A license the registry did not release stays with the employee
     resolution: ai_governance::WF_AUTO_RECLAIM_V0 already routes the contract's VIOLATION to EXIT_ACTIVE; it is re-pointed and not restated
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - decision: The check reports what it receives
     business_fact: A check reports only what it receives
     resolution: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1 maps `validation_result` from the check's `valid`, a boolean
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - decision: Next versions
     business_fact: A change of meaning is a new identity, and identity is fixed at publication
     resolution: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1 supersedes ai_governance::CC_RECLAIM_UNUSED_LICENSE_V0, and ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1 supersedes ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V0
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - decision: The acts run the next versions
     business_fact: Each decides exactly as today
     resolution: 'ai_governance::WF_AUTO_RECLAIM_V0 and ai_governance::WF_GOVERN_AGENT_ACTION_V0 are re-pointed: the place that runs each contract runs its next version; its label and routes are unchanged'
-    source_finding: 'S4 design_decisions #5'
+    source_finding: {phase: p4, register: design_decisions, row: 5}
   existing_inventory:
   - fqdn: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V0
     action: REPLACE
     summary: ''
     reason: Its removal step carries on past a refusal its registry declares. Stood down by its next version.
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - fqdn: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     action: REUSE
     summary: ''
     reason: Named by the reclaim's next version, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #2'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   - fqdn: ai_governance::WF_AUTO_RECLAIM_V0
     action: REPOINT
     summary: ''
     reason: Runs the reclaim being replaced; re-pointed to its next version. It already routes the refusal to still active.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V0
     action: REPLACE
     summary: ''
     reason: Reports a result it never receives. Stood down by its next version.
-    source_finding: 'S6 pps_artifacts_requiring_action #4'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 4}
   - fqdn: ai_governance::WF_GOVERN_AGENT_ACTION_V0
     action: REPOINT
     summary: ''
     reason: Runs the parameter check being replaced; re-pointed to its next version.
-    source_finding: 'S6 pps_artifacts_requiring_action #5'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 5}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
     action: REUSE
     summary: ''
     reason: Checks the parameters against the rules, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #6'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 6}
   - fqdn: capability_transforms::CT_PURE_LOOKUP_V0
     action: REUSE
     summary: ''
     reason: Looks up the tool's rules, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: capability_side_effects::CS_REGISTRY_V0
     action: REUSE
     summary: ''
     reason: Named by the reclaim's next version, unchanged.
-    source_finding: 'S6 cross_subdomain_deps #1'
+    source_finding: {phase: p6, register: cross_subdomain_deps, row: 1}
   - fqdn: ai_governance::RB_LICENSE_BINDINGS_V0
     action: REUSE
     summary: ''
     reason: Binds the license registry, unchanged.
-    source_finding: 'S6 cross_subdomain_deps #1'
+    source_finding: {phase: p6, register: cross_subdomain_deps, row: 1}
   - fqdn: ai_governance::STRUCTURE_AI_LICENSING_STORAGE_V0
     action: REUSE
     summary: ''
     reason: Places the license registry, unchanged.
-    source_finding: 'S6 cross_subdomain_deps #1'
+    source_finding: {phase: p6, register: cross_subdomain_deps, row: 1}
   new_artifacts:
   - capability: End a reclaim the registry refuses
     family: CC
@@ -88,14 +88,14 @@ registers:
     summary: Reclaim license from inactive user
     owner_subdomain: ai_licensing
     status: NEW
-    source_finding: 'S6 governance_outcome #1'
+    source_finding: {phase: p6, register: governance_outcome, row: 1}
   - capability: Check an action's parameters
     family: CC
     code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     summary: Enforce declared parameter constraints for an authorized tool
     owner_subdomain: agent_governance
     status: NEW
-    source_finding: 'S6 governance_outcome #2'
+    source_finding: {phase: p6, register: governance_outcome, row: 2}
   rb_declarations: []
   execution_topology: []
   cc_composition:
@@ -201,50 +201,50 @@ registers:
     direction: INPUT
     field: last_active_date
     bound_to: inputs.last_active_date
-    source_finding: S7 cc_composition evaluate_inactivity
+    source_finding: {phase: p7, register: cc_composition, key: evaluate_inactivity}
   - owner: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     step: evaluate_inactivity
     direction: INPUT
     field: evaluation_date
     bound_to: inputs.evaluation_date
-    source_finding: S7 cc_composition evaluate_inactivity
+    source_finding: {phase: p7, register: cc_composition, key: evaluate_inactivity}
   - owner: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     step: evaluate_inactivity
     direction: INPUT
     field: threshold_days
     bound_to: inputs.threshold_days
-    source_finding: S7 cc_composition evaluate_inactivity
+    source_finding: {phase: p7, register: cc_composition, key: evaluate_inactivity}
   - owner: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     step: evaluate_inactivity
     direction: OUTPUT
     field: is_inactive
     bound_to: capability_result.is_inactive
-    source_finding: S7 cc_composition evaluate_inactivity
+    source_finding: {phase: p7, register: cc_composition, key: evaluate_inactivity}
   - owner: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     step: evaluate_inactivity
     direction: OUTPUT
     field: days_inactive
     bound_to: capability_result.days_inactive
-    source_finding: S7 cc_composition evaluate_inactivity
+    source_finding: {phase: p7, register: cc_composition, key: evaluate_inactivity}
   - owner: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     step: deregister_license
     direction: INPUT
     field: key_or_address
     bound_to: inputs.employee_id
-    source_finding: S7 cc_composition deregister_license
+    source_finding: {phase: p7, register: cc_composition, key: deregister_license}
   - owner: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     step: deregister_license
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition deregister_license
+    source_finding: {phase: p7, register: cc_composition, key: deregister_license}
   - owner: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     step: lookup_parameter_rules
     direction: INPUT
     field: key
     bound_to: inputs.tool_name
-    source_finding: S7 cc_composition lookup_parameter_rules
+    source_finding: {phase: p7, register: cc_composition, key: lookup_parameter_rules}
   - owner: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     step: lookup_parameter_rules
     direction: INPUT
@@ -273,31 +273,31 @@ registers:
         - field: quantity
           op: lte
           value: 50
-    source_finding: S7 cc_composition lookup_parameter_rules
+    source_finding: {phase: p7, register: cc_composition, key: lookup_parameter_rules}
   - owner: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     step: lookup_parameter_rules
     direction: OUTPUT
     field: rules
     bound_to: capability_result.result
-    source_finding: S7 cc_composition lookup_parameter_rules
+    source_finding: {phase: p7, register: cc_composition, key: lookup_parameter_rules}
   - owner: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     step: validate_parameters
     direction: INPUT
     field: parameters
     bound_to: inputs.parameters
-    source_finding: S7 cc_composition validate_parameters
+    source_finding: {phase: p7, register: cc_composition, key: validate_parameters}
   - owner: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     step: validate_parameters
     direction: INPUT
     field: rules
     bound_to: results.lookup_parameter_rules.rules
-    source_finding: S7 cc_composition validate_parameters
+    source_finding: {phase: p7, register: cc_composition, key: validate_parameters}
   - owner: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     step: validate_parameters
     direction: OUTPUT
     field: validation_result
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition validate_parameters
+    source_finding: {phase: p7, register: cc_composition, key: validate_parameters}
   interface_fields:
   - artifact: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     direction: INPUT
@@ -387,21 +387,21 @@ registers:
   - artifact: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     property: description
     value: Evaluates inactivity and reclaims license if threshold exceeded
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - artifact: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     property: supersedes
     value:
     - ai_governance::CC_RECLAIM_UNUSED_LICENSE_V0
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - artifact: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     property: supersedes
     value:
     - ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V0
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - artifact: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
     property: description
     value: Evaluates declarative parameter constraints — policy in governance, evaluation in generic CT
-    source_finding: 'S6 pps_artifacts_requiring_action #4'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 4}
   structure_stores: null
   artifact_summary:
   - action: NEW
@@ -432,7 +432,7 @@ registers:
     refused_when: The registry refuses to remove the assignment
     deferred_to: 'ai_governance::WF_AUTO_RECLAIM_V0, re-pointed and not restated: its place ai_governance::CC_RECLAIM_UNUSED_LICENSE_V0, which runs the next version, routes VIOLATION to EXIT_ACTIVE'
     until: The act is next restated
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   refusal_governance_discharge: null
   molecule_steps: null
   molecule_step_bindings: null

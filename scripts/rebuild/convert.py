@@ -15,7 +15,8 @@ What moves into the Machine block:
 
 Each value takes the type its column declares in the rebuild's register schema. A none marker is
 `null`. A list, a routing, an interface, a binding and a test value are structured as the oracle's
-own reading reads them. A blank test value leaves its column out of the row. A cell that does not structure cleanly is kept as the text it was, and the
+own reading reads them. A blank test value leaves its column out of the row. A citation becomes a
+mapping naming what it cites (M3.3b). A cell that does not structure cleanly is kept as the text it was, and the
 rebuild refuses its type.
 
 What stays prose: headings, narrative, and any table no register marker opens. Each register's
@@ -55,6 +56,17 @@ def _str(dumper: yaml.SafeDumper, value: str) -> yaml.Node:
 
 _Dumper.add_representer(str, _str)
 
+# A citation is written on one line, `{phase: p2, register: gaps, row: 1}`, as an author writes it.
+_CITATION_KEYS = {"phase", "register", "row", "key", "artifact", "source"}
+
+
+def _mapping(dumper: yaml.SafeDumper, value: dict) -> yaml.Node:
+    flow = bool(value) and set(value) <= _CITATION_KEYS and bool({"register", "artifact", "source"} & set(value))
+    return dumper.represent_mapping("tag:yaml.org,2002:map", value, flow_style=flow or None)
+
+
+_Dumper.add_representer(dict, _mapping)
+
 
 REBUILD_SCHEMAS = Path(__file__).resolve().parents[2] / "registry" / "schema"
 NONE_MARKERS = ("—", "-", "NONE", "N/A")
@@ -77,6 +89,66 @@ def _columns() -> dict[str, dict[str, dict]]:
 
 
 COLUMNS = _columns()
+
+
+def _seed_sections() -> dict[str, str]:
+    """The seed's section number → its register id. A seed is cited by section number."""
+    declared = json.loads((REBUILD_SCHEMAS / "REGISTER_SCHEMA_P0_V0.json").read_text(encoding="utf-8"))
+    return {body["x-section"]["number"]: rid
+            for rid, body in declared["properties"]["registers"]["properties"].items()
+            if (body.get("x-section") or {}).get("number") is not None}
+
+
+SEED_SECTIONS = _seed_sections()
+IDENTITY = re.compile(r"^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+$")
+SEED = re.compile(r"^CR seed\s*§\s*(\d+)\b[^#]*?(?:#\s*(\d+))?\s*$")
+STAGED = re.compile(r"^S(\d+)[a-z]?\s+([a-z][a-z0-9_]*)\b\s*(.*)$")
+LOCAL = re.compile(r"^([a-z][a-z0-9_]*)\s+#\s*(\d+)$")
+ORDINAL = re.compile(r"^#\s*(\d+)\b\s*(?:[—–-]\s*.*)?$")
+# Several citations are separated by `;` or ` · `, each followed by the start of another citation. A
+# `;` inside a trailing remark separates nothing.
+SEVERAL = re.compile(r"\s*;\s*(?=S\d|CR seed|human decision|[a-z][a-z0-9_.]*(?:::|\s+#))|\s+·\s+(?=S\d|CR seed)")
+
+
+def _one_citation(part: str):
+    """One citation as a mapping, or None when it does not structure."""
+    if part == "human decision":
+        return {"source": "human"}
+    if IDENTITY.match(part):
+        return {"artifact": part}
+    seed = SEED.match(part)
+    if seed:
+        register = SEED_SECTIONS.get(seed.group(1))
+        if register is None:
+            return None
+        return {"phase": "p0", "register": register, **({"row": int(seed.group(2))} if seed.group(2) else {})}
+    staged = STAGED.match(part)
+    if staged:
+        cited = {"phase": f"p{staged.group(1)}", "register": staged.group(2)}
+        rest = staged.group(3).strip()
+        if not rest:
+            return cited
+        ordinal = ORDINAL.match(rest)
+        if ordinal:
+            return {**cited, "row": int(ordinal.group(1))}
+        key = re.sub(r"^[—–-]\s*", "", rest).strip()
+        return {**cited, "key": key} if key else cited
+    local = LOCAL.match(part)
+    if local:
+        return {"register": local.group(1), "row": int(local.group(2))}
+    return None
+
+
+def _citation(cell: str):
+    """A citation cell as a mapping, or a list for several. A blank cites nothing, `null`. One that
+    does not structure stays the text it was, and the rebuild refuses its type."""
+    if cell == "" or cell in NONE_MARKERS:
+        return None
+    parts = [p for p in SEVERAL.split(cell) if p.strip()]
+    cited = [_one_citation(p.strip()) for p in parts]
+    if any(c is None for c in cited):
+        return cell
+    return cited[0] if len(cited) == 1 else cited
 
 
 def _column_key(register_id: str, header: str) -> str:
@@ -173,6 +245,8 @@ def _value(register_id: str, key: str, cell: str, row: dict[str, str]):
     if register_id == "artifact_properties" and key == "value":
         prop = next((v for h, v in row.items() if _column_key(register_id, h) == "property"), "")
         kind = ["array", "null"] if LIST_PROPERTIES.match(prop.strip()) else ["string", "null"]
+    if declared.get("$ref") == "#/$defs/citation":
+        return _citation(cell)
     if "oneOf" in declared:
         return None if cell in NONE_MARKERS else ("" if cell == "" else _binding(register_id, cell))
     if key in COLUMNS.get(register_id, {}) and "type" not in declared:

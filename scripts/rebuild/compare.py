@@ -39,8 +39,15 @@ def _normalised(finding: dict, side: str) -> tuple | None:
       and the column, once.
     - M3.3-6: a governed hole names the column by its key, not its heading. Both read as the
       register and the row, with the detail's column dropped.
+    - M3.3b-1: a citation is a mapping, so an unresolved one is shown as the mapping. Both read as
+      the register and the row. A citation that does not structure is refused by its type, which
+      reads as the unresolved citation it was.
     """
     code, where, detail = CODE_MAP.get(finding["rule"], finding["rule"]), finding["where"], finding["detail"]
+    if code == "CELL_NOT_OF_TYPE" and detail.startswith(("'Source Finding'", "'Origin'")):
+        code = "SOURCE_FINDING_UNRESOLVED"
+    if code == "SOURCE_FINDING_UNRESOLVED":
+        return (code, where, "")
     register = where.split(" row ")[0]
     if code == "REGISTER_COLUMN_MISSING":
         column = re.search(r"required column '([^']+)' absent", detail)
@@ -76,8 +83,24 @@ def _empty_registers(path: Path) -> set[str]:
     return {r["id"] for r in registers if r["value"] is None or r["value"] == []}
 
 
-def findings(result: dict, side: str) -> Counter:
-    seen = Counter(_normalised(f, side) for f in result.get("findings", []))
+def findings(result: dict, side: str, oracle: dict | None = None) -> Counter:
+    listed = result.get("findings", [])
+    if oracle is not None:
+        # M3.3b-3: a seed citation's ordinal is resolved by both ordinal rules. The oracle's ordinal
+        # rule read no seed citation, so where the row rule reports a row and the oracle's ordinal
+        # rule does not, the rebuild's ordinal report of it is set aside.
+        rows = {f["where"] for f in listed if f["rule"] == "CITATION_ROW_UNRESOLVED"}
+        held = Counter(f["where"] for f in oracle.get("findings", [])
+                       if f["rule"] == "CITATION_ORDINAL_UNRESOLVED")
+        kept = []
+        for f in listed:
+            if f["rule"] == "CITATION_ORDINAL_UNRESOLVED" and f["where"] in rows:
+                if not held[f["where"]]:
+                    continue
+                held[f["where"]] -= 1
+            kept.append(f)
+        listed = kept
+    seen = Counter(_normalised(f, side) for f in listed)
     # A per-row missing column collapses to one finding per register and column.
     return Counter({k: (1 if k[0] == "REGISTER_COLUMN_MISSING" else v) for k, v in seen.items()})
 
@@ -104,7 +127,7 @@ def main(argv: list[str]) -> int:
         else:
             if a["verdict"] != b["verdict"]:
                 problems.append(f"verdict {a['verdict']} → {b['verdict']}")
-            fa, fb = findings(a, 'oracle'), findings(b, 'rebuild')
+            fa, fb = findings(a, 'oracle'), findings(b, 'rebuild', a)
             # M2-2: a register with no rows has no column to miss.
             empty = _empty_registers(mirror / before["doc"])
             fa = Counter({k: v for k, v in fa.items()

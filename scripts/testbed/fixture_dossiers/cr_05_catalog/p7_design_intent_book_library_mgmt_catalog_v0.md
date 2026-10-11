@@ -13,317 +13,317 @@ registers:
   - decision: Each rule is held by the step that applies it
     business_fact: A rule the caller supplies is a rule the caller can widen
     resolution: The confirming contract holds the library's authorization rules; the checking contracts hold the book, work and edition descriptions
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - decision: Each check is followed by a rule refusing when it found anything
     business_fact: An incomplete registration is refused
     resolution: The submission check refuses on both its checks' violations; the book record, the edition record and the correction each gain a rule step requiring none
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - decision: What each registration checks is the record it writes
     business_fact: A check of a supplied copy judges nothing that is written
     resolution: Each registration act hands its submission check the fields it records
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - decision: The register act records the subject where callers send it
     business_fact: Every present caller sends it inside the book details
     resolution: The recorded book's subject is bound from the supplied book details
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - decision: A copy's registered state and a correction's state are the catalog's own
     business_fact: A copy is registered as registered; a correction does not change state
     resolution: The copy contract writes REGISTERED; the correction writes the state it read and checks the corrected record
-    source_finding: 'S4 design_decisions #5'
+    source_finding: {phase: p4, register: design_decisions, row: 5}
   - decision: The gates stop requiring what the catalog holds and what no act reads
     business_fact: A gate requiring an unread field refuses a correct request
     resolution: Every gate drops the rules; the book gate its description; the edition gate its descriptions and supplied details
-    source_finding: 'S4 design_decisions #6'
+    source_finding: {phase: p4, register: design_decisions, row: 6}
   - decision: Records made before this change are left as they are
     business_fact: The record is added to and never rewritten
     resolution: No migration, backfill or repair step is designed
-    source_finding: 'S4 design_decisions #7'
+    source_finding: {phase: p4, register: design_decisions, row: 7}
   existing_inventory:
   - fqdn: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     action: EXTEND
     summary: Confirm the staff member may perform catalog operations
     reason: It takes its rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - fqdn: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     action: EXTEND
     summary: Confirms a registration carries what a work and an edition require, before any identity is claimed
     reason: It takes its descriptions from the request and refuses nothing its checks find.
-    source_finding: 'S6 pps_artifacts_requiring_action #2'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   - fqdn: book_library_mgmt::CC_REGISTER_BOOK_V0
     action: EXTEND
     summary: Validates, assembles and writes an edition record against the work it belongs to
     reason: It takes its description from the request and ignores what its check finds.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     action: EXTEND
     summary: Assembles the edition record against a resolved work and writes it
     reason: It takes its description from the request and ignores what its check finds.
-    source_finding: 'S6 pps_artifacts_requiring_action #4'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 4}
   - fqdn: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     action: EXTEND
     summary: Record a copy against exactly one book
     reason: It records the copy in the state the request gives.
-    source_finding: 'S6 pps_artifacts_requiring_action #5'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 5}
   - fqdn: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     action: EXTEND
     summary: Changes a registered edition's descriptive content and refuses a change that would duplicate another edition
     reason: It writes the state the request gives and checks no description.
-    source_finding: 'S6 pps_artifacts_requiring_action #6'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 6}
   - fqdn: book_library_mgmt::WF_REGISTER_BOOK_V0
     action: EXTEND
     summary: The governed sequence that registers a work, its first edition and that edition's first physical copy
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     action: EXTEND
     summary: The governed sequence that registers a further edition of a work the library already holds
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - fqdn: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     action: EXTEND
     summary: The governed sequence that registers a further physical copy of an edition
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - fqdn: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     action: EXTEND
     summary: Corrects what the library publishes about a registered book
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - fqdn: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     action: EXTEND
     summary: The governed sequence that takes a book out of service
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - fqdn: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     action: EXTEND
     summary: Returning a retired book record to the registered state
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - fqdn: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     action: EXTEND
     summary: The governed sequence that takes a physical copy out of service
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - fqdn: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     action: EXTEND
     summary: Returning a retired copy to the registered state
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - fqdn: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     action: EXTEND
     summary: Assembling a book with the copies the library holds of it
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - fqdn: book_library_mgmt::WF_SEARCH_CATALOG_V0
     action: EXTEND
     summary: Searching by subject or title, excluding retired books
     reason: It binds the rules from the request.
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   - fqdn: book_library_mgmt::IN_REGISTER_BOOK_V0
     action: EXTEND
     summary: A request to register a book together with its first physical copy
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #17'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 17}
   - fqdn: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     action: EXTEND
     summary: The boundary that admits a request to register a further edition of a work the catalog already holds
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #18'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 18}
   - fqdn: book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0
     action: EXTEND
     summary: A request to register a further copy against a registered book
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #19'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 19}
   - fqdn: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     action: EXTEND
     summary: A request to change a registered book's description
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #20'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 20}
   - fqdn: book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0
     action: EXTEND
     summary: A request to retire a book record judged obsolete
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #21'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 21}
   - fqdn: book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0
     action: EXTEND
     summary: A request to return a retired book record to the registered state
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #22'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 22}
   - fqdn: book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0
     action: EXTEND
     summary: A request to retire a lost or damaged copy
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #23'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 23}
   - fqdn: book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0
     action: EXTEND
     summary: A request to return a retired copy to the registered state
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #24'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 24}
   - fqdn: book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0
     action: EXTEND
     summary: A request for a book's complete details with the copies held
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #25'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 25}
   - fqdn: book_library_mgmt::IN_SEARCH_CATALOG_V0
     action: EXTEND
     summary: A request to locate material by subject or by title
     reason: It requires the rules the catalog now holds.
-    source_finding: 'S6 pps_artifacts_requiring_action #26'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 26}
   - fqdn: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #27'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 27}
   - fqdn: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #28'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 28}
   - fqdn: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #29'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 29}
   - fqdn: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #30'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 30}
   - fqdn: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #31'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 31}
   - fqdn: book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #32'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 32}
   - fqdn: book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #33'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 33}
   - fqdn: book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #34'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 34}
   - fqdn: book_library_mgmt::CC_RESOLVE_WORK_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #35'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 35}
   - fqdn: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #36'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 36}
   - fqdn: book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #37'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 37}
   - fqdn: book_library_mgmt::CC_SEARCH_CATALOG_V0
     action: REUSE
     summary: ''
     reason: Run by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #38'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 38}
   - fqdn: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     action: REUSE
     summary: ''
     reason: Superseded and not in force; named by its successor, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - fqdn: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     action: REUSE
     summary: ''
     reason: Superseded and not in force; named by its successor, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - fqdn: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     action: REUSE
     summary: ''
     reason: Binds every catalog act, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::AC_LIBRARY_STAFF_V0
     action: REUSE
     summary: ''
     reason: The actor every catalog act runs as, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::EV_BIBLIOGRAPHIC_INFORMATION_UPDATED_V0
     action: REUSE
     summary: ''
     reason: Announced by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::EV_BOOK_REGISTERED_V0
     action: REUSE
     summary: ''
     reason: Announced by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::EV_BOOK_RETIRED_V0
     action: REUSE
     summary: ''
     reason: Announced by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0
     action: REUSE
     summary: ''
     reason: Announced by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::EV_PHYSICAL_COPY_RETIRED_V0
     action: REUSE
     summary: ''
     reason: Announced by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::EV_WORK_REGISTERED_V0
     action: REUSE
     summary: ''
     reason: Announced by an act this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
     action: REUSE
     summary: ''
     reason: Run by a contract this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
     action: REUSE
     summary: ''
     reason: Run by a contract this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
     action: REUSE
     summary: ''
     reason: Run by a contract this change redeclares, unchanged.
-    source_finding: 'S6 cross_subdomain_deps #3'
+    source_finding: {phase: p6, register: cross_subdomain_deps, row: 3}
   - fqdn: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
     action: REUSE
     summary: ''
     reason: Run by a contract this change redeclares, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
     action: REUSE
     summary: ''
     reason: Run by a contract this change redeclares, unchanged.
-    source_finding: 'S6 cross_subdomain_deps #1'
+    source_finding: {phase: p6, register: cross_subdomain_deps, row: 1}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
     action: REUSE
     summary: ''
     reason: Run by a contract this change redeclares, unchanged.
-    source_finding: 'S6 cross_subdomain_deps #2'
+    source_finding: {phase: p6, register: cross_subdomain_deps, row: 2}
   - fqdn: capability_side_effects::CS_MUTABLE_JSON_V0
     action: REUSE
     summary: ''
     reason: Holds the catalog's records, unchanged.
-    source_finding: 'S6 storage_governance #1'
+    source_finding: {phase: p6, register: storage_governance, row: 1}
   - fqdn: capability_side_effects::CS_REGISTRY_V0
     action: REUSE
     summary: ''
     reason: Holds the catalog's records, unchanged.
-    source_finding: 'S6 storage_governance #1'
+    source_finding: {phase: p6, register: storage_governance, row: 1}
   - fqdn: capability_side_effects::CS_APPENDONLY_JSONL_V0
     action: REUSE
     summary: ''
     reason: Holds the catalog's records, unchanged.
-    source_finding: 'S6 storage_governance #1'
+    source_finding: {phase: p6, register: storage_governance, row: 1}
   new_artifacts: null
   rb_declarations:
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
@@ -333,7 +333,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     cs_bindings:
@@ -341,7 +341,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     cs_bindings:
@@ -349,7 +349,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     cs_bindings:
@@ -357,7 +357,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     cs_bindings:
@@ -365,7 +365,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     cs_bindings:
@@ -373,7 +373,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     cs_bindings:
@@ -381,7 +381,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     cs_bindings:
@@ -389,7 +389,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     cs_bindings:
@@ -397,7 +397,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
     binds_wf: book_library_mgmt::WF_SEARCH_CATALOG_V0
     cs_bindings:
@@ -405,7 +405,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   execution_topology:
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::IN_REGISTER_BOOK_V0
@@ -414,7 +414,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -422,7 +422,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     runs: ''
@@ -430,7 +430,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
     runs: ''
@@ -440,7 +440,7 @@ registers:
       ALREADY_EXISTS: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     runs: ''
@@ -450,7 +450,7 @@ registers:
       ALREADY_EXISTS: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
     runs: ''
@@ -460,7 +460,7 @@ registers:
       ALREADY_EXISTS: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_REGISTER_BOOK_V0
     runs: ''
@@ -469,7 +469,7 @@ registers:
       SUCCESS: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     runs: ''
@@ -479,7 +479,7 @@ registers:
       NOT_FOUND: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -488,19 +488,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     runs: ''
@@ -508,7 +508,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -516,7 +516,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     runs: ''
@@ -524,7 +524,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_RESOLVE_WORK_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: book_library_mgmt::CC_RESOLVE_WORK_V0
     runs: ''
@@ -534,7 +534,7 @@ registers:
       NOT_FOUND: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     runs: ''
@@ -544,7 +544,7 @@ registers:
       ALREADY_EXISTS: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     runs: ''
@@ -553,7 +553,7 @@ registers:
       SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -562,19 +562,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - workflow: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     node: book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0
     runs: ''
@@ -582,7 +582,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - workflow: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -590,7 +590,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - workflow: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
     runs: ''
@@ -600,7 +600,7 @@ registers:
       ALREADY_EXISTS: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - workflow: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     runs: ''
@@ -610,7 +610,7 @@ registers:
       NOT_FOUND: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - workflow: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -619,19 +619,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - workflow: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - workflow: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     node: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     runs: ''
@@ -639,7 +639,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -647,7 +647,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     node: book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0
     runs: ''
@@ -657,7 +657,7 @@ registers:
       NOT_FOUND: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     node: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     runs: ''
@@ -667,7 +667,7 @@ registers:
       NOT_FOUND: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -676,19 +676,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - workflow: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     node: book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0
     runs: ''
@@ -696,7 +696,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - workflow: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -704,7 +704,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - workflow: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     node: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
     runs: ''
@@ -713,7 +713,7 @@ registers:
       SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - workflow: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -722,19 +722,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - workflow: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - workflow: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - workflow: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     node: book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0
     runs: ''
@@ -742,7 +742,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - workflow: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -750,7 +750,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - workflow: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     node: book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0
     runs: ''
@@ -759,7 +759,7 @@ registers:
       SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - workflow: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -768,19 +768,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - workflow: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - workflow: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #12'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 12}
   - workflow: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     node: book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0
     runs: ''
@@ -788,7 +788,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - workflow: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -796,7 +796,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - workflow: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0
     runs: ''
@@ -805,7 +805,7 @@ registers:
       SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - workflow: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -814,19 +814,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - workflow: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - workflow: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - workflow: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     node: book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0
     runs: ''
@@ -834,7 +834,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - workflow: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -842,7 +842,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - workflow: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0
     runs: ''
@@ -851,7 +851,7 @@ registers:
       SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - workflow: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -860,19 +860,19 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - workflow: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - workflow: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #14'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 14}
   - workflow: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     node: book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0
     runs: ''
@@ -880,7 +880,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - workflow: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -888,7 +888,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - workflow: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     node: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
     runs: ''
@@ -898,7 +898,7 @@ registers:
       NOT_FOUND: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - workflow: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -907,19 +907,19 @@ registers:
       SUCCESS: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - workflow: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - workflow: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #15'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 15}
   - workflow: book_library_mgmt::WF_SEARCH_CATALOG_V0
     node: book_library_mgmt::IN_SEARCH_CATALOG_V0
     runs: ''
@@ -927,7 +927,7 @@ registers:
     routing:
       ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
       NACK: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   - workflow: book_library_mgmt::WF_SEARCH_CATALOG_V0
     node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     runs: ''
@@ -935,7 +935,7 @@ registers:
     routing:
       SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   - workflow: book_library_mgmt::WF_SEARCH_CATALOG_V0
     node: book_library_mgmt::CC_SEARCH_CATALOG_V0
     runs: ''
@@ -944,7 +944,7 @@ registers:
       SUCCESS: EXIT_COMPLETED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   - workflow: book_library_mgmt::WF_SEARCH_CATALOG_V0
     node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     runs: ''
@@ -953,19 +953,19 @@ registers:
       SUCCESS: book_library_mgmt::CC_SEARCH_CATALOG_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   - workflow: book_library_mgmt::WF_SEARCH_CATALOG_V0
     node: EXIT_COMPLETED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   - workflow: book_library_mgmt::WF_SEARCH_CATALOG_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: 'S6 pps_artifacts_requiring_action #16'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 16}
   cc_composition:
   - cc_code: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     step: '1'
@@ -1527,7 +1527,7 @@ registers:
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     direction: INPUT
@@ -1536,7 +1536,7 @@ registers:
       literal:
         title: $.payload.title
         author: $.payload.author
-    source_finding: S7 execution_topology book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     direction: INPUT
@@ -1547,25 +1547,25 @@ registers:
         author: $.payload.author
         publication_year: $.payload.publication_year
         subject: $.payload.book_fields.subject
-    source_finding: S7 execution_topology book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     direction: INPUT
     field: barcode
     bound_to: payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
     direction: INPUT
     field: title
     bound_to: payload.title
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
     direction: INPUT
     field: author
     bound_to: payload.author
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
     direction: INPUT
@@ -1574,31 +1574,31 @@ registers:
       literal:
         title: $.payload.title
         author: $.payload.author
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     direction: INPUT
     field: title
     bound_to: payload.title
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     direction: INPUT
     field: author
     bound_to: payload.author
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     direction: INPUT
     field: publication_year
     bound_to: payload.publication_year
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
     direction: INPUT
     field: barcode
     bound_to: payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_REGISTER_BOOK_V0
     direction: INPUT
@@ -1610,44 +1610,44 @@ registers:
         publication_year: $.payload.publication_year
         subject: $.payload.book_fields.subject
         state: REGISTERED
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_BOOK_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_BOOK_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_REGISTER_BOOK_V0
     direction: INPUT
     field: identity_key
     bound_to: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_BOOK_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_BOOK_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     direction: INPUT
     field: identity_key
     bound_to: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     direction: INPUT
     field: barcode
     bound_to: payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     direction: INPUT
     field: copy_fields
     bound_to: payload.copy_fields
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: REGISTER_BOOK
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1657,13 +1657,13 @@ registers:
         operation: REGISTER_BOOK
         staff_id: $.payload.staff_id
         subject: $.payload.title
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     direction: INPUT
@@ -1674,7 +1674,7 @@ registers:
         author: $.payload.author
         publication_year: $.payload.publication_year
         subject: $.payload.subject
-    source_finding: S7 execution_topology book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     direction: INPUT
@@ -1683,43 +1683,43 @@ registers:
       literal:
         title: $.payload.title
         author: $.payload.author
-    source_finding: S7 execution_topology book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_RESOLVE_WORK_V0
     direction: INPUT
     field: title
     bound_to: payload.title
-    source_finding: S7 execution_topology book_library_mgmt::CC_RESOLVE_WORK_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_RESOLVE_WORK_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_RESOLVE_WORK_V0
     direction: INPUT
     field: author
     bound_to: payload.author
-    source_finding: S7 execution_topology book_library_mgmt::CC_RESOLVE_WORK_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_RESOLVE_WORK_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     direction: INPUT
     field: title
     bound_to: payload.title
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     direction: INPUT
     field: author
     bound_to: payload.author
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     direction: INPUT
     field: publication_year
     bound_to: payload.publication_year
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     direction: INPUT
     field: identity_key
     bound_to: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     direction: INPUT
@@ -1733,20 +1733,20 @@ registers:
         subject: $.payload.subject
         state: REGISTERED
         work_key: $.results.CC_RESOLVE_WORK_V0.work_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: REGISTER_ADDITIONAL_EDITION
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1756,50 +1756,50 @@ registers:
         operation: REGISTER_ADDITIONAL_EDITION
         staff_id: $.payload.staff_id
         subject: $.results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
     direction: INPUT
     field: barcode
     bound_to: payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     direction: INPUT
     field: barcode
     bound_to: payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     direction: INPUT
     field: copy_fields
     bound_to: payload.copy_fields
-    source_finding: S7 execution_topology book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: REGISTER_PHYSICAL_COPY
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1809,38 +1809,38 @@ registers:
         operation: REGISTER_PHYSICAL_COPY
         staff_id: $.payload.staff_id
         subject: $.payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0'}
   - owner: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0'}
   - owner: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     direction: INPUT
     field: updated_fields
     bound_to: payload.updated_fields
-    source_finding: S7 execution_topology book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0'}
   - owner: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: UPDATE_BIBLIOGRAPHIC_INFORMATION
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1850,38 +1850,38 @@ registers:
         operation: UPDATE_BIBLIOGRAPHIC_INFORMATION
         staff_id: $.payload.staff_id
         subject: $.payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0'}
   - owner: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: RETIRE_BOOK_RECORD
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1891,32 +1891,32 @@ registers:
         operation: RETIRE_BOOK_RECORD
         staff_id: $.payload.staff_id
         subject: $.payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: REINSTATE_BOOK_RECORD
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1926,32 +1926,32 @@ registers:
         operation: REINSTATE_BOOK_RECORD
         staff_id: $.payload.staff_id
         subject: $.payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0
     direction: INPUT
     field: barcode
     bound_to: payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: RETIRE_PHYSICAL_COPY
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1961,32 +1961,32 @@ registers:
         operation: RETIRE_PHYSICAL_COPY
         staff_id: $.payload.staff_id
         subject: $.payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0
     direction: INPUT
     field: barcode
     bound_to: payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: REINSTATE_PHYSICAL_COPY
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -1996,19 +1996,19 @@ registers:
         operation: REINSTATE_PHYSICAL_COPY
         staff_id: $.payload.staff_id
         subject: $.payload.barcode
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     step: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0'}
   - owner: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     step: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
     direction: INPUT
@@ -2016,20 +2016,20 @@ registers:
     bound_to:
       literal:
         identity_key: $.payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0'}
   - owner: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: RETRIEVE_BOOK_DETAILS
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -2039,32 +2039,32 @@ registers:
         operation: RETRIEVE_BOOK_DETAILS
         staff_id: $.payload.staff_id
         subject: $.payload.identity_key
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_SEARCH_CATALOG_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     direction: INPUT
     field: staff_credentials
     bound_to: payload.staff_credentials
-    source_finding: S7 execution_topology book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0'}
   - owner: book_library_mgmt::WF_SEARCH_CATALOG_V0
     step: book_library_mgmt::CC_SEARCH_CATALOG_V0
     direction: INPUT
     field: search_criteria
     bound_to: payload.search_criteria
-    source_finding: S7 execution_topology book_library_mgmt::CC_SEARCH_CATALOG_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_SEARCH_CATALOG_V0'}
   - owner: book_library_mgmt::WF_SEARCH_CATALOG_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: staff_id
     bound_to: payload.staff_id
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_SEARCH_CATALOG_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
     field: operation
     bound_to:
       literal: SEARCH_CATALOG
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::WF_SEARCH_CATALOG_V0
     step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     direction: INPUT
@@ -2074,13 +2074,13 @@ registers:
         operation: SEARCH_CATALOG
         staff_id: $.payload.staff_id
         subject: $.payload.search_criteria
-    source_finding: S7 execution_topology book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: 'book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0'}
   - owner: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     step: confirm_authorization
     direction: INPUT
     field: parameters
     bound_to: inputs.staff_credentials
-    source_finding: S7 cc_composition confirm_authorization
+    source_finding: {phase: p7, register: cc_composition, key: confirm_authorization}
   - owner: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     step: confirm_authorization
     direction: INPUT
@@ -2092,19 +2092,19 @@ registers:
       - field: authorized
         op: eq
         value: true
-    source_finding: S7 cc_composition confirm_authorization
+    source_finding: {phase: p7, register: cc_composition, key: confirm_authorization}
   - owner: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     step: confirm_authorization
     direction: OUTPUT
     field: is_authorized
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition confirm_authorization
+    source_finding: {phase: p7, register: cc_composition, key: confirm_authorization}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: validate_book_fields
     direction: INPUT
     field: record
     bound_to: inputs.book_fields
-    source_finding: S7 cc_composition validate_book_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_book_fields}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: validate_book_fields
     direction: INPUT
@@ -2123,19 +2123,19 @@ registers:
         subject:
           required: true
           type: array
-    source_finding: S7 cc_composition validate_book_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_book_fields}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: validate_book_fields
     direction: OUTPUT
     field: violations
     bound_to: capability_result.violations
-    source_finding: S7 cc_composition validate_book_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_book_fields}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: validate_work_fields
     direction: INPUT
     field: record
     bound_to: inputs.work_fields
-    source_finding: S7 cc_composition validate_work_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_work_fields}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: validate_work_fields
     direction: INPUT
@@ -2148,13 +2148,13 @@ registers:
         author:
           required: true
           type: string
-    source_finding: S7 cc_composition validate_work_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_work_fields}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: validate_work_fields
     direction: OUTPUT
     field: violations
     bound_to: capability_result.violations
-    source_finding: S7 cc_composition validate_work_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_work_fields}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: require_submission_complete
     direction: INPUT
@@ -2165,7 +2165,7 @@ registers:
         subject: $.inputs.book_fields.subject
         book_violations: $.results.validate_book_fields.violations
         work_violations: $.results.validate_work_fields.violations
-    source_finding: S7 cc_composition require_submission_complete
+    source_finding: {phase: p7, register: cc_composition, key: require_submission_complete}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: require_submission_complete
     direction: INPUT
@@ -2184,37 +2184,37 @@ registers:
       - field: work_violations
         op: eq
         value: []
-    source_finding: S7 cc_composition require_submission_complete
+    source_finding: {phase: p7, register: cc_composition, key: require_submission_complete}
   - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     step: require_submission_complete
     direction: OUTPUT
     field: valid
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition require_submission_complete
+    source_finding: {phase: p7, register: cc_composition, key: require_submission_complete}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: form_work_key
     direction: INPUT
     field: title
     bound_to: inputs.book_fields.title
-    source_finding: S7 cc_composition form_work_key
+    source_finding: {phase: p7, register: cc_composition, key: form_work_key}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: form_work_key
     direction: INPUT
     field: author
     bound_to: inputs.book_fields.author
-    source_finding: S7 cc_composition form_work_key
+    source_finding: {phase: p7, register: cc_composition, key: form_work_key}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: form_work_key
     direction: OUTPUT
     field: work_key
     bound_to: capability_result.work_key
-    source_finding: S7 cc_composition form_work_key
+    source_finding: {phase: p7, register: cc_composition, key: form_work_key}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: validate_book_fields
     direction: INPUT
     field: record
     bound_to: inputs.book_fields
-    source_finding: S7 cc_composition validate_book_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_book_fields}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: validate_book_fields
     direction: INPUT
@@ -2233,13 +2233,13 @@ registers:
         subject:
           required: true
           type: array
-    source_finding: S7 cc_composition validate_book_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_book_fields}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: validate_book_fields
     direction: OUTPUT
     field: violations
     bound_to: capability_result.violations
-    source_finding: S7 cc_composition validate_book_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_book_fields}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: refuse_incomplete_record
     direction: INPUT
@@ -2247,7 +2247,7 @@ registers:
     bound_to:
       literal:
         violations: $.results.validate_book_fields.violations
-    source_finding: S7 cc_composition refuse_incomplete_record
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_record}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: refuse_incomplete_record
     direction: INPUT
@@ -2257,13 +2257,13 @@ registers:
       - field: violations
         op: eq
         value: []
-    source_finding: S7 cc_composition refuse_incomplete_record
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_record}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: refuse_incomplete_record
     direction: OUTPUT
     field: valid
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition refuse_incomplete_record
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_record}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: assemble_book_record
     direction: INPUT
@@ -2277,38 +2277,38 @@ registers:
         subject: $.inputs.book_fields.subject
         state: $.inputs.book_fields.state
         work_key: $.results.form_work_key.work_key
-    source_finding: S7 cc_composition assemble_book_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_book_record}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: assemble_book_record
     direction: OUTPUT
     field: book_record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_book_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_book_record}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: write_book_record
     direction: INPUT
     field: key
     bound_to: inputs.identity_key
-    source_finding: S7 cc_composition write_book_record
+    source_finding: {phase: p7, register: cc_composition, key: write_book_record}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: write_book_record
     direction: INPUT
     field: value
     bound_to: results.assemble_book_record.book_record
-    source_finding: S7 cc_composition write_book_record
+    source_finding: {phase: p7, register: cc_composition, key: write_book_record}
   - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
     step: write_book_record
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition write_book_record
+    source_finding: {phase: p7, register: cc_composition, key: write_book_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: validate_edition_fields
     direction: INPUT
     field: record
     bound_to: inputs.edition_fields
-    source_finding: S7 cc_composition validate_edition_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_edition_fields}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: validate_edition_fields
     direction: INPUT
@@ -2327,13 +2327,13 @@ registers:
         subject:
           required: true
           type: array
-    source_finding: S7 cc_composition validate_edition_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_edition_fields}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: validate_edition_fields
     direction: OUTPUT
     field: violations
     bound_to: capability_result.violations
-    source_finding: S7 cc_composition validate_edition_fields
+    source_finding: {phase: p7, register: cc_composition, key: validate_edition_fields}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: refuse_incomplete_record
     direction: INPUT
@@ -2341,7 +2341,7 @@ registers:
     bound_to:
       literal:
         violations: $.results.validate_edition_fields.violations
-    source_finding: S7 cc_composition refuse_incomplete_record
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: refuse_incomplete_record
     direction: INPUT
@@ -2351,63 +2351,63 @@ registers:
       - field: violations
         op: eq
         value: []
-    source_finding: S7 cc_composition refuse_incomplete_record
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: refuse_incomplete_record
     direction: OUTPUT
     field: valid
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition refuse_incomplete_record
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: assemble_edition_record
     direction: INPUT
     field: fields
     bound_to: inputs.edition_fields
-    source_finding: S7 cc_composition assemble_edition_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_edition_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: assemble_edition_record
     direction: OUTPUT
     field: edition_record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_edition_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_edition_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: write_edition_record
     direction: INPUT
     field: key
     bound_to: inputs.identity_key
-    source_finding: S7 cc_composition write_edition_record
+    source_finding: {phase: p7, register: cc_composition, key: write_edition_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: write_edition_record
     direction: INPUT
     field: value
     bound_to: results.assemble_edition_record.edition_record
-    source_finding: S7 cc_composition write_edition_record
+    source_finding: {phase: p7, register: cc_composition, key: write_edition_record}
   - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     step: write_edition_record
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition write_edition_record
+    source_finding: {phase: p7, register: cc_composition, key: write_edition_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: read_book_record
     direction: INPUT
     field: key
     bound_to: inputs.identity_key
-    source_finding: S7 cc_composition read_book_record
+    source_finding: {phase: p7, register: cc_composition, key: read_book_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: read_book_record
     direction: OUTPUT
     field: book_record
     bound_to: capability_result.value
-    source_finding: S7 cc_composition read_book_record
+    source_finding: {phase: p7, register: cc_composition, key: read_book_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: read_book_record
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition read_book_record
+    source_finding: {phase: p7, register: cc_composition, key: read_book_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: assemble_copy_record
     direction: INPUT
@@ -2417,93 +2417,93 @@ registers:
         identity_key: $.inputs.identity_key
         barcode: $.inputs.barcode
         state: REGISTERED
-    source_finding: S7 cc_composition assemble_copy_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_copy_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: assemble_copy_record
     direction: OUTPUT
     field: copy_record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_copy_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_copy_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: write_copy_record
     direction: INPUT
     field: key
     bound_to: inputs.barcode
-    source_finding: S7 cc_composition write_copy_record
+    source_finding: {phase: p7, register: cc_composition, key: write_copy_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: write_copy_record
     direction: INPUT
     field: value
     bound_to: results.assemble_copy_record.copy_record
-    source_finding: S7 cc_composition write_copy_record
+    source_finding: {phase: p7, register: cc_composition, key: write_copy_record}
   - owner: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     step: write_copy_record
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition write_copy_record
+    source_finding: {phase: p7, register: cc_composition, key: write_copy_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: read_book_record
     direction: INPUT
     field: key
     bound_to: inputs.identity_key
-    source_finding: S7 cc_composition read_book_record
+    source_finding: {phase: p7, register: cc_composition, key: read_book_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: read_book_record
     direction: OUTPUT
     field: book_record
     bound_to: capability_result.value
-    source_finding: S7 cc_composition read_book_record
+    source_finding: {phase: p7, register: cc_composition, key: read_book_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: read_book_record
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition read_book_record
+    source_finding: {phase: p7, register: cc_composition, key: read_book_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: form_updated_identity_key
     direction: INPUT
     field: title
     bound_to: inputs.updated_fields.title
-    source_finding: S7 cc_composition form_updated_identity_key
+    source_finding: {phase: p7, register: cc_composition, key: form_updated_identity_key}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: form_updated_identity_key
     direction: INPUT
     field: author
     bound_to: inputs.updated_fields.author
-    source_finding: S7 cc_composition form_updated_identity_key
+    source_finding: {phase: p7, register: cc_composition, key: form_updated_identity_key}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: form_updated_identity_key
     direction: INPUT
     field: publication_year
     bound_to: inputs.updated_fields.publication_year
-    source_finding: S7 cc_composition form_updated_identity_key
+    source_finding: {phase: p7, register: cc_composition, key: form_updated_identity_key}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: form_updated_identity_key
     direction: OUTPUT
     field: updated_identity_key
     bound_to: capability_result.identity_key
-    source_finding: S7 cc_composition form_updated_identity_key
+    source_finding: {phase: p7, register: cc_composition, key: form_updated_identity_key}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: compare_identity
     direction: INPUT
     field: left
     bound_to: inputs.identity_key
-    source_finding: S7 cc_composition compare_identity
+    source_finding: {phase: p7, register: cc_composition, key: compare_identity}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: compare_identity
     direction: INPUT
     field: right
     bound_to: results.form_updated_identity_key.updated_identity_key
-    source_finding: S7 cc_composition compare_identity
+    source_finding: {phase: p7, register: cc_composition, key: compare_identity}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: compare_identity
     direction: OUTPUT
     field: identity_unchanged
     bound_to: capability_result.is_equal
-    source_finding: S7 cc_composition compare_identity
+    source_finding: {phase: p7, register: cc_composition, key: compare_identity}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: require_identity_unchanged
     direction: INPUT
@@ -2511,7 +2511,7 @@ registers:
     bound_to:
       literal:
         identity_unchanged: $.results.compare_identity.identity_unchanged
-    source_finding: S7 cc_composition require_identity_unchanged
+    source_finding: {phase: p7, register: cc_composition, key: require_identity_unchanged}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: require_identity_unchanged
     direction: INPUT
@@ -2521,13 +2521,13 @@ registers:
       - field: identity_unchanged
         op: eq
         value: true
-    source_finding: S7 cc_composition require_identity_unchanged
+    source_finding: {phase: p7, register: cc_composition, key: require_identity_unchanged}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: require_identity_unchanged
     direction: OUTPUT
     field: valid
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition require_identity_unchanged
+    source_finding: {phase: p7, register: cc_composition, key: require_identity_unchanged}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: assemble_updated_record
     direction: INPUT
@@ -2541,19 +2541,19 @@ registers:
         subject: $.inputs.updated_fields.subject
         state: $.results.read_book_record.book_record.state
         work_key: $.results.read_book_record.book_record.work_key
-    source_finding: S7 cc_composition assemble_updated_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_updated_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: assemble_updated_record
     direction: OUTPUT
     field: updated_record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_updated_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_updated_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: check_corrected_record
     direction: INPUT
     field: record
     bound_to: results.assemble_updated_record.updated_record
-    source_finding: S7 cc_composition check_corrected_record
+    source_finding: {phase: p7, register: cc_composition, key: check_corrected_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: check_corrected_record
     direction: INPUT
@@ -2572,13 +2572,13 @@ registers:
         subject:
           required: true
           type: array
-    source_finding: S7 cc_composition check_corrected_record
+    source_finding: {phase: p7, register: cc_composition, key: check_corrected_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: check_corrected_record
     direction: OUTPUT
     field: violations
     bound_to: capability_result.violations
-    source_finding: S7 cc_composition check_corrected_record
+    source_finding: {phase: p7, register: cc_composition, key: check_corrected_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: refuse_incomplete_correction
     direction: INPUT
@@ -2587,7 +2587,7 @@ registers:
       literal:
         violations: $.results.check_corrected_record.violations
         subject: $.results.assemble_updated_record.updated_record.subject
-    source_finding: S7 cc_composition refuse_incomplete_correction
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_correction}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: refuse_incomplete_correction
     direction: INPUT
@@ -2600,32 +2600,32 @@ registers:
       - field: subject
         op: neq
         value: []
-    source_finding: S7 cc_composition refuse_incomplete_correction
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_correction}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: refuse_incomplete_correction
     direction: OUTPUT
     field: valid
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition refuse_incomplete_correction
+    source_finding: {phase: p7, register: cc_composition, key: refuse_incomplete_correction}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: write_updated_record
     direction: INPUT
     field: key
     bound_to: inputs.identity_key
-    source_finding: S7 cc_composition write_updated_record
+    source_finding: {phase: p7, register: cc_composition, key: write_updated_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: write_updated_record
     direction: INPUT
     field: value
     bound_to: results.assemble_updated_record.updated_record
-    source_finding: S7 cc_composition write_updated_record
+    source_finding: {phase: p7, register: cc_composition, key: write_updated_record}
   - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     step: write_updated_record
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition write_updated_record
+    source_finding: {phase: p7, register: cc_composition, key: write_updated_record}
   interface_fields:
   - artifact: book_library_mgmt::IN_REGISTER_BOOK_V0
     direction: INPUT
@@ -3055,52 +3055,52 @@ registers:
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_WORK_REGISTERED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - artifact: book_library_mgmt::WF_REGISTER_BOOK_V0
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_BOOK_REGISTERED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - artifact: book_library_mgmt::WF_REGISTER_BOOK_V0
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - artifact: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_BOOK_REGISTERED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   - artifact: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_PHYSICAL_COPY_REGISTERED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #9'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 9}
   - artifact: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_BIBLIOGRAPHIC_INFORMATION_UPDATED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - artifact: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     property: supersedes
     value:
     - book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #10'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 10}
   - artifact: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_BOOK_RETIRED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #11'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 11}
   - artifact: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     property: emit.EXIT_COMPLETED
     value:
     - book_library_mgmt::EV_PHYSICAL_COPY_RETIRED_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #13'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 13}
   - artifact: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     property: supersedes
     value:
     - book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-    source_finding: 'S6 pps_artifacts_requiring_action #20'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 20}
   structure_stores: null
   transport_bindings: null
   artifact_summary:
@@ -3116,73 +3116,73 @@ registers:
     act: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Any catalog operation
     refused_when: The person performing it is not authorized staff
     act: book_library_mgmt::WF_SEARCH_CATALOG_V0
     step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Registering a book
     refused_when: It lacks what the library says a book must contain
     act: book_library_mgmt::WF_REGISTER_BOOK_V0
     step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #2'
+    source_finding: {phase: p0, register: operation_refusals, row: 2}
   - operation: Registering a further edition
     refused_when: It lacks what the library says an edition must contain
     act: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #3'
+    source_finding: {phase: p0, register: operation_refusals, row: 3}
   refusal_deferrals: null
   refusal_governance_discharge: null
   molecule_steps: null
@@ -3193,147 +3193,147 @@ registers:
   - artifact: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     fact: .core.inputs.authorization_rules
     reason: The contract holds the library's rules itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_BOOK_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_SEARCH_CATALOG_V0
     fact: .core.nodes.CC_CONFIRM_STAFF_AUTHORIZED_V0.inputs.authorization_rules
     reason: The confirming contract no longer takes the rules.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::IN_REGISTER_BOOK_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_SEARCH_CATALOG_V0
     fact: .core.inputs.authorization_rules
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     fact: .core.inputs.book_schema
     reason: The contract holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     fact: .core.inputs.work_schema
     reason: The contract holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
     fact: .core.inputs.book_schema
     reason: The contract holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.inputs.edition_schema
     reason: The contract holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_BOOK_V0
     fact: .core.nodes.CC_VALIDATE_BOOK_SUBMISSION_V0.inputs.book_schema
     reason: The check holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_BOOK_V0
     fact: .core.nodes.CC_VALIDATE_BOOK_SUBMISSION_V0.inputs.work_schema
     reason: The check holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_BOOK_V0
     fact: .core.nodes.CC_REGISTER_BOOK_V0.inputs.book_schema
     reason: The contract holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::IN_REGISTER_BOOK_V0
     fact: .core.inputs.book_schema
     reason: The gate no longer requires what the catalog holds.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.nodes.CC_VALIDATE_BOOK_SUBMISSION_V0.inputs.book_schema
     reason: The check holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.nodes.CC_VALIDATE_BOOK_SUBMISSION_V0.inputs.work_schema
     reason: The check holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.nodes.CC_REGISTER_ADDITIONAL_EDITION_V0.inputs.edition_schema
     reason: The contract holds its description itself.
-    source_finding: 'S6 boundary_rules #1'
+    source_finding: {phase: p6, register: boundary_rules, row: 1}
   - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.inputs.edition_schema
     reason: The gate no longer requires what the catalog holds or no act reads.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.inputs.work_schema
     reason: The gate no longer requires what the catalog holds or no act reads.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.inputs.edition_fields
     reason: The gate no longer requires what the catalog holds or no act reads.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
   - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     fact: .core.inputs.work_fields
     reason: The gate no longer requires what the catalog holds or no act reads.
-    source_finding: 'S6 boundary_rules #6'
+    source_finding: {phase: p6, register: boundary_rules, row: 6}
 ```
 
 Every binding names a field the capability declares, read from the pinned baseline

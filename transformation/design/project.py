@@ -33,11 +33,9 @@ import yaml
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.schema import PhaseShape as PhaseTemplate, load
 
-# The column a projected row's provenance goes in, and the shape of the citation. P1 cites the seed
-# by section and row ordinal; the ordinal is what makes a citation checkable, and hand-typing it is
-# what makes it wrong — `#12` pointing at row 11 resolves to a claim the row does not make, and
-# nothing downstream can tell.
-PROVENANCE_COLUMN = "Source Finding"
+# The column a projected row's provenance goes in. P1 cites the seed's register and row ordinal; the
+# ordinal is what makes a citation checkable, and hand-typing it is what makes it wrong — `#12`
+# pointing at row 11 resolves to a claim the row does not make, and nothing downstream can tell.
 PROVENANCE_KEY = "source_finding"
 
 
@@ -47,6 +45,22 @@ class _Dumper(yaml.SafeDumper):
 
 _Dumper.add_representer(
     str, lambda d, v: d.represent_scalar("tag:yaml.org,2002:str", v, style="|" if "\n" in v else None))
+
+# A citation is written on one line, `{phase: p2, register: gaps, row: 1}`, as an author writes it.
+_CITATION_KEYS = {"phase", "register", "row", "key", "artifact", "source"}
+
+
+def _mapping(dumper: yaml.SafeDumper, value: dict) -> yaml.Node:
+    flow = bool(value) and set(value) <= _CITATION_KEYS and bool({"register", "artifact", "source"} & set(value))
+    return dumper.represent_mapping("tag:yaml.org,2002:map", value, flow_style=flow or None)
+
+
+_Dumper.add_representer(dict, _mapping)
+
+
+def dump(block: dict) -> str:
+    """A Machine block's YAML, as every writer of a phase document writes it."""
+    return yaml.dump(block, Dumper=_Dumper, sort_keys=False, allow_unicode=True, width=100000)
 
 
 def _template_layout(template: PhaseTemplate) -> list[tuple[str, str, str, tuple[str, ...]]]:
@@ -80,16 +94,15 @@ def project_p1(prior: ParsedDocument) -> str:
         else:
             registers[register_id] = [
                 {**{k: row.get(k) for k in keys if k != PROVENANCE_KEY},
-                 PROVENANCE_KEY: f"CR seed §{number} {title} #{ordinal}"}
+                 PROVENANCE_KEY: {"phase": "p0", "register": register_id, "row": ordinal}}
                 for ordinal, row in enumerate(content, start=1)
             ]
         headings += [f"## {number}. {title}", "", "---", ""]
 
-    machine = yaml.dump(
+    machine = dump(
         {"header": {"Stage": "1 — Change Request (Clarification & Fact Capture)", "CR": cr,
                     "Status": "DRAFT", "Feeds": "Stage 2 — Domain Model Discovery"},
-         "registers": registers},
-        Dumper=_Dumper, sort_keys=False, allow_unicode=True, width=100000)
+         "registers": registers})
 
     emits = " · ".join(register.id for register in template.registers)
     parts = [

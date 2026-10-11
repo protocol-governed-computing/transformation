@@ -143,6 +143,17 @@ def _present(row: dict, column: str) -> bool:
     return bool(_cell(row, column))
 
 
+def _cited(row: dict, column: str) -> list[dict]:
+    """The citations a cell states, each a mapping. A cell that says nothing cites nothing, and one
+    that is not a citation is the type rule's to refuse, so neither is read here."""
+    value = _value(row, column)
+    if isinstance(value, dict):
+        return [value]
+    if isinstance(value, list):
+        return [c for c in value if isinstance(c, dict)]
+    return []
+
+
 def _gated_out(row: dict[str, str], rule) -> bool:
     """Whether a row falls outside the rows a rule is about.
 
@@ -368,6 +379,15 @@ def _cell_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     key = column_key(rule.params["column"])
     return [(f"{_where(rule)} row {i}", rule.params["detail"])
             for i, row in _rows(doc, rule) if key not in row]
+
+
+@check("CITATION_PRESENT")
+def _citation_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A row must cite where it came from. A citation column that says nothing, `null`, cites
+    nothing; a citation is never an answer of "none"."""
+    column = rule.params["column"]
+    return [(f"{_where(rule)} row {i}", rule.params["detail"])
+            for i, row in _rows(doc, rule) if _value(row, column) in (None, "", [])]
 
 
 @check("CELL_NOT_PREFIXED")
@@ -617,57 +637,35 @@ def _cell_token_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 def _source_finding_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """A citation must name something this phase can legitimately cite.
 
-    The valid set is declared, not guessed at with a regex:
+    The valid set is declared, not guessed at:
 
     - a register this phase **consumes**, from its `gov_projection` handoff contract
     - a register this phase **owns** — a later register citing an earlier one of the same phase is
       ordinary intra-phase provenance
-    - a **non-register source**: the seed, a human ruling, or a direct observation of the projection
+    - the **seed**, which every phase may cite, and a **human ruling**
+    - an artifact already in the baseline, by exact identity (field manual §4.2): citing the
+      baseline is observation, not design
 
-    A stage qualifier may precede the register id (`S1 business_vocabulary Block`), which is how the
-    tested dossiers disambiguate a register name that several phases carry.
-
-    Anything else is a citation to nowhere. An earlier version of this rule matched a hand-tuned
-    regex and rejected `analysis_findings Q2` — a correct citation of the phase's own register —
-    because the pattern had never been derived from what a phase may actually cite.
+    One resolvable citation makes the row traceable; requiring all of them would reject a row whose
+    second reference is an aside rather than a register.
     """
     known = set(rule.params["known_registers"])
-    literal = tuple(rule.params.get("literal_sources", ()))
-    stage = re.compile(r"^S\d+[a-z]?\s+")
 
-    # Field manual §4.2: at every rung, an artifact already in the baseline may be cited by exact
-    # FQDN as evidence — citing the baseline is observation, not design. So an identity grounds a
-    # row just as a register reference does.
-    identity = re.compile(r"[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V\d+")
-
-    def resolves(citation: str) -> bool:
-        citation = citation.strip()
-        if not citation or citation.startswith(literal):
-            return True
-        if identity.search(citation):
-            return True
-        head = stage.sub("", citation).split()
-        return bool(head) and head[0].strip(":,.;()") in known
+    def resolves(citation: dict) -> bool:
+        return ("source" in citation or "artifact" in citation or citation.get("phase") == "p0"
+                or citation.get("register") in known)
 
     out = []
     for i, row in _rows(doc, rule):
-        value = _cell(row, rule.params["column"])
-        if not value:
-            continue                             # emptiness is ROW_WITHOUT_SOURCE_FINDING's job
-        # A cell may carry several citations, separated by `;` — the tested dossiers routinely
-        # ground one row in two places. One resolvable citation makes the row traceable; requiring
-        # all of them would reject a row whose second reference is an aside rather than a register.
-        if any(resolves(part) for part in value.split(";")):
-            continue
+        cited = _cited(row, rule.params["column"])
+        if not cited or any(resolves(c) for c in cited):
+            continue                             # nothing cited is ROW_WITHOUT_SOURCE_FINDING's job
         out.append((
             f"{_where(rule)} row {i}",
-            f"{value!r} contains no citation naming a declared register or recognised source. "
-            f"A citation names a register this phase may cite — {_examples(known)} — "
-            f"or one of {', '.join(repr(x) for x in literal)}, "
-            f"or an artifact already in the baseline, by exact identity "
-            f"(e.g. 'blockchain::WF_REGISTER_ACTOR_V0'). "
-            f"A register may be named by its id ('known_facts #14') or, prefixed by its phase, "
-            f"by its section ('S1 §4 Known Facts #14'). Separate several citations with ';'",
+            f"{_value(row, rule.params['column'])!r} names no register this phase may cite. "
+            f"A citation names a register this phase may cite — {_examples(known)} — the seed "
+            f"(`phase: p0`), a human ruling (`source: human`), or an artifact already in the "
+            f"baseline (`artifact: <identity>`)",
         ))
     return out
 
@@ -679,7 +677,7 @@ def _examples(known: set[str] | list[str], count: int = 3) -> str:
     A rule that says only what is wrong makes an author read the checker to learn what is right.
     """
     shown = sorted(known)[:count]
-    return ", ".join(f"'{r} #1'" for r in shown) + (", …" if len(known) > count else "")
+    return ", ".join(f"'{{register: {r}, row: 1}}'" for r in shown) + (", …" if len(known) > count else "")
 
 
 @check("REUSE_CANDIDATE_ELIGIBLE")
@@ -1282,20 +1280,13 @@ def _prior_prose_carried(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return out
 
 
-def _cited_ordinals(value: str, register: str) -> set[int]:
-    """Every `<register> #n` ordinal a citation cell names.
+def _cited_ordinals(row: dict, column: str, register: str) -> set[int]:
+    """Every row of `register` a citation cell names by ordinal.
 
     A register id is unique across the pipeline, so the id alone identifies the upstream register
-    and the stage qualifier a dossier writes in front of it (`S1 system_beliefs #2`) is redundant
-    for matching. Requiring the qualifier would reject a correct citation over its prefix.
-
-    A citation naming a section title rather than a register id is out of scope here — the seed is
-    cited that way and the title is free-form, which `PRIOR_ROWS_PRESENT_BY_KEY` exists to handle.
+    and the phase a citation names beside it is redundant for matching.
     """
-    return {
-        int(n)
-        for n in re.findall(rf"{re.escape(register)}\s*#\s*(\d+)", value)
-    }
+    return {c["row"] for c in _cited(row, column) if c.get("register") == register and "row" in c}
 
 
 def _normalise(text: str) -> str:
@@ -1340,7 +1331,7 @@ def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
     cited: set[int] = set()
     for _, row in _rows(doc, rule):
-        cited |= _cited_ordinals(_cell(row, column), register)
+        cited |= _cited_ordinals(row, column, register)
 
     out = []
     total = len(prior_rows)
@@ -1383,7 +1374,7 @@ def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]
 
     out = []
     for i, row in _rows(doc, rule):
-        for ordinal in sorted(_cited_ordinals(_cell(row, column), register)):
+        for ordinal in sorted(_cited_ordinals(row, column, register)):
             if ordinal not in upstream:
                 out.append((
                     f"{_where(rule)} row {i}",
@@ -2114,12 +2105,20 @@ def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, 
     observed = (doc.observed or {}).get(rule.params["observation"]) or []
     # Which workflow carries which phase is the design compiler's own naming, declared with the
     # rule rather than inferred here: the snapshot publishes identities and knows nothing of phases.
-    workflows = rule.params["phase_workflows"]
-    in_force = {
+    # The rule names each workflow by its code without a version — a lineage, not an identity — and
+    # the version in force is the latest the pinned composition carries: a successor sealed after
+    # the pin is not there to be read.
+    carried = {
         carrier.get("artifact"): set(carrier.get("rules") or ())
         for carrier in observed
         if isinstance(carrier, dict)
     }
+    workflows: dict[str, str] = {}
+    for phase, lineage in rule.params["phase_workflows"].items():
+        versions = sorted((int(m.group(1)), fqdn) for fqdn in carried
+                          if (m := re.fullmatch(rf"{re.escape(lineage)}_V(\d+)", str(fqdn).split("::")[-1])))
+        workflows[phase] = versions[-1][1] if versions else lineage
+    in_force = carried
 
     phase_column = rule.params.get("phase_column", "Phase")
     rule_column = rule.params.get("rule_column", "Governing Rule")
@@ -2151,22 +2150,6 @@ def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, 
     return out
 
 
-def _prior_section_registers(phase: str) -> dict[str, str]:
-    """Section number → register id, for a prior phase's template.
-
-    The seed is cited by section, not by register id: `CR seed §4 Known Facts #1`. The title in the
-    middle is free-form and has already drifted between two change requests, but the number is
-    declared by the template, so the number is what resolves.
-    """
-    from transformation.design.schema import load
-
-    return {
-        r.section_number: r.id
-        for r in load(phase).registers
-        if r.section_number is not None
-    }
-
-
 @check("CITATION_ROW_UNRESOLVED")
 def _citation_row_unresolved(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """An ordinal citation must name a row that exists.
@@ -2175,9 +2158,8 @@ def _citation_row_unresolved(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     catches a fabricated register id and nothing else: `CR seed §4 Known Facts #99` named a real
     register and a row that was never written, and passed.
 
-    Resolution accepts either idiom, because both are in use across the tested dossiers — a prior
-    phase's section (`§4 … #1`) or a register id (`S1 system_beliefs #2`) — and looks in the priors
-    supplied and in this document's own registers. A citation carrying no ordinal is out of scope:
+    Resolution looks in the priors supplied and in this document's own registers. A citation
+    carrying no ordinal is out of scope:
     every downstream phase from P3 on cites by register name alone, and 162 of P7's citations are
     of that form. Requiring ordinals everywhere is a separate decision from refusing a citation
     that points at nothing.
@@ -2191,18 +2173,14 @@ def _citation_row_unresolved(doc: ParsedDocument, rule) -> list[tuple[str, str]]
         if block is not None and block.table is not None:
             resolvable[rid] = len(_content_rows(block))
 
-    sections: dict[str, dict[str, str]] = {}
     for phase in doc.priors:
-        sections[phase] = _prior_section_registers(phase)
         for register, count in _prior_register_sizes(doc, phase).items():
             resolvable.setdefault(f"{phase}:{register}", count)
 
     out = []
     for i, (_, row) in enumerate(_rows(doc, rule), start=1):
-        value = _cell(row, column)
-        if not value:
-            continue
-        for register, ordinal in _citations(value, sections):
+        for register, ordinal in ((c["register"], c["row"]) for c in _cited(row, column)
+                                  if "register" in c and "row" in c):
             # A register id names this document's register *and* the prior's — `acceptance_criteria`
             # exists at both rungs — so the ordinal resolves against whichever candidate can hold
             # it. Checking only the nearest one reported a defect against a P1 row that correctly
@@ -2232,28 +2210,6 @@ def _prior_register_sizes(doc: ParsedDocument, phase: str) -> dict[str, int]:
         if block is not None and block.table is not None:
             sizes[r.id] = len(_content_rows(block))
     return sizes
-
-
-def _citations(value: str, sections: dict[str, dict[str, str]]) -> list[tuple[str, int]]:
-    """Every (register, ordinal) pair a citation cell names, in either idiom.
-
-    The register-id idiom must match a declared id and nothing else. Matching any lowercase run
-    before a `#` read `Business Vocabulary #1` as a citation of `ocabulary` — a register no phase
-    declares — and reported a defect against a correct citation.
-    """
-    from transformation.design.expand import _all_declared_registers
-
-    found: list[tuple[str, int]] = []
-    for number, ordinal in re.findall(r"§\s*(\d+)[^#|]*#\s*(\d+)", value):
-        for mapping in sections.values():
-            register = mapping.get(number)
-            if register:
-                found.append((register, int(ordinal)))
-                break
-    for register in _all_declared_registers():
-        for ordinal in re.findall(rf"(?<![A-Za-z_]){re.escape(register)}\s*#\s*(\d+)", value):
-            found.append((register, int(ordinal)))
-    return found
 
 
 @check("STEP_OPERATION_PUBLISHED")
@@ -2386,16 +2342,14 @@ def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     row it was asked for is not in it.
     """
     column = rule.params["column"]
-    cited = re.compile(r"^(?:S(\d+)[a-z]?\s+)?([a-z][a-z0-9_]*)\s+#(\d+)\b")
 
     out: list[tuple[str, str]] = []
     for index, row in _rows(doc, rule):
-        for citation in (part.strip() for part in _cell(row, column).split(";")):
-            match = cited.match(citation)
-            if not match:
+        for citation in _cited(row, column):
+            if "register" not in citation or "row" not in citation:
                 continue
-            stage, register, ordinal = match.group(1), match.group(2), int(match.group(3))
-            block = doc.prior_register(f"p{stage}", register) if stage else doc.register(register)
+            phase, register, ordinal = citation.get("phase"), citation["register"], citation["row"]
+            block = doc.prior_register(phase, register) if phase else doc.register(register)
             if block is None or block.table is None:
                 continue
             held = len(_content_rows(block))

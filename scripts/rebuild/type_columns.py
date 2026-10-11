@@ -2,7 +2,8 @@
 
 Every column is text, or null when it says nothing. The columns measured to carry structure get
 their JSON Schema type: a list of names, a routing (outcome to target), an interface (`in` and
-`out`), a binding (a path, a literal or a generated value), or a test value (any YAML value).
+`out`), a binding (a path, a literal or a generated value), a test value (any YAML value), or a
+citation (M3.3b).
 
     python scripts/rebuild/type_columns.py
 
@@ -29,6 +30,23 @@ BINDING = {"oneOf": [
      "properties": {"generated": {"const": True}}},
 ]}
 ANY = {}
+# A citation names a row of a register (by ordinal or by what it says), a whole register, an
+# artifact already in the composition, or a human ruling. A cell citing several holds a list.
+_REFERENCE = {"type": "object", "required": ["register"], "additionalProperties": False,
+              "properties": {"phase": {"type": "string", "pattern": "^p[0-8]$"},
+                             "register": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                             "row": {"type": "integer"},
+                             "key": {"type": "string", "minLength": 1}},
+              "not": {"required": ["row", "key"]}}
+_ARTIFACT = {"type": "object", "required": ["artifact"], "additionalProperties": False,
+             "properties": {"artifact": {"type": "string",
+                                         "pattern": "^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$"}}}
+_HUMAN = {"type": "object", "required": ["source"], "additionalProperties": False,
+          "properties": {"source": {"const": "human"}}}
+CITATION = {"oneOf": [
+    {"type": "null"}, _REFERENCE, _ARTIFACT, _HUMAN,
+    {"type": "array", "minItems": 2, "items": {"oneOf": [_REFERENCE, _ARTIFACT, _HUMAN]}},
+]}
 # A property value names several things for these properties, and one thing for every other.
 PROPERTY_VALUE = {"type": ["string", "array", "null"], "items": {"type": "string"}}
 
@@ -55,7 +73,13 @@ def main() -> int:
         declared = json.loads(path.read_text(encoding="utf-8"))
         for register_id, body in declared["properties"]["registers"]["properties"].items():
             for key, column in (body.get("items") or {}).get("properties", {}).items():
-                column.update(TYPED.get((register_id, key), TEXT))
+                cites = key == "source_finding" or (register_id, key) == ("verification_results", "origin")
+                if cites:
+                    column.pop("type", None)
+                    column["$ref"] = "#/$defs/citation"
+                    declared.setdefault("$defs", {})["citation"] = CITATION
+                else:
+                    column.update(TYPED.get((register_id, key), TEXT))
         path.write_text(json.dumps(declared, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return 0
 

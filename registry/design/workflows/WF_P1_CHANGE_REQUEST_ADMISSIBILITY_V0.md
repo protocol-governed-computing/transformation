@@ -50,6 +50,8 @@ traced automatically rather than left as a hole where invention is silently perm
 
 ```yaml
 fqdn: transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0
+superseded_by:
+- transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V1
 artifact_kind: WORKFLOW
 version: v0
 governed_by: workflow::CONSTITUTION_WORKFLOW_V0

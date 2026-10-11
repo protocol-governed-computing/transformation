@@ -98,6 +98,16 @@
         "type": "string",
         "pattern": "^[a-z_]+$"
       }
+    },
+    "$defs": {
+      "type": "object",
+      "description": "Value types several columns share, each declared once and named by a column's `$ref`.",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "additionalProperties": {
+        "type": "object"
+      }
     }
   },
   "$defs": {
@@ -262,9 +272,13 @@
         },
         "oneOf": {
           "type": "array"
+        },
+        "$ref": {
+          "type": "string",
+          "pattern": "^#/\\$defs/[a-z][a-z0-9_]*$"
         }
       },
-      "description": "A column: its display name, its vocabulary if it draws on one, and the type of its value. Text, or null when it says nothing, unless the column carries structure."
+      "description": "A column: its display name, its vocabulary if it draws on one, and the type of its value, stated or named by `$ref` from the schema's `$defs`. Text, or null when it says nothing, unless the column carries structure."
     },
     "handoff": {
       "type": "array",

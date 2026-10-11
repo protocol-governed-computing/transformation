@@ -11,19 +11,11 @@ from __future__ import annotations
 
 from typing import Iterable
 
-import yaml
-
+from transformation.design.project import dump
 from transformation.design.schema import column_key
 
 
-class _Dumper(yaml.SafeDumper):
-    pass
-
-
 ABSENT = object()
-
-_Dumper.add_representer(
-    str, lambda d, v: d.represent_scalar("tag:yaml.org,2002:str", v, style="|" if "\n" in v else None))
 
 
 def register(register_id: str, columns: list[str], rows: Iterable[tuple],
@@ -36,11 +28,6 @@ def register(register_id: str, columns: list[str], rows: Iterable[tuple],
     if not body:
         return register_id, [] if declared_empty else None
     return register_id, body
-
-
-def dump(block: dict) -> str:
-    """A Machine block's YAML, in the form a converted document carries it."""
-    return yaml.dump(block, Dumper=_Dumper, sort_keys=False, allow_unicode=True, width=100000)
 
 
 def document(title: str, *registers: tuple[str, list | None], header: dict[str, str] | None = None,

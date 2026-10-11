@@ -22,9 +22,6 @@ from transformation.design.rules import Rule
 # register that names artifacts has had design smuggled into it.
 ARTIFACT_TOKEN_PATTERN = r"\b(?:AC|CC|CS|CT|EV|IN|PR|RB|SD|ST|TI|TE|WF)_[A-Z0-9_]+_V\d+\b"
 
-# Sources a citation may name that are not registers: the seed a CR starts from, a ruling only a
-# human can make, and a direct observation of the compiled projection.
-LITERAL_SOURCES = ("CR seed", "human decision", "projection", "S1 seed")
 
 
 def _register_rules(register: Register, citable: list[str]) -> list[Rule]:
@@ -130,7 +127,7 @@ def _register_rules(register: Register, citable: list[str]) -> list[Rule]:
         out.append(
             Rule(
                 id="ROW_WITHOUT_SOURCE_FINDING",
-                check="CELL_NOT_EMPTY",
+                check="CITATION_PRESENT",
                 register=register.id,
                 params={
                     "column": "Source Finding",
@@ -147,7 +144,6 @@ def _register_rules(register: Register, citable: list[str]) -> list[Rule]:
                 params={
                     "column": "Source Finding",
                     "known_registers": citable,
-                    "literal_sources": list(LITERAL_SOURCES),
                 },
                 intent="a citation must name something this phase can actually cite",
             )

@@ -72,10 +72,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -120,10 +117,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -161,10 +155,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -207,10 +198,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -262,10 +250,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -296,10 +281,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               },
               "status": {
                 "title": "Status",
@@ -373,10 +355,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -414,10 +393,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               },
               "source": {
                 "title": "Source",
@@ -454,10 +430,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               },
               "capability": {
                 "title": "Capability",
@@ -517,10 +490,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               },
               "rationale": {
                 "title": "Rationale",
@@ -774,5 +744,132 @@
   ],
   "x-observations": {
     "si.artifact.list": "artifacts"
+  },
+  "$defs": {
+    "citation": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "register"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "phase": {
+              "type": "string",
+              "pattern": "^p[0-8]$"
+            },
+            "register": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "row": {
+              "type": "integer"
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "not": {
+            "required": [
+              "row",
+              "key"
+            ]
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "artifact"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "artifact": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "const": "human"
+            }
+          }
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "register"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "phase": {
+                    "type": "string",
+                    "pattern": "^p[0-8]$"
+                  },
+                  "register": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "row": {
+                    "type": "integer"
+                  },
+                  "key": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "not": {
+                  "required": [
+                    "row",
+                    "key"
+                  ]
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "artifact"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "artifact": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "source"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "const": "human"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 }

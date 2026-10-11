@@ -124,14 +124,14 @@ def p3_ineligible_reuse(t: Rows) -> Rows:
     """Candidates offered to a business change request from domains that permit no reuse."""
     return t.set("authoring_decisions",
                  {"alternatives_checked": "capability_side_effects::CS_REGISTRY_V0 satisfies it as-is.",
-                  "source_finding": "S3 analysis_findings #2"},
+                  "source_finding": {"phase": "p3", "register": "analysis_findings", "row": 2}},
                  alternatives_checked="transformation::CT_PURE_PARSE_REGISTERS_V0 and "
                                       "workload::EV_CONJECTURE_EVALUATED_V0 were offered as candidates.")
 
 
 def p3_restated_result(t: Rows) -> Rows:
     """A re-verification that cites one belief and addresses another."""
-    return t.set("verification_results", {"origin": "S2 belief_verification #1"},
+    return t.set("verification_results", {"origin": {"phase": "p2", "register": "belief_verification", "row": 1}},
                  item="The catalog has no records of its own to verify.")
 
 

@@ -82,43 +82,43 @@ registers:
     evidence: book_library_mgmt::CC_REGISTER_BOOK_V0 and book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
   verification_results:
   - item: The book_library_mgmt catalog is believed to be part of the current composition, established by a previous governed change.
-    origin: 'S2 belief_verification #1'
+    origin: {phase: p2, register: belief_verification, row: 1}
     result: CONFIRMED
     evidence: 'Re-read against the pinned composition: book_library_mgmt carries 43 artifacts and declares compiler version 4, alongside five other domains'
   - item: The catalog is believed to hold bibliographic records and physical copies of library materials.
-    origin: 'S2 belief_verification #2'
+    origin: {phase: p2, register: belief_verification, row: 2}
     result: CONFIRMED
     evidence: 'Re-read book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0: five stores, of which BOOKS and PHYSICAL_COPIES hold the records, one append-only trail and two registries'
   - item: A book is believed to be identified by title, author and publication year.
-    origin: 'S2 belief_verification #3'
+    origin: {phase: p2, register: belief_verification, row: 3}
     result: CONFIRMED
     evidence: 'Re-read book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0: inputs title, author, publication_year; output one identity_key claimed by book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0'
   - item: A physical copy is believed to belong to exactly one book.
-    origin: 'S2 belief_verification #4'
+    origin: {phase: p2, register: belief_verification, row: 4}
     result: CONFIRMED
     evidence: Re-read book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 and book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0; no path records a copy against more than one record
   - item: The catalog is believed to provide registering books, registering physical copies, updating bibliographic information, retiring records, searching the catalog and retrieving complete book details.
-    origin: 'S2 belief_verification #5'
+    origin: {phase: p2, register: belief_verification, row: 5}
     result: CONFIRMED
     evidence: 'Re-counted against the composition: nine workflows and nine entry points in book_library_mgmt, each reaching book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 first'
   - item: A retired record is believed to be reinstatable.
-    origin: 'S2 belief_verification #6'
+    origin: {phase: p2, register: belief_verification, row: 6}
     result: CONFIRMED
     evidence: Re-read book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0 and book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0, reached through their own entry points
   - item: Records written under the previous change are believed to exist and to be readable.
-    origin: 'S2 belief_verification #7'
+    origin: {phase: p2, register: belief_verification, row: 7}
     result: CONFIRMED
     evidence: 'The result stands and is re-grounded: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 declares paths and no contents, and no inspection operation in the composition reads a store. The belief remains unresolvable from a snapshot, which is a fact about where it can be settled, not a defect in the belief'
   - item: Durable records are written, read, selected and updated in place through a declared side effect.
-    origin: S2 pps_baseline_fqdns — durable record store
+    origin: {phase: p2, register: pps_baseline_fqdns, key: durable record store}
     result: CONFIRMED
     evidence: Re-read capability_side_effects::CS_MUTABLE_JSON_V0; impacted_count 46 across ai_governance, book_library_mgmt and workload
   - item: Uniqueness is claimed through a registry keyed on a single value.
-    origin: S2 pps_baseline_fqdns — uniqueness registry
+    origin: {phase: p2, register: pps_baseline_fqdns, key: uniqueness registry}
     result: CONFIRMED
     evidence: Re-read capability_side_effects::CS_REGISTRY_V0; impacted_count 43 across ai_governance and book_library_mgmt
   - item: Selecting records by stated criteria exists as a pure transform, and grouping them does not.
-    origin: 'S2 architectural_observations #5'
+    origin: {phase: p2, register: architectural_observations, row: 5}
     result: CONFIRMED
     evidence: Re-read capability_transforms::CT_PURE_FILTER_RECORDS_V0; impacted_count 33, and the composition carries no grouping transform
   dependency_discoveries:
@@ -248,107 +248,107 @@ registers:
     decision: REUSE
     rationale: A work record is written, read and updated in place exactly as an edition record is, and the declared mechanism is read rather than modified.
     alternatives_checked: capability_side_effects::CS_MUTABLE_JSON_V0 satisfies it as-is; capability_side_effects::CS_APPENDONLY_JSONL_V0 was examined and rejected because a work record must be updated, not only appended.
-    source_finding: 'S3 analysis_findings #2'
+    source_finding: {phase: p3, register: analysis_findings, row: 2}
   - capability: Enforce that one work exists per title and author
     decision: REUSE
     rationale: Register-if-absent gives the atomic uniqueness a work identity needs, and the key formed from two attributes is a catalog business rule rather than a change to the mechanism.
     alternatives_checked: capability_side_effects::CS_REGISTRY_V0 reused with a two-attribute key, exactly as the edition key uses it with three; book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 was examined as the worked precedent and claims a different key against a different store.
-    source_finding: 'S3 analysis_findings #2'
+    source_finding: {phase: p3, register: analysis_findings, row: 2}
   - capability: Form the identifying key of a work from its title and author
     decision: AUTHOR_NEW
     rationale: The work's key is a different business key from the edition's, and the transform that forms the edition key is reached by every catalog operation. Widening it would change the identity of the existing record to serve a new one.
     alternatives_checked: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0 was examined and rejected — it forms a three-attribute key and 23 artifacts depend on it; capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 was examined and rejected because assembling a record applies no identity rule.
-    source_finding: 'S3 analysis_findings #3'
+    source_finding: {phase: p3, register: analysis_findings, row: 3}
   - capability: Claim a work's identity so that two registrations of one work do not produce two works
     decision: AUTHOR_NEW
     rationale: Nothing in the composition claims a work. The claim is a governed step of its own, composed the way the edition claim is composed, against the work's own registry store.
     alternatives_checked: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0 was examined and rejected — it claims the edition key against the edition registry; capability_side_effects::CS_REGISTRY_V0 is reused beneath the new step rather than replaced.
-    source_finding: 'S3 analysis_findings #2'
+    source_finding: {phase: p3, register: analysis_findings, row: 2}
   - capability: Resolve the work an edition belongs to
     decision: AUTHOR_NEW
     rationale: Registering an additional edition must name an existing work and receive its record; no step in the composition answers which work a title and author denote.
     alternatives_checked: book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0 was examined and rejected — it resolves an edition by its own three-attribute key and cannot answer for a work.
-    source_finding: 'S3 analysis_findings #1'
+    source_finding: {phase: p3, register: analysis_findings, row: 1}
   - capability: Group selected records by an attribute they share
     decision: AUTHOR_NEW
     rationale: Work-level search returns one result per work, which requires grouping the matching editions. Selection and grouping are different operations on the same records.
     alternatives_checked: capability_transforms::CT_PURE_FILTER_RECORDS_V0 was examined and rejected — it selects records by criteria and returns them ungrouped; capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 was examined and rejected because it assembles one record rather than relating several.
-    source_finding: 'S3 analysis_findings #4'
+    source_finding: {phase: p3, register: analysis_findings, row: 4}
   - capability: Declare the stores the catalog owns
     decision: EXTEND
     rationale: The catalog owns its stores and must now own two more — one holding work records and one claiming work identities. The declaration is the subdomain's own and its consumers are all within it.
     alternatives_checked: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0 extended with the work stores; authoring a second storage declaration for the same subdomain was examined and rejected because a subdomain declares its stores once.
-    source_finding: 'S3 analysis_findings #7'
+    source_finding: {phase: p3, register: analysis_findings, row: 7}
   - capability: Bind the catalog's workflows to the stores they use
     decision: EXTEND
     rationale: The new stores must be reachable by the workflows that read and write them, and binding is declared once per subdomain.
     alternatives_checked: book_library_mgmt::RB_CATALOG_BINDINGS_V0 extended with the work stores; a second binding declaration was examined and rejected for the same reason as the storage declaration.
-    source_finding: 'S3 analysis_findings #7'
+    source_finding: {phase: p3, register: analysis_findings, row: 7}
   - capability: Register an edition of a work the catalog does not yet hold
     decision: EXTEND
     rationale: The existing registration already confirms authorization, validates, claims two identities, writes two records and audits. It gains a work claim among the claims, before any write, and changes in no other way.
     alternatives_checked: book_library_mgmt::CC_REGISTER_BOOK_V0 extended; authoring a separate registration was examined and rejected because two registrations for one act would duplicate every refusal the existing one enforces.
-    source_finding: 'S3 analysis_findings #10'
+    source_finding: {phase: p3, register: analysis_findings, row: 10}
   - capability: Validate that a registration carries what a work and an edition require
     decision: EXTEND
     rationale: Validation already runs before any claim and knows the edition's attributes; it must also confirm what a work requires.
     alternatives_checked: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0 extended; capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0 was examined and is reused beneath it rather than replacing it.
-    source_finding: 'S3 analysis_findings #10'
+    source_finding: {phase: p3, register: analysis_findings, row: 10}
   - capability: Register an additional edition of an existing work
     decision: AUTHOR_NEW
     rationale: This is the operation the change exists to add. It resolves an existing work rather than creating one, and claims only the edition, so it is a different business operation from registering a work.
     alternatives_checked: book_library_mgmt::CC_REGISTER_BOOK_V0 was examined and rejected — it creates the work and requires a first copy, neither of which an additional edition does; book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 was examined and rejected because a further edition is not a further copy.
-    source_finding: 'S3 analysis_findings #1'
+    source_finding: {phase: p3, register: analysis_findings, row: 1}
   - capability: Search the catalog and answer at the level of the work
     decision: EXTEND
     rationale: 'The existing search already selects registered records by subject or title and excludes retired ones. What changes is the shape of the answer: the matching editions are grouped under their work. Its consumers are one workflow and one entry point, both within the subdomain.'
     alternatives_checked: book_library_mgmt::CC_SEARCH_CATALOG_V0 extended; authoring a second search was examined and rejected because two searches would leave staff choosing which one answers their question.
-    source_finding: 'S3 analysis_findings #5'
+    source_finding: {phase: p3, register: analysis_findings, row: 5}
   - capability: Retrieve an edition's complete details with a summary of its work
     decision: EXTEND
     rationale: Retrieval already assembles an edition and the physical copies of it; it gains the work summary so the work's title need not be looked up separately.
     alternatives_checked: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0 extended; authoring a separate work retrieval was examined and rejected because the business asked for one retrieval carrying a summary, not a second operation.
-    source_finding: 'S3 analysis_findings #5'
+    source_finding: {phase: p3, register: analysis_findings, row: 5}
   - capability: Admit a request to register an additional edition of an existing work
     decision: AUTHOR_NEW
     rationale: A new business operation is reached through its own entry point, which declares what a caller must supply — the work it belongs to and the edition's own attributes.
     alternatives_checked: book_library_mgmt::IN_REGISTER_BOOK_V0 was examined and rejected — it admits a registration that creates a work and requires a first copy.
-    source_finding: 'S3 analysis_findings #1'
+    source_finding: {phase: p3, register: analysis_findings, row: 1}
   - capability: Recognise the moment a work enters the catalog
     decision: AUTHOR_NEW
     rationale: The catalog declares a business moment for each thing that enters it, and a work entering is a moment nothing currently declares.
     alternatives_checked: book_library_mgmt::EV_BOOK_REGISTERED_V0 was examined and rejected — it names an edition entering the catalog, which continues to be its own moment.
-    source_finding: 'S3 analysis_findings #1'
+    source_finding: {phase: p3, register: analysis_findings, row: 1}
   - capability: Confirm the staff member performing an operation is authorized
     decision: REUSE
     rationale: Every catalog operation reaches the same check first, and the operations this change adds do the same.
     alternatives_checked: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0 satisfies it as-is.
-    source_finding: 'S3 analysis_findings #10'
+    source_finding: {phase: p3, register: analysis_findings, row: 10}
   - capability: Record every performed operation in the catalog's audit trail
     decision: REUSE
     rationale: The trail records whatever operation it is handed, including the ones this change adds.
     alternatives_checked: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0 satisfies it as-is.
-    source_finding: 'S3 analysis_findings #10'
+    source_finding: {phase: p3, register: analysis_findings, row: 10}
   - capability: Register a physical copy against exactly one edition
     decision: REUSE
     rationale: A copy already belongs to exactly one record, and that record is an edition. Nothing about copies changes.
     alternatives_checked: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0 and book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0 satisfy it as-is.
-    source_finding: 'S3 analysis_findings #6'
+    source_finding: {phase: p3, register: analysis_findings, row: 6}
   - capability: Retire and reinstate an edition independently of the work's other editions
     decision: REUSE
     rationale: Retirement is declared on the existing record and cascades to nothing, which is exactly what retiring one edition requires.
     alternatives_checked: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0 and book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0 satisfy it as-is.
-    source_finding: 'S3 analysis_findings #6'
+    source_finding: {phase: p3, register: analysis_findings, row: 6}
   - capability: Update an edition's bibliographic information
     decision: REUSE
     rationale: The update already refuses a change that would duplicate another record, and duplication remains an edition-level rule.
     alternatives_checked: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 satisfies it as-is.
-    source_finding: 'S3 analysis_findings #6'
+    source_finding: {phase: p3, register: analysis_findings, row: 6}
   placement_decision:
   - decision: EXTEND
     subdomain: catalog
     rationale: The work is the abstraction above the record the catalog already holds, it is identified by attributes the catalog already stores, and every operation it touches is one the catalog already owns. Placing it in a subdomain of its own would split one authoritative description of the library's holdings across two owners.
-    source_finding: 'S3 analysis_findings #7'
+    source_finding: {phase: p3, register: analysis_findings, row: 7}
   saturation:
   - criterion: No unresolved CRITICAL gaps
     status: SATISFIED

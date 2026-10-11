@@ -43,7 +43,7 @@ WORKFLOWS = REPO / "registry" / "design" / "workflows"
 # phase id → the workflow artifact carrying its sealed rule set.
 SEALED_IN = {
     "p0": "WF_P0_SEED_ADMISSIBILITY_V0.md",
-    "p1": "WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0.md",
+    "p1": "WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V1.md",
     "p2": "WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1.md",
     "p3": "WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1.md",
     "p4": "WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1.md",

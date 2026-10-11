@@ -14,277 +14,277 @@ registers:
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Refuse anyone the library has not authorized
+    source_finding: {phase: p5, register: scope_boundary, key: Refuse anyone the library has not authorized}
   - capability: Refuse a registration the catalog finds incomplete
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Refuse a registration the catalog finds incomplete
+    source_finding: {phase: p5, register: scope_boundary, key: Refuse a registration the catalog finds incomplete}
   - capability: Hold what a book, a work and a further edition must contain
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Hold what a book, a work and a further edition must contain
+    source_finding: {phase: p5, register: scope_boundary, key: 'Hold what a book, a work and a further edition must contain'}
   - capability: Check what the catalog records
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Check what the catalog records
+    source_finding: {phase: p5, register: scope_boundary, key: Check what the catalog records}
   - capability: Record the subject callers supply
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Record the subject callers supply
+    source_finding: {phase: p5, register: scope_boundary, key: Record the subject callers supply}
   - capability: Register a copy as registered
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Register a copy as registered
+    source_finding: {phase: p5, register: scope_boundary, key: Register a copy as registered}
   - capability: Keep a corrected record's state, and check it against the book description
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Keep a corrected record's state, and check it against the book description
+    source_finding: {phase: p5, register: scope_boundary, key: 'Keep a corrected record''s state, and check it against the book description'}
   - capability: Admit a request without the rules the catalog holds
     owner_subdomain: catalog
     disposition: OWNED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Admit a request without the rules the catalog holds
+    source_finding: {phase: p5, register: scope_boundary, key: Admit a request without the rules the catalog holds}
   - capability: Establish who a caller is
     owner_subdomain: outside the catalog
     disposition: DEFERRED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Establish who a caller is
+    source_finding: {phase: p5, register: scope_boundary, key: Establish who a caller is}
   - capability: Records made under a request's own rules
     owner_subdomain: nowhere; the business declines to rewrite them
     disposition: DEFERRED
     existing_artifact: ''
-    source_finding: S5 scope_boundary Records made under a request's own rules
+    source_finding: {phase: p5, register: scope_boundary, key: Records made under a request's own rules}
   storage_governance:
   - storage_need: A durable record of every book, with its bibliographic information and state
     purpose: 'Unchanged by this change, and named because what may be written into it changes: a book only as described, with its subject, and a correction only with the state the record has'
     subdomain: catalog
-    source_finding: S5 business_objects Book record
+    source_finding: {phase: p5, register: business_objects, key: Book record}
   - storage_need: A durable record of every physical copy and its state
     purpose: Unchanged by this change, and named because a copy is written only as registered
     subdomain: catalog
-    source_finding: S5 business_objects Copy record
+    source_finding: {phase: p5, register: business_objects, key: Copy record}
   cross_subdomain_deps:
   - dependency: Refusing on a list of rules
     direction: catalog -> platform
     existing_artifact: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
     status: SATISFIED
-    source_finding: S4 dependency_graph capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    source_finding: {phase: p4, register: dependency_graph, key: 'capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0'}
   - dependency: Checking a record's structure
     direction: catalog -> platform
     existing_artifact: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
     status: SATISFIED
-    source_finding: S4 dependency_graph capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    source_finding: {phase: p4, register: dependency_graph, key: 'capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0'}
   - dependency: Assembling a record from fields
     direction: catalog -> platform
     existing_artifact: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
     status: SATISFIED
-    source_finding: S4 dependency_graph capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    source_finding: {phase: p4, register: dependency_graph, key: 'capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0'}
   pps_artifacts_requiring_action:
   - fqdn: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
     current_status: Present; takes its rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries Confirming staff
+    source_finding: {phase: p3, register: dependency_discoveries, key: Confirming staff}
   - fqdn: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
     current_status: Present; takes its descriptions from the request and refuses nothing its checks find
     action: EXTEND
-    source_finding: S3 dependency_discoveries Checking a submission
+    source_finding: {phase: p3, register: dependency_discoveries, key: Checking a submission}
   - fqdn: book_library_mgmt::CC_REGISTER_BOOK_V0
     current_status: Present; takes its description from the request and ignores what its check finds
     action: EXTEND
-    source_finding: S3 dependency_discoveries Recording a book
+    source_finding: {phase: p3, register: dependency_discoveries, key: Recording a book}
   - fqdn: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
     current_status: Present; takes its description from the request and ignores what its check finds
     action: EXTEND
-    source_finding: S3 dependency_discoveries Recording an edition
+    source_finding: {phase: p3, register: dependency_discoveries, key: Recording an edition}
   - fqdn: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
     current_status: Present; records the copy in the state the request gives
     action: EXTEND
-    source_finding: S3 dependency_discoveries Recording a copy
+    source_finding: {phase: p3, register: dependency_discoveries, key: Recording a copy}
   - fqdn: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
     current_status: Present; writes the state the request gives and checks no description
     action: EXTEND
-    source_finding: S3 dependency_discoveries Correcting a record
+    source_finding: {phase: p3, register: dependency_discoveries, key: Correcting a record}
   - fqdn: book_library_mgmt::WF_REGISTER_BOOK_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_REINSTATE_BOOK_RECORD_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_REINSTATE_PHYSICAL_COPY_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_RETRIEVE_BOOK_DETAILS_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::WF_SEARCH_CATALOG_V0
     current_status: Present; binds the rules from the request
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::IN_REGISTER_BOOK_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_REGISTER_PHYSICAL_COPY_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_RETIRE_BOOK_RECORD_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_REINSTATE_BOOK_RECORD_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_RETIRE_PHYSICAL_COPY_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_REINSTATE_PHYSICAL_COPY_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_RETRIEVE_BOOK_DETAILS_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::IN_SEARCH_CATALOG_V0
     current_status: Present; requires the rules the catalog will hold
     action: EXTEND
-    source_finding: S3 dependency_discoveries The ten gates
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten gates}
   - fqdn: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_REINSTATE_BOOK_RECORD_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_REINSTATE_PHYSICAL_COPY_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_RESOLVE_BOOK_IDENTITY_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_RESOLVE_WORK_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_RETIRE_PHYSICAL_COPY_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   - fqdn: book_library_mgmt::CC_SEARCH_CATALOG_V0
     current_status: Present and reused unchanged
     action: REUSE
-    source_finding: S3 dependency_discoveries The ten acts
+    source_finding: {phase: p3, register: dependency_discoveries, key: The ten acts}
   boundary_rules:
   - rule_name: A_RULE_IS_HELD_WHERE_IT_IS_APPLIED
     statement: Each of the catalog's rules is a fixed value of the step that applies it. No act and no request hands the catalog a rule.
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - rule_name: A_CHECK_THAT_FINDS_REFUSES
     statement: A check's report is consumed by a rule that refuses when it found anything. The platform check reports; the catalog decides.
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - rule_name: WHAT_IS_CHECKED_IS_WHAT_IS_RECORDED
     statement: Each registration checks the record it writes, never a copy supplied beside it.
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - rule_name: THE_SUBJECT_IS_THE_ONE_SUPPLIED
     statement: The register act records the subject where callers send it.
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - rule_name: STATE_IS_THE_CATALOGS
     statement: A copy is registered as registered, and a correction keeps the state the record has.
-    source_finding: 'S4 design_decisions #5'
+    source_finding: {phase: p4, register: design_decisions, row: 5}
   - rule_name: A_GATE_REQUIRES_WHAT_IS_READ
     statement: A gate requires what its act reads, and nothing the catalog holds or no act reads.
-    source_finding: 'S4 design_decisions #6'
+    source_finding: {phase: p4, register: design_decisions, row: 6}
   - rule_name: THE_RECORD_IS_ADDED_TO_NEVER_REWRITTEN
     statement: Records made before this change are left as they are.
-    source_finding: 'S4 design_decisions #7'
+    source_finding: {phase: p4, register: design_decisions, row: 7}
   governance_outcome:
   - capability: Refuse anyone the library has not authorized
     owner_subdomain: catalog
-    source_finding: S6 ownership Refuse anyone the library has not authorized
+    source_finding: {phase: p6, register: ownership, key: Refuse anyone the library has not authorized}
   - capability: Refuse a registration the catalog finds incomplete
     owner_subdomain: catalog
-    source_finding: S6 ownership Refuse a registration the catalog finds incomplete
+    source_finding: {phase: p6, register: ownership, key: Refuse a registration the catalog finds incomplete}
   - capability: Hold what a book, a work and a further edition must contain
     owner_subdomain: catalog
-    source_finding: S6 ownership Hold what a book, a work and a further edition must contain
+    source_finding: {phase: p6, register: ownership, key: 'Hold what a book, a work and a further edition must contain'}
   - capability: Check what the catalog records
     owner_subdomain: catalog
-    source_finding: S6 ownership Check what the catalog records
+    source_finding: {phase: p6, register: ownership, key: Check what the catalog records}
   - capability: Record the subject callers supply
     owner_subdomain: catalog
-    source_finding: S6 ownership Record the subject callers supply
+    source_finding: {phase: p6, register: ownership, key: Record the subject callers supply}
   - capability: Register a copy as registered
     owner_subdomain: catalog
-    source_finding: S6 ownership Register a copy as registered
+    source_finding: {phase: p6, register: ownership, key: Register a copy as registered}
   - capability: Keep a corrected record's state, and check it against the book description
     owner_subdomain: catalog
-    source_finding: S6 ownership Keep a corrected record's state, and check it against the book description
+    source_finding: {phase: p6, register: ownership, key: 'Keep a corrected record''s state, and check it against the book description'}
   - capability: Admit a request without the rules the catalog holds
     owner_subdomain: catalog
-    source_finding: S6 ownership Admit a request without the rules the catalog holds
+    source_finding: {phase: p6, register: ownership, key: Admit a request without the rules the catalog holds}
 ```
 
 Placement of rules. Nothing moves and nothing is added: every step that changes already belongs to

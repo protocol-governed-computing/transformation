@@ -13,30 +13,30 @@ registers:
   - decision: Where the correction lives
     business_fact: A field's default and an artifact's property were not found wrong.
     resolution: In the rendering of a binding alone. The shared reading of a value is unchanged.
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - decision: How a quoted literal renders
     business_fact: The runtime receives the value a design states.
     resolution: A binding opening and closing with the same quote mark renders as the text between them. A number with a decimal part renders as a number. Every other binding renders as today.
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - decision: What carries the correction
     business_fact: The render transform's declaration states nothing about how a literal is rendered.
     resolution: Its implementation. No artifact is replaced or extended, and construction schedules nothing.
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - decision: What proves it
     business_fact: The keyed-node probe recorded the defect as intended.
     resolution: The probe expects each recorded reason as its value; a probe renders a quoted dotted value and a decimal; every delivered artifact reproduces unchanged.
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   existing_inventory:
   - fqdn: transformation::CT_PURE_RENDER_ARTIFACTS_V0
     action: REVIEW
     summary: ''
     reason: Its implementation renders a quoted and a decimal literal as their values. Its declaration is unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - fqdn: transformation::CC_CONSTRUCT_ARTIFACTS_V0
     action: REUSE
     summary: ''
     reason: Runs the rendering. Unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #2'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   new_artifacts: []
   rb_declarations: []
   execution_topology: []

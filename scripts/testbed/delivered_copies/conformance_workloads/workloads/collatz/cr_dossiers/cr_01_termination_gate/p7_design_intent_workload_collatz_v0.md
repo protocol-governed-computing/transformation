@@ -13,45 +13,45 @@ registers:
   - decision: A capability decides
     business_fact: A decision is made by a capability
     resolution: workload::CC_VERIFY_TERMINATION_V1 runs workload::CT_PURE_TERMINATION_CHECK_V0 unchanged in check_termination, then capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0 in require_every_sequence_terminated, with value all_terminate and allowed_set holding only true; the second refuses when a sequence did not end at 1
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - decision: The gate routes on its steps
     business_fact: Routing is a lookup
     resolution: Each step routes SUCCESS to continue and VIOLATION to exit, and workload::CC_VERIFY_TERMINATION_V1 declares no evaluation block; its inputs and allowed outcomes are those of workload::CC_VERIFY_TERMINATION_V0, and it adds the output conjecture_holds, because every step declares what it reports
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - decision: The workflow runs the new gate
     business_fact: It decides as today
     resolution: 'workload::WF_COLLATZ_CONJECTURE_V0 is re-pointed: the place labelled CC_VERIFY_TERMINATION_V0 runs workload::CC_VERIFY_TERMINATION_V1; its label, routes and the store''s bindings to it are unchanged'
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - decision: A new version
     business_fact: A change of meaning is a new identity
     resolution: workload::CC_VERIFY_TERMINATION_V1 supersedes workload::CC_VERIFY_TERMINATION_V0
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   existing_inventory:
   - fqdn: workload::CC_VERIFY_TERMINATION_V0
     action: REPLACE
     summary: ''
     reason: Routes to a condition nothing runs. Stood down by its next version.
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - fqdn: workload::WF_COLLATZ_CONJECTURE_V0
     action: REPOINT
     summary: ''
     reason: Runs the gate being replaced; re-pointed to its next version.
-    source_finding: 'S6 pps_artifacts_requiring_action #2'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   - fqdn: workload::CT_PURE_TERMINATION_CHECK_V0
     action: REUSE
     summary: ''
     reason: Reports whether every sequence ended at 1, and which did not, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
     action: REUSE
     summary: ''
     reason: Refuses a value not in a declared set, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #4'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 4}
   - fqdn: workload::CC_STORE_RESULTS_V0
     action: REUSE
     summary: ''
     reason: Records the sequences and the check's findings, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #5'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 5}
   new_artifacts:
   - capability: Gate the conjecture
     family: CC
@@ -59,7 +59,7 @@ registers:
     summary: Verify all Collatz sequences terminate at 1
     owner_subdomain: collatz
     status: NEW
-    source_finding: 'S6 governance_outcome #1'
+    source_finding: {phase: p6, register: governance_outcome, row: 1}
   rb_declarations: []
   execution_topology: []
   cc_composition:
@@ -114,25 +114,25 @@ registers:
     direction: INPUT
     field: sequences
     bound_to: inputs.sequences
-    source_finding: S7 cc_composition check_termination
+    source_finding: {phase: p7, register: cc_composition, key: check_termination}
   - owner: workload::CC_VERIFY_TERMINATION_V1
     step: check_termination
     direction: OUTPUT
     field: all_terminate
     bound_to: capability_result.all_terminate
-    source_finding: S7 cc_composition check_termination
+    source_finding: {phase: p7, register: cc_composition, key: check_termination}
   - owner: workload::CC_VERIFY_TERMINATION_V1
     step: check_termination
     direction: OUTPUT
     field: non_terminating
     bound_to: capability_result.non_terminating
-    source_finding: S7 cc_composition check_termination
+    source_finding: {phase: p7, register: cc_composition, key: check_termination}
   - owner: workload::CC_VERIFY_TERMINATION_V1
     step: require_every_sequence_terminated
     direction: INPUT
     field: value
     bound_to: results.check_termination.all_terminate
-    source_finding: S7 cc_composition require_every_sequence_terminated
+    source_finding: {phase: p7, register: cc_composition, key: require_every_sequence_terminated}
   - owner: workload::CC_VERIFY_TERMINATION_V1
     step: require_every_sequence_terminated
     direction: INPUT
@@ -140,13 +140,13 @@ registers:
     bound_to:
       literal:
       - true
-    source_finding: S7 cc_composition require_every_sequence_terminated
+    source_finding: {phase: p7, register: cc_composition, key: require_every_sequence_terminated}
   - owner: workload::CC_VERIFY_TERMINATION_V1
     step: require_every_sequence_terminated
     direction: OUTPUT
     field: conjecture_holds
     bound_to: capability_result.is_member
-    source_finding: S7 cc_composition require_every_sequence_terminated
+    source_finding: {phase: p7, register: cc_composition, key: require_every_sequence_terminated}
   interface_fields:
   - artifact: workload::CC_VERIFY_TERMINATION_V1
     direction: INPUT
@@ -181,11 +181,11 @@ registers:
     property: supersedes
     value:
     - workload::CC_VERIFY_TERMINATION_V0
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - artifact: workload::CC_VERIFY_TERMINATION_V1
     property: description
     value: Protocol gate for Collatz Conjecture — SUCCESS means conjecture holds for this input set
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   structure_stores: null
   artifact_summary:
   - action: NEW
@@ -208,7 +208,7 @@ registers:
     refused_when: A sequence does not end at 1
     deferred_to: workload::CC_VERIFY_TERMINATION_V1, step require_every_sequence_terminated, which ends the gate VIOLATION; the workflow routes it to EXIT_CONJECTURE_VIOLATED
     until: Armed by this change
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   refusal_governance_discharge: null
   molecule_steps: null
   molecule_step_bindings: null

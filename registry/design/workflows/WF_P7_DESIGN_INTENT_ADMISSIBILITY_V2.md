@@ -100,8 +100,91 @@ core:
             - Resolution
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: design_resolution
+          params:
+            column: Source Finding
+            type:
+              oneOf: &id001
+              - type: 'null'
+              - type: object
+                required:
+                - register
+                additionalProperties: false
+                properties:
+                  phase:
+                    type: string
+                    pattern: ^p[0-8]$
+                  register:
+                    type: string
+                    pattern: ^[a-z][a-z0-9_]*$
+                  row:
+                    type: integer
+                  key:
+                    type: string
+                    minLength: 1
+                not:
+                  required:
+                  - row
+                  - key
+              - type: object
+                required:
+                - artifact
+                additionalProperties: false
+                properties:
+                  artifact:
+                    type: string
+                    pattern: ^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$
+              - type: object
+                required:
+                - source
+                additionalProperties: false
+                properties:
+                  source:
+                    const: human
+              - type: array
+                minItems: 2
+                items:
+                  oneOf:
+                  - type: object
+                    required:
+                    - register
+                    additionalProperties: false
+                    properties:
+                      phase:
+                        type: string
+                        pattern: ^p[0-8]$
+                      register:
+                        type: string
+                        pattern: ^[a-z][a-z0-9_]*$
+                      row:
+                        type: integer
+                      key:
+                        type: string
+                        minLength: 1
+                    not:
+                      required:
+                      - row
+                      - key
+                  - type: object
+                    required:
+                    - artifact
+                    additionalProperties: false
+                    properties:
+                      artifact:
+                        type: string
+                        pattern: ^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$
+                  - type: object
+                    required:
+                    - source
+                    additionalProperties: false
+                    properties:
+                      source:
+                        const: human
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: design_resolution
           params:
             column: Source Finding
@@ -112,7 +195,7 @@ core:
           register: design_resolution
           params:
             column: Source Finding
-            known_registers: &id001
+            known_registers: &id002
             - acceptance_criteria
             - actions
             - actors
@@ -208,11 +291,6 @@ core:
             - verification_results
             - vocabulary_extensions
             - withdrawn_facts
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -251,8 +329,16 @@ core:
             - REPOINT
             - REVIEW
           intent: Action is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: existing_inventory
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: existing_inventory
           params:
             column: Source Finding
@@ -263,12 +349,7 @@ core:
           register: existing_inventory
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -311,6 +392,14 @@ core:
             - TI
             - TE
           intent: Family is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: new_artifacts
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: new_artifacts
@@ -322,7 +411,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: new_artifacts
           params:
             column: Source Finding
@@ -333,12 +422,7 @@ core:
           register: new_artifacts
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -377,8 +461,16 @@ core:
               items:
                 type: string
           intent: CS Bindings carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: rb_declarations
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: rb_declarations
           params:
             column: Source Finding
@@ -389,12 +481,7 @@ core:
           register: rb_declarations
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -444,8 +531,16 @@ core:
               additionalProperties:
                 type: string
           intent: Routing carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: execution_topology
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: execution_topology
           params:
             column: Source Finding
@@ -456,12 +551,7 @@ core:
           register: execution_topology
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -605,8 +695,16 @@ core:
                   generated:
                     const: true
           intent: Bound To carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: step_bindings
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: step_bindings
           params:
             column: Source Finding
@@ -617,12 +715,7 @@ core:
           register: step_bindings
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -684,8 +777,16 @@ core:
             - Refusal
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: implementation_bindings
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: implementation_bindings
           params:
             column: Source Finding
@@ -696,12 +797,7 @@ core:
           register: implementation_bindings
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -726,8 +822,16 @@ core:
             - Meaning
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: vocabulary_extensions
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: vocabulary_extensions
           params:
             column: Source Finding
@@ -738,12 +842,7 @@ core:
           register: vocabulary_extensions
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -766,8 +865,16 @@ core:
             - Value
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: runtime_policies
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: runtime_policies
           params:
             column: Source Finding
@@ -778,12 +885,7 @@ core:
           register: runtime_policies
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -818,8 +920,16 @@ core:
               items:
                 type: string
           intent: Value carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: artifact_properties
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: artifact_properties
           params:
             column: Source Finding
@@ -830,12 +940,7 @@ core:
           register: artifact_properties
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -868,8 +973,16 @@ core:
             - CS_MUTABLE_JSON_V0
             - CS_REGISTRY_V0
           intent: Storage Type is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: structure_stores
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: structure_stores
           params:
             column: Source Finding
@@ -880,12 +993,7 @@ core:
           register: structure_stores
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -952,8 +1060,16 @@ core:
                   generated:
                     const: true
           intent: Bound To carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: transport_bindings
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: transport_bindings
           params:
             column: Source Finding
@@ -964,12 +1080,7 @@ core:
           register: transport_bindings
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1031,8 +1142,16 @@ core:
               items:
                 type: string
           intent: Generator Sources carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: generation_provenance
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: generation_provenance
           params:
             column: Source Finding
@@ -1043,12 +1162,7 @@ core:
           register: generation_provenance
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1081,8 +1195,16 @@ core:
               items:
                 type: string
           intent: Consults carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: declared_reach
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: declared_reach
           params:
             column: Source Finding
@@ -1093,12 +1215,7 @@ core:
           register: declared_reach
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1122,8 +1239,16 @@ core:
             - Outcome
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: refusal_discharge
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: refusal_discharge
           params:
             column: Source Finding
@@ -1134,12 +1259,7 @@ core:
           register: refusal_discharge
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1162,8 +1282,16 @@ core:
             - Until
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: refusal_deferrals
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: refusal_deferrals
           params:
             column: Source Finding
@@ -1174,12 +1302,7 @@ core:
           register: refusal_deferrals
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1202,8 +1325,16 @@ core:
             - Governing Rule
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: refusal_governance_discharge
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: refusal_governance_discharge
           params:
             column: Source Finding
@@ -1214,12 +1345,7 @@ core:
           register: refusal_governance_discharge
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1245,8 +1371,16 @@ core:
             - Emits
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: molecule_steps
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: molecule_steps
           params:
             column: Source Finding
@@ -1257,12 +1391,7 @@ core:
           register: molecule_steps
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1319,8 +1448,16 @@ core:
                   generated:
                     const: true
           intent: Bound To carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: molecule_step_bindings
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: molecule_step_bindings
           params:
             column: Source Finding
@@ -1331,12 +1468,7 @@ core:
           register: molecule_step_bindings
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1367,8 +1499,16 @@ core:
             - SUCCESS
             - VIOLATION
           intent: Expected Outcome is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: test_cases
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: test_cases
           params:
             column: Source Finding
@@ -1379,12 +1519,7 @@ core:
           register: test_cases
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1419,8 +1554,16 @@ core:
             - ASSERT
             - RECORDED
           intent: Role is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: test_case_values
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: test_case_values
           params:
             column: Source Finding
@@ -1431,12 +1574,7 @@ core:
           register: test_case_values
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -1458,8 +1596,16 @@ core:
             - Reason
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: withdrawn_facts
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: withdrawn_facts
           params:
             column: Source Finding
@@ -1470,12 +1616,7 @@ core:
           register: withdrawn_facts
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -2215,15 +2356,15 @@ core:
           params:
             observation: si.rule_set.list
             phase_workflows:
-              p0: transformation::WF_P0_SEED_ADMISSIBILITY_V0
-              p1: transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0
-              p2: transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1
-              p3: transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1
-              p4: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1
-              p5: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1
-              p6: transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1
-              p7: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
-              p8: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1
+              p0: WF_P0_SEED_ADMISSIBILITY
+              p1: WF_P1_CHANGE_REQUEST_ADMISSIBILITY
+              p2: WF_P2_DOMAIN_MODEL_ADMISSIBILITY
+              p3: WF_P3_ANALYSIS_LOOP_ADMISSIBILITY
+              p4: WF_P4_BUSINESS_MODEL_ADMISSIBILITY
+              p5: WF_P5_BUSINESS_INTENT_ADMISSIBILITY
+              p6: WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY
+              p7: WF_P7_DESIGN_INTENT_ADMISSIBILITY
+              p8: WF_P8_AUTHORING_MANDATE_ADMISSIBILITY
           intent: a rule said to carry out a refusal is really in force where the design is pinned
         - id: DISCHARGE_NOT_IN_TOPOLOGY
           check: DISCHARGE_GROUNDED_IN_TOPOLOGY

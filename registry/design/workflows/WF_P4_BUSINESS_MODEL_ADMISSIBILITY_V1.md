@@ -95,6 +95,89 @@ core:
           check: TABLE_HAS_ROWS
           register: actors
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: actors
+          params:
+            column: Source Finding
+            type:
+              oneOf: &id001
+              - type: 'null'
+              - type: object
+                required:
+                - register
+                additionalProperties: false
+                properties:
+                  phase:
+                    type: string
+                    pattern: ^p[0-8]$
+                  register:
+                    type: string
+                    pattern: ^[a-z][a-z0-9_]*$
+                  row:
+                    type: integer
+                  key:
+                    type: string
+                    minLength: 1
+                not:
+                  required:
+                  - row
+                  - key
+              - type: object
+                required:
+                - artifact
+                additionalProperties: false
+                properties:
+                  artifact:
+                    type: string
+                    pattern: ^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$
+              - type: object
+                required:
+                - source
+                additionalProperties: false
+                properties:
+                  source:
+                    const: human
+              - type: array
+                minItems: 2
+                items:
+                  oneOf:
+                  - type: object
+                    required:
+                    - register
+                    additionalProperties: false
+                    properties:
+                      phase:
+                        type: string
+                        pattern: ^p[0-8]$
+                      register:
+                        type: string
+                        pattern: ^[a-z][a-z0-9_]*$
+                      row:
+                        type: integer
+                      key:
+                        type: string
+                        minLength: 1
+                    not:
+                      required:
+                      - row
+                      - key
+                  - type: object
+                    required:
+                    - artifact
+                    additionalProperties: false
+                    properties:
+                      artifact:
+                        type: string
+                        pattern: ^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$
+                  - type: object
+                    required:
+                    - source
+                    additionalProperties: false
+                    properties:
+                      source:
+                        const: human
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: actors
@@ -108,7 +191,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: actors
           params:
             column: Source Finding
@@ -119,7 +202,7 @@ core:
           register: actors
           params:
             column: Source Finding
-            known_registers: &id001
+            known_registers: &id002
             - acceptance_criteria
             - actions
             - actors
@@ -215,11 +298,6 @@ core:
             - verification_results
             - vocabulary_extensions
             - withdrawn_facts
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -245,6 +323,14 @@ core:
           check: TABLE_HAS_ROWS
           register: bm_entities
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: bm_entities
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: bm_entities
@@ -258,7 +344,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: bm_entities
           params:
             column: Source Finding
@@ -269,12 +355,7 @@ core:
           register: bm_entities
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -295,6 +376,14 @@ core:
             - Description
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: resources
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: resources
@@ -307,7 +396,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: resources
           params:
             column: Source Finding
@@ -318,12 +407,7 @@ core:
           register: resources
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -349,6 +433,14 @@ core:
           check: TABLE_HAS_ROWS
           register: events
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: events
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: events
@@ -362,7 +454,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: events
           params:
             column: Source Finding
@@ -373,12 +465,7 @@ core:
           register: events
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -401,6 +488,14 @@ core:
             - Capability Need
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: relationships
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: relationships
@@ -415,7 +510,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: relationships
           params:
             column: Source Finding
@@ -426,12 +521,7 @@ core:
           register: relationships
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -458,6 +548,14 @@ core:
           check: TABLE_HAS_ROWS
           register: capability_graph
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: capability_graph
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: capability_graph
@@ -472,7 +570,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: capability_graph
           params:
             column: Source Finding
@@ -483,12 +581,7 @@ core:
           register: capability_graph
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -515,8 +608,16 @@ core:
           check: TABLE_HAS_ROWS
           register: dependency_graph
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: dependency_graph
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: dependency_graph
           params:
             column: Source Finding
@@ -527,12 +628,7 @@ core:
           register: dependency_graph
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -558,8 +654,16 @@ core:
           check: TABLE_HAS_ROWS
           register: constraint_register
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: constraint_register
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: constraint_register
           params:
             column: Source Finding
@@ -570,12 +674,7 @@ core:
           register: constraint_register
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -602,6 +701,14 @@ core:
           check: TABLE_HAS_ROWS
           register: gap_register
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: gap_register
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: gap_register
@@ -616,7 +723,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: gap_register
           params:
             column: Source Finding
@@ -627,12 +734,7 @@ core:
           register: gap_register
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -659,8 +761,16 @@ core:
           check: TABLE_HAS_ROWS
           register: design_decisions
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: design_decisions
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: design_decisions
           params:
             column: Source Finding
@@ -671,12 +781,7 @@ core:
           register: design_decisions
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES

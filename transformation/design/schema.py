@@ -140,6 +140,14 @@ def _meta() -> dict:
     return json.loads(META.read_text(encoding="utf-8"))
 
 
+def _resolved(declared_type: dict, schema: dict) -> dict:
+    """A column's type, with a `$ref` to the schema's `$defs` replaced by what it names."""
+    if "$ref" not in declared_type:
+        return declared_type
+    name = declared_type["$ref"].removeprefix("#/$defs/")
+    return {**{k: v for k, v in declared_type.items() if k != "$ref"}, **schema["$defs"][name]}
+
+
 def read_schema(path: Path, phase: str) -> PhaseShape:
     """Parse a register schema. One that the meta-schema refuses is fail-hard."""
     declared = json.loads(path.read_text(encoding="utf-8"))
@@ -161,10 +169,12 @@ def read_schema(path: Path, phase: str) -> PhaseShape:
         }
         required = set(items.get("required") or ())
         text = {"type": ["string", "null"]}
-        types = {items["properties"][k]["title"]: {t: v for t, v in items["properties"][k].items()
-                                                   if t not in ("title", "x-vocab")}
-                 for k in keys
-                 if {t: v for t, v in items["properties"][k].items() if t not in ("title", "x-vocab")} != text}
+        types = {}
+        for k in keys:
+            declared_type = _resolved({t: v for t, v in items["properties"][k].items()
+                                       if t not in ("title", "x-vocab")}, declared)
+            if declared_type != text:
+                types[items["properties"][k]["title"]] = declared_type
         scope = body.get("x-business-language", ())
         registers.append(Register(
             id=register_id,

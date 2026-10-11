@@ -33,19 +33,19 @@ registers:
     evidence: '`workflow::CONSTITUTION_WORKFLOW_V0` §2a states the model; `workflow::INVARIANT_WF_ANNOUNCEMENT_DISTINCT_V0` holds it; the composition seals a sequence per transition and the runtime announces each in the sealed order.'
   verification_results:
   - item: The catalog declares six moments and announces none of them.
-    origin: 'S2 belief_verification #1'
+    origin: {phase: p2, register: belief_verification, row: 1}
     result: CONFIRMED
     evidence: No workflow of this subdomain declares `emit` on any terminal node, and all six moments are referenced by nothing.
   - item: The catalog performs registration, correction, retirement and reinstatement, each as its own act.
-    origin: 'S2 belief_verification #2'
+    origin: {phase: p2, register: belief_verification, row: 2}
     result: CONFIRMED
     evidence: Nine workflows, each admitted by its own intent; registration, correction, retirement and reinstatement are separate acts.
   - item: Nothing checks whether a declared moment is ever announced.
-    origin: 'S2 belief_verification #3'
+    origin: {phase: p2, register: belief_verification, row: 3}
     result: CONFIRMED
     evidence: No invariant, no inspection operation and no boundary declaration counts announcements. The occurrence counts in the domain's validation read store records written by capability steps, not announced moments.
   - item: Reinstatement has no declared moment of its own.
-    origin: 'S2 belief_verification #4'
+    origin: {phase: p2, register: belief_verification, row: 4}
     result: CONFIRMED
     evidence: Six moments are declared; none names a reinstatement, and this change announces only moments the business already declared.
   dependency_discoveries:
@@ -91,22 +91,22 @@ registers:
     decision: EXTEND
     rationale: The act completes all three and is the only act that does; announcing them is a statement it was always meant to make.
     alternatives_checked: 'Announcing one and leaving two silent was rejected: it is the defect this change exists to fix. Splitting the act into three was rejected: it changes the business to suit the platform, and the business registers a book once.'
-    source_finding: 'S2 gaps #1'
+    source_finding: {phase: p2, register: gaps, row: 1}
   - capability: Announcing the moment each remaining act completes
     decision: EXTEND
     rationale: Five acts complete one moment each and can say so.
     alternatives_checked: Nothing to check — a sequence of one is what the platform already ran.
-    source_finding: 'S2 gaps #1'
+    source_finding: {phase: p2, register: gaps, row: 1}
   - capability: Attaching the moment naming a registered work to the act that claims its identity
     decision: REUSE
     rationale: The composition distinguishes claiming a work from resolving one, so the act that registers the work is the act that announces it.
     alternatives_checked: 'Attaching it to registering an additional edition was rejected: that act resolves a work the business already holds, and announcing a registration there would announce something untrue.'
-    source_finding: S3 analysis_findings Q1
+    source_finding: {phase: p3, register: analysis_findings, key: Q1}
   placement_decision:
   - decision: EXTEND
     subdomain: catalog
     rationale: Every act and every moment belongs to catalog already. What changes is what its acts state about what they did.
-    source_finding: 'S2 architectural_observations #1'
+    source_finding: {phase: p2, register: architectural_observations, row: 1}
   saturation:
   - criterion: No unresolved CRITICAL gaps
     status: SATISFIED

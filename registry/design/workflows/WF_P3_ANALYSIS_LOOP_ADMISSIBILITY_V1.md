@@ -170,6 +170,89 @@ core:
             - CONFIRMED
             - OVERTURNED
           intent: Result is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: verification_results
+          params:
+            column: Origin
+            type:
+              oneOf: &id001
+              - type: 'null'
+              - type: object
+                required:
+                - register
+                additionalProperties: false
+                properties:
+                  phase:
+                    type: string
+                    pattern: ^p[0-8]$
+                  register:
+                    type: string
+                    pattern: ^[a-z][a-z0-9_]*$
+                  row:
+                    type: integer
+                  key:
+                    type: string
+                    minLength: 1
+                not:
+                  required:
+                  - row
+                  - key
+              - type: object
+                required:
+                - artifact
+                additionalProperties: false
+                properties:
+                  artifact:
+                    type: string
+                    pattern: ^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$
+              - type: object
+                required:
+                - source
+                additionalProperties: false
+                properties:
+                  source:
+                    const: human
+              - type: array
+                minItems: 2
+                items:
+                  oneOf:
+                  - type: object
+                    required:
+                    - register
+                    additionalProperties: false
+                    properties:
+                      phase:
+                        type: string
+                        pattern: ^p[0-8]$
+                      register:
+                        type: string
+                        pattern: ^[a-z][a-z0-9_]*$
+                      row:
+                        type: integer
+                      key:
+                        type: string
+                        minLength: 1
+                    not:
+                      required:
+                      - row
+                      - key
+                  - type: object
+                    required:
+                    - artifact
+                    additionalProperties: false
+                    properties:
+                      artifact:
+                        type: string
+                        pattern: ^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$
+                  - type: object
+                    required:
+                    - source
+                    additionalProperties: false
+                    properties:
+                      source:
+                        const: human
+          intent: Origin carries structure, and its value must take the declared form
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: dependency_discoveries
@@ -247,6 +330,14 @@ core:
             - EXTEND
             - AUTHOR_NEW
           intent: Decision is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: authoring_decisions
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: authoring_decisions
@@ -258,7 +349,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: authoring_decisions
           params:
             column: Source Finding
@@ -269,7 +360,7 @@ core:
           register: authoring_decisions
           params:
             column: Source Finding
-            known_registers: &id001
+            known_registers: &id002
             - acceptance_criteria
             - actions
             - actors
@@ -365,11 +456,6 @@ core:
             - verification_results
             - vocabulary_extensions
             - withdrawn_facts
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES
@@ -404,6 +490,14 @@ core:
             - NEW_SUBDOMAIN
             - EXTEND
           intent: Decision is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: placement_decision
+          params:
+            column: Source Finding
+            type:
+              oneOf: *id001
+          intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
           check: CELL_TOKEN_ABSENT
           register: placement_decision
@@ -415,7 +509,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
-          check: CELL_NOT_EMPTY
+          check: CITATION_PRESENT
           register: placement_decision
           params:
             column: Source Finding
@@ -426,12 +520,7 @@ core:
           register: placement_decision
           params:
             column: Source Finding
-            known_registers: *id001
-            literal_sources:
-            - CR seed
-            - human decision
-            - projection
-            - S1 seed
+            known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
           check: CITED_ORDINAL_RESOLVES

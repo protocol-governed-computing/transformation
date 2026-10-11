@@ -82,59 +82,59 @@ registers:
     evidence: 'S1 constraints #2'
   verification_results:
   - item: Every catalog operation confirms the person performing it is authorized, against rules the request supplies.
-    origin: 'S2 belief_verification #1'
+    origin: {phase: p2, register: belief_verification, row: 1}
     result: CONFIRMED
     evidence: Resolved in Q1 and Q8
   - item: The catalog checks a book, a work and a further edition against what each must contain, and registers them whatever the check finds.
-    origin: 'S2 belief_verification #2'
+    origin: {phase: p2, register: belief_verification, row: 2}
     result: CONFIRMED
     evidence: Resolved in Q2
   - item: The catalog checks a copy of the book supplied beside it, not the book it records.
-    origin: 'S2 belief_verification #3'
+    origin: {phase: p2, register: belief_verification, row: 3}
     result: CONFIRMED
     evidence: Resolved in Q4 and Q5
   - item: The descriptions a book, a work and a further edition are checked against come from the request.
-    origin: 'S2 belief_verification #4'
+    origin: {phase: p2, register: belief_verification, row: 4}
     result: CONFIRMED
     evidence: Resolved in Q3 and Q8
   - item: A physical copy is registered in whatever state the request gives it.
-    origin: 'S2 belief_verification #5'
+    origin: {phase: p2, register: belief_verification, row: 5}
     result: CONFIRMED
     evidence: Resolved in Q6
   - item: The catalog holds none of its own rules; each comes with the request it judges.
-    origin: 'S2 gaps #1'
+    origin: {phase: p2, register: gaps, row: 1}
     result: CONFIRMED
     evidence: Resolved in Q1 through Q3
   - item: A registration the catalog finds incomplete is registered anyway.
-    origin: 'S2 gaps #2'
+    origin: {phase: p2, register: gaps, row: 2}
     result: CONFIRMED
     evidence: Resolved in Q2
   - item: What the catalog checks is not what it records.
-    origin: 'S2 gaps #3'
+    origin: {phase: p2, register: gaps, row: 3}
     result: CONFIRMED
     evidence: Resolved in Q4 and Q5
   - item: A copy is registered in the state the request gives.
-    origin: 'S2 gaps #4'
+    origin: {phase: p2, register: gaps, row: 4}
     result: CONFIRMED
     evidence: Resolved in Q6
   - item: A correction writes the state the request gives.
-    origin: 'S2 discovery_concerns #1'
+    origin: {phase: p2, register: discovery_concerns, row: 1}
     result: CONFIRMED
     evidence: Resolved in Q7, per the author's answer
   - item: A correction is not checked against what a book must contain.
-    origin: 'S2 discovery_concerns #2'
+    origin: {phase: p2, register: discovery_concerns, row: 2}
     result: CONFIRMED
     evidence: Resolved in Q7, per the author's answer
   - item: The register act's work description checks nothing.
-    origin: 'S2 discovery_concerns #3'
+    origin: {phase: p2, register: discovery_concerns, row: 3}
     result: CONFIRMED
     evidence: Resolved in Q3
   - item: The book's recorded subject is read where no caller sends it.
-    origin: 'S2 discovery_concerns #4'
+    origin: {phase: p2, register: discovery_concerns, row: 4}
     result: CONFIRMED
     evidence: Resolved in Q5, per the author's answer
   - item: The credentials a request presents are its own.
-    origin: 'S2 discovery_concerns #5'
+    origin: {phase: p2, register: discovery_concerns, row: 5}
     result: CONFIRMED
     evidence: Carried in Q9; outside this change
   dependency_discoveries:
@@ -296,47 +296,47 @@ registers:
     decision: EXTEND
     rationale: The confirming step holds the library's rules, so every act that composes it holds them.
     alternatives_checked: 'Holding the rules in each act was checked and rejected: ten acts would carry ten copies of one rule.'
-    source_finding: S3 analysis_findings Q1
+    source_finding: {phase: p3, register: analysis_findings, key: Q1}
   - capability: Refuse a registration the catalog finds incomplete
     decision: EXTEND
     rationale: A rule following each check refuses when it found anything, as identity does.
     alternatives_checked: 'Making the platform check refuse was rejected by ruling: a check that decides can no longer be used only to report.'
-    source_finding: S3 analysis_findings Q2
+    source_finding: {phase: p3, register: analysis_findings, key: Q2}
   - capability: Hold what a book, a work and a further edition must contain
     decision: EXTEND
     rationale: The checking contracts hold their descriptions as literals.
     alternatives_checked: 'Holding them in the acts was checked and rejected: the descriptions belong to the checks, and both registration acts compose the same submission check.'
-    source_finding: S3 analysis_findings Q3
+    source_finding: {phase: p3, register: analysis_findings, key: Q3}
   - capability: Check what the catalog records
     decision: EXTEND
     rationale: Each registration act hands its check the record it writes.
     alternatives_checked: 'Checking the supplied copy as well was checked and rejected: a second check of the wrong thing adds nothing.'
-    source_finding: S3 analysis_findings Q4
+    source_finding: {phase: p3, register: analysis_findings, key: Q4}
   - capability: Record the subject callers supply
     decision: EXTEND
     rationale: The register act reads the subject where callers send it.
     alternatives_checked: 'Requiring it at the top level was rejected by the author: every present caller would change.'
-    source_finding: S3 analysis_findings Q5
+    source_finding: {phase: p3, register: analysis_findings, key: Q5}
   - capability: Register a copy as registered
     decision: EXTEND
     rationale: The copy contract writes the state itself, for both acts that register copies.
     alternatives_checked: 'Checking the requested state was rejected: there is one state a copy is registered in, so there is nothing to check, only something to write.'
-    source_finding: S3 analysis_findings Q6
+    source_finding: {phase: p3, register: analysis_findings, key: Q6}
   - capability: Keep a corrected record's state, and check it against the book description
     decision: EXTEND
     rationale: The correction writes the state the record has, and refuses a corrected record that fails the book description or has no subject.
     alternatives_checked: 'Refusing a correction that names a state was checked and rejected: a request''s extra words are ignored, not refused.'
-    source_finding: S3 analysis_findings Q7
+    source_finding: {phase: p3, register: analysis_findings, key: Q7}
   - capability: Admit a request without the rules the catalog holds
     decision: EXTEND
     rationale: Every gate stops requiring the rules, and the registration gates what no act reads.
     alternatives_checked: 'Leaving the gates as they are was checked and rejected: a gate requiring what nothing reads refuses a correct request for its absence.'
-    source_finding: S3 analysis_findings Q8
+    source_finding: {phase: p3, register: analysis_findings, key: Q8}
   placement_decision:
   - decision: EXTEND
     subdomain: catalog
     rationale: Every rule held here is the catalog's own, and every step that changes belongs to the catalog. Nothing moves and no other subdomain changes.
-    source_finding: S3 analysis_findings Q1
+    source_finding: {phase: p3, register: analysis_findings, key: Q1}
   saturation:
   - criterion: No unresolved CRITICAL gaps
     status: SATISFIED

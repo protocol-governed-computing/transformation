@@ -13,50 +13,50 @@ registers:
   - decision: Each check is stated whole, as it stands, with its cases
     business_fact: A case belongs to a transform the design names
     resolution: The three checks are redeclared with the inputs, outputs, implementation and refusal they already declare
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - decision: A no case expects a refusal; a yes case keeps its answer
     business_fact: The checks refuse, as the business decided
     resolution: Each check has one SUCCESS case with its answer and one VIOLATION case
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - decision: The earlier values stay, under this system's names, with one boundary case added
     business_fact: The author answered both
     resolution: The earlier values are kept; the inactivity check gains a license unused for exactly the threshold
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - decision: The build configuration is reached through its generator
     business_fact: It is derived from the design
     resolution: The build manifest is named as generated, so the domain compiles the stated cases
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   existing_inventory:
   - fqdn: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     action: EXTEND
     summary: Evaluate whether license quota remains available under the declared cap
     reason: Stated whole with the cases that prove it.
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - fqdn: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
     action: EXTEND
     summary: Evaluate whether required training has been completed
     reason: Stated whole with the cases that prove it.
-    source_finding: 'S6 pps_artifacts_requiring_action #2'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   - fqdn: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     action: EXTEND
     summary: Evaluate license inactivity against a declared threshold
     reason: Stated whole with the cases that prove it.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: ai_governance::STRUCTURE_BUILD_AI_GOVERNANCE_CONFIG_V0
     action: EXTEND
     summary: Declares what the ai_governance domain compiles
     reason: It does not compile stated cases and must.
-    source_finding: 'S6 pps_artifacts_requiring_action #4'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 4}
   - fqdn: ai_governance::CC_VALIDATE_ELIGIBILITY_V0
     action: REUSE
     summary: ''
     reason: Runs the training and license checks for provisioning, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #5'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 5}
   - fqdn: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V0
     action: REUSE
     summary: ''
     reason: Runs the inactivity check for reclamation, unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #6'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 6}
   new_artifacts: null
   rb_declarations: []
   execution_topology: []
@@ -148,7 +148,7 @@ registers:
     kind: atom
     purity: ct_pure
     refusal: raises
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - ct_code: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
     module: ai_governance.implementation.capability_transforms.atoms.ct_pure_check_training_status_v0
     callable: execute
@@ -156,7 +156,7 @@ registers:
     kind: atom
     purity: ct_pure
     refusal: raises
-    source_finding: 'S6 pps_artifacts_requiring_action #2'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     module: ai_governance.implementation.capability_transforms.atoms.ct_pure_evaluate_inactivity_v0
     callable: execute
@@ -164,7 +164,7 @@ registers:
     kind: atom
     purity: ct_pure
     refusal: raises
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   vocabulary_extensions: null
   runtime_policies: null
   artifact_properties: null
@@ -182,7 +182,7 @@ registers:
     - S8 build_order
     - S8 field_declarations
     - transformation/design/families.py
-    source_finding: 'S6 pps_artifacts_requiring_action #4'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 4}
   declared_reach: null
   refusal_discharge: null
   refusal_deferrals: null
@@ -193,164 +193,164 @@ registers:
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: available_under_cap
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: refuses_at_cap
     expected_outcome: VIOLATION
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
     case: eligible_once_trained
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
     case: refuses_untrained
     expected_outcome: VIOLATION
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_past_threshold
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_at_threshold
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: refuses_recently_used
     expected_outcome: VIOLATION
-    source_finding: human decision
+    source_finding: {source: human}
   test_case_values:
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: available_under_cap
     role: INPUT
     field: assigned_count
     value: 5
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: available_under_cap
     role: INPUT
     field: quota
     value: 10
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: available_under_cap
     role: EXPECTED
     field: quota_available
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: available_under_cap
     role: EXPECTED
     field: remaining
     value: 5
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: refuses_at_cap
     role: INPUT
     field: assigned_count
     value: 10
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
     case: refuses_at_cap
     role: INPUT
     field: quota
     value: 10
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
     case: eligible_once_trained
     role: INPUT
     field: training_completed
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
     case: eligible_once_trained
     role: EXPECTED
     field: training_eligible
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
     case: refuses_untrained
     role: INPUT
     field: training_completed
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_past_threshold
     role: INPUT
     field: last_active_date
     value: '2024-01-01T00:00:00Z'
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_past_threshold
     role: INPUT
     field: evaluation_date
     value: '2024-02-15T00:00:00Z'
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_past_threshold
     role: INPUT
     field: threshold_days
     value: 30
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_past_threshold
     role: EXPECTED
     field: is_inactive
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_past_threshold
     role: EXPECTED
     field: days_inactive
     value: 45
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_at_threshold
     role: INPUT
     field: last_active_date
     value: '2024-01-16T00:00:00Z'
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_at_threshold
     role: INPUT
     field: evaluation_date
     value: '2024-02-15T00:00:00Z'
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_at_threshold
     role: INPUT
     field: threshold_days
     value: 30
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_at_threshold
     role: EXPECTED
     field: is_inactive
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: inactive_at_threshold
     role: EXPECTED
     field: days_inactive
     value: 30
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: refuses_recently_used
     role: INPUT
     field: last_active_date
     value: '2024-02-10T00:00:00Z'
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: refuses_recently_used
     role: INPUT
     field: evaluation_date
     value: '2024-02-15T00:00:00Z'
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
     case: refuses_recently_used
     role: INPUT
     field: threshold_days
     value: 30
-    source_finding: human decision
+    source_finding: {source: human}
   withdrawn_facts: null
 ```
 

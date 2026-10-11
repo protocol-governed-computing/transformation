@@ -47,27 +47,27 @@ registers:
     evidence: 'Each of the three reports a consumer count of one: its own workflow.'
   verification_results:
   - item: Registering a further edition asks for the publication year as text while the neighbouring operation asks for a number.
-    origin: 'S2 belief_verification #1'
+    origin: {phase: p2, register: belief_verification, row: 1}
     result: CONFIRMED
     evidence: 'Re-read from the composition: one boundary says word, two say number, and the description supplied with each request says number.'
   - item: Correcting bibliographic information asks for three details it does not use.
-    origin: 'S2 belief_verification #2'
+    origin: {phase: p2, register: belief_verification, row: 2}
     result: CONFIRMED
     evidence: Eight required; five read across four steps. The title, the author and the publication year are read by no step.
   - item: No other catalog operation asks for something it does not use.
-    origin: 'S2 belief_verification #3'
+    origin: {phase: p2, register: belief_verification, row: 3}
     result: CONFIRMED
     evidence: Confirmed in the direction stated, and the opposite defect confirmed in registering a work. Both were re-derived from the compiled bindings rather than carried from Stage 2. What was overturned is not the defect but the claim that correcting it reached no caller.
   - item: Who may perform each operation is stated separately from what the operation needs.
-    origin: 'S2 belief_verification #4'
+    origin: {phase: p2, register: belief_verification, row: 4}
     result: CONFIRMED
     evidence: The same three things appear in all ten operations of the subdomain and are read by no step of any of them.
   - item: The details a correction changes are supplied together, as the changed fields.
-    origin: 'S2 belief_verification #5'
+    origin: {phase: p2, register: belief_verification, row: 5}
     result: CONFIRMED
     evidence: The correction's four steps read the record named and the changed details, and nothing else the request supplied.
   - item: Both failures break the library's own end-to-end exercise of the catalog.
-    origin: 'S2 belief_verification #6'
+    origin: {phase: p2, register: belief_verification, row: 6}
     result: CONFIRMED
     evidence: 'Re-run against the pinned composition: the exercise stops at the second edition, which is absent from the catalog when the exercise looks for it.'
   dependency_discoveries:
@@ -121,27 +121,27 @@ registers:
     decision: EXTEND
     rationale: The boundary is right about what it needs and wrong about the form one of them takes. Only the form changes.
     alternatives_checked: 'Changing the operation to accept a word was considered and rejected: three of the four statements of the form say number, and the data is numbers.'
-    source_finding: 'analysis_findings #3'
+    source_finding: {register: analysis_findings, row: 3}
   - capability: Admitting a request to correct bibliographic information
     decision: EXTEND
     rationale: Three requirements are withdrawn. The other five describe what the operation does.
     alternatives_checked: 'Making the operation read the three was considered and rejected: a correction that restates the fields it leaves alone is not a correction.'
-    source_finding: 'analysis_findings #2'
+    source_finding: {register: analysis_findings, row: 2}
   - capability: Admitting a request to register a work
     decision: REUSE
     rationale: Unchanged by this change. The requirement it lacks is one every present caller sends elsewhere, so adding it here would break every request the library makes.
     alternatives_checked: Adding the requirement was ruled and then overturned against the library's own exercise of the catalog; amending the callers alongside it was rejected as outside a change whose seed forbids gaining a requirement.
-    source_finding: 'analysis_findings #1'
+    source_finding: {register: analysis_findings, row: 1}
   - capability: The three operations
     decision: REUSE
     rationale: No step is added, removed or rebound. What each operation does is correct.
     alternatives_checked: 'Rewriting the operations was considered and rejected: it is the boundaries that are wrong.'
-    source_finding: 'analysis_findings #4'
+    source_finding: {register: analysis_findings, row: 4}
   placement_decision:
   - decision: EXTEND
     subdomain: catalog
     rationale: All three boundaries are declared by this subdomain, reached only by its own workflows, and reach nothing outside it.
-    source_finding: 'analysis_findings #4'
+    source_finding: {register: analysis_findings, row: 4}
   saturation:
   - criterion: The question Stage 2 left open is closed.
     status: SATISFIED

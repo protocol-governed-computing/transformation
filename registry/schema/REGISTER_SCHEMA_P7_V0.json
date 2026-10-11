@@ -79,10 +79,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -136,10 +133,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -209,10 +203,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -271,10 +262,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -340,10 +328,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -578,10 +563,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -732,10 +714,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -803,10 +782,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -859,10 +835,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -910,10 +883,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -967,10 +937,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1076,10 +1043,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1180,10 +1144,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1222,10 +1183,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1281,10 +1239,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1336,10 +1291,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1390,10 +1342,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1465,10 +1414,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1559,10 +1505,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1611,10 +1554,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1671,10 +1611,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -1719,10 +1656,7 @@
               },
               "source_finding": {
                 "title": "Source Finding",
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "$ref": "#/$defs/citation"
               }
             },
             "required": [
@@ -3043,15 +2977,15 @@
         "params": {
           "observation": "si.rule_set.list",
           "phase_workflows": {
-            "p0": "transformation::WF_P0_SEED_ADMISSIBILITY_V0",
-            "p1": "transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0",
-            "p2": "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1",
-            "p3": "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1",
-            "p4": "transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1",
-            "p5": "transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1",
-            "p6": "transformation::WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1",
-            "p7": "transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2",
-            "p8": "transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1"
+            "p0": "WF_P0_SEED_ADMISSIBILITY",
+            "p1": "WF_P1_CHANGE_REQUEST_ADMISSIBILITY",
+            "p2": "WF_P2_DOMAIN_MODEL_ADMISSIBILITY",
+            "p3": "WF_P3_ANALYSIS_LOOP_ADMISSIBILITY",
+            "p4": "WF_P4_BUSINESS_MODEL_ADMISSIBILITY",
+            "p5": "WF_P5_BUSINESS_INTENT_ADMISSIBILITY",
+            "p6": "WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY",
+            "p7": "WF_P7_DESIGN_INTENT_ADMISSIBILITY",
+            "p8": "WF_P8_AUTHORING_MANDATE_ADMISSIBILITY"
           }
         }
       }
@@ -3736,5 +3670,132 @@
     "si.store.list": "stores",
     "si.rule_set.list": "carriers",
     "si.behavior_logic.list": "workflows"
+  },
+  "$defs": {
+    "citation": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "register"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "phase": {
+              "type": "string",
+              "pattern": "^p[0-8]$"
+            },
+            "register": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "row": {
+              "type": "integer"
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "not": {
+            "required": [
+              "row",
+              "key"
+            ]
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "artifact"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "artifact": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "const": "human"
+            }
+          }
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "register"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "phase": {
+                    "type": "string",
+                    "pattern": "^p[0-8]$"
+                  },
+                  "register": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "row": {
+                    "type": "integer"
+                  },
+                  "key": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "not": {
+                  "required": [
+                    "row",
+                    "key"
+                  ]
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "artifact"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "artifact": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_.]*::[A-Z][A-Z0-9_]*_V[0-9]+$"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "source"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "const": "human"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 }

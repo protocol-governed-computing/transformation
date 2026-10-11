@@ -13,68 +13,68 @@ registers:
   - decision: How a kind's disposition is recorded
     business_fact: A kind absent from the dispatch table is absent for three different reasons and one representation.
     resolution: 'The dispatch table carries a disposition per kind, drawn from a vocabulary: described, or exempt with a ground. A kind carrying neither is refused.'
-    source_finding: S6 boundary_rules EVERY_KIND_HAS_A_DISPOSITION
+    source_finding: {phase: p6, register: boundary_rules, key: EVERY_KIND_HAS_A_DISPOSITION}
   - decision: What makes a description a description
     business_fact: One is dispatched, requires no field, closes no surface, and reads as governance.
     resolution: The constitution governing structural declarations states that a description names at least one required field and closes its surface. A kind dispatched to one that does neither is refused.
-    source_finding: S6 boundary_rules A_DESCRIPTION_STATES_SOMETHING
+    source_finding: {phase: p6, register: boundary_rules, key: A_DESCRIPTION_STATES_SOMETHING}
   - decision: How drift is reported
     business_fact: Three divergences, none recorded, all found by a build refusing correct work.
     resolution: Every dispatched description is measured against every artifact of its kind on each build, and a description that refuses one is reported before it is enforced.
-    source_finding: S6 boundary_rules DRIFT_IS_REPORTED_NOT_DISCOVERED
+    source_finding: {phase: p6, register: boundary_rules, key: DRIFT_IS_REPORTED_NOT_DISCOVERED}
   - decision: Who corrects a drifted description
     business_fact: The three describe kinds owned by `actor`, `event` and `intent`.
     resolution: Each is cited for its owner. This dossier states the requirement and the report; it writes no description.
-    source_finding: S6 boundary_rules A_KINDS_SHAPE_IS_ITS_OWNERS
+    source_finding: {phase: p6, register: boundary_rules, key: A_KINDS_SHAPE_IS_ITS_OWNERS}
   - decision: Who describes the two undescribed kinds
     business_fact: Both are transport boundary contracts, 44 artifacts.
     resolution: Cited for `transport`. Same ground.
-    source_finding: S6 boundary_rules A_KINDS_SHAPE_IS_ITS_OWNERS
+    source_finding: {phase: p6, register: boundary_rules, key: A_KINDS_SHAPE_IS_ITS_OWNERS}
   - decision: Whether any artifact is authored here
     business_fact: Every capability but one is a requirement added to something that exists.
     resolution: 'One vocabulary is authored: the dispositions a kind may have. The governance surface is authored by hand rather than rendered, so the two amendments are cited and not scheduled.'
-    source_finding: 'S6 ownership #1'
+    source_finding: {phase: p6, register: ownership, row: 1}
   existing_inventory:
   - fqdn: structure::STRUCTURE_SCHEMA_DISPATCH_V0
     action: REVIEW
     summary: Declares which description governs each artifact kind
     reason: Gains a disposition per kind, so an exemption and an oversight stop being the same absence. Authored by hand, not rendered.
-    source_finding: 'S6 pps_artifacts_requiring_action #1'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - fqdn: structure::CONSTITUTION_STRUCTURE_V0
     action: REVIEW
     summary: Governs what a structural declaration is
     reason: Gains what a description must state to count as one, and that every kind carries a disposition. Authored by hand.
-    source_finding: 'S6 pps_artifacts_requiring_action #2'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   - fqdn: artifact::INVARIANT_SCHEMA_CONFORMANCE_V0
     action: REUSE
     summary: Checks each declaration against the description its kind is dispatched to
     reason: Correct and unchanged; it is only ever handed ten kinds, which is the dispatch table's doing rather than its own.
-    source_finding: 'S6 pps_artifacts_requiring_action #3'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 3}
   - fqdn: actor::CONSTITUTION_ACTOR_V0
     action: REVIEW
     summary: Governs what an actor is
     reason: Its description expects a role and forbids the attributes every actor carries, across 11 artifacts. Named for `actor` to correct.
-    source_finding: 'S6 pps_artifacts_requiring_action #4'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 4}
   - fqdn: event::CONSTITUTION_EVENT_V0
     action: REVIEW
     summary: Governs what a moment is
     reason: Its description forbids content 20 event declarations carry. Named for `event` to correct.
-    source_finding: 'S6 pps_artifacts_requiring_action #5'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 5}
   - fqdn: intent::CONSTITUTION_INTENT_V0
     action: REVIEW
     summary: Governs what a boundary admits
     reason: Its description rejects a whole number as a type across 31 declarations. Named for `intent` to correct.
-    source_finding: 'S6 pps_artifacts_requiring_action #6'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 6}
   - fqdn: transport::CONSTITUTION_TRANSPORT_ENVELOPE_V0
     action: REVIEW
     summary: Governs the boundary contracts
     reason: Its two kinds carry 44 artifacts described by nothing. Named for `transport` to describe.
-    source_finding: 'S6 pps_artifacts_requiring_action #7'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 7}
   - fqdn: trace::CONSTITUTION_TRACE_EXECUTION_V0
     action: REUSE
     summary: Governs the runtime trace
     reason: Named because four descriptions counted as failing to close a surface describe runtime data of this sort. Unchanged.
-    source_finding: 'S6 pps_artifacts_requiring_action #8'
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 8}
   new_artifacts:
   - capability: Recording that a kind needs no description
     family: VOCAB
@@ -82,7 +82,7 @@ registers:
     summary: The dispositions a kind may have toward description, and which of them the build admits
     owner_subdomain: structure
     status: NEW
-    source_finding: 'S6 governance_outcome #3'
+    source_finding: {phase: p6, register: governance_outcome, row: 3}
   rb_declarations: []
   execution_topology: []
   cc_composition: []
@@ -103,24 +103,24 @@ registers:
     casing: lower_snake
     value: described
     meaning: A description governs the kind and the build reads it. The description must name at least one required field and close its surface.
-    source_finding: 'S7 design_resolution #2'
+    source_finding: {phase: p7, register: design_resolution, row: 2}
   - vocabulary_code: structure::VOCAB_SCHEMA_DISPOSITION_V0
     extends: null
     group: schema_disposition
     casing: lower_snake
     value: exempt
     meaning: The kind needs no description and the ground is stated beside the disposition. Admitted, and readable as a decision rather than an absence.
-    source_finding: 'S7 design_resolution #1'
+    source_finding: {phase: p7, register: design_resolution, row: 1}
   runtime_policies: []
   artifact_properties:
   - artifact: structure::VOCAB_SCHEMA_DISPOSITION_V0
     property: governed_by
     value: vocabulary::CONSTITUTION_VOCABULARY_V0
-    source_finding: S7 new_artifacts VOCAB_SCHEMA_DISPOSITION_V0
+    source_finding: {phase: p7, register: new_artifacts, key: VOCAB_SCHEMA_DISPOSITION_V0}
   - artifact: structure::VOCAB_SCHEMA_DISPOSITION_V0
     property: concern
     value: structure
-    source_finding: 'S6 ownership #3'
+    source_finding: {phase: p6, register: ownership, row: 3}
   structure_stores: []
   transport_bindings: []
   artifact_summary:
@@ -136,17 +136,17 @@ registers:
     refused_when: A declaration carries content the description of its kind does not name
     deferred_to: structure
     until: Carried today for ten kinds and extended to every kind that gains a description. Recorded as a deferral because the kinds whose descriptions are corrected elsewhere are dispatched by their owners, not here.
-    source_finding: 'S1 operation_refusals #1'
+    source_finding: {phase: p1, register: operation_refusals, row: 1}
   - operation: Building a composition
     refused_when: An artifact kind is neither described nor recorded as exempt
     deferred_to: structure
     until: The dispatch table carries a disposition for every kind. Armed once every kind has one, because arming it first would refuse every build on kinds this dossier does not describe.
-    source_finding: 'S1 operation_refusals #2'
+    source_finding: {phase: p1, register: operation_refusals, row: 2}
   - operation: Dispatching a description
     refused_when: It refuses an artifact the composition currently carries
     deferred_to: structure
     until: The report is written by this change and names such a description before it is enforced. The dispatch itself is the owning subdomain's act, once its description is corrected.
-    source_finding: 'S1 operation_refusals #3'
+    source_finding: {phase: p1, register: operation_refusals, row: 3}
   refusal_governance_discharge: []
 ```
 

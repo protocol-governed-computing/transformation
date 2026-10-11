@@ -223,6 +223,27 @@ Measured over the corpus, the fixtures and the test copies before any code.
 `Consults`, and `artifact_properties.Value` for the properties that name several values. Every
 other column stays one string.
 
+### M3.3b — citations, built
+
+A citation is a mapping naming what it cites, declared once per schema as `$defs/citation`:
+`{phase, register, row}` or `{phase, register, key}` for a row, `{phase, register}` for a whole
+register, `{artifact}` for an identity in the composition, and `{source: human}` for a human ruling.
+No `phase` means this document. A cell citing several holds a list. Typed: every `Source Finding`
+column and `verification_results.Origin`. `Evidence` and the seed's `Source` stay prose. Measured
+over 15,767 cells: 11,160 by key, 2,967 by ordinal, 1,125 of the seed by section, 492 human, 2
+identities, 16 several.
+
+| # | Oracle | Rebuild | Effect |
+|---|---|---|---|
+| M3.3b-1 | A citation is text read by pattern. A seed is cited by section number and a free-form title (`CR seed §4 Known Facts #14`); `CR seed`, `human decision`, `projection` and `S1 seed` are literal sources. | A mapping. The seed's section resolves to its register at authoring; the title goes. `literal_sources` goes: the seed is `phase: p0`, a ruling is `source: human`, and `projection` and `S1 seed` were used nowhere. Text that is no citation is refused by its type. | `SOURCE_FINDING_UNRESOLVED` shows the mapping; compared by register and row. `I remembered it` is `CELL_NOT_OF_TYPE`, compared as the unresolved citation it was. |
+| M3.3b-2 | A row citing nothing has a blank cell (`CELL_NOT_EMPTY`). | `null`, refused by `CITATION_PRESENT` (D1). | Same findings. |
+| M3.3b-3 | `CITATION_ORDINAL_UNRESOLVED` reads only `S<n> register #k`, never a seed citation. | It reads every citation with a row, the seed's included. | One fixture: a seed ordinal past the end is reported by both ordinal rules. The overlap goes when they merge in M3.4 (D4). |
+| M3.3b-4 | `GOVERNING_RULE_NOT_IN_FORCE` names each phase's workflow by identity, a copy of the emitter's map. | By its code without a version; the version in force is the latest the pinned composition carries. | None. A literal identity cannot be right both against a pin and against the live build once a phase workflow has a successor. |
+
+Multi-citations are each resolved, not only the first (D2). No corpus finding changed by it.
+`WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0` is published, so its changed rule set is sealed into
+`WF_P1_…_V1`, which supersedes it (D3). `WF_P2`–`WF_P7` are unpublished and re-emitted in place.
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.

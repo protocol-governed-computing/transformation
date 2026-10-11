@@ -75,7 +75,7 @@ Prose for a person.
 | interface `in: a=b; out: …` | two mappings, `in` and `out` |
 | comma-separated names | a list |
 | a literal or a generated value in a binding | `{literal: …}` or `{generated: true}`, never a reserved word |
-| a citation `S2 gaps #1` | a mapping `{phase: p2, register: gaps, row: 1}` |
+| a citation `S2 gaps #1`, `S4 gap_register GAP-05`, `human decision` | a mapping: `{phase: p2, register: gaps, row: 1}`, `{phase: p4, register: gap_register, key: GAP-05}`, `{source: human}` |
 | YAML inside a cell | YAML |
 
 Every row of the left column is a convention the oracle states only in code. None survives.

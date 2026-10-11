@@ -115,7 +115,8 @@ CASES = [
          # does not, which is the half of the contract confinement governs.
          "ROW_NOT_IN_SEED",
          "ROW_NOT_IN_SEED",
-         "SOURCE_FINDING_UNRESOLVED",
+         # `I remembered it` is no citation at all, so its type refuses it (rebuild M3.3b-1).
+         "CELL_NOT_OF_TYPE",
      ], RULES["P1"], 4),
     # P1's remaining ten. The clarification pair is the phase's own gate: a change request carrying
     # an unanswered blocking question is not a change request yet, and one only the business can
@@ -124,6 +125,9 @@ CASES = [
      "69_p1_inadmissible_outstanding_clarifications.json", "INADMISSIBLE", [
          "BLOCKING_CLARIFICATION_OUTSTANDING",
          "BUSINESS_CLARIFICATION_OUTSTANDING",
+         "CITATION_ORDINAL_UNRESOLVED",
+         # The seed citation past the end of cr_type is resolved by both ordinal rules until they
+         # merge (rebuild M3.3b-3).
          "CITATION_ORDINAL_UNRESOLVED",
          "CITATION_ROW_UNRESOLVED",
          "CITATION_ROW_UNRESOLVED",

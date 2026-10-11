@@ -13,129 +13,129 @@ registers:
   - decision: One act per step, driven by the host
     business_fact: The host proposes; the business chooses
     resolution: 'Three workflows: begin, offer, release. The host calls them; nothing in them calls the host'
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - decision: Admission is the test model's
     business_fact: A hosted request is admitted under the same conditions
     resolution: The begin act runs the four admission contracts and the reading check of the test model's way, unchanged and in the same order
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - decision: The reported size is checked with each offer
     business_fact: The host counts what the model reads once it has it
     resolution: The offer act compares the size the host reports with the capacity recorded at admission before anything is chosen, and records the report with the step
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - decision: The trail is the state
     business_fact: One truth for a hosted request; an abandoned one stays visible
     resolution: The opening entry holds what the model reads, the rules in force, the limits and the admitted fingerprint; each offer reads the trail and reduces it to the response as built; the existing record closes it
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - decision: Tokens are joined as they are
     business_fact: A pattern split across tokens is not written
     resolution: A new choice transform applies the test model's stopping and choosing to the text as built, with the permitted length
-    source_finding: 'S4 design_decisions #5'
+    source_finding: {phase: p4, register: design_decisions, row: 5}
   - decision: The permitted length is the smaller limit
     business_fact: The registered maximum and the rules' longest response both bind
     resolution: The opening entry keeps both; the reduced state carries the smaller, and a token chosen at it that does not end the response refuses the request as unfinished
-    source_finding: 'S4 design_decisions #6'
+    source_finding: {phase: p4, register: design_decisions, row: 6}
   - decision: The fingerprint is compared at every step
     business_fact: An offer for another model is refused; the host is not authenticated
     resolution: The offer act confirms the offered fingerprint is the admitted model's before choosing
-    source_finding: 'S4 design_decisions #7'
+    source_finding: {phase: p4, register: design_decisions, row: 7}
   - decision: Release closes the record with the business's text
     business_fact: The host never supplies what is released
     resolution: The release act reads the trail, confirms the response complete, and records it with the text the trail holds
-    source_finding: 'S4 design_decisions #8'
+    source_finding: {phase: p4, register: design_decisions, row: 8}
   - decision: Grounding is a rule of the time in service
     business_fact: A time in service may require every number to be one the model read
     resolution: The opening entry carries the stored rules' grounding beside the rules in force; the choice stops a number no number in the reading begins, or ends one that is not in it
-    source_finding: 'S4 design_decisions #9'
+    source_finding: {phase: p4, register: design_decisions, row: 9}
   - decision: A number's beginning is judged, and its lookalikes
     business_fact: A pattern judged only when complete lets its beginning through
     resolution: The choice judges the compatibility form of the text, and stops the first digit of a forbidden number the model read unless it could still be a permitted one
-    source_finding: 'S4 design_decisions #10'
+    source_finding: {phase: p4, register: design_decisions, row: 10}
   existing_inventory:
   - fqdn: capability_side_effects::CS_APPENDONLY_JSONL_V0
     action: REUSE
     summary: ''
     reason: Appends every entry of a hosted request's trail and reads the trail back.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0'}
   - fqdn: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
     action: REUSE
     summary: ''
     reason: Assembles the opening and step entries of a hosted request's trail.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_RECORD_USER_PROMPT_V0'}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
     action: REUSE
     summary: ''
     reason: Confirms the reported reading size against the capacity.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0'}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
     action: REUSE
     summary: ''
     reason: Confirms an offer names the admitted model's fingerprint.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0'}
   - fqdn: causal_language_model::CC_CLAIM_USER_PROMPT_IDENTITY_V0
     action: REUSE
     summary: ''
     reason: Reused unchanged by the hosted acts.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_CLAIM_USER_PROMPT_IDENTITY_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_CLAIM_USER_PROMPT_IDENTITY_V0'}
   - fqdn: causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
     action: REUSE
     summary: ''
     reason: Reused unchanged by the hosted acts.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0'}
   - fqdn: causal_language_model::CC_ADMIT_USER_PROMPT_V0
     action: REUSE
     summary: ''
     reason: Reused unchanged by the hosted acts.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_ADMIT_USER_PROMPT_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_ADMIT_USER_PROMPT_V0'}
   - fqdn: causal_language_model::CC_CONFIRM_WITHIN_CEILING_V0
     action: REUSE
     summary: ''
     reason: Reused unchanged by the hosted acts.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_CONFIRM_WITHIN_CEILING_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_CONFIRM_WITHIN_CEILING_V0'}
   - fqdn: causal_language_model::CC_CONFIRM_READING_FITS_V0
     action: REUSE
     summary: ''
     reason: Reused unchanged by the hosted acts.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_CONFIRM_READING_FITS_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_CONFIRM_READING_FITS_V0'}
   - fqdn: causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0
     action: REUSE
     summary: ''
     reason: Reused unchanged by the hosted acts.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0'}
   - fqdn: causal_language_model::CC_RECORD_USER_PROMPT_V0
     action: REUSE
     summary: ''
     reason: Reused unchanged by the hosted acts.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CC_RECORD_USER_PROMPT_V0'}
   - fqdn: causal_language_model::CT_PURE_FORM_RESPONSE_RULES_V0
     action: REUSE
     summary: ''
     reason: Forms the rules in force when a hosted request's record opens.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::CT_PURE_FORM_RESPONSE_RULES_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::CT_PURE_FORM_RESPONSE_RULES_V0'}
   - fqdn: causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
     action: REUSE
     summary: ''
     reason: Binds the hosted acts to the subdomain's stores, as it binds the test model's.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0'}
   - fqdn: causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0
     action: REUSE
     summary: ''
     reason: Declares the user prompt records the trail is kept in.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0'}
   - fqdn: causal_language_model::AC_REQUESTER_V0
     action: REUSE
     summary: ''
     reason: The requester a hosted request is begun for.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::AC_REQUESTER_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::AC_REQUESTER_V0'}
   - fqdn: causal_language_model::EV_USER_PROMPT_RESPONDED_V0
     action: REUSE
     summary: ''
     reason: Announced when a hosted response is released.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::EV_USER_PROMPT_RESPONDED_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::EV_USER_PROMPT_RESPONDED_V0'}
   - fqdn: causal_language_model::EV_USER_PROMPT_REFUSED_V0
     action: REUSE
     summary: ''
     reason: Announced when a hosted request is refused.
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::EV_USER_PROMPT_REFUSED_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::EV_USER_PROMPT_REFUSED_V0'}
   new_artifacts:
   - capability: The host of a model in service, which proposes and holds no authority
     family: AC
@@ -143,105 +143,105 @@ registers:
     summary: The host of a model in service, which proposes and holds no authority
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes AC_MODEL_HOST_V0
+    source_finding: {phase: p5, register: provisional_codes, key: AC_MODEL_HOST_V0}
   - capability: A request to a hosted model on behalf of a customer
     family: IN
     code: causal_language_model::IN_BEGIN_HOSTED_RESPONSE_V0
     summary: A request to a hosted model on behalf of a customer
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes IN_BEGIN_HOSTED_RESPONSE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: IN_BEGIN_HOSTED_RESPONSE_V0}
   - capability: The candidates a hosted model could write next, naming its fingerprint
     family: IN
     code: causal_language_model::IN_OFFER_NEXT_TOKENS_V0
     summary: The candidates a hosted model could write next, naming its fingerprint and the size of what it reads
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes IN_OFFER_NEXT_TOKENS_V0
+    source_finding: {phase: p5, register: provisional_codes, key: IN_OFFER_NEXT_TOKENS_V0}
   - capability: A request to release a completed hosted response
     family: IN
     code: causal_language_model::IN_RELEASE_HOSTED_RESPONSE_V0
     summary: A request to release a completed hosted response
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes IN_RELEASE_HOSTED_RESPONSE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: IN_RELEASE_HOSTED_RESPONSE_V0}
   - capability: Admitting a hosted request and opening its record, or refusing it
     family: WF
     code: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     summary: Admitting a hosted request and opening its record, or refusing it
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes WF_BEGIN_HOSTED_RESPONSE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: WF_BEGIN_HOSTED_RESPONSE_V0}
   - capability: Choosing a permitted token from an offer and recording the step, or refusing the request
     family: WF
     code: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     summary: Choosing a permitted token from an offer and recording the step, or refusing the request
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes WF_OFFER_NEXT_TOKENS_V0
+    source_finding: {phase: p5, register: provisional_codes, key: WF_OFFER_NEXT_TOKENS_V0}
   - capability: Releasing a completed hosted response from the record
     family: WF
     code: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     summary: Releasing a completed hosted response from the record
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes WF_RELEASE_HOSTED_RESPONSE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: WF_RELEASE_HOSTED_RESPONSE_V0}
   - capability: Refuse an offer whose reported reading size exceeds the model's capacity
     family: CC
     code: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
     summary: Refuse an offer whose reported reading size exceeds the model's capacity
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CC_CONFIRM_HOSTED_READING_FITS_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_CONFIRM_HOSTED_READING_FITS_V0}
   - capability: Form the rules in force and open the record of a hosted request
     family: CC
     code: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     summary: Form the rules in force and open the record of a hosted request
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_OPEN_HOSTED_RECORD_V0}
   - capability: Read a hosted request's trail and reduce it to the response as built
     family: CC
     code: causal_language_model::CC_READ_HOSTED_STATE_V0
     summary: Read a hosted request's trail and reduce it to the response as built
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CC_READ_HOSTED_STATE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_READ_HOSTED_STATE_V0}
   - capability: Refuse an offer naming another model's fingerprint
     family: CC
     code: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
     summary: Refuse an offer naming another model's fingerprint
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CC_CONFIRM_OFFER_FOR_MODEL_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_CONFIRM_OFFER_FOR_MODEL_V0}
   - capability: Choose a permitted token from an offer under the rules in force
     family: CC
     code: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     summary: Choose a permitted token from an offer under the rules in force
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CC_CHOOSE_PERMITTED_TOKEN_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_CHOOSE_PERMITTED_TOKEN_V0}
   - capability: Record an offer and the choice made from it in the request's trail
     family: CC
     code: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     summary: Record an offer and the choice made from it in the request's trail
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CC_RECORD_HOSTED_STEP_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_RECORD_HOSTED_STEP_V0}
   - capability: Reduce a hosted request's trail to its state
     family: CT
     code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     summary: Reduces a hosted request's trail to the response as built, its position, whether it is complete, and its permitted length
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CT_PURE_READ_HOSTED_STATE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CT_PURE_READ_HOSTED_STATE_V0}
   - capability: Stop forbidden tokens and choose a permitted one
     family: CT
     code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     summary: Stops forbidden tokens among those offered and chooses one permitted token, joined as it is, within the permitted length
     owner_subdomain: model_response
     status: NEW
-    source_finding: S5 provisional_codes CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CT_PURE_CHOOSE_PERMITTED_TOKEN_V0}
   rb_declarations:
   - rb_code: causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
     binds_wf: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
@@ -250,7 +250,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0'}
   - rb_code: causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
     binds_wf: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     cs_bindings:
@@ -258,7 +258,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0'}
   - rb_code: causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
     binds_wf: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     cs_bindings:
@@ -266,7 +266,7 @@ registers:
     - capability_side_effects::CS_REGISTRY_V0
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     storage_structure: causal_language_model::STRUCTURE_MODEL_RESPONSE_STORAGE_V0
-    source_finding: S6 pps_artifacts_requiring_action causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'causal_language_model::RB_MODEL_RESPONSE_BINDINGS_V0'}
   execution_topology:
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: causal_language_model::IN_BEGIN_HOSTED_RESPONSE_V0
@@ -275,7 +275,7 @@ registers:
     routing:
       ACK: causal_language_model::CC_CLAIM_USER_PROMPT_IDENTITY_V0
       NACK: EXIT_REJECTED
-    source_finding: S7 new_artifacts IN_BEGIN_HOSTED_RESPONSE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: IN_BEGIN_HOSTED_RESPONSE_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: causal_language_model::CC_CLAIM_USER_PROMPT_IDENTITY_V0
     runs: ''
@@ -285,7 +285,7 @@ registers:
       ALREADY_EXISTS: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_CLAIM_USER_PROMPT_IDENTITY_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CLAIM_USER_PROMPT_IDENTITY_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
     runs: ''
@@ -293,7 +293,7 @@ registers:
     routing:
       SUCCESS: causal_language_model::CC_ADMIT_USER_PROMPT_V0
       VIOLATION: RECORD_REFUSED_NOT_PERMITTED
-    source_finding: S7 new_artifacts CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: causal_language_model::CC_ADMIT_USER_PROMPT_V0
     runs: ''
@@ -303,7 +303,7 @@ registers:
       NOT_FOUND: RECORD_REFUSED_NOT_REGISTERED
       VIOLATION: RECORD_REFUSED_NOT_IN_SERVICE
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_ADMIT_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_ADMIT_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: causal_language_model::CC_CONFIRM_WITHIN_CEILING_V0
     runs: ''
@@ -313,7 +313,7 @@ registers:
       NOT_FOUND: RECORD_REFUSED_NOT_IN_SERVICE
       VIOLATION: RECORD_REFUSED_ABOVE_CEILING
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_CONFIRM_WITHIN_CEILING_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_WITHIN_CEILING_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: causal_language_model::CC_CONFIRM_READING_FITS_V0
     runs: ''
@@ -321,7 +321,7 @@ registers:
     routing:
       SUCCESS: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
       VIOLATION: RECORD_REFUSED_TOO_LONG_TO_READ
-    source_finding: S7 new_artifacts CC_CONFIRM_READING_FITS_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_READING_FITS_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     runs: ''
@@ -330,7 +330,7 @@ registers:
       SUCCESS: EXIT_WRITING
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_OPEN_HOSTED_RECORD_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: RECORD_REFUSED_NOT_PERMITTED
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -339,7 +339,7 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: RECORD_REFUSED_NOT_REGISTERED
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -348,7 +348,7 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: RECORD_REFUSED_NOT_IN_SERVICE
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -357,7 +357,7 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: RECORD_REFUSED_ABOVE_CEILING
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -366,7 +366,7 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: RECORD_REFUSED_TOO_LONG_TO_READ
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -375,25 +375,25 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: EXIT_WRITING
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: S7 execution_topology WF_BEGIN_HOSTED_RESPONSE_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_BEGIN_HOSTED_RESPONSE_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: EXIT_REFUSED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: S7 execution_topology WF_BEGIN_HOSTED_RESPONSE_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_BEGIN_HOSTED_RESPONSE_V0}
   - workflow: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: S7 execution_topology WF_BEGIN_HOSTED_RESPONSE_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_BEGIN_HOSTED_RESPONSE_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: causal_language_model::IN_OFFER_NEXT_TOKENS_V0
     runs: ''
@@ -401,7 +401,7 @@ registers:
     routing:
       ACK: causal_language_model::CC_READ_HOSTED_STATE_V0
       NACK: EXIT_REJECTED
-    source_finding: S7 new_artifacts IN_OFFER_NEXT_TOKENS_V0
+    source_finding: {phase: p7, register: new_artifacts, key: IN_OFFER_NEXT_TOKENS_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: causal_language_model::CC_READ_HOSTED_STATE_V0
     runs: ''
@@ -410,7 +410,7 @@ registers:
       SUCCESS: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_READ_HOSTED_STATE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_READ_HOSTED_STATE_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
     runs: ''
@@ -418,7 +418,7 @@ registers:
     routing:
       SUCCESS: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
       VIOLATION: RECORD_REFUSED_OTHER_MODEL
-    source_finding: S7 new_artifacts CC_CONFIRM_OFFER_FOR_MODEL_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_OFFER_FOR_MODEL_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
     runs: ''
@@ -426,7 +426,7 @@ registers:
     routing:
       SUCCESS: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
       VIOLATION: RECORD_REFUSED_TOO_LONG_TO_READ
-    source_finding: S7 new_artifacts CC_CONFIRM_HOSTED_READING_FITS_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_HOSTED_READING_FITS_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     runs: ''
@@ -434,7 +434,7 @@ registers:
     routing:
       SUCCESS: CONFIRM_NO_RULE_STOPPED
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_CHOOSE_PERMITTED_TOKEN_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CHOOSE_PERMITTED_TOKEN_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: CONFIRM_NO_RULE_STOPPED
     runs: causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0
@@ -442,7 +442,7 @@ registers:
     routing:
       SUCCESS: CONFIRM_WITHIN_LENGTH
       VIOLATION: RECORD_STOPPED_STEP
-    source_finding: S7 new_artifacts CC_CONFIRM_RESPONSE_RELEASABLE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_RESPONSE_RELEASABLE_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: CONFIRM_WITHIN_LENGTH
     runs: causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0
@@ -450,7 +450,7 @@ registers:
     routing:
       SUCCESS: RECORD_STEP
       VIOLATION: RECORD_UNFINISHED_STEP
-    source_finding: S7 new_artifacts CC_CONFIRM_RESPONSE_RELEASABLE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_RESPONSE_RELEASABLE_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: RECORD_STEP
     runs: causal_language_model::CC_RECORD_HOSTED_STEP_V0
@@ -459,7 +459,7 @@ registers:
       SUCCESS: EXIT_CHOSEN
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_HOSTED_STEP_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_HOSTED_STEP_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: RECORD_STOPPED_STEP
     runs: causal_language_model::CC_RECORD_HOSTED_STEP_V0
@@ -468,7 +468,7 @@ registers:
       SUCCESS: RECORD_REFUSED_BY_RULE
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_HOSTED_STEP_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_HOSTED_STEP_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: RECORD_UNFINISHED_STEP
     runs: causal_language_model::CC_RECORD_HOSTED_STEP_V0
@@ -477,7 +477,7 @@ registers:
       SUCCESS: RECORD_REFUSED_UNFINISHED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_HOSTED_STEP_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_HOSTED_STEP_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: RECORD_REFUSED_OTHER_MODEL
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -486,7 +486,7 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: RECORD_REFUSED_TOO_LONG_TO_READ
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -495,7 +495,7 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: RECORD_REFUSED_BY_RULE
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -504,7 +504,7 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: RECORD_REFUSED_UNFINISHED
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -513,25 +513,25 @@ registers:
       SUCCESS: EXIT_REFUSED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: EXIT_CHOSEN
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: S7 execution_topology WF_OFFER_NEXT_TOKENS_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_OFFER_NEXT_TOKENS_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: EXIT_REFUSED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: S7 execution_topology WF_OFFER_NEXT_TOKENS_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_OFFER_NEXT_TOKENS_V0}
   - workflow: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: S7 execution_topology WF_OFFER_NEXT_TOKENS_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_OFFER_NEXT_TOKENS_V0}
   - workflow: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     node: causal_language_model::IN_RELEASE_HOSTED_RESPONSE_V0
     runs: ''
@@ -539,7 +539,7 @@ registers:
     routing:
       ACK: causal_language_model::CC_READ_HOSTED_STATE_V0
       NACK: EXIT_REJECTED
-    source_finding: S7 new_artifacts IN_RELEASE_HOSTED_RESPONSE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: IN_RELEASE_HOSTED_RESPONSE_V0}
   - workflow: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     node: causal_language_model::CC_READ_HOSTED_STATE_V0
     runs: ''
@@ -548,7 +548,7 @@ registers:
       SUCCESS: CONFIRM_FINISHED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_READ_HOSTED_STATE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_READ_HOSTED_STATE_V0}
   - workflow: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     node: CONFIRM_FINISHED
     runs: causal_language_model::CC_CONFIRM_RESPONSE_RELEASABLE_V0
@@ -556,7 +556,7 @@ registers:
     routing:
       SUCCESS: RECORD_RESPONDED
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_CONFIRM_RESPONSE_RELEASABLE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CONFIRM_RESPONSE_RELEASABLE_V0}
   - workflow: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     node: RECORD_RESPONDED
     runs: causal_language_model::CC_RECORD_USER_PROMPT_V0
@@ -565,19 +565,19 @@ registers:
       SUCCESS: EXIT_RESPONDED
       VIOLATION: EXIT_REJECTED
       BACKEND_ERROR: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_USER_PROMPT_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_USER_PROMPT_V0}
   - workflow: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     node: EXIT_RESPONDED
     runs: ''
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: S7 execution_topology WF_RELEASE_HOSTED_RESPONSE_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_RELEASE_HOSTED_RESPONSE_V0}
   - workflow: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     node: EXIT_REJECTED
     runs: ''
     node_type: EXIT
     routing: null
-    source_finding: S7 execution_topology WF_RELEASE_HOSTED_RESPONSE_V0
+    source_finding: {phase: p7, register: execution_topology, key: WF_RELEASE_HOSTED_RESPONSE_V0}
   cc_composition:
   - cc_code: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
     step: '1'
@@ -829,7 +829,7 @@ registers:
     bound_to:
       literal:
         reported_reading_size: $.inputs.reported_reading_size
-    source_finding: S7 cc_composition confirm_reported_reading_fits
+    source_finding: {phase: p7, register: cc_composition, key: confirm_reported_reading_fits}
   - owner: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
     step: confirm_reported_reading_fits
     direction: INPUT
@@ -839,43 +839,43 @@ registers:
       - field: reported_reading_size
         op: lte
         value: $.inputs.reading_capacity
-    source_finding: S7 cc_composition confirm_reported_reading_fits
+    source_finding: {phase: p7, register: cc_composition, key: confirm_reported_reading_fits}
   - owner: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
     step: confirm_reported_reading_fits
     direction: OUTPUT
     field: reading_fits
     bound_to: capability_result.valid
-    source_finding: S7 cc_composition confirm_reported_reading_fits
+    source_finding: {phase: p7, register: cc_composition, key: confirm_reported_reading_fits}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: form_rules_in_force
     direction: INPUT
     field: response_rules
     bound_to: inputs.response_rules
-    source_finding: S7 cc_composition form_rules_in_force
+    source_finding: {phase: p7, register: cc_composition, key: form_rules_in_force}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: form_rules_in_force
     direction: INPUT
     field: account_numbers
     bound_to: inputs.account_numbers
-    source_finding: S7 cc_composition form_rules_in_force
+    source_finding: {phase: p7, register: cc_composition, key: form_rules_in_force}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: form_rules_in_force
     direction: INPUT
     field: seed
     bound_to: inputs.seed
-    source_finding: S7 cc_composition form_rules_in_force
+    source_finding: {phase: p7, register: cc_composition, key: form_rules_in_force}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: form_rules_in_force
     direction: OUTPUT
     field: rules_in_force
     bound_to: capability_result.rules_in_force
-    source_finding: S7 cc_composition form_rules_in_force
+    source_finding: {phase: p7, register: cc_composition, key: form_rules_in_force}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: form_rules_in_force
     direction: OUTPUT
     field: positions
     bound_to: capability_result.positions
-    source_finding: S7 cc_composition form_rules_in_force
+    source_finding: {phase: p7, register: cc_composition, key: form_rules_in_force}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: assemble_opening_record
     direction: INPUT
@@ -898,80 +898,80 @@ registers:
         ground_numbers: $.inputs.response_rules.ground_numbers
         longest_response: $.inputs.response_rules.longest_response
         outcome: WRITING
-    source_finding: S7 cc_composition assemble_opening_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_opening_record}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: assemble_opening_record
     direction: OUTPUT
     field: opening_record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_opening_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_opening_record}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: append_opening_record
     direction: INPUT
     field: record
     bound_to: results.assemble_opening_record.opening_record
-    source_finding: S7 cc_composition append_opening_record
+    source_finding: {phase: p7, register: cc_composition, key: append_opening_record}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: append_opening_record
     direction: INPUT
     field: stream_id
     bound_to: inputs.user_prompt_id
-    source_finding: S7 cc_composition append_opening_record
+    source_finding: {phase: p7, register: cc_composition, key: append_opening_record}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: append_opening_record
     direction: INPUT
     field: actor_id
     bound_to: inputs.requester_id
-    source_finding: S7 cc_composition append_opening_record
+    source_finding: {phase: p7, register: cc_composition, key: append_opening_record}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: append_opening_record
     direction: OUTPUT
     field: record_id
     bound_to: capability_result.record_id
-    source_finding: S7 cc_composition append_opening_record
+    source_finding: {phase: p7, register: cc_composition, key: append_opening_record}
   - owner: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     step: append_opening_record
     direction: OUTPUT
     field: sequence_number
     bound_to: capability_result.sequence_number
-    source_finding: S7 cc_composition append_opening_record
+    source_finding: {phase: p7, register: cc_composition, key: append_opening_record}
   - owner: causal_language_model::CC_READ_HOSTED_STATE_V0
     step: read_trail
     direction: INPUT
     field: stream_id
     bound_to: inputs.user_prompt_id
-    source_finding: S7 cc_composition read_trail
+    source_finding: {phase: p7, register: cc_composition, key: read_trail}
   - owner: causal_language_model::CC_READ_HOSTED_STATE_V0
     step: read_trail
     direction: OUTPUT
     field: entries
     bound_to: capability_result.entries
-    source_finding: S7 cc_composition read_trail
+    source_finding: {phase: p7, register: cc_composition, key: read_trail}
   - owner: causal_language_model::CC_READ_HOSTED_STATE_V0
     step: read_trail
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition read_trail
+    source_finding: {phase: p7, register: cc_composition, key: read_trail}
   - owner: causal_language_model::CC_READ_HOSTED_STATE_V0
     step: reduce_trail
     direction: INPUT
     field: entries
     bound_to: results.read_trail.entries
-    source_finding: S7 cc_composition reduce_trail
+    source_finding: {phase: p7, register: cc_composition, key: reduce_trail}
   - owner: causal_language_model::CC_READ_HOSTED_STATE_V0
     step: reduce_trail
     direction: OUTPUT
     field: state
     bound_to: capability_result.state
-    source_finding: S7 cc_composition reduce_trail
+    source_finding: {phase: p7, register: cc_composition, key: reduce_trail}
   - owner: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
     step: confirm_same_model
     direction: INPUT
     field: value
     bound_to: inputs.offered_fingerprint
-    source_finding: S7 cc_composition confirm_same_model
+    source_finding: {phase: p7, register: cc_composition, key: confirm_same_model}
   - owner: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
     step: confirm_same_model
     direction: INPUT
@@ -979,55 +979,55 @@ registers:
     bound_to:
       literal:
       - $.inputs.admitted_fingerprint
-    source_finding: S7 cc_composition confirm_same_model
+    source_finding: {phase: p7, register: cc_composition, key: confirm_same_model}
   - owner: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
     step: confirm_same_model
     direction: OUTPUT
     field: offer_for_model
     bound_to: capability_result.is_member
-    source_finding: S7 cc_composition confirm_same_model
+    source_finding: {phase: p7, register: cc_composition, key: confirm_same_model}
   - owner: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     step: choose_token
     direction: INPUT
     field: state
     bound_to: inputs.state
-    source_finding: S7 cc_composition choose_token
+    source_finding: {phase: p7, register: cc_composition, key: choose_token}
   - owner: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     step: choose_token
     direction: INPUT
     field: candidates
     bound_to: inputs.candidates
-    source_finding: S7 cc_composition choose_token
+    source_finding: {phase: p7, register: cc_composition, key: choose_token}
   - owner: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     step: choose_token
     direction: OUTPUT
     field: step
     bound_to: capability_result.step
-    source_finding: S7 cc_composition choose_token
+    source_finding: {phase: p7, register: cc_composition, key: choose_token}
   - owner: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     step: choose_token
     direction: OUTPUT
     field: text
     bound_to: capability_result.text
-    source_finding: S7 cc_composition choose_token
+    source_finding: {phase: p7, register: cc_composition, key: choose_token}
   - owner: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     step: choose_token
     direction: OUTPUT
     field: finished
     bound_to: capability_result.finished
-    source_finding: S7 cc_composition choose_token
+    source_finding: {phase: p7, register: cc_composition, key: choose_token}
   - owner: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     step: choose_token
     direction: OUTPUT
     field: stopped_by
     bound_to: capability_result.stopped_by
-    source_finding: S7 cc_composition choose_token
+    source_finding: {phase: p7, register: cc_composition, key: choose_token}
   - owner: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     step: choose_token
     direction: OUTPUT
     field: within_length
     bound_to: capability_result.within_length
-    source_finding: S7 cc_composition choose_token
+    source_finding: {phase: p7, register: cc_composition, key: choose_token}
   - owner: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     step: assemble_step_record
     direction: INPUT
@@ -1046,527 +1046,527 @@ registers:
         stopped_by: $.inputs.step.stopped_by
         finished: $.inputs.step.finished
         within_length: $.inputs.step.within_length
-    source_finding: S7 cc_composition assemble_step_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_step_record}
   - owner: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     step: assemble_step_record
     direction: OUTPUT
     field: step_record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_step_record
+    source_finding: {phase: p7, register: cc_composition, key: assemble_step_record}
   - owner: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     step: append_step_record
     direction: INPUT
     field: record
     bound_to: results.assemble_step_record.step_record
-    source_finding: S7 cc_composition append_step_record
+    source_finding: {phase: p7, register: cc_composition, key: append_step_record}
   - owner: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     step: append_step_record
     direction: INPUT
     field: stream_id
     bound_to: inputs.user_prompt_id
-    source_finding: S7 cc_composition append_step_record
+    source_finding: {phase: p7, register: cc_composition, key: append_step_record}
   - owner: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     step: append_step_record
     direction: INPUT
     field: actor_id
     bound_to: inputs.host_id
-    source_finding: S7 cc_composition append_step_record
+    source_finding: {phase: p7, register: cc_composition, key: append_step_record}
   - owner: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     step: append_step_record
     direction: OUTPUT
     field: record_id
     bound_to: capability_result.record_id
-    source_finding: S7 cc_composition append_step_record
+    source_finding: {phase: p7, register: cc_composition, key: append_step_record}
   - owner: causal_language_model::CC_RECORD_HOSTED_STEP_V0
     step: append_step_record
     direction: OUTPUT
     field: sequence_number
     bound_to: capability_result.sequence_number
-    source_finding: S7 cc_composition append_step_record
+    source_finding: {phase: p7, register: cc_composition, key: append_step_record}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CLAIM_USER_PROMPT_IDENTITY_V0
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology CC_CLAIM_USER_PROMPT_IDENTITY_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CLAIM_USER_PROMPT_IDENTITY_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
     direction: INPUT
     field: customer_id
     bound_to: payload.customer_id
-    source_finding: S7 execution_topology CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
     direction: INPUT
     field: permitted_customers
     bound_to: payload.permitted_customers
-    source_finding: S7 execution_topology CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_REQUESTER_ACTS_FOR_CUSTOMER_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_ADMIT_USER_PROMPT_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology CC_ADMIT_USER_PROMPT_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_ADMIT_USER_PROMPT_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_WITHIN_CEILING_V0
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.time_in_service_id
-    source_finding: S7 execution_topology CC_CONFIRM_WITHIN_CEILING_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_WITHIN_CEILING_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_WITHIN_CEILING_V0
     direction: INPUT
     field: kind
     bound_to: payload.kind
-    source_finding: S7 execution_topology CC_CONFIRM_WITHIN_CEILING_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_WITHIN_CEILING_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_READING_FITS_V0
     direction: INPUT
     field: system_prompt
     bound_to: results.CC_CONFIRM_WITHIN_CEILING_V0.time_in_service.system_prompt
-    source_finding: S7 execution_topology CC_CONFIRM_READING_FITS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_READING_FITS_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_READING_FITS_V0
     direction: INPUT
     field: question
     bound_to: payload.question
-    source_finding: S7 execution_topology CC_CONFIRM_READING_FITS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_READING_FITS_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_READING_FITS_V0
     direction: INPUT
     field: supporting_material
     bound_to: payload.supporting_material
-    source_finding: S7 execution_topology CC_CONFIRM_READING_FITS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_READING_FITS_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_CONFIRM_READING_FITS_V0
     direction: INPUT
     field: reading_capacity
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.description.reading_capacity
-    source_finding: S7 execution_topology CC_CONFIRM_READING_FITS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_READING_FITS_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: requester_id
     bound_to: payload.requester_id
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: customer_id
     bound_to: payload.customer_id
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: kind
     bound_to: payload.kind
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: question
     bound_to: payload.question
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: supporting_material
     bound_to: payload.supporting_material
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: account_numbers
     bound_to: payload.account_numbers
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: seed
     bound_to: payload.seed
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.time_in_service_id
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: reading
     bound_to: results.CC_CONFIRM_READING_FITS_V0.reading
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: response_rules
     bound_to: results.CC_CONFIRM_WITHIN_CEILING_V0.time_in_service.response_rules
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: fingerprint
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.fingerprint
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: reading_capacity
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.description.reading_capacity
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_OPEN_HOSTED_RECORD_V0
     direction: INPUT
     field: maximum_response_length
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.description.maximum_response_length
-    source_finding: S7 execution_topology CC_OPEN_HOSTED_RECORD_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_OPEN_HOSTED_RECORD_V0}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: requester_id
     bound_to: payload.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: customer_id
     bound_to: payload.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: kind
     bound_to: payload.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: question
     bound_to: payload.question
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: supporting_material
     bound_to: payload.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_PERMITTED
     direction: INPUT
     field: reason
     bound_to:
       literal: requester_not_permitted_for_customer
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_PERMITTED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_PERMITTED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: requester_id
     bound_to: payload.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: customer_id
     bound_to: payload.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: kind
     bound_to: payload.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: question
     bound_to: payload.question
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: supporting_material
     bound_to: payload.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_REGISTERED
     direction: INPUT
     field: reason
     bound_to:
       literal: model_not_registered
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_REGISTERED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_REGISTERED}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: requester_id
     bound_to: payload.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: customer_id
     bound_to: payload.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: kind
     bound_to: payload.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: question
     bound_to: payload.question
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: supporting_material
     bound_to: payload.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_NOT_IN_SERVICE
     direction: INPUT
     field: reason
     bound_to:
       literal: model_not_in_service
-    source_finding: S7 execution_topology RECORD_REFUSED_NOT_IN_SERVICE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_NOT_IN_SERVICE}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: requester_id
     bound_to: payload.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: customer_id
     bound_to: payload.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: kind
     bound_to: payload.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: question
     bound_to: payload.question
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: supporting_material
     bound_to: payload.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.time_in_service_id
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_ABOVE_CEILING
     direction: INPUT
     field: reason
     bound_to:
       literal: kind_above_sensitivity_ceiling
-    source_finding: S7 execution_topology RECORD_REFUSED_ABOVE_CEILING
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_ABOVE_CEILING}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: requester_id
     bound_to: payload.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: customer_id
     bound_to: payload.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: identity_key
     bound_to: payload.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: kind
     bound_to: payload.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: question
     bound_to: payload.question
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: supporting_material
     bound_to: payload.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_ADMIT_USER_PROMPT_V0.model_record.time_in_service_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: reason
     bound_to:
       literal: reading_longer_than_model_can_read
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_READ_HOSTED_STATE_V0
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology CC_READ_HOSTED_STATE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_READ_HOSTED_STATE_V0}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
     direction: INPUT
     field: offered_fingerprint
     bound_to: payload.fingerprint
-    source_finding: S7 execution_topology CC_CONFIRM_OFFER_FOR_MODEL_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_OFFER_FOR_MODEL_V0}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_CONFIRM_OFFER_FOR_MODEL_V0
     direction: INPUT
     field: admitted_fingerprint
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.fingerprint
-    source_finding: S7 execution_topology CC_CONFIRM_OFFER_FOR_MODEL_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_OFFER_FOR_MODEL_V0}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
     direction: INPUT
     field: reported_reading_size
     bound_to: payload.reported_reading_size
-    source_finding: S7 execution_topology CC_CONFIRM_HOSTED_READING_FITS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_HOSTED_READING_FITS_V0}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_CONFIRM_HOSTED_READING_FITS_V0
     direction: INPUT
     field: reading_capacity
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.reading_capacity
-    source_finding: S7 execution_topology CC_CONFIRM_HOSTED_READING_FITS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CONFIRM_HOSTED_READING_FITS_V0}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     direction: INPUT
     field: state
     bound_to: results.CC_READ_HOSTED_STATE_V0.state
-    source_finding: S7 execution_topology CC_CHOOSE_PERMITTED_TOKEN_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CHOOSE_PERMITTED_TOKEN_V0}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_CHOOSE_PERMITTED_TOKEN_V0
     direction: INPUT
     field: candidates
     bound_to: payload.candidates
-    source_finding: S7 execution_topology CC_CHOOSE_PERMITTED_TOKEN_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CHOOSE_PERMITTED_TOKEN_V0}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: CONFIRM_NO_RULE_STOPPED
     direction: INPUT
@@ -1574,7 +1574,7 @@ registers:
     bound_to:
       literal:
         stopped_by: $.results.CC_CHOOSE_PERMITTED_TOKEN_V0.stopped_by
-    source_finding: S7 execution_topology CONFIRM_NO_RULE_STOPPED
+    source_finding: {phase: p7, register: execution_topology, key: CONFIRM_NO_RULE_STOPPED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: CONFIRM_NO_RULE_STOPPED
     direction: INPUT
@@ -1584,7 +1584,7 @@ registers:
       - field: stopped_by
         op: eq
         value: none
-    source_finding: S7 execution_topology CONFIRM_NO_RULE_STOPPED
+    source_finding: {phase: p7, register: execution_topology, key: CONFIRM_NO_RULE_STOPPED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: CONFIRM_WITHIN_LENGTH
     direction: INPUT
@@ -1592,7 +1592,7 @@ registers:
     bound_to:
       literal:
         within_length: $.results.CC_CHOOSE_PERMITTED_TOKEN_V0.within_length
-    source_finding: S7 execution_topology CONFIRM_WITHIN_LENGTH
+    source_finding: {phase: p7, register: execution_topology, key: CONFIRM_WITHIN_LENGTH}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: CONFIRM_WITHIN_LENGTH
     direction: INPUT
@@ -1602,398 +1602,398 @@ registers:
       - field: within_length
         op: eq
         value: true
-    source_finding: S7 execution_topology CONFIRM_WITHIN_LENGTH
+    source_finding: {phase: p7, register: execution_topology, key: CONFIRM_WITHIN_LENGTH}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STEP
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STEP
     direction: INPUT
     field: host_id
     bound_to: payload.host_id
-    source_finding: S7 execution_topology RECORD_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STEP
     direction: INPUT
     field: fingerprint
     bound_to: payload.fingerprint
-    source_finding: S7 execution_topology RECORD_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STEP
     direction: INPUT
     field: reported_reading_size
     bound_to: payload.reported_reading_size
-    source_finding: S7 execution_topology RECORD_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STEP
     direction: INPUT
     field: step
     bound_to: results.CC_CHOOSE_PERMITTED_TOKEN_V0.step
-    source_finding: S7 execution_topology RECORD_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STOPPED_STEP
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_STOPPED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STOPPED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STOPPED_STEP
     direction: INPUT
     field: host_id
     bound_to: payload.host_id
-    source_finding: S7 execution_topology RECORD_STOPPED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STOPPED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STOPPED_STEP
     direction: INPUT
     field: fingerprint
     bound_to: payload.fingerprint
-    source_finding: S7 execution_topology RECORD_STOPPED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STOPPED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STOPPED_STEP
     direction: INPUT
     field: reported_reading_size
     bound_to: payload.reported_reading_size
-    source_finding: S7 execution_topology RECORD_STOPPED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STOPPED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_STOPPED_STEP
     direction: INPUT
     field: step
     bound_to: results.CC_CHOOSE_PERMITTED_TOKEN_V0.step
-    source_finding: S7 execution_topology RECORD_STOPPED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_STOPPED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_UNFINISHED_STEP
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_UNFINISHED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_UNFINISHED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_UNFINISHED_STEP
     direction: INPUT
     field: host_id
     bound_to: payload.host_id
-    source_finding: S7 execution_topology RECORD_UNFINISHED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_UNFINISHED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_UNFINISHED_STEP
     direction: INPUT
     field: fingerprint
     bound_to: payload.fingerprint
-    source_finding: S7 execution_topology RECORD_UNFINISHED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_UNFINISHED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_UNFINISHED_STEP
     direction: INPUT
     field: reported_reading_size
     bound_to: payload.reported_reading_size
-    source_finding: S7 execution_topology RECORD_UNFINISHED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_UNFINISHED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_UNFINISHED_STEP
     direction: INPUT
     field: step
     bound_to: results.CC_CHOOSE_PERMITTED_TOKEN_V0.step
-    source_finding: S7 execution_topology RECORD_UNFINISHED_STEP
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_UNFINISHED_STEP}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: requester_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: customer_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: identity_key
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: kind
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: question
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.question
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: supporting_material
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.time_in_service_id
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: reading
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.reading
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: rules_in_force
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.rules_in_force
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     direction: INPUT
     field: reason
     bound_to:
       literal: offer_for_another_model
-    source_finding: S7 execution_topology RECORD_REFUSED_OTHER_MODEL
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_OTHER_MODEL}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: requester_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: customer_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: identity_key
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: kind
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: question
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.question
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: supporting_material
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.time_in_service_id
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: reading
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.reading
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: rules_in_force
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.rules_in_force
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     direction: INPUT
     field: reason
     bound_to:
       literal: reading_longer_than_model_can_read
-    source_finding: S7 execution_topology RECORD_REFUSED_TOO_LONG_TO_READ
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_TOO_LONG_TO_READ}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: requester_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: customer_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: identity_key
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: kind
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: question
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.question
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: supporting_material
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.time_in_service_id
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: reading
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.reading
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: rules_in_force
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.rules_in_force
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     direction: INPUT
     field: reason
     bound_to: results.CC_CHOOSE_PERMITTED_TOKEN_V0.stopped_by
-    source_finding: S7 execution_topology RECORD_REFUSED_BY_RULE
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_BY_RULE}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: requester_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.requester_id
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: customer_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.customer_id
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: identity_key
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.identity_key
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: kind
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.kind
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: question
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.question
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: supporting_material
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.supporting_material
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.time_in_service_id
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: reading
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.reading
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: rules_in_force
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.rules_in_force
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: outcome
     bound_to:
       literal: REFUSED
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     direction: INPUT
     field: reason
     bound_to:
       literal: longest_response_reached
-    source_finding: S7 execution_topology RECORD_REFUSED_UNFINISHED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_REFUSED_UNFINISHED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: causal_language_model::CC_READ_HOSTED_STATE_V0
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology CC_READ_HOSTED_STATE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_READ_HOSTED_STATE_V0}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: CONFIRM_FINISHED
     direction: INPUT
@@ -2001,7 +2001,7 @@ registers:
     bound_to:
       literal:
         finished: $.results.CC_READ_HOSTED_STATE_V0.state.finished
-    source_finding: S7 execution_topology CONFIRM_FINISHED
+    source_finding: {phase: p7, register: execution_topology, key: CONFIRM_FINISHED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: CONFIRM_FINISHED
     direction: INPUT
@@ -2011,80 +2011,80 @@ registers:
       - field: finished
         op: eq
         value: true
-    source_finding: S7 execution_topology CONFIRM_FINISHED
+    source_finding: {phase: p7, register: execution_topology, key: CONFIRM_FINISHED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: user_prompt_id
     bound_to: payload.user_prompt_id
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: requester_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.requester_id
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: customer_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.customer_id
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: identity_key
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.identity_key
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: kind
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.kind
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: question
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.question
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: supporting_material
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.supporting_material
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: time_in_service_id
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.time_in_service_id
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: reading
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.reading
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: rules_in_force
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.opening.rules_in_force
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: outcome
     bound_to:
       literal: RESPONDED
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   - owner: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: RECORD_RESPONDED
     direction: INPUT
     field: response
     bound_to: results.CC_READ_HOSTED_STATE_V0.state.text
-    source_finding: S7 execution_topology RECORD_RESPONDED
+    source_finding: {phase: p7, register: execution_topology, key: RECORD_RESPONDED}
   interface_fields:
   - artifact: causal_language_model::IN_BEGIN_HOSTED_RESPONSE_V0
     direction: INPUT
@@ -2591,7 +2591,7 @@ registers:
     kind: atom
     purity: ct_pure
     refusal: raises
-    source_finding: S7 new_artifacts CT_PURE_READ_HOSTED_STATE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_READ_HOSTED_STATE_V0}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_choose_permitted_token_v0
     callable: execute
@@ -2599,33 +2599,33 @@ registers:
     kind: atom
     purity: ct_pure
     refusal: raises
-    source_finding: S7 new_artifacts CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_CHOOSE_PERMITTED_TOKEN_V0}
   vocabulary_extensions: []
   runtime_policies: []
   artifact_properties:
   - artifact: causal_language_model::AC_MODEL_HOST_V0
     property: type
     value: ENDUSER
-    source_finding: S5 provisional_codes AC_MODEL_HOST_V0
+    source_finding: {phase: p5, register: provisional_codes, key: AC_MODEL_HOST_V0}
   - artifact: causal_language_model::WF_BEGIN_HOSTED_RESPONSE_V0
     property: emit.EXIT_REFUSED
     value:
     - causal_language_model::EV_USER_PROMPT_REFUSED_V0
-    source_finding: 'S1 business_events #2'
+    source_finding: {phase: p1, register: business_events, row: 2}
   - artifact: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     property: emit.EXIT_REFUSED
     value:
     - causal_language_model::EV_USER_PROMPT_REFUSED_V0
-    source_finding: 'S1 business_events #2'
+    source_finding: {phase: p1, register: business_events, row: 2}
   - artifact: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     property: emit.EXIT_RESPONDED
     value:
     - causal_language_model::EV_USER_PROMPT_RESPONDED_V0
-    source_finding: 'S1 business_events #1'
+    source_finding: {phase: p1, register: business_events, row: 1}
   - artifact: causal_language_model::EV_USER_PROMPT_REFUSED_V0
     property: moment
     value: refusal
-    source_finding: 'S1 business_events #2'
+    source_finding: {phase: p1, register: business_events, row: 2}
   structure_stores: []
   transport_bindings: []
   artifact_summary:
@@ -2641,37 +2641,37 @@ registers:
     act: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_TOO_LONG_TO_READ
     outcome: SUCCESS
-    source_finding: 'S0 operation_refusals #1'
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
   - operation: Offer candidates
     refused_when: The offer names a fingerprint other than the model's the request was admitted for.
     act: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_OTHER_MODEL
     outcome: SUCCESS
-    source_finding: 'S0 operation_refusals #2'
+    source_finding: {phase: p0, register: operation_refusals, row: 2}
   - operation: Offer candidates
     refused_when: The request is not being written.
     act: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: causal_language_model::CC_READ_HOSTED_STATE_V0
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #3'
+    source_finding: {phase: p0, register: operation_refusals, row: 3}
   - operation: Offer candidates
     refused_when: Every candidate is forbidden.
     act: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_BY_RULE
     outcome: SUCCESS
-    source_finding: 'S0 operation_refusals #4'
+    source_finding: {phase: p0, register: operation_refusals, row: 4}
   - operation: Offer candidates
     refused_when: The response reaches its permitted length before it is complete.
     act: causal_language_model::WF_OFFER_NEXT_TOKENS_V0
     step: RECORD_REFUSED_UNFINISHED
     outcome: SUCCESS
-    source_finding: 'S0 operation_refusals #5'
+    source_finding: {phase: p0, register: operation_refusals, row: 5}
   - operation: Release a response
     refused_when: The response is not complete.
     act: causal_language_model::WF_RELEASE_HOSTED_RESPONSE_V0
     step: CONFIRM_FINISHED
     outcome: VIOLATION
-    source_finding: 'S0 operation_refusals #6'
+    source_finding: {phase: p0, register: operation_refusals, row: 6}
   refusal_deferrals: []
   refusal_governance_discharge: []
   molecule_steps: []
@@ -2680,63 +2680,63 @@ registers:
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     case: reduces_the_trail_to_the_response_as_built
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     case: refuses_a_request_never_admitted
     expected_outcome: VIOLATION
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     case: refuses_a_closed_request
     expected_outcome: VIOLATION
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     expected_outcome: SUCCESS
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: refuses_an_offer_for_a_complete_response
     expected_outcome: VIOLATION
-    source_finding: human decision
+    source_finding: {source: human}
   test_case_values:
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     case: reduces_the_trail_to_the_response_as_built
@@ -2772,7 +2772,7 @@ registers:
       record:
         outcome: STEP
         chosen: ' balance'
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     case: reduces_the_trail_to_the_response_as_built
     role: EXPECTED
@@ -2802,7 +2802,7 @@ registers:
       text: Your balance
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     case: refuses_a_request_never_admitted
     role: INPUT
@@ -2812,7 +2812,7 @@ registers:
       record:
         outcome: REFUSED
         reason: model_not_registered
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
     case: refuses_a_closed_request
     role: INPUT
@@ -2842,7 +2842,7 @@ registers:
     - sequence_number: 2
       record:
         outcome: RESPONDED
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     role: INPUT
@@ -2872,7 +2872,7 @@ registers:
       text: Account 8765
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     role: INPUT
@@ -2882,31 +2882,31 @@ registers:
       likelihood: 0.7
     - token: ' is'
       likelihood: 0.2
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     role: EXPECTED
     field: text
     value: Account 8765 is
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: stops_an_account_number_split_across_tokens
     role: EXPECTED
@@ -2925,7 +2925,7 @@ registers:
       stopped_by: none
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     role: INPUT
@@ -2955,7 +2955,7 @@ registers:
       text: Account 1234
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     role: INPUT
@@ -2963,19 +2963,19 @@ registers:
     value:
     - token: '5678'
       likelihood: 0.8
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     role: EXPECTED
     field: text
     value: Account 12345678
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     role: EXPECTED
@@ -2990,19 +2990,19 @@ registers:
       stopped_by: none
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: writes_the_customers_own_account_across_tokens
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     role: INPUT
@@ -3032,7 +3032,7 @@ registers:
       text: ''
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     role: INPUT
@@ -3040,25 +3040,25 @@ registers:
     value:
     - token: '87654321'
       likelihood: 0.9
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     role: EXPECTED
     field: text
     value: ''
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     role: EXPECTED
     field: stopped_by
     value: another_customers_account_number
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     role: EXPECTED
@@ -3075,13 +3075,13 @@ registers:
       stopped_by: another_customers_account_number
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: names_the_rule_when_no_permitted_token_remains
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     role: INPUT
@@ -3111,7 +3111,7 @@ registers:
       text: Your balance is
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     role: INPUT
@@ -3119,25 +3119,25 @@ registers:
     value:
     - token: ' today'
       likelihood: 0.9
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     role: EXPECTED
     field: text
     value: Your balance is today
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     role: EXPECTED
     field: within_length
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     role: EXPECTED
@@ -3152,13 +3152,13 @@ registers:
       stopped_by: none
       finished: false
       within_length: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: passes_the_permitted_length_unfinished
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     role: INPUT
@@ -3188,7 +3188,7 @@ registers:
       text: Your balance
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     role: INPUT
@@ -3196,25 +3196,25 @@ registers:
     value:
     - token: <end>
       likelihood: 0.9
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     role: EXPECTED
     field: text
     value: Your balance
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     role: EXPECTED
     field: finished
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     role: EXPECTED
@@ -3229,13 +3229,13 @@ registers:
       stopped_by: none
       finished: true
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: finishes_on_the_end_of_the_response
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     role: INPUT
@@ -3265,7 +3265,7 @@ registers:
       text: Spouse account 8765432
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     role: INPUT
@@ -3275,19 +3275,19 @@ registers:
       likelihood: 0.8
     - token: .
       likelihood: 0.1
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     role: EXPECTED
     field: text
     value: Spouse account 8765432.
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     role: EXPECTED
@@ -3306,19 +3306,19 @@ registers:
       stopped_by: none
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: judges_a_lookalike_digit_as_the_digit
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     role: INPUT
@@ -3348,7 +3348,7 @@ registers:
       text: 'Spouse account '
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     role: INPUT
@@ -3358,19 +3358,19 @@ registers:
       likelihood: 0.8
     - token: withheld
       likelihood: 0.1
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     role: EXPECTED
     field: text
     value: Spouse account withheld
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     role: EXPECTED
@@ -3389,19 +3389,19 @@ registers:
       stopped_by: none
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: does_not_begin_a_forbidden_number_the_model_read
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     role: INPUT
@@ -3431,7 +3431,7 @@ registers:
       text: 'Balance '
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     role: INPUT
@@ -3439,19 +3439,19 @@ registers:
     value:
     - token: '4'
       likelihood: 0.8
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     role: EXPECTED
     field: text
     value: Balance 4
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     role: EXPECTED
@@ -3466,19 +3466,19 @@ registers:
       stopped_by: none
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: begins_a_number_the_model_read_that_is_permitted
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     role: INPUT
@@ -3508,7 +3508,7 @@ registers:
       text: Balance 4
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     role: INPUT
@@ -3518,19 +3518,19 @@ registers:
       likelihood: 0.8
     - token: '0'
       likelihood: 0.1
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     role: EXPECTED
     field: text
     value: Balance 40
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     role: EXPECTED
@@ -3549,19 +3549,19 @@ registers:
       stopped_by: none
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_writes_a_number_it_read
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     role: INPUT
@@ -3591,7 +3591,7 @@ registers:
       text: Balance 4
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     role: INPUT
@@ -3601,19 +3601,19 @@ registers:
       likelihood: 0.8
     - token: <end>
       likelihood: 0.1
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     role: EXPECTED
     field: text
     value: Balance 4
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     role: EXPECTED
     field: stopped_by
     value: numbers_from_the_reading
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     role: EXPECTED
@@ -3634,19 +3634,19 @@ registers:
       stopped_by: numbers_from_the_reading
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: grounded_does_not_change_a_value_it_read
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     role: INPUT
@@ -3676,7 +3676,7 @@ registers:
       text: 'Balance '
       finished: false
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     role: INPUT
@@ -3684,19 +3684,19 @@ registers:
     value:
     - token: '9'
       likelihood: 0.8
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     role: EXPECTED
     field: text
     value: Balance 9
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     role: EXPECTED
     field: stopped_by
     value: none
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     role: EXPECTED
@@ -3711,19 +3711,19 @@ registers:
       stopped_by: none
       finished: false
       within_length: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     role: EXPECTED
     field: finished
     value: false
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: ungrounded_writes_a_number_it_did_not_read
     role: EXPECTED
     field: within_length
     value: true
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: refuses_an_offer_for_a_complete_response
     role: INPUT
@@ -3753,7 +3753,7 @@ registers:
       text: Your balance
       finished: true
       limit: 3
-    source_finding: human decision
+    source_finding: {source: human}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
     case: refuses_an_offer_for_a_complete_response
     role: INPUT
@@ -3761,7 +3761,7 @@ registers:
     value:
     - token: ' more'
       likelihood: 0.9
-    source_finding: human decision
+    source_finding: {source: human}
   withdrawn_facts: []
 ```
 

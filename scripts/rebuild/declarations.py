@@ -35,6 +35,12 @@ RESTATED = {
     ("p7", "STORE_PATH_FORMAT_MISMATCH", "structure_stores"): ("M3.3-7", {"params"}),
     ("p7", "GENERATED_SOURCE_WITHOUT_GENERATOR", "step_bindings"): ("M2-9", {"params"}),
     ("p7", "TEST_VALUE_EMPTY", "test_case_values"): ("M3.3-9", {"check", "params"}),
+    ("p7", "GOVERNING_RULE_NOT_IN_FORCE", "refusal_governance_discharge"): ("M3.3b-4", {"params"}),
+}
+# A rule restated in every phase that derives it: id → the divergence, and the fields that may differ.
+RESTATED_EVERYWHERE = {
+    "SOURCE_FINDING_UNRESOLVED": ("M3.3b-1", {"params"}),
+    "ROW_WITHOUT_SOURCE_FINDING": ("M3.3b-2", {"check"}),
 }
 # A rule only the oracle has: (phase, id) → the divergence that retired it.
 RETIRED = {("p7", "TEST_VALUE_UNPARSEABLE"): "M2-10"}
@@ -50,7 +56,7 @@ def _declared(phase: str, a: dict, b: dict) -> str | None:
                 {**b, "params": {k: v for k, v in b["params"].items() if k != param}} and \
                 sorted(a["params"].get(param) or []) == sorted(b["params"].get(param) or []):
             return name
-    restated = RESTATED.get((phase, a["id"], a["register"]))
+    restated = RESTATED.get((phase, a["id"], a["register"])) or RESTATED_EVERYWHERE.get(a["id"])
     if restated and (b["id"], b["register"]) == (a["id"], a["register"]):
         name, fields = restated
         if {k: v for k, v in a.items() if k not in fields | {"intent"}} == \

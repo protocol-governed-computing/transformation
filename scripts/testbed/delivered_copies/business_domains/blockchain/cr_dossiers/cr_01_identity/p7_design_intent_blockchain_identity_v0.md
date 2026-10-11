@@ -13,73 +13,73 @@ registers:
   - decision: The trail rests on the append-only capability
     business_fact: An occurrence that has happened cannot be un-happened
     resolution: ACTOR_OCCURRENCES is typed CS_APPENDONLY_JSONL_V0, which offers no update and no delete
-    source_finding: 'S4 design_decisions #1'
+    source_finding: {phase: p4, register: design_decisions, row: 1}
   - decision: An actor's state is held as a value
     business_fact: The refusal that an actor is decided about once needs the state at the moment of deciding
     resolution: ACTORS is typed CS_MUTABLE_JSON_V0 and read by blockchain::CC_RESOLVE_ACTOR_V0 before any decision is recorded
-    source_finding: 'S4 design_decisions #2'
+    source_finding: {phase: p4, register: design_decisions, row: 2}
   - decision: The contact address is the identifier
     business_fact: Two registrations carrying the same address are the same person
     resolution: CONTACT_ADDRESS_REGISTRY is typed CS_REGISTRY_V0 and keyed on the address as supplied; no identifier is generated
-    source_finding: 'S4 design_decisions #3'
+    source_finding: {phase: p4, register: design_decisions, row: 3}
   - decision: Acceptance and rejection are two occurrences
     business_fact: A rejected actor must never be readable as accepted
     resolution: blockchain::EV_ACTOR_ACCEPTED_V0 and blockchain::EV_ACTOR_REJECTED_V0 are separate artifacts; no artifact carries an outcome field
-    source_finding: 'S4 design_decisions #4'
+    source_finding: {phase: p4, register: design_decisions, row: 4}
   - decision: The time capability is a substrate gap
     business_fact: Every occurrence carries the time it actually happened, determined as it occurs
     resolution: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0 reads capability_side_effects::CS_CLOCK_V0 before it assembles the record, so occurred_at is determined where the occurrence is recorded and no caller may assert it
-    source_finding: 'S4 design_decisions #5'
+    source_finding: {phase: p4, register: design_decisions, row: 5}
   - decision: The authority is recorded and never resolved
     business_fact: An authority is identified outside this function
     resolution: The decision carries verifying_authority as a value; no store holds authorities and no step resolves one
-    source_finding: 'S4 design_decisions #6'
+    source_finding: {phase: p4, register: design_decisions, row: 6}
   existing_inventory:
   - fqdn: capability_side_effects::CS_APPENDONLY_JSONL_V0
     action: REUSE
     summary: Appends a record to a named stream and reads the stream whole
     reason: Holds the occurrence trail; offers no update and no delete
-    source_finding: S6 pps_artifacts_requiring_action capability_side_effects::CS_APPENDONLY_JSONL_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_side_effects::CS_APPENDONLY_JSONL_V0'}
   - fqdn: capability_side_effects::CS_MUTABLE_JSON_V0
     action: REUSE
     summary: Keyed JSON state with read, write and select
     reason: Holds the actor record and its state
-    source_finding: S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_side_effects::CS_MUTABLE_JSON_V0'}
   - fqdn: capability_side_effects::CS_REGISTRY_V0
     action: REUSE
     summary: Registers, resolves and reports a key
     reason: Claims the contact address and reports one already held
-    source_finding: S6 pps_artifacts_requiring_action capability_side_effects::CS_REGISTRY_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_side_effects::CS_REGISTRY_V0'}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
     action: REUSE
     summary: Reads a record for required fields and their form
     reason: Reads a registration for absence and malformation
-    source_finding: S6 pps_artifacts_requiring_action capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0'}
   - fqdn: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
     action: REUSE
     summary: Reads a value against a declared admitted set
     reason: Reads the decision outcome and the state a decision is admitted from
-    source_finding: S6 pps_artifacts_requiring_action capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0'}
   - fqdn: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
     action: REUSE
     summary: Compares two supplied values
     reason: Compares the authority named against the actor decided about
-    source_finding: S6 pps_artifacts_requiring_action capability_transforms::CT_PURE_COMPARE_EQUAL_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_transforms::CT_PURE_COMPARE_EQUAL_V0'}
   - fqdn: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
     action: REUSE
     summary: Assembles a record from supplied fields
     reason: Assembles the actor record and each occurrence record
-    source_finding: S6 pps_artifacts_requiring_action capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0'}
   - fqdn: capability_side_effects::CS_CLOCK_V0
     action: REUSE
     summary: Answers the current instant
     reason: Determines the time an occurrence happened, which no transform can
-    source_finding: S4 dependency_graph the substrate capability supplying the current time
+    source_finding: {phase: p4, register: dependency_graph, key: the substrate capability supplying the current time}
   - fqdn: capability_transforms::CT_PURE_EXTRACT_V0
     action: REUSE
     summary: Extracts a named value from a supplied structure
     reason: Extracts the address and the decision fields
-    source_finding: S6 pps_artifacts_requiring_action capability_transforms::CT_PURE_EXTRACT_V0
+    source_finding: {phase: p6, register: pps_artifacts_requiring_action, key: 'capability_transforms::CT_PURE_EXTRACT_V0'}
   new_artifacts:
   - capability: Declare the actors of this business
     family: AC
@@ -87,112 +87,112 @@ registers:
     summary: The ordinary participant who registers themselves and is decided about
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes AC_PARTICIPANT_V0
+    source_finding: {phase: p5, register: provisional_codes, key: AC_PARTICIPANT_V0}
   - capability: Declare the stores identity owns
     family: STRUCTURE
     code: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
     summary: Declares the three stores identity owns and the paths they occupy
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes STRUCTURE_IDENTITY_STORAGE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: STRUCTURE_IDENTITY_STORAGE_V0}
   - capability: Bind identity's workflows to the stores they use
     family: RB
     code: blockchain::RB_IDENTITY_BINDINGS_V0
     summary: Binds identity's workflows to the side effects and storage they use
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes RB_IDENTITY_BINDINGS_V0
+    source_finding: {phase: p5, register: provisional_codes, key: RB_IDENTITY_BINDINGS_V0}
   - capability: Recognise the moments an actor is registered, accepted and rejected
     family: EV
     code: blockchain::EV_ACTOR_REGISTERED_UNVERIFIED_V0
     summary: The moment a person is admitted and trusted with nothing
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes EV_ACTOR_REGISTERED_UNVERIFIED_V0
+    source_finding: {phase: p5, register: provisional_codes, key: EV_ACTOR_REGISTERED_UNVERIFIED_V0}
   - capability: Recognise the moments an actor is registered, accepted and rejected
     family: EV
     code: blockchain::EV_ACTOR_ACCEPTED_V0
     summary: The moment an authority records a decision to trust an actor
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes EV_ACTOR_ACCEPTED_V0
+    source_finding: {phase: p5, register: provisional_codes, key: EV_ACTOR_ACCEPTED_V0}
   - capability: Recognise the moments an actor is registered, accepted and rejected
     family: EV
     code: blockchain::EV_ACTOR_REJECTED_V0
     summary: The moment an authority records a decision not to trust an actor
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes EV_ACTOR_REJECTED_V0
+    source_finding: {phase: p5, register: provisional_codes, key: EV_ACTOR_REJECTED_V0}
   - capability: Admit a request to register a person
     family: IN
     code: blockchain::IN_ACTOR_REGISTERED_V0
     summary: A request to admit a person as an actor
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes IN_ACTOR_REGISTERED_V0
+    source_finding: {phase: p5, register: provisional_codes, key: IN_ACTOR_REGISTERED_V0}
   - capability: Admit a request to record a verification decision
     family: IN
     code: blockchain::IN_ACTOR_VERIFIED_V0
     summary: A request to record a decision, carrying the authority, the outcome and the grounds
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes IN_ACTOR_VERIFIED_V0
+    source_finding: {phase: p5, register: provisional_codes, key: IN_ACTOR_VERIFIED_V0}
   - capability: Admit a person's registration and record them unverified
     family: WF
     code: blockchain::WF_REGISTER_ACTOR_V0
     summary: The governed sequence that admits a person as an unverified actor
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes WF_REGISTER_ACTOR_V0
+    source_finding: {phase: p5, register: provisional_codes, key: WF_REGISTER_ACTOR_V0}
   - capability: Record an authority's decision against a registered actor
     family: WF
     code: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     summary: The governed sequence that records a decision against a registered actor
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes WF_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p5, register: provisional_codes, key: WF_RECORD_VERIFICATION_DECISION_V0}
   - capability: Admit a person's registration and record them unverified
     family: CC
     code: blockchain::CC_VALIDATE_REGISTRATION_V0
     summary: Confirms a registration carries a name and an address of the form asked for
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes CC_VALIDATE_REGISTRATION_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_VALIDATE_REGISTRATION_V0}
   - capability: Admit a person's registration and record them unverified
     family: CC
     code: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     summary: Claims a contact address so that two registrations of one person do not produce two actors
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes CC_CLAIM_CONTACT_ADDRESS_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_CLAIM_CONTACT_ADDRESS_V0}
   - capability: Admit a person's registration and record them unverified
     family: CC
     code: blockchain::CC_REGISTER_ACTOR_V0
     summary: Writes the actor unverified after its address is claimed
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes CC_REGISTER_ACTOR_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_REGISTER_ACTOR_V0}
   - capability: Record an authority's decision against a registered actor
     family: CC
     code: blockchain::CC_RESOLVE_ACTOR_V0
     summary: Answers which actor a contact address denotes, and reports when none does
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes CC_RESOLVE_ACTOR_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_RESOLVE_ACTOR_V0}
   - capability: Record an authority's decision against a registered actor
     family: CC
     code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     summary: Refuses every declared refusal and moves the actor to its decided state
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - capability: Record an acceptance and a rejection
     family: CC
     code: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     summary: Appends one occurrence to the trail
     owner_subdomain: identity
     status: NEW
-    source_finding: S5 provisional_codes CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p5, register: provisional_codes, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   rb_declarations:
   - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
     binds_wf: blockchain::WF_REGISTER_ACTOR_V0
@@ -202,7 +202,7 @@ registers:
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     - capability_side_effects::CS_CLOCK_V0
     storage_structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-    source_finding: S6 storage_governance An atomic claim on each contact address
+    source_finding: {phase: p6, register: storage_governance, key: An atomic claim on each contact address}
   - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
     binds_wf: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     cs_bindings:
@@ -210,7 +210,7 @@ registers:
     - capability_side_effects::CS_APPENDONLY_JSONL_V0
     - capability_side_effects::CS_CLOCK_V0
     storage_structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-    source_finding: S6 storage_governance A durable record of every person the business knows, carrying whether it has accepted them
+    source_finding: {phase: p6, register: storage_governance, key: 'A durable record of every person the business knows, carrying whether it has accepted them'}
   execution_topology:
   - workflow: blockchain::WF_REGISTER_ACTOR_V0
     node: blockchain::IN_ACTOR_REGISTERED_V0
@@ -218,14 +218,14 @@ registers:
     routing:
       ACK: blockchain::CC_VALIDATE_REGISTRATION_V0
       NACK: EXIT_REJECTED
-    source_finding: S7 new_artifacts IN_ACTOR_REGISTERED_V0
+    source_finding: {phase: p7, register: new_artifacts, key: IN_ACTOR_REGISTERED_V0}
   - workflow: blockchain::WF_REGISTER_ACTOR_V0
     node: blockchain::CC_VALIDATE_REGISTRATION_V0
     node_type: CC
     routing:
       SUCCESS: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_VALIDATE_REGISTRATION_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_VALIDATE_REGISTRATION_V0}
   - workflow: blockchain::WF_REGISTER_ACTOR_V0
     node: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     node_type: CC
@@ -233,38 +233,38 @@ registers:
       SUCCESS: blockchain::CC_REGISTER_ACTOR_V0
       ALREADY_EXISTS: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_CLAIM_CONTACT_ADDRESS_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_CLAIM_CONTACT_ADDRESS_V0}
   - workflow: blockchain::WF_REGISTER_ACTOR_V0
     node: blockchain::CC_REGISTER_ACTOR_V0
     node_type: CC
     routing:
       SUCCESS: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_REGISTER_ACTOR_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_REGISTER_ACTOR_V0}
   - workflow: blockchain::WF_REGISTER_ACTOR_V0
     node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     node_type: CC
     routing:
       SUCCESS: EXIT_SUCCESS
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   - workflow: blockchain::WF_REGISTER_ACTOR_V0
     node: EXIT_REJECTED
     node_type: EXIT
     routing: null
-    source_finding: S7 new_artifacts WF_REGISTER_ACTOR_V0
+    source_finding: {phase: p7, register: new_artifacts, key: WF_REGISTER_ACTOR_V0}
   - workflow: blockchain::WF_REGISTER_ACTOR_V0
     node: EXIT_SUCCESS
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: S7 new_artifacts WF_REGISTER_ACTOR_V0
+    source_finding: {phase: p7, register: new_artifacts, key: WF_REGISTER_ACTOR_V0}
   - workflow: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     node: blockchain::IN_ACTOR_VERIFIED_V0
     node_type: IN
     routing:
       ACK: blockchain::CC_RESOLVE_ACTOR_V0
       NACK: EXIT_REJECTED
-    source_finding: S7 new_artifacts IN_ACTOR_VERIFIED_V0
+    source_finding: {phase: p7, register: new_artifacts, key: IN_ACTOR_VERIFIED_V0}
   - workflow: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     node: blockchain::CC_RESOLVE_ACTOR_V0
     node_type: CC
@@ -272,31 +272,31 @@ registers:
       SUCCESS: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
       NOT_FOUND: EXIT_REJECTED
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RESOLVE_ACTOR_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RESOLVE_ACTOR_V0}
   - workflow: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     node: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     node_type: CC
     routing:
       SUCCESS: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - workflow: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     node_type: CC
     routing:
       SUCCESS: EXIT_SUCCESS
       VIOLATION: EXIT_REJECTED
-    source_finding: S7 new_artifacts CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: new_artifacts, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   - workflow: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     node: EXIT_REJECTED
     node_type: EXIT
     routing: null
-    source_finding: S7 new_artifacts WF_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: new_artifacts, key: WF_RECORD_VERIFICATION_DECISION_V0}
   - workflow: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     node: EXIT_SUCCESS
     node_type: EXIT_SUCCESS
     routing: null
-    source_finding: S7 new_artifacts WF_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: new_artifacts, key: WF_RECORD_VERIFICATION_DECISION_V0}
   cc_composition:
   - cc_code: blockchain::CC_VALIDATE_REGISTRATION_V0
     step: '1'
@@ -615,222 +615,222 @@ registers:
     direction: INPUT
     field: record
     bound_to: inputs.actor_record
-    source_finding: S7 cc_composition read_registration
+    source_finding: {phase: p7, register: cc_composition, key: read_registration}
   - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
     step: read_registration
     direction: INPUT
     field: schema
     bound_to: inputs.registration_schema
-    source_finding: S7 cc_composition read_registration
+    source_finding: {phase: p7, register: cc_composition, key: read_registration}
   - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
     step: read_registration
     direction: OUTPUT
     field: violations
     bound_to: capability_result.violations
-    source_finding: S7 cc_composition read_registration
+    source_finding: {phase: p7, register: cc_composition, key: read_registration}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: extract_address
     direction: INPUT
     field: from
     bound_to: inputs.actor_record
-    source_finding: S7 cc_composition extract_address
+    source_finding: {phase: p7, register: cc_composition, key: extract_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: extract_address
     direction: INPUT
     field: path
     bound_to: inputs.address_path
-    source_finding: S7 cc_composition extract_address
+    source_finding: {phase: p7, register: cc_composition, key: extract_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: extract_address
     direction: INPUT
     field: type
     bound_to: inputs.address_type
-    source_finding: S7 cc_composition extract_address
+    source_finding: {phase: p7, register: cc_composition, key: extract_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: extract_address
     direction: OUTPUT
     field: result
     bound_to: capability_result.result
-    source_finding: S7 cc_composition extract_address
+    source_finding: {phase: p7, register: cc_composition, key: extract_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: claim_address
     direction: INPUT
     field: key
     bound_to: results.extract_address.result
-    source_finding: S7 cc_composition claim_address
+    source_finding: {phase: p7, register: cc_composition, key: claim_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: claim_address
     direction: INPUT
     field: target_cs
     bound_to:
       literal: CS_MUTABLE_JSON_V0
-    source_finding: S7 cc_composition claim_address
+    source_finding: {phase: p7, register: cc_composition, key: claim_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: claim_address
     direction: INPUT
     field: target_ref
     bound_to:
       literal: ACTORS
-    source_finding: S7 cc_composition claim_address
+    source_finding: {phase: p7, register: cc_composition, key: claim_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: claim_address
     direction: OUTPUT
     field: address
     bound_to: capability_result.address
-    source_finding: S7 cc_composition claim_address
+    source_finding: {phase: p7, register: cc_composition, key: claim_address}
   - owner: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     step: claim_address
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition claim_address
+    source_finding: {phase: p7, register: cc_composition, key: claim_address}
   - owner: blockchain::CC_REGISTER_ACTOR_V0
     step: assemble_actor
     direction: INPUT
     field: fields
     bound_to: inputs.actor_fields
-    source_finding: S7 cc_composition assemble_actor
+    source_finding: {phase: p7, register: cc_composition, key: assemble_actor}
   - owner: blockchain::CC_REGISTER_ACTOR_V0
     step: assemble_actor
     direction: OUTPUT
     field: record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_actor
+    source_finding: {phase: p7, register: cc_composition, key: assemble_actor}
   - owner: blockchain::CC_REGISTER_ACTOR_V0
     step: write_actor
     direction: INPUT
     field: key
     bound_to: inputs.contact_address
-    source_finding: S7 cc_composition write_actor
+    source_finding: {phase: p7, register: cc_composition, key: write_actor}
   - owner: blockchain::CC_REGISTER_ACTOR_V0
     step: write_actor
     direction: INPUT
     field: value
     bound_to: results.assemble_actor.record
-    source_finding: S7 cc_composition write_actor
+    source_finding: {phase: p7, register: cc_composition, key: write_actor}
   - owner: blockchain::CC_REGISTER_ACTOR_V0
     step: write_actor
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition write_actor
+    source_finding: {phase: p7, register: cc_composition, key: write_actor}
   - owner: blockchain::CC_RESOLVE_ACTOR_V0
     step: resolve_address
     direction: INPUT
     field: key_or_address
     bound_to: inputs.contact_address
-    source_finding: S7 cc_composition resolve_address
+    source_finding: {phase: p7, register: cc_composition, key: resolve_address}
   - owner: blockchain::CC_RESOLVE_ACTOR_V0
     step: resolve_address
     direction: OUTPUT
     field: target_ref
     bound_to: capability_result.target_ref
-    source_finding: S7 cc_composition resolve_address
+    source_finding: {phase: p7, register: cc_composition, key: resolve_address}
   - owner: blockchain::CC_RESOLVE_ACTOR_V0
     step: read_actor
     direction: INPUT
     field: key
     bound_to: inputs.contact_address
-    source_finding: S7 cc_composition read_actor
+    source_finding: {phase: p7, register: cc_composition, key: read_actor}
   - owner: blockchain::CC_RESOLVE_ACTOR_V0
     step: read_actor
     direction: OUTPUT
     field: value
     bound_to: capability_result.value
-    source_finding: S7 cc_composition read_actor
+    source_finding: {phase: p7, register: cc_composition, key: read_actor}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: read_state_admits_decision
     direction: INPUT
     field: value
     bound_to: inputs.current_state
-    source_finding: S7 cc_composition read_state_admits_decision
+    source_finding: {phase: p7, register: cc_composition, key: read_state_admits_decision}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: read_state_admits_decision
     direction: INPUT
     field: allowed_set
     bound_to: inputs.states_admitting_a_decision
-    source_finding: S7 cc_composition read_state_admits_decision
+    source_finding: {phase: p7, register: cc_composition, key: read_state_admits_decision}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: read_state_admits_decision
     direction: OUTPUT
     field: is_member
     bound_to: capability_result.is_member
-    source_finding: S7 cc_composition read_state_admits_decision
+    source_finding: {phase: p7, register: cc_composition, key: read_state_admits_decision}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: read_outcome_admitted
     direction: INPUT
     field: value
     bound_to: inputs.decision
-    source_finding: S7 cc_composition read_outcome_admitted
+    source_finding: {phase: p7, register: cc_composition, key: read_outcome_admitted}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: read_outcome_admitted
     direction: INPUT
     field: allowed_set
     bound_to: inputs.admitted_outcomes
-    source_finding: S7 cc_composition read_outcome_admitted
+    source_finding: {phase: p7, register: cc_composition, key: read_outcome_admitted}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: read_outcome_admitted
     direction: OUTPUT
     field: is_member
     bound_to: capability_result.is_member
-    source_finding: S7 cc_composition read_outcome_admitted
+    source_finding: {phase: p7, register: cc_composition, key: read_outcome_admitted}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: refuse_self_verification
     direction: INPUT
     field: left
     bound_to: inputs.verifying_authority
-    source_finding: S7 cc_composition refuse_self_verification
+    source_finding: {phase: p7, register: cc_composition, key: refuse_self_verification}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: refuse_self_verification
     direction: INPUT
     field: right
     bound_to: inputs.contact_address
-    source_finding: S7 cc_composition refuse_self_verification
+    source_finding: {phase: p7, register: cc_composition, key: refuse_self_verification}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: refuse_self_verification
     direction: OUTPUT
     field: is_equal
     bound_to: capability_result.is_equal
-    source_finding: S7 cc_composition refuse_self_verification
+    source_finding: {phase: p7, register: cc_composition, key: refuse_self_verification}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: assemble_decided_actor
     direction: INPUT
     field: fields
     bound_to: inputs.decided_actor_fields
-    source_finding: S7 cc_composition assemble_decided_actor
+    source_finding: {phase: p7, register: cc_composition, key: assemble_decided_actor}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: assemble_decided_actor
     direction: OUTPUT
     field: record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_decided_actor
+    source_finding: {phase: p7, register: cc_composition, key: assemble_decided_actor}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: write_decided_actor
     direction: INPUT
     field: key
     bound_to: inputs.contact_address
-    source_finding: S7 cc_composition write_decided_actor
+    source_finding: {phase: p7, register: cc_composition, key: write_decided_actor}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: write_decided_actor
     direction: INPUT
     field: value
     bound_to: results.assemble_decided_actor.record
-    source_finding: S7 cc_composition write_decided_actor
+    source_finding: {phase: p7, register: cc_composition, key: write_decided_actor}
   - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     step: write_decided_actor
     direction: OUTPUT
     field: result_status
     bound_to:
       literal: $.result_status
-    source_finding: S7 cc_composition write_decided_actor
+    source_finding: {phase: p7, register: cc_composition, key: write_decided_actor}
   - owner: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     step: read_now
     direction: OUTPUT
     field: timestamp
     bound_to: capability_result.timestamp
-    source_finding: S7 cc_composition read_now
+    source_finding: {phase: p7, register: cc_composition, key: read_now}
   - owner: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     step: assemble_occurrence
     direction: INPUT
@@ -842,163 +842,163 @@ registers:
         verifying_authority: $.inputs.occurrence_fields.verifying_authority
         grounds: $.inputs.occurrence_fields.grounds
         occurred_at: $.results.read_now.timestamp
-    source_finding: S7 cc_composition assemble_occurrence
+    source_finding: {phase: p7, register: cc_composition, key: assemble_occurrence}
   - owner: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     step: assemble_occurrence
     direction: OUTPUT
     field: record
     bound_to: capability_result.record
-    source_finding: S7 cc_composition assemble_occurrence
+    source_finding: {phase: p7, register: cc_composition, key: assemble_occurrence}
   - owner: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     step: append_occurrence
     direction: INPUT
     field: record
     bound_to: results.assemble_occurrence.record
-    source_finding: S7 cc_composition append_occurrence
+    source_finding: {phase: p7, register: cc_composition, key: append_occurrence}
   - owner: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     step: append_occurrence
     direction: INPUT
     field: stream_id
     bound_to: inputs.stream_id
-    source_finding: S7 cc_composition append_occurrence
+    source_finding: {phase: p7, register: cc_composition, key: append_occurrence}
   - owner: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     step: append_occurrence
     direction: INPUT
     field: actor_id
     bound_to: inputs.contact_address
-    source_finding: S7 cc_composition append_occurrence
+    source_finding: {phase: p7, register: cc_composition, key: append_occurrence}
   - owner: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     step: append_occurrence
     direction: OUTPUT
     field: sequence_number
     bound_to: capability_result.sequence_number
-    source_finding: S7 cc_composition append_occurrence
+    source_finding: {phase: p7, register: cc_composition, key: append_occurrence}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_VALIDATE_REGISTRATION_V0
     direction: INPUT
     field: actor_record
     bound_to: payload.actor_record
-    source_finding: S7 execution_topology CC_VALIDATE_REGISTRATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_VALIDATE_REGISTRATION_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_VALIDATE_REGISTRATION_V0
     direction: INPUT
     field: registration_schema
     bound_to: payload.registration_schema
-    source_finding: S7 execution_topology CC_VALIDATE_REGISTRATION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_VALIDATE_REGISTRATION_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     direction: INPUT
     field: actor_record
     bound_to: payload.actor_record
-    source_finding: S7 execution_topology CC_CLAIM_CONTACT_ADDRESS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CLAIM_CONTACT_ADDRESS_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     direction: INPUT
     field: address_path
     bound_to: payload.address_path
-    source_finding: S7 execution_topology CC_CLAIM_CONTACT_ADDRESS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CLAIM_CONTACT_ADDRESS_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
     direction: INPUT
     field: address_type
     bound_to: payload.address_type
-    source_finding: S7 execution_topology CC_CLAIM_CONTACT_ADDRESS_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_CLAIM_CONTACT_ADDRESS_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_REGISTER_ACTOR_V0
     direction: INPUT
     field: actor_fields
     bound_to: payload.actor_record
-    source_finding: S7 execution_topology CC_REGISTER_ACTOR_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_REGISTER_ACTOR_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_REGISTER_ACTOR_V0
     direction: INPUT
     field: contact_address
     bound_to: results.CC_CLAIM_CONTACT_ADDRESS_V0.result
-    source_finding: S7 execution_topology CC_REGISTER_ACTOR_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_REGISTER_ACTOR_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     direction: INPUT
     field: occurrence_fields
     bound_to: payload.occurrence_fields
-    source_finding: S7 execution_topology CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     direction: INPUT
     field: stream_id
     bound_to: payload.stream_id
-    source_finding: S7 execution_topology CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   - owner: blockchain::WF_REGISTER_ACTOR_V0
     step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     direction: INPUT
     field: contact_address
     bound_to: results.CC_CLAIM_CONTACT_ADDRESS_V0.result
-    source_finding: S7 execution_topology CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RESOLVE_ACTOR_V0
     direction: INPUT
     field: contact_address
     bound_to: payload.contact_address
-    source_finding: S7 execution_topology CC_RESOLVE_ACTOR_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RESOLVE_ACTOR_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     direction: INPUT
     field: current_state
     bound_to: results.CC_RESOLVE_ACTOR_V0.value.state
-    source_finding: S7 execution_topology CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     direction: INPUT
     field: states_admitting_a_decision
     bound_to: payload.states_admitting_a_decision
-    source_finding: S7 execution_topology CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     direction: INPUT
     field: decision
     bound_to: payload.decision
-    source_finding: S7 execution_topology CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     direction: INPUT
     field: admitted_outcomes
     bound_to: payload.admitted_outcomes
-    source_finding: S7 execution_topology CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     direction: INPUT
     field: verifying_authority
     bound_to: payload.verifying_authority
-    source_finding: S7 execution_topology CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     direction: INPUT
     field: contact_address
     bound_to: payload.contact_address
-    source_finding: S7 execution_topology CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
     direction: INPUT
     field: decided_actor_fields
     bound_to: payload.decided_actor_fields
-    source_finding: S7 execution_topology CC_RECORD_VERIFICATION_DECISION_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_RECORD_VERIFICATION_DECISION_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     direction: INPUT
     field: occurrence_fields
     bound_to: payload.occurrence_fields
-    source_finding: S7 execution_topology CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     direction: INPUT
     field: stream_id
     bound_to: payload.stream_id
-    source_finding: S7 execution_topology CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   - owner: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
     step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     direction: INPUT
     field: contact_address
     bound_to: payload.contact_address
-    source_finding: S7 execution_topology CC_APPEND_ACTOR_OCCURRENCE_V0
+    source_finding: {phase: p7, register: execution_topology, key: CC_APPEND_ACTOR_OCCURRENCE_V0}
   interface_fields:
   - artifact: blockchain::IN_ACTOR_REGISTERED_V0
     direction: INPUT
@@ -1322,55 +1322,55 @@ registers:
     capability: capability_side_effects::CS_MUTABLE_JSON_V0
     key: structure
     value: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-    source_finding: S6 storage_governance A durable record of every person the business knows, carrying whether it has accepted them
+    source_finding: {phase: p6, register: storage_governance, key: 'A durable record of every person the business knows, carrying whether it has accepted them'}
   - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
     capability: capability_side_effects::CS_REGISTRY_V0
     key: structure
     value: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-    source_finding: S6 storage_governance An atomic claim on each contact address
+    source_finding: {phase: p6, register: storage_governance, key: An atomic claim on each contact address}
   - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
     capability: capability_side_effects::CS_APPENDONLY_JSONL_V0
     key: structure
     value: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-    source_finding: S6 storage_governance An unamendable trail of every occurrence recorded against an actor
+    source_finding: {phase: p6, register: storage_governance, key: An unamendable trail of every occurrence recorded against an actor}
   - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
     capability: capability_side_effects::CS_CLOCK_V0
     key: precision
     value: seconds
-    source_finding: 'S4 design_decisions #5'
+    source_finding: {phase: p4, register: design_decisions, row: 5}
   artifact_properties:
   - artifact: blockchain::AC_PARTICIPANT_V0
     property: type
     value: ENDUSER
-    source_finding: S5 provisional_codes AC_PARTICIPANT_V0
+    source_finding: {phase: p5, register: provisional_codes, key: AC_PARTICIPANT_V0}
   - artifact: blockchain::EV_ACTOR_REJECTED_V0
     property: grounds_required
     value: 'YES'
-    source_finding: S6 boundary_rules ACCEPTANCE_AND_REJECTION_ARE_DISTINCT
+    source_finding: {phase: p6, register: boundary_rules, key: ACCEPTANCE_AND_REJECTION_ARE_DISTINCT}
   - artifact: blockchain::EV_ACTOR_ACCEPTED_V0
     property: grounds_required
     value: 'NO'
-    source_finding: S6 boundary_rules ACCEPTANCE_AND_REJECTION_ARE_DISTINCT
+    source_finding: {phase: p6, register: boundary_rules, key: ACCEPTANCE_AND_REJECTION_ARE_DISTINCT}
   - artifact: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
     property: occurred_at_source
     value: capability_side_effects::CS_CLOCK_V0
-    source_finding: S6 boundary_rules NO_TIME_IS_INVENTED
+    source_finding: {phase: p6, register: boundary_rules, key: NO_TIME_IS_INVENTED}
   structure_stores:
   - store_name: ACTORS
     storage_type: CS_MUTABLE_JSON_V0
     proposed_path: blockchain/identity/actors.json
     used_by: blockchain::CC_REGISTER_ACTOR_V0
-    source_finding: S6 storage_governance A durable record of every person the business knows, carrying whether it has accepted them
+    source_finding: {phase: p6, register: storage_governance, key: 'A durable record of every person the business knows, carrying whether it has accepted them'}
   - store_name: CONTACT_ADDRESS_REGISTRY
     storage_type: CS_REGISTRY_V0
     proposed_path: blockchain/identity/contact_address_registry.jsonl
     used_by: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-    source_finding: S6 storage_governance An atomic claim on each contact address
+    source_finding: {phase: p6, register: storage_governance, key: An atomic claim on each contact address}
   - store_name: ACTOR_OCCURRENCES
     storage_type: CS_APPENDONLY_JSONL_V0
     proposed_path: blockchain/identity/actor_occurrences.jsonl
     used_by: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    source_finding: S6 storage_governance An unamendable trail of every occurrence recorded against an actor
+    source_finding: {phase: p6, register: storage_governance, key: An unamendable trail of every occurrence recorded against an actor}
   transport_bindings: []
   artifact_summary:
   - action: NEW
