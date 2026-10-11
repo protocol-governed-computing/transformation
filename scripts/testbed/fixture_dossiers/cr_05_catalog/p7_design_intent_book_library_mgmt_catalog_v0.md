@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 7 — Design Intent
-  CR: cr_05_catalog
-  Status: DRAFT
-  Feeds: Stage 8 — Authoring Mandate
+document:
+  phase: p7
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_05_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P7_V0
 registers:
   design_resolution:
   - decision: Each rule is held by the step that applies it

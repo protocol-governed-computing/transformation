@@ -7,7 +7,7 @@ fixture, run this, commit the result.
 **One declaration, two derivations.** `PAYLOADS` maps a payload to the document it is cut from, and
 that is the only thing stated here. Which key the text travels under follows from the phase; which
 priors travel with it is read from `priors.py`, which derives them from the phase's declared `PRIORS`
-and the document's own `CR:` header. Two hand-kept tables used to sit where those derivations are, and
+and the document's own `cr` header field. Two hand-kept tables used to sit where those derivations are, and
 both went stale the first time probes were added without them.
 
 Run:   python scripts/testbed/build_payloads.py

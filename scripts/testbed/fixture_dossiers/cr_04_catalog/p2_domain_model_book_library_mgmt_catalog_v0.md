@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 2 — Domain Model Discovery
-  CR: cr_04_catalog
-  Status: DRAFT
-  Feeds: Stage 3 — Analysis Loop
+document:
+  phase: p2
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_04_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P2_V0
 registers:
   entities:
   - entity: Operation

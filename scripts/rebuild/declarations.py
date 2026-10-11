@@ -45,11 +45,14 @@ RESTATED = {
 RESTATED_EVERYWHERE = {
     "SOURCE_FINDING_UNRESOLVED": ("M3.3b-1", {"params"}),
     "ROW_WITHOUT_SOURCE_FINDING": ("M3.3b-2", {"check"}),
+    "HEADER_FIELD_MISSING": ("M4-1", {"params", "intent"}),
 }
 # A rule only the oracle has: (phase, id) → the divergence that retired it.
 RETIRED = {("p7", "TEST_VALUE_UNPARSEABLE"): "M2-10", ("p1", "CITATION_ROW_UNRESOLVED"): "M3.4a-2"}
-# A rule only the rebuild has: its check → the divergence that added it.
-ADDED = {"CELL_OF_TYPE": "M3.3-4"}
+# A rule only the oracle has, in every phase: id → the divergence that retired it.
+RETIRED_EVERYWHERE = {"LIFECYCLE_STATE_NOT_IN_VOCABULARY": "M4-2"}
+# A rule only the rebuild has: its check, or its id, → the divergence that added it.
+ADDED = {"CELL_OF_TYPE": "M3.3-4", "HEADER_FIELD_OF_TYPE": "M4-1", "HEADER_FIELD_MISMATCH": "M4-1"}
 # A procedure restated as several constraints: (phase, id) → the divergence. The first is matched
 # as restated; the rest are added.
 SPLIT = {("p7", "STORE_PATH_FORMAT_MISMATCH"): "M3.4a-1", ("p7", "BINDING_SOURCE_MALFORMED"): "M3.4a-1"}
@@ -123,12 +126,14 @@ def main(argv: list[str]) -> int:
                 only_a.remove(ra)
                 only_b.remove(match)
         for ra in list(only_a):
-            if (phase, ra["id"]) in RETIRED:
-                explained.append(RETIRED[(phase, ra["id"])])
+            retired = RETIRED.get((phase, ra["id"])) or RETIRED_EVERYWHERE.get(ra["id"])
+            if retired:
+                explained.append(retired)
                 only_a.remove(ra)
         for rb in list(only_b):
-            if rb["check"] in ADDED:
-                explained.append(ADDED[rb["check"]])
+            added = ADDED.get(rb["check"]) or ADDED.get(rb["id"])
+            if added:
+                explained.append(added)
                 only_b.remove(rb)
             elif (phase, rb["id"]) in SPLIT:
                 explained.append(SPLIT[(phase, rb["id"])])

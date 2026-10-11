@@ -167,7 +167,7 @@ def observation(operations: dict | None, snapshot_root: str) -> dict:
 #
 # This was a literal table: every corpus document, every prior it reads, by hand. It was wrong twice
 # in one session. `scripts/testbed/priors.py` now derives it from the phase's declared `PRIORS` and
-# the document's own `CR:` header, and both this harness and the payload builder read it from there
+# the document's own `cr` header field, and both this harness and the payload builder read it from there
 # rather than each keeping a copy.
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))

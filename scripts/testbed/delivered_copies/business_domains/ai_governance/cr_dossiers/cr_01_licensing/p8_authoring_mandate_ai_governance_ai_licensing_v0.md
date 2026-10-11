@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: cr_01_licensing
-  Status: DRAFT
-  Feeds: Construction
+document:
+  phase: p8
+  domain: ai_governance
+  subdomain: ai_licensing
+  cr: cr_01_licensing
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order: null
   critical_path: null

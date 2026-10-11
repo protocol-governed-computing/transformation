@@ -2,8 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "transformation.schemas.REGISTER_SCHEMA_P2_V0",
   "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "x-revisions": [
+    {
+      "revision": 1,
+      "retroactive": false,
+      "change": "The rule set as rebuilt: declared in this schema, each rule named by its identity, the header stated under document.",
+      "digest": "sha256:28334f87a6c312b5c16f126612bf9baa4f84737e955bc2621620aaa0078e83f6"
+    }
+  ],
   "type": "object",
   "required": [
+    "document",
     "registers"
   ],
   "x-consumes": [
@@ -35,6 +44,44 @@
     "open_questions"
   ],
   "properties": {
+    "document": {
+      "type": "object",
+      "required": [
+        "phase",
+        "domain",
+        "subdomain",
+        "cr",
+        "rule_set"
+      ],
+      "properties": {
+        "phase": {
+          "const": "p2"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subdomain": {
+          "type": [
+            "string",
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "minLength": 1,
+          "minItems": 1
+        },
+        "cr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule_set": {
+          "type": "string",
+          "pattern": "^transformation\\.schemas\\.REGISTER_SCHEMA_P2_V[0-9]+$"
+        }
+      }
+    },
     "registers": {
       "type": "object",
       "required": [
@@ -677,37 +724,6 @@
             "discovery_concerns"
           ],
           "detail": "{column!r} declares the question unanswered ({marker}) rather than answering it — ask it as a clarification, do not hedge it in a register"
-        }
-      }
-    },
-    {
-      "x-finding": {
-        "code": "HEADER_FIELD_MISSING",
-        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
-      },
-      "properties": {
-        "header": {
-          "required": [
-            "Stage",
-            "CR",
-            "Status",
-            "Feeds"
-          ]
-        }
-      }
-    },
-    {
-      "x-finding": {
-        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
-      },
-      "properties": {
-        "header": {
-          "properties": {
-            "Status": {
-              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
-            }
-          }
         }
       }
     }

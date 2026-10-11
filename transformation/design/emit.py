@@ -390,6 +390,8 @@ class Emission:
     filename: str
     rules: int
     drifted: bool
+    # Why the phase's rules may not be sealed: they changed without a recorded revision.
+    unrecorded: str | None = None
 
 
 def sources(phase_id: str) -> list[str]:
@@ -591,8 +593,15 @@ def emit(snapshot_root: str | Path, check_only: bool = False,
         if texts is not None:
             texts[pathlib.Path(relative).stem] = text
         out.append(emission)
+    from transformation.design.effectivity import unrecorded
+    from transformation.design.rule_sets import RULE_SETS
+
     for phase_id, filename in SEALED_IN.items():
         path = WORKFLOWS / filename
+        phase = RULE_SETS[phase_id]
+        # A rule set changed without declaring its effectivity is not sealed: the workflow would
+        # carry rules no revision accounts for, and a verdict could not say what judged it.
+        refused = unrecorded(phase.shape, phase.rule_set())
         rules = declared(phase_id)
         current = path.read_text(encoding="utf-8")
         code = judge_contract(current)
@@ -601,11 +610,12 @@ def emit(snapshot_root: str | Path, check_only: bool = False,
         updated = splice_provenance(splice_routing(splice(current, render(rules)), allowed),
                                     provenance(phase_id))
         drifted = updated != current
-        if drifted and not check_only:
+        if drifted and not check_only and refused is None:
             path.write_text(updated, encoding="utf-8")
         if texts is not None:
             texts[filename[:-len(".md")]] = updated
-        out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted))
+        out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted,
+                            unrecorded=refused))
     return out
 
 

@@ -338,7 +338,8 @@ def closure(rule_sets: dict[str, PhaseRules], snapshot_root: str) -> list[MetaFi
     - every `x-realises` resolves: to an invariant the composition carries and the design
       constitution names, or to a statement in DESIGN_LANGUAGE;
     - every invariant the design constitution names is realised by some rule;
-    - every template names exactly its schema's registers, with the same columns.
+    - every template names exactly its schema's registers, with the same columns;
+    - every rule set is the last revision its schema records.
 
     That every check kind is used, and every rule's kind exists, `verify` asserts.
     """
@@ -380,6 +381,13 @@ def closure(rule_sets: dict[str, PhaseRules], snapshot_root: str) -> list[MetaFi
         elif fqdn not in realised:
             findings.append(MetaFinding("INVARIANT_UNREALISED", fqdn,
                                         "is in force, and no rule of any phase realises it"))
+
+    from transformation.design.effectivity import unrecorded
+
+    for phase_id, phase in sorted(rule_sets.items()):
+        reason = unrecorded(phase.shape, phase.rule_set())
+        if reason:
+            findings.append(MetaFinding("REVISION_UNRECORDED", phase_id, reason))
 
     for phase_id, phase in sorted(rule_sets.items()):
         template = {r.id: tuple(_title(c) for c in r.columns) for r in template_reader.load(phase_id).registers}

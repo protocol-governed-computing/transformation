@@ -28,6 +28,7 @@
     },
     "required": {
       "const": [
+        "document",
         "registers"
       ]
     },
@@ -40,10 +41,14 @@
     "properties": {
       "type": "object",
       "required": [
+        "document",
         "registers"
       ],
       "additionalProperties": false,
       "properties": {
+        "document": {
+          "$ref": "#/$defs/document"
+        },
         "registers": {
           "type": "object",
           "required": [
@@ -107,6 +112,14 @@
       },
       "additionalProperties": {
         "type": "object"
+      }
+    },
+    "x-revisions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The rule set's history under this `$id`, oldest first. Each revision records a change that alters no prior document's admissibility; one that can takes a new `$id`. The last revision's digest is the digest of the rule set the schema expands into.",
+      "items": {
+        "$ref": "#/$defs/revision"
       }
     }
   },
@@ -418,33 +431,6 @@
           "type": "integer",
           "minimum": 0
         },
-        "properties": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "header"
-          ],
-          "properties": {
-            "header": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "required": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "properties": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "$ref": "#/$defs/value_test"
-                  }
-                }
-              }
-            }
-          }
-        },
         "x-key": {
           "$ref": "#/$defs/annotation"
         },
@@ -473,6 +459,150 @@
               "type": "object"
             }
           }
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "required",
+        "properties"
+      ],
+      "description": "The header a phase document carries under `document`: what it is, and the rule set it was authored under. Each field's declaration expands into a header rule.",
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "required": {
+          "const": [
+            "phase",
+            "domain",
+            "subdomain",
+            "cr",
+            "rule_set"
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase",
+            "domain",
+            "subdomain",
+            "cr",
+            "rule_set"
+          ],
+          "properties": {
+            "phase": {
+              "type": "object",
+              "required": [
+                "const"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "const": {
+                  "type": "string",
+                  "pattern": "^p[0-8]$"
+                }
+              }
+            },
+            "domain": {
+              "$ref": "#/$defs/header_field"
+            },
+            "subdomain": {
+              "$ref": "#/$defs/header_field"
+            },
+            "cr": {
+              "$ref": "#/$defs/header_field"
+            },
+            "rule_set": {
+              "type": "object",
+              "required": [
+                "type",
+                "pattern"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "string"
+                },
+                "pattern": {
+                  "type": "string"
+                }
+              }
+            },
+            "approval": {
+              "type": "object",
+              "required": [
+                "$ref"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "$ref": {
+                  "const": "#/$defs/approval"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "header_field": {
+      "type": "object",
+      "description": "A header field's type, as JSON Schema.",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "items": {
+          "type": "object"
+        },
+        "minLength": {
+          "type": "integer"
+        },
+        "minItems": {
+          "type": "integer"
+        }
+      }
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "retroactive",
+        "change",
+        "digest"
+      ],
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "retroactive": {
+          "const": false,
+          "description": "A retroactive change takes a new `$id`, so a revision recorded here never is. The field states the effectivity the change declared."
+        },
+        "change": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
         }
       }
     }

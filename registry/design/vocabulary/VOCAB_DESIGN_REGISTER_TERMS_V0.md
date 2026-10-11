@@ -24,6 +24,12 @@ artifact_family:
   - STRUCTURE
   - TI
   - TE
+approval_state:
+  casing: UPPER_SNAKE
+  entries:
+  - APPROVED
+  - MIGRATED
+  - RECONFIRMED
 belief_result:
   casing: UPPER_SNAKE
   entries:

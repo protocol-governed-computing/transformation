@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 4 — Business Model
-  CR: cr_01_catalog
-  Status: CONSOLIDATING
+document:
+  phase: p5
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   actors:
   - actor: Authorized staff member

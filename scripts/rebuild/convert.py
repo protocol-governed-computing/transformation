@@ -34,6 +34,7 @@ from pathlib import Path
 
 import yaml
 
+import header as header_form  # this directory; the oracle runs the script from here
 import transformation
 from transformation.design import read as oracle_read
 from transformation.design.checks import is_sentinel
@@ -312,7 +313,8 @@ def _owned_lines(lines: list[str]) -> set[int]:
 
 def convert(text: str) -> str:
     header, _, registers = oracle_read.parse_text(text)
-    block: dict = {"header": dict(header), "registers": {}}
+    block: dict = {"document": header_form.document(header, text.splitlines()[0] if text else ""),
+                   "registers": {}}
     for entry in registers:
         if entry["id"] not in block["registers"]:
             block["registers"][entry["id"]] = _register(entry)

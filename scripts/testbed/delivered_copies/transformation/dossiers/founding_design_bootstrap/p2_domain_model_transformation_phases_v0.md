@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 2 — Domain Model Verification
-  CR: new_subdomain
-  Status: DRAFT
-  Feeds: Stage 3 — Analysis Loop
+document:
+  phase: p2
+  domain: transformation
+  subdomain: phases
+  cr: new_subdomain
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P2_V0
 registers:
   entities:
   - entity: Seed

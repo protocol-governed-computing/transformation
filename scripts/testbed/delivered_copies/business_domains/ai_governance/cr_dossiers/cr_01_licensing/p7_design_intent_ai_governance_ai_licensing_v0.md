@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 7 — Design Intent
-  CR: cr_01_licensing
-  Status: DRAFT
-  Feeds: Stage 8 — Authoring Mandate
+document:
+  phase: p7
+  domain: ai_governance
+  subdomain: ai_licensing
+  cr: cr_01_licensing
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P7_V0
 registers:
   design_resolution:
   - decision: Each check is stated whole, as it stands, with its cases

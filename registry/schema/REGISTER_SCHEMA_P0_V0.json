@@ -2,8 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "transformation.schemas.REGISTER_SCHEMA_P0_V0",
   "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "x-revisions": [
+    {
+      "revision": 1,
+      "retroactive": false,
+      "change": "The rule set as rebuilt: declared in this schema, each rule named by its identity, the header stated under document.",
+      "digest": "sha256:d90b0162ac479dc2a46e569e4f5d27235f3b74ee530a3ccb67e095129066b45f"
+    }
+  ],
   "type": "object",
   "required": [
+    "document",
     "registers"
   ],
   "x-consumes": [
@@ -32,6 +41,47 @@
     "authority_deferrals"
   ],
   "properties": {
+    "document": {
+      "type": "object",
+      "required": [
+        "phase",
+        "domain",
+        "subdomain",
+        "cr",
+        "rule_set"
+      ],
+      "properties": {
+        "phase": {
+          "const": "p0"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subdomain": {
+          "type": [
+            "string",
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "minLength": 1,
+          "minItems": 1
+        },
+        "cr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule_set": {
+          "type": "string",
+          "pattern": "^transformation\\.schemas\\.REGISTER_SCHEMA_P0_V[0-9]+$"
+        },
+        "approval": {
+          "$ref": "#/$defs/approval"
+        }
+      }
+    },
     "registers": {
       "type": "object",
       "required": [
@@ -870,38 +920,34 @@
           ]
         }
       }
-    },
-    {
-      "x-finding": {
-        "code": "HEADER_FIELD_MISSING",
-        "intent": "a dossier document states its phase, its CR, its lifecycle state, and what it feeds"
-      },
+    }
+  ],
+  "x-priors": [],
+  "$defs": {
+    "approval": {
+      "type": "object",
+      "required": [
+        "gate",
+        "rule_set",
+        "state"
+      ],
+      "additionalProperties": false,
       "properties": {
-        "header": {
-          "required": [
-            "Stage",
-            "CR",
-            "Status",
-            "Feeds"
-          ]
-        }
-      }
-    },
-    {
-      "x-finding": {
-        "code": "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-        "intent": "the lifecycle axis is a controlled vocabulary, not free text"
-      },
-      "properties": {
-        "header": {
-          "properties": {
-            "Status": {
-              "pattern": "^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\\b"
-            }
+        "gate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule_set": {
+          "type": "string",
+          "pattern": "^transformation\\.schemas\\.REGISTER_SCHEMA_P0_V[0-9]+$"
+        },
+        "state": {
+          "x-vocab": {
+            "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+            "group": "approval_state"
           }
         }
       }
     }
-  ],
-  "x-priors": []
+  }
 }

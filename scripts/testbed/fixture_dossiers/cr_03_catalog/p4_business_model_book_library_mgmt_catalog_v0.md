@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 4 — Business Model
-  CR: cr_03_catalog
-  Status: DRAFT
-  Feeds: Stage 5 — Business Intent
+document:
+  phase: p4
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_03_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P4_V0
 registers:
   actors:
   - actor: Catalog

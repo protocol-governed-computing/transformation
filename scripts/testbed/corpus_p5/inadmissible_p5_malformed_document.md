@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 5 — Business Intent
-  CR: cr_01_catalog
-  Status: WIP
+document:
+  phase: p6
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   subdomain_purpose: |2
 

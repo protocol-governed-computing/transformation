@@ -3,11 +3,14 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: cr_02_reclaim_and_parameters
-  Status: DRAFT
-  Feeds: Construction
+document:
+  phase: p8
+  domain: ai_governance
+  subdomain:
+  - reclaim
+  - parameter result
+  cr: cr_02_reclaim_and_parameters
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order:
   - wave: '1'

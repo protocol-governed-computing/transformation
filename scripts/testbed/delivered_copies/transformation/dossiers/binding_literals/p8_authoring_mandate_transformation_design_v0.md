@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: binding_literals
-  Status: DRAFT
-  Feeds: Artifact Authoring
+document:
+  phase: p8
+  domain: transformation
+  subdomain: design
+  cr: binding_literals
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order:
   - wave: '1'

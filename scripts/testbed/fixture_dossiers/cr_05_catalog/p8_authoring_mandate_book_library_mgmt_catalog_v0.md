@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: cr_05_catalog
-  Status: DRAFT
-  Feeds: Construction
+document:
+  phase: p8
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_05_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order: null
   critical_path: null

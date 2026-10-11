@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: cr_01_catalog
-  Status: SCHEDULED
+document:
+  phase: p1
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   build_order:
   - wave: '1'

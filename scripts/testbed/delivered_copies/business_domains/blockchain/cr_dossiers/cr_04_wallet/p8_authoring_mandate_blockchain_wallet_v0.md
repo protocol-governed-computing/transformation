@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: cr_04_wallet
-  Status: DRAFT
-  Feeds: Construction
+document:
+  phase: p8
+  domain: blockchain
+  subdomain: wallet
+  cr: cr_04_wallet
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order:
   - wave: '1'

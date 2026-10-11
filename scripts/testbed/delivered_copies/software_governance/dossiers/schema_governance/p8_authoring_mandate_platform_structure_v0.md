@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: schema_governance
-  Status: DRAFT
-  Feeds: Artifact Authoring
+document:
+  phase: p8
+  domain: platform
+  subdomain: structure
+  cr: schema_governance
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order:
   - wave: '1'

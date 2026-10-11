@@ -51,6 +51,7 @@ from transformation.design.merit import PolicyUnavailable, load_policy, rate as 
 from transformation.design.meta import closure as meta_closure, verify as meta_verify
 from transformation.design.rule_sets import RULE_SETS
 from transformation.design.rules import Rule
+from transformation.design import effectivity
 from transformation.design.emit import workflow_fqdn
 from transformation.design.oracle import evaluate
 from transformation.design.sealed import sealed_rule_set
@@ -209,14 +210,20 @@ def phase_check(
     #
     # Which set ran is always printed. A verdict that does not say what judged it is a verdict whose
     # meaning depends on a flag the reader cannot see.
-    rules, judged_by = rules_mod.rule_set(), "the working tree's declaration"
+    rules, source = rules_mod.rule_set(), "the working tree's declaration"
     if rules_source == "sealed":
         if snapshot_root:
             sealed = sealed_rule_set(workflow_fqdn(phase_key), str(snapshot_root))
             rules = [Rule.from_mapping(entry) for entry in sealed]
-            judged_by = f"the rule set sealed in {snapshot_root}"
+            source = f"the rule set sealed in {snapshot_root}"
         else:
-            judged_by = "the working tree's declaration — no --snapshot to read a sealed one from"
+            source = "the working tree's declaration — no --snapshot to read a sealed one from"
+    # The rule set by name: its schema `$id`, its digest, and the revision that records the digest.
+    # The document names the rule set it was authored under; when the two differ, the verdict says
+    # so, and an approval given under another `$id` stands unconfirmed.
+    judged_by = {**effectivity.judged_by(rules, rules_mod.shape), "source": source}
+    authored_under = doc.header.get("rule_set")
+    approval = effectivity.approval_standing(doc.header, judged_by["schema"])
 
     verdict = evaluate(doc, rules)
     # Admissibility and quality are separate axes: the rule set decides the verdict, the figure of
@@ -231,6 +238,8 @@ def phase_check(
     if as_json:
         payload = verdict.as_dict()
         payload["judged_by"] = judged_by
+        payload["authored_under"] = authored_under
+        payload["approval"] = approval
         payload["merit"] = None if merit is None else {
             "rating": merit.rating,
             "maximum": merit.maximum,
@@ -247,7 +256,13 @@ def phase_check(
         click.echo(
             f"  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} rules"
         )
-        click.echo(f"  judged by {judged_by}")
+        revision = "unrecorded" if judged_by["revision"] is None else f"revision {judged_by['revision']}"
+        click.echo(f"  judged by {judged_by['schema']} {revision} ({judged_by['source']})")
+        if authored_under != judged_by["schema"]:
+            click.echo(f"  authored under {authored_under or 'no rule set'}")
+        if approval is not None:
+            click.echo(f"  approval {approval['gate']} {approval['state']} under {approval['given_under']}"
+                       f" — {approval['standing']} under {approval['current']}")
         click.echo()
         click.echo(f"  Status            {verdict.verdict}")
         if merit is None:
@@ -359,6 +374,70 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
     click.echo(f"\n  {len(declared)} rules over {len(check_kinds())} check kinds")
 
 
+@phase.command("revise")
+@click.argument("phase_key", type=click.Choice(sorted(RULE_SETS)))
+@click.option("--change", required=True, help="What changed in the rules, and why.")
+@click.option("--retroactive", is_flag=True,
+              help="The change can alter a prior document's admissibility.")
+def phase_revise(phase_key: str, change: str, retroactive: bool) -> None:
+    """Record a change to a phase's rules as a revision of its schema.
+
+    A change declares its own effectivity. One that alters no prior document's admissibility is a
+    revision under the same `$id`, and this records it with the digest the rules now have. One that
+    can is retroactive: it takes a new `$id`, which is a new schema file named in the dispatch, and is
+    not recorded here.
+    """
+    phase = RULE_SETS[phase_key]
+    if retroactive:
+        raise click.ClickException(
+            f"a retroactive change takes a new $id: copy {phase.shape.path.name} to the next version, "
+            f"name it in transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0, and start its revisions at 1")
+    digest = effectivity.digest(phase.rule_set())
+    revisions = list(phase.shape.revisions)
+    if revisions and revisions[-1]["digest"] == digest:
+        raise click.ClickException(f"{phase.shape.schema_id} revision {revisions[-1]['revision']} "
+                                   f"already records {digest}; the rules have not changed")
+    declared = json.loads(phase.shape.path.read_text(encoding="utf-8"))
+    revisions.append({"revision": len(revisions) + 1, "retroactive": False, "change": change, "digest": digest})
+    ordered = {}
+    for key, value in declared.items():
+        if key == "x-revisions":
+            continue
+        ordered[key] = value
+        if key == "$comment":
+            ordered["x-revisions"] = revisions
+    ordered.setdefault("x-revisions", revisions)
+    phase.shape.path.write_text(json.dumps(ordered, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    click.echo(f"  {phase.shape.schema_id} revision {len(revisions)}  {digest}")
+
+
+@phase.command("diff")
+@click.argument("phase_key", type=click.Choice(sorted(RULE_SETS)))
+@click.option("--from", "before", required=True, type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="The composition whose sealed rule set is the earlier one, such as a dossier's pin.")
+@click.option("--to", "after", type=click.Path(exists=True, file_okay=False, path_type=Path), default=None,
+              help="The composition whose sealed rule set is the later one; the working tree when omitted.")
+def phase_diff(phase_key: str, before: Path, after: Path | None) -> None:
+    """Name the rules that differ between two rule sets of one phase, by rule identity."""
+    def sealed(root: Path) -> list[Rule]:
+        return [Rule.from_mapping(e) for e in sealed_rule_set(workflow_fqdn(phase_key), str(root))]
+
+    a = sealed(before)
+    b = sealed(after) if after else RULE_SETS[phase_key].rule_set()
+    shape = RULE_SETS[phase_key].shape
+    for label, rules in (("from", a), ("to", b)):
+        judged = effectivity.judged_by(rules, shape)
+        click.echo(f"  {label:<5} {judged['schema']}  revision {judged['revision']}  {judged['digest']}")
+    if any(not r.identity for r in a + b):
+        raise click.ClickException("a rule set sealed before rules carried an identity cannot be "
+                                   "compared rule by rule")
+    changes = effectivity.difference(a, b)
+    for kind in ("added", "removed", "changed"):
+        for identity in changes[kind]:
+            click.echo(f"  {kind:<8} {identity}")
+    click.echo(f"  {sum(len(v) for v in changes.values())} rule(s) differ")
+
+
 @phase.command("meta")
 @click.option("--json", "as_json", is_flag=True, help="Emit the findings as JSON.")
 @click.option("--snapshot", "snapshot_root", type=click.Path(exists=True, file_okay=False, path_type=Path),
@@ -465,8 +544,17 @@ def phase_emit(check_only: bool, snapshot_root: Path) -> None:
     results = emit_phase_workflows(snapshot_root, check_only=check_only)
     for e in results:
         state = "OK      " if not e.drifted else ("STALE   " if check_only else "WROTE   ")
+        if e.unrecorded:
+            state = "REFUSED "
         click.echo(f"  {state} {e.phase}  {e.rules:>3} rules  {e.filename}")
+        if e.unrecorded:
+            click.echo(f"           {e.unrecorded}")
 
+    refused = [e for e in results if e.unrecorded]
+    if refused:
+        click.echo(f"\n  REFUSED — {len(refused)} rule set(s) changed without a recorded revision "
+                   f"(REVISION_UNRECORDED). Run `tc phase revise`.", err=True)
+        sys.exit(1)
     stale = [e for e in results if e.drifted]
     if check_only and stale:
         click.echo(f"\n  REFUSED — {len(stale)} workflow(s) do not agree with the generator that "

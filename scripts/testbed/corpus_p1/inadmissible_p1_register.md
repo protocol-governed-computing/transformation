@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 1 — Change Request
-  CR: new_subdomain
-  Status: DRAFT
-  Feeds: Stage 2 — Domain Model
+document:
+  phase: p1
+  domain: transformation
+  subdomain: phases
+  cr: new_subdomain
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P1_V0
 registers:
   cr_type:
   - subdomain: phases

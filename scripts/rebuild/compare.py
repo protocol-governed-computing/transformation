@@ -30,6 +30,8 @@ SNAPSHOT = Path.home() / "pgc-oracle" / "snapshot"
 HERE = Path(__file__).resolve().parent
 
 CODE_MAP: dict[str, str] = {}
+# M4-1: the header is `document`, and two of its fields are renamed.
+HEADER_NAMES = {"phase": "Stage", "cr": "CR"}
 # M3.4a-1: procedures restated as constraints. The general kind words the finding its own way, so
 # these are compared by code and place.
 RESTATED_AS_CONSTRAINTS = ("BELIEF_STATED_AS_FACT", "STORE_PATH_FORMAT_MISMATCH", "BINDING_SOURCE_UNROOTED",
@@ -59,6 +61,9 @@ def _normalised(finding: dict, side: str) -> tuple | None:
       an unresolved ordinal is compared once per row.
     - M3.4a-1: a procedure restated as a constraint words its finding as the general kind does.
       Compared by code and place.
+    - M4-1: the header is `document`. `Status` and `Feeds` are gone, so the oracle's findings about
+      them are not compared; `phase` and `cr` read as `Stage` and `CR`.
+    - M4-2: `LIFECYCLE_STATE_NOT_IN_VOCABULARY` retires with `Status`.
     - M3.4c: the rebuild names a finding's kind `code` and places it by a locator. Both read as the
       oracle's `rule` and `where`.
     - M3.3b-1: a citation is a mapping, so an unresolved one is shown as the mapping. Both read as
@@ -67,6 +72,12 @@ def _normalised(finding: dict, side: str) -> tuple | None:
     """
     raw = finding.get("code", finding["rule"])
     code, where, detail = CODE_MAP.get(raw, raw), _where(finding), finding["detail"]
+    if code == "LIFECYCLE_STATE_NOT_IN_VOCABULARY" or (
+            code == "HEADER_FIELD_MISSING" and re.search(r"'(Status|Feeds)' absent", detail)):
+        return None
+    if where == "document":
+        where = "header"
+        detail = re.sub(r"'(phase|cr)'", lambda m: repr(HEADER_NAMES[m.group(1)]), detail)
     if code == "CITATION_ROW_UNRESOLVED":
         code = "CITATION_ORDINAL_UNRESOLVED"
     if code == "CITATION_ORDINAL_UNRESOLVED":
@@ -112,7 +123,7 @@ def _empty_registers(path: Path) -> set[str]:
 
 def findings(result: dict, side: str) -> Counter:
     listed = result.get("findings", [])
-    seen = Counter(_normalised(f, side) for f in listed)
+    seen = Counter(n for n in (_normalised(f, side) for f in listed) if n is not None)
     # A per-row missing column collapses to one finding per register and column, and an unresolved
     # ordinal to one finding per row (M3.4a-2).
     return Counter({k: (1 if k[0] in ("REGISTER_COLUMN_MISSING", "CITATION_ORDINAL_UNRESOLVED") else v)

@@ -363,6 +363,27 @@ comparison are unchanged.
 
 No rule changes: declarations and the comparison are unchanged.
 
+### M4 — effectivity and the header
+
+- **M4-1, the header.** `header: {Stage, CR, Status, Feeds}` is `document: {phase, domain,
+  subdomain, cr, rule_set}`, with `approval` in the gated phases. `Status` goes: a document's
+  standing is its verdict. `Feeds` goes: the dispatch states the order. The schema declares
+  `properties.document`, and its header rules are derived: `HEADER_FIELD_MISSING` (restated over the
+  new fields), `HEADER_FIELD_MISMATCH` and `HEADER_FIELD_NOT_OF_TYPE` (added). The oracle's findings
+  about `Status` and `Feeds` are not compared; `phase` and `cr` read as `Stage` and `CR`.
+- **M4-2.** `LIFECYCLE_STATE_NOT_IN_VOCABULARY` retires with `Status`.
+- **Revisions.** Each schema carries `x-revisions`; each phase is at revision 1. The emission and the
+  closure check refuse `REVISION_UNRECORDED`. `tc phase revise` records a revision; a retroactive
+  change takes a new `$id`.
+- **`judged_by`** names the `$id`, revision and digest of the rules that judged a document, with the
+  rule set the document was authored under when it differs. Approvals report their standing.
+  `tc phase diff` names the difference between two rule sets by identity.
+- **The testbed.** 159 documents migrated by `scripts/rebuild/header.py`, which `convert.py` shares.
+  The nine malformed-document fixtures carry header defects of the new form. `APPROVED`, `MIGRATED`
+  and `RECONFIRMED` are the group `approval_state` of `VOCAB_DESIGN_REGISTER_TERMS_V0`.
+
+Rule counts: p0 88, p1 193, p2 87, p3 58, p4 93, p5 91, p6 63, p7 284, p8 39.
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.

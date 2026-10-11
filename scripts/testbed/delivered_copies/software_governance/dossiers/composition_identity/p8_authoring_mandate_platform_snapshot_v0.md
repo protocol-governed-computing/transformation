@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: composition_identity
-  Status: DRAFT
-  Feeds: Artifact Authoring
+document:
+  phase: p8
+  domain: platform
+  subdomain: snapshot
+  cr: composition_identity
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order: []
   critical_path: []

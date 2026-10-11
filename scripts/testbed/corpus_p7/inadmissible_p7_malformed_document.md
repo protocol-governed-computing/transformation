@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 7 — Design Intent
-  CR: cr_01_catalog
-  Status: DESIGNED
+document:
+  phase: p8
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   design_resolution: |2
 

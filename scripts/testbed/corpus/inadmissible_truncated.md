@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 0 — Change Seed
-  CR: blockchain_chain_v0
-  Status: DRAFT
-  Feeds: Stage 1 — Change Request
+document:
+  phase: p0
+  domain: blockchain
+  subdomain: chain
+  cr: blockchain_chain_v0
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0
 registers:
   subdomain_purpose: |2
 

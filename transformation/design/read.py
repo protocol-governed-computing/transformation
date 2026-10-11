@@ -67,14 +67,16 @@ def _registers(data: Any) -> list[dict[str, Any]]:
     return [{"id": str(register_id), "value": value} for register_id, value in declared.items()]
 
 
-def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]], list[dict[str, Any]]]:
+def parse_text(text: str) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Parse document text into (header fields, sections, registers) as plain data."""
     lines = text.splitlines()
     data, machine_lines = _machine_block(lines)
 
-    header: dict[str, str] = {}
-    if isinstance(data, dict) and isinstance(data.get("header"), dict):
-        header = {str(k): _text(v) for k, v in data["header"].items()}
+    # The header is the block's `document` mapping. A field holding structure — a list of
+    # subdomains, an approval — is kept as it is; a scalar is read as text.
+    header: dict[str, Any] = {}
+    if isinstance(data, dict) and isinstance(data.get("document"), dict):
+        header = {str(k): v if isinstance(v, (list, dict)) else _text(v) for k, v in data["document"].items()}
 
     sections: list[dict[str, Any]] = []
     current: dict[str, Any] | None = None

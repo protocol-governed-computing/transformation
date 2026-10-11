@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 6 — Governance Intent
-  CR: cr_04_catalog
-  Status: DRAFT
-  Feeds: Stage 7 — Design Intent
+document:
+  phase: p6
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_04_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P6_V0
 registers:
   ownership:
   - capability: Admitting a request to register a further edition

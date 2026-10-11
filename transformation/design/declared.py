@@ -60,8 +60,6 @@ CONSTRAINTS = {
     "ROW_ABSENT_WHEN": {"column", "value", "detail"},
     "TABLE_ROW_COUNT": {"maximum", "detail"},
     "TABLE_HAS_ROWS": {"minimum"},
-    "HEADER_FIELD_PRESENT": {"fields"},
-    "HEADER_FIELD_MATCHES": {"fields", "pattern"},
 }
 
 
@@ -142,11 +140,6 @@ def encode(rule: Rule, cols: Columns | None) -> dict:
             entry["maxItems"] = p["maximum"]
         elif kind == "TABLE_HAS_ROWS":
             entry["minItems"] = p["minimum"]
-        elif kind == "HEADER_FIELD_PRESENT":
-            entry["properties"] = {"header": {"required": list(p["fields"])}}
-        elif kind == "HEADER_FIELD_MATCHES":
-            entry["properties"] = {"header": {"properties": {f: {"pattern": p["pattern"]}
-                                                             for f in p["fields"]}}}
     elif kind in _ANNOTATED:
         construct, mode = _ANNOTATED[kind]
         entry[construct] = {"mode": mode, "params": dict(p)}
@@ -195,13 +188,6 @@ def decode(entry: dict, register: str | None, cols: Columns | None) -> Rule:
         return rule("TABLE_ROW_COUNT", {"maximum": entry["maxItems"], **detail})
     if "minItems" in entry:
         return rule("TABLE_HAS_ROWS", {"minimum": entry["minItems"]})
-    if "properties" in entry:
-        header = entry["properties"]["header"]
-        if "required" in header:
-            return rule("HEADER_FIELD_PRESENT", {"fields": list(header["required"])})
-        fields = list(header["properties"])
-        return rule("HEADER_FIELD_MATCHES", {"fields": fields,
-                                             "pattern": header["properties"][fields[0]]["pattern"]})
     items = entry["items"]
     if "not" in items:
         negated = items["not"]

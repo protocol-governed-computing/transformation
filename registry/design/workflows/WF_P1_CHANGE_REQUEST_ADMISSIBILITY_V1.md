@@ -90,6 +90,66 @@ core:
         document_text: $.payload.register_text
         prior_texts: $.payload.prior_texts
         rule_set:
+        - id: HEADER_FIELD_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/properties/document/required
+          check: HEADER_FIELD_PRESENT
+          params:
+            fields:
+            - phase
+            - domain
+            - subdomain
+            - cr
+            - rule_set
+          intent: a phase document states its phase, its domain and subdomain, its change, and the rule set it
+            was authored under
+        - id: HEADER_FIELD_MISMATCH
+          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/properties/document/properties/phase/const
+          check: HEADER_FIELD_MATCHES
+          params:
+            fields:
+            - phase
+            pattern: ^p1$
+          intent: a document's phase is the phase whose rules judge it
+        - id: HEADER_FIELD_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/properties/document/properties/domain
+          check: HEADER_FIELD_OF_TYPE
+          params:
+            field: domain
+            type:
+              type: string
+              minLength: 1
+          intent: a document's domain takes its declared form
+        - id: HEADER_FIELD_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/properties/document/properties/subdomain
+          check: HEADER_FIELD_OF_TYPE
+          params:
+            field: subdomain
+            type:
+              type:
+              - string
+              - array
+              items:
+                type: string
+              minLength: 1
+              minItems: 1
+          intent: a document's subdomain takes its declared form
+        - id: HEADER_FIELD_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/properties/document/properties/cr
+          check: HEADER_FIELD_OF_TYPE
+          params:
+            field: cr
+            type:
+              type: string
+              minLength: 1
+          intent: a document's cr takes its declared form
+        - id: HEADER_FIELD_MISMATCH
+          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/properties/document/properties/rule_set/pattern
+          check: HEADER_FIELD_MATCHES
+          params:
+            fields:
+            - rule_set
+            pattern: ^transformation\.schemas\.REGISTER_SCHEMA_P1_V[0-9]+$
+          intent: a document's rule_set names a rule set of its own phase
         - id: REGISTER_MISSING
           identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/properties/registers/properties/cr_type/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
@@ -1913,24 +1973,6 @@ core:
             detail: only the business can answer this — ask it, fold the answer into the problem statement, and
               re-author the seed rather than carrying the question forward
           intent: a business question that outlives the seed is answered downstream by inference
-        - id: HEADER_FIELD_MISSING
-          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/allOf/37
-          check: HEADER_FIELD_PRESENT
-          params:
-            fields:
-            - Stage
-            - CR
-            - Status
-            - Feeds
-          intent: a dossier document states its phase, its CR, its lifecycle state, and what it feeds
-        - id: LIFECYCLE_STATE_NOT_IN_VOCABULARY
-          identity: transformation.schemas.REGISTER_SCHEMA_P1_V0#/allOf/38
-          check: HEADER_FIELD_MATCHES
-          params:
-            fields:
-            - Status
-            pattern: ^(DRAFT|CONSTRUCTION_COMPLETE|ADMITTED_UNVALIDATED|EXECUTION_VALIDATED|PROMOTED)\b
-          intent: the lifecycle axis is a controlled vocabulary, not free text
       next:
         SUCCESS: EXIT_JUDGED
         VIOLATION: EXIT_REJECTED

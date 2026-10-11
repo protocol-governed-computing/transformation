@@ -112,6 +112,11 @@ class PhaseShape:
     priors: tuple[str, ...] = ()
     observations: dict[str, str] = field(default_factory=dict)
     entries: tuple[dict, ...] = ()
+    # The header: the fields a document must state, and each field's declaration with `$ref` and
+    # vocabularies resolved, so it can be sealed into the rule that checks it.
+    document_required: tuple[str, ...] = ()
+    document: dict[str, dict] = field(default_factory=dict)
+    revisions: tuple[dict, ...] = ()
 
     def register(self, register_id: str) -> Register:
         for r in self.registers:
@@ -146,6 +151,17 @@ def _resolved(declared_type: dict, schema: dict) -> dict:
         return declared_type
     name = declared_type["$ref"].removeprefix("#/$defs/")
     return {**{k: v for k, v in declared_type.items() if k != "$ref"}, **schema["$defs"][name]}
+
+
+def _sealable(declared_type: dict, schema: dict) -> dict:
+    """A header field's type as a rule can carry it: `$ref` resolved, a vocabulary as its entries."""
+    resolved = _resolved(declared_type, schema)
+    if "x-vocab" in resolved:
+        rest = {k: v for k, v in resolved.items() if k != "x-vocab"}
+        return {**rest, "enum": list(vocabulary_group(**resolved["x-vocab"]))}
+    if "properties" in resolved:
+        return {**resolved, "properties": {k: _sealable(v, schema) for k, v in resolved["properties"].items()}}
+    return resolved
 
 
 def read_schema(path: Path, phase: str) -> PhaseShape:
@@ -198,6 +214,10 @@ def read_schema(path: Path, phase: str) -> PhaseShape:
         priors=tuple(declared.get("x-priors") or ()),
         observations=dict(declared.get("x-observations") or {}),
         entries=tuple(declared.get("allOf") or ()),
+        document_required=tuple(declared["properties"]["document"]["required"]),
+        document={name: _sealable(body, declared)
+                  for name, body in declared["properties"]["document"]["properties"].items()},
+        revisions=tuple(declared.get("x-revisions") or ()),
     )
 
 

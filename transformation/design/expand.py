@@ -15,6 +15,7 @@ which is the failure mode that leaves one register quietly ungoverned.
 
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 
 from transformation.design.schema import PhaseShape as PhaseTemplate, Register
@@ -196,10 +197,36 @@ def derived_rules(template: PhaseTemplate) -> list[Rule]:
     fabricated register id is still caught.
     """
     citable = sorted(_all_declared_registers() | {r.id for r in template.registers})
-    out: list[Rule] = []
+    out: list[Rule] = _document_rules(template)
     for register in template.registers:
         out.extend(replace(rule, identity=f"{template.schema_id}#{_pointer(register, rule)}")
                    for rule in _register_rules(register, citable))
+    return out
+
+
+def _document_rules(shape: PhaseTemplate) -> list[Rule]:
+    """The header rules: one for the fields a document must state, and one per declared field."""
+    base = f"{shape.schema_id}#/properties/document"
+    out = [Rule(
+        id="HEADER_FIELD_MISSING", check="HEADER_FIELD_PRESENT", identity=f"{base}/required",
+        params={"fields": list(shape.document_required)},
+        intent="a phase document states its phase, its domain and subdomain, its change, and the "
+               "rule set it was authored under",
+    )]
+    for name, declared in shape.document.items():
+        at = f"{base}/properties/{name}"
+        if "const" in declared:
+            out.append(Rule(id="HEADER_FIELD_MISMATCH", check="HEADER_FIELD_MATCHES", identity=f"{at}/const",
+                            params={"fields": [name], "pattern": f"^{re.escape(declared['const'])}$"},
+                            intent=f"a document's {name} is the phase whose rules judge it"))
+        elif "pattern" in declared:
+            out.append(Rule(id="HEADER_FIELD_MISMATCH", check="HEADER_FIELD_MATCHES", identity=f"{at}/pattern",
+                            params={"fields": [name], "pattern": declared["pattern"]},
+                            intent=f"a document's {name} names a rule set of its own phase"))
+        else:
+            out.append(Rule(id="HEADER_FIELD_NOT_OF_TYPE", check="HEADER_FIELD_OF_TYPE", identity=at,
+                            params={"field": name, "type": declared},
+                            intent=f"a document's {name} takes its declared form"))
     return out
 
 

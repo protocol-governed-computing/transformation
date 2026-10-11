@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 5 — Business Intent
-  CR: cr_05_catalog
-  Status: DRAFT
-  Feeds: Stage 6 — Governance Intent
+document:
+  phase: p5
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_05_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P5_V0
 registers:
   subdomain_purpose: |2
 

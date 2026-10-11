@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 7 — Design Intent
-  CR: refusal_discharge
-  Status: DRAFT
-  Feeds: Stage 8 — Authoring Mandate
+document:
+  phase: p7
+  domain: transformation
+  subdomain: design
+  cr: refusal_discharge
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P7_V0
 registers:
   design_resolution:
   - decision: The refusals are read from the seed rather than carried forward.

@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 3 — Analysis Loop
-  CR: cr_01_catalog
-  Status: IN_ANALYSIS
+document:
+  phase: p4
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   analysis_findings:
   - question_id: 'S2 discovery_concerns #1'

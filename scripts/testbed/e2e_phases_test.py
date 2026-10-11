@@ -78,7 +78,7 @@ CASES = [
          "CELL_NOT_IN_VOCABULARY",
          "CELL_NOT_IN_VOCABULARY",
          "DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
      ], RULES["P0"], 4),
     ("P0", WF["P0"],
      "04_inadmissible_structural.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 5, RULES["P0"], 4),
@@ -137,7 +137,7 @@ CASES = [
     ("P1", WF["P1"],
      "70_p1_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_CELL_UNRESOLVED",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
@@ -191,7 +191,7 @@ CASES = [
          "BELIEF_WITHOUT_EVIDENCE",
          "CELL_NOT_IN_VOCABULARY",
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_CELL_UNRESOLVED",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
@@ -237,7 +237,7 @@ CASES = [
          "BELIEF_RESULT_NOT_REVERIFIED",
          "BELIEF_RESULT_NOT_REVERIFIED",
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
          "SATURATION_CRITERIA_INCOMPLETE",
@@ -281,7 +281,7 @@ CASES = [
     ("P4", WF["P4"],
      "67_p4_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_MISSING",
      ] + ["REGISTER_COLUMN_MISSING"] * 13, RULES["P4"], 3),
     # P5 is the first rung up the purity ladder, and its two rules pull opposite ways: a
@@ -334,7 +334,7 @@ CASES = [
     ("P5", WF["P5"],
      "56_p5_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "PURPOSE_PROVENANCE_NOT_SINGULAR",
          "REGISTER_MISSING",
      ] + ["REGISTER_COLUMN_MISSING"] * 10, RULES["P5"], 3),
@@ -392,7 +392,7 @@ CASES = [
     ("P6", WF["P6"],
      "60_p6_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_MISSING",
          "STORAGE_CODE_IN_PLACEMENT",
      ] + ["REGISTER_COLUMN_MISSING"] * 11, RULES["P6"], 3),
@@ -444,7 +444,7 @@ CASES = [
      "77_p7_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "CELL_NOT_IN_VOCABULARY",
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_CELL_UNRESOLVED",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
@@ -574,7 +574,7 @@ CASES = [
     ("P8", WF["P8"],
      "75_p8_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_MISSING",
      ] + ["REGISTER_COLUMN_MISSING"] * 4, RULES["P8"], 3, "design"),
     # Cut from cr_02 rather than cr_01, because cr_01's P7 declares no EXTEND row and the rule is

@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 1 — Change Request (Clarification & Fact Capture)
-  CR: cr_05_catalog
-  Status: DRAFT
-  Feeds: Stage 2 — Domain Model Discovery
+document:
+  phase: p1
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_05_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P1_V0
 registers:
   cr_type:
   - subdomain: catalog

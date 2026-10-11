@@ -30,11 +30,11 @@ def register(register_id: str, columns: list[str], rows: Iterable[tuple],
     return register_id, body
 
 
-def document(title: str, *registers: tuple[str, list | None], header: dict[str, str] | None = None,
+def document(title: str, *registers: tuple[str, list | None], header: dict | None = None,
              prose: str = "") -> str:
-    """The document text: title, Machine block, then any prose."""
+    """The document text: title, Machine block, then any prose. `header` is the `document` mapping."""
     block: dict = {}
     if header:
-        block["header"] = dict(header)
+        block["document"] = dict(header)
     block["registers"] = dict(registers)
     return f"# {title}\n\n## Machine\n\n```yaml\n{dump(block)}```\n" + (f"\n{prose}\n" if prose else "")

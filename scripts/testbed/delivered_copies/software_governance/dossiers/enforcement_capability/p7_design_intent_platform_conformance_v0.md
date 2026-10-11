@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 7 — Design Intent
-  CR: enforcement_capability
-  Status: DRAFT
-  Feeds: Stage 8 — Authoring Mandate
+document:
+  phase: p7
+  domain: platform
+  subdomain: conformance
+  cr: enforcement_capability
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P7_V0
 registers:
   design_resolution:
   - decision: Where enforcement status is declared

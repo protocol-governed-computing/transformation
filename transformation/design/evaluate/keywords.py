@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import jsonschema
 import re
+
+import jsonschema
 
 from transformation.design.evaluate.common import (
     _at,
@@ -60,8 +61,9 @@ def _gated_out(row: dict[str, str], rule) -> bool:
 def _header_field_present(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     out = []
     for name in rule.params["fields"]:
-        if not doc.header.get(name, "").strip():
-            out.append((_at("header"), f"required field {name!r} absent"))
+        value = doc.header.get(name)
+        if value is None or value == [] or (isinstance(value, str) and not value.strip()):
+            out.append((_at("document", None, name), f"required field {name!r} absent"))
     return out
 
 
@@ -70,10 +72,22 @@ def _header_field_matches(doc: ParsedDocument, rule) -> list[tuple[Locator, str]
     out = []
     pattern = re.compile(rule.params["pattern"])
     for name in rule.params["fields"]:
-        value = doc.header.get(name, "").strip()
-        if value and not pattern.match(value):
-            out.append((_at("header"), f"{name} {value!r} does not match {rule.params['pattern']}"))
+        value = doc.header.get(name)
+        if value is None or (isinstance(value, str) and not value.strip()):
+            continue
+        if not isinstance(value, str) or not pattern.match(value.strip()):
+            out.append((_at("document", None, name), f"{name} {value!r} does not match {rule.params['pattern']}"))
     return out
+
+
+@check("HEADER_FIELD_OF_TYPE")
+def _header_field_of_type(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
+    """A stated header field takes its declared form. An absent one is `HEADER_FIELD_PRESENT`'s."""
+    name = rule.params["field"]
+    value = doc.header.get(name)
+    if value is None or jsonschema.Draft202012Validator(rule.params["type"]).is_valid(value):
+        return []
+    return [(_at("document", None, name), f"{name} does not take its declared form: {value!r}")]
 
 
 @check("SECTION_HAS_TEXT")

@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: refusal_discharge
-  Status: DRAFT
-  Feeds: Artifact Authoring
+document:
+  phase: p8
+  domain: transformation
+  subdomain: design
+  cr: refusal_discharge
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order: []
   critical_path: []

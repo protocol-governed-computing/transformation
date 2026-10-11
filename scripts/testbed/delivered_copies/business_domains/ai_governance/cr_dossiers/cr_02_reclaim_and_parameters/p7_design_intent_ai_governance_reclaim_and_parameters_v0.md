@@ -3,11 +3,14 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 7 — Design Intent
-  CR: cr_02_reclaim_and_parameters
-  Status: DRAFT
-  Feeds: Stage 8 — Authoring Mandate
+document:
+  phase: p7
+  domain: ai_governance
+  subdomain:
+  - reclaim
+  - parameter result
+  cr: cr_02_reclaim_and_parameters
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P7_V0
 registers:
   design_resolution:
   - decision: The removal step ends the contract on a refused removal

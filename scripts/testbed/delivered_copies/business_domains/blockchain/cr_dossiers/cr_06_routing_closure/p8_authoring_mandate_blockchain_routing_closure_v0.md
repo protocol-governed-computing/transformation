@@ -3,11 +3,14 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: cr_06_routing_closure
-  Status: DRAFT
-  Feeds: Construction
+document:
+  phase: p8
+  domain: blockchain
+  subdomain:
+  - identity
+  - wallet
+  cr: cr_06_routing_closure
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order:
   - wave: '1'

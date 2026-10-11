@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 3 — Analysis Loop
-  CR: cr_04_catalog
-  Status: DRAFT
-  Feeds: Stage 4 — Business Model
+document:
+  phase: p3
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_04_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P3_V0
 registers:
   analysis_findings:
   - question_id: Q1

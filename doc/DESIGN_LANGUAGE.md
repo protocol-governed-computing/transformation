@@ -19,8 +19,16 @@ fence inside a value closes nothing. Everything outside the block is prose, and 
 
 The block holds two keys:
 
-- `header`: the document's header fields, each a string.
+- `document`: the header. It states what the document is and the rule set it was authored under:
+  - `phase`: the phase, `p0` to `p8`;
+  - `domain` and `subdomain`: what the change is to. A change to two subdomains lists both;
+  - `cr`: the change;
+  - `rule_set`: the `$id` of the register schema the document was authored under;
+  - `approval`, in a gated phase: `{gate, rule_set, state}`, the gate a person closed, the `$id` it
+    was closed under, and `APPROVED`, `MIGRATED` or `RECONFIRMED`.
 - `registers`: one key per register the phase declares.
+
+A document carries no lifecycle status. Its standing is its verdict.
 
 A register's value is one of four things:
 
@@ -99,7 +107,8 @@ declared. No two rules of a rule set share one.
 
 - A declared rule is the entry it decodes from: `#/allOf/<i>`.
 - A derived rule (§3) is the keyword it expands, where the schema has one: `minLength`,
-  `minItems`, `items/required`, `x-business-language`, or a column's `x-vocab`.
+  `minItems`, `items/required`, `x-business-language`, or a column's `x-vocab`. A header rule is
+  `/properties/document/required`, or the field's `const`, `pattern` or declaration.
 - A derived rule with no keyword of its own is named after the declaration it derives from, followed
   by `x-derived/<check>`. A register's base is `/properties/registers/properties/<register>`; a
   column's is that, followed by `/items/properties/<key>`.
@@ -114,17 +123,46 @@ The rule sets close over the governance they realise:
   check states: the citation checks realise `ROW_PROVENANCE_CITED`, and the business-language check
   `PHASE_SPEAKS_ITS_RUNG`;
 - every check kind is used, and every rule's kind exists;
-- every template names exactly its schema's registers, with the same columns.
+- every template names exactly its schema's registers, with the same columns;
+- every rule set is the last revision its schema records (§2.3).
+
+### 2.3 Effectivity
+
+A rule set is named by its schema's `$id`. A change to the rules declares its own effectivity:
+
+- **A change that can alter a prior document's admissibility is retroactive.** It takes a new `$id`:
+  a new schema file, named in the dispatch, whose revisions start again at 1.
+- **Any other change is a revision.** `x-revisions` lists them, oldest first, each as
+  `{revision, retroactive: false, change, digest}`. `tc phase revise` records one.
+- **The digest** is the SHA-256 of the rule set the schema expands into, in order, each rule read as
+  its `id`, `identity`, `check`, `register`, `params` and `intent`.
+- **A rule set whose digest is not its last revision's is refused,** as `REVISION_UNRECORDED`, by
+  the emission and by the closure check. It is never sealed.
+
+A verdict names the rule set that rendered it as `judged_by`: the `$id` its rules carry in their
+identities, the digest, and the revision that records the digest. It also names the rule set the
+document was authored under, when that differs.
+
+An approval is given under one `$id`. Under that `$id` it stands confirmed. Under any other it stands
+unconfirmed until a person re-confirms it. A revision never unconfirms an approval, because it
+alters no document's admissibility.
+
+`tc phase diff` names the rules that differ between two rule sets, by identity: added, removed and
+changed.
 
 ---
 
 ## 3. Rules derived from shape
 
-Every schema expands into these rules, in this order, for each register it declares. They need no
-entry in `allOf`.
+Every schema expands into these rules. The header rules come first, from `properties.document`.
+Then come these rules, in this order, for each register the schema declares. None needs an entry in
+`allOf`.
 
 | Finding | Refuses |
 |---|---|
+| `HEADER_FIELD_MISSING` | a header that does not state a required field |
+| `HEADER_FIELD_MISMATCH` | a `phase` other than the schema's, or a `rule_set` of another phase |
+| `HEADER_FIELD_NOT_OF_TYPE` | a stated header field not of its declared form, such as an approval in no declared state |
 | `REGISTER_MISSING` | a declared register absent from the block |
 | `REGISTER_EMPTY` | a text register with no text, or a register declared non-empty with no rows |
 | `REGISTER_COLUMN_MISSING` | a row lacking a required column |
@@ -167,8 +205,6 @@ A constraint is written in this subset of JSON Schema, and nothing else:
 |---|---|---|
 | `minItems` | entry | the register has at least this many rows |
 | `maxItems` | entry | the register has at most this many rows |
-| `properties.header.required` | entry | these header fields are present |
-| `properties.header.properties.<f>.pattern` | entry | these header fields match the pattern |
 | `items.properties.<k>.minLength: 1` | entry | the column states a value |
 | `items.properties.<k>.pattern` | entry | a text value in the column matches the pattern |
 | `items.properties.<k>.not.pattern` | entry | no text value in the columns contains the pattern |
@@ -341,8 +377,8 @@ A finding carries:
 - `rule`: the identity of the rule that found it (§2.1);
 - `locator`: where it is, as `{register, row, field}`. `row` is the row's ordinal, or the key a row
   is named by where the rule reads named places. `field` is the key of the column the rule is about.
-  What the finding cannot place is `null`. A finding about the header has the register `header`;
-  one about the whole document has `document`;
+  What the finding cannot place is `null`. A finding about the header has the register `document`
+  and the field it is about; one about the whole document has the register `document` and no field;
 - `detail`: what is wrong, in the author's terms;
 - `intent`: why the rule exists.
 

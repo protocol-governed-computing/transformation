@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 2 — Domain Model Verification
-  CR: cr_01_catalog
-  Status: MODELLING
+document:
+  phase: p3
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   entities: |2
 

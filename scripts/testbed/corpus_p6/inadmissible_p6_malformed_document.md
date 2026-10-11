@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 6 — Governance Intent
-  CR: cr_01_catalog
-  Status: IN_REVIEW
+document:
+  phase: p7
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   ownership:
   - capability: Register a book together with its first physical copy

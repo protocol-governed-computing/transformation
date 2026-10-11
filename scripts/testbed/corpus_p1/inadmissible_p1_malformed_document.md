@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 1 — Change Request (Clarification & Fact Capture)
-  CR: cr_01_catalog
-  Status: SUBMITTED Discovery
+document:
+  phase: p2
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   cr_type: null
   business_vocabulary:

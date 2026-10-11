@@ -3,11 +3,12 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 8 — Authoring Mandate
-  CR: cr_05_identity
-  Status: DRAFT
-  Feeds: Construction
+document:
+  phase: p8
+  domain: blockchain
+  subdomain: identity
+  cr: cr_05_identity
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
 registers:
   build_order: null
   critical_path: null

@@ -79,7 +79,9 @@ def project_p1(prior: ParsedDocument) -> str:
     """The change request the seed determines: its registers, each row cited to where it was said."""
     template = load("p1")
     by_id = {register["id"]: register for register in prior.registers}
-    cr = prior.header.get("CR", "")
+    # The change request is the seed's change, in the same domain, judged by P1's rule set.
+    document = {**{k: prior.header[k] for k in ("domain", "subdomain", "cr") if k in prior.header},
+                "rule_set": template.schema_id}
     subject = (prior.raw.splitlines() or [""])[0].split("—")[-1].strip()
 
     registers: dict[str, list | None] = {}
@@ -100,9 +102,7 @@ def project_p1(prior: ParsedDocument) -> str:
         headings += [f"## {number}. {title}", "", "---", ""]
 
     machine = dump(
-        {"header": {"Stage": "1 — Change Request (Clarification & Fact Capture)", "CR": cr,
-                    "Status": "DRAFT", "Feeds": "Stage 2 — Domain Model Discovery"},
-         "registers": registers})
+        {"document": {"phase": "p1", **document}, "registers": registers})
 
     emits = " · ".join(register.id for register in template.registers)
     parts = [

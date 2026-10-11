@@ -3,10 +3,11 @@
 ## Machine
 
 ```yaml
-header:
-  Stage: 0 — Change Seed
-  CR: cr_01_catalog
-  Status: DRAFT
+document:
+  phase: p0
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_01_catalog
 registers:
   subdomain_purpose: ''
   cr_type:

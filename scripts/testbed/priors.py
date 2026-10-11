@@ -7,10 +7,10 @@ which is what happened before this module existed.
 
 Two facts already exist and this reads them rather than duplicating them:
 
-  **which phases** a document is judged against — `PRIORS` in that phase's rule module, which is also
+  **which phases** a document is judged against — `x-priors` in that phase's register schema, which is also
   what the compiled workflow declares;
 
-  **which dossier** supplies them — the document's own `CR` header field, which every dossier document
+  **which dossier** supplies them — the document's own `cr` header field, which every dossier document
   carries because P1 is the Change Request phase whatever domain it runs against.
 
 So a new probe needs no wiring at all: cut it from a fixture, and it is judged against that fixture's
@@ -37,11 +37,11 @@ DOSSIER_ROOTS = (
 
 def cr_of(path: Path) -> str | None:
     """The change request a document declares itself part of, read from its Machine block."""
-    return parse_text(path.read_text(encoding="utf-8"))[0].get("CR") or None
+    return parse_text(path.read_text(encoding="utf-8"))[0].get("cr") or None
 
 
 def dossiers_by_cr() -> dict[str, Path]:
-    """`CR:` value → the dossier that declares it, read from each dossier's own seed.
+    """`cr` value → the dossier that declares it, read from each dossier's own seed.
 
     The seed is the authority for what a dossier is called, and it is not always the directory name:
     `dossiers/founding_design_bootstrap` declares `new_subdomain`. Reading the header rather than
@@ -84,7 +84,7 @@ def prior_paths(doc_path: Path, declared: tuple[str, ...]) -> dict[str, Path]:
     cr = cr_of(doc_path)
     if cr is None:
         raise SystemExit(
-            f"{doc_path.name} is judged by a phase with cross-phase rules and carries no CR "
+            f"{doc_path.name} is judged by a phase with cross-phase rules and carries no cr "
             f"header, so nothing says which dossier supplies its priors"
         )
     dossier = DOSSIERS_BY_CR.get(cr)
