@@ -1,4 +1,4 @@
-"""Derive a phase's rule set from its vendored template.
+"""Expand a phase's register schema into its rule set.
 
 Most of what governs a phase document is already declared in the template: which registers exist,
 what columns they carry, which columns hold a controlled vocabulary, which hold business prose, and
@@ -14,6 +14,8 @@ which is the failure mode that leaves one register quietly ungoverned.
 """
 
 from __future__ import annotations
+
+from dataclasses import replace
 
 from transformation.design.schema import PhaseShape as PhaseTemplate, Register
 from transformation.design.rules import Rule
@@ -173,8 +175,6 @@ def _all_declared_registers() -> set[str]:
 
         ids: set[str] = set()
         for spec in PHASES:
-            if spec.template is None:
-                continue
             ids |= {r.id for r in load(spec.id).registers}
         _DECLARED = ids
     return _DECLARED
@@ -198,8 +198,29 @@ def derived_rules(template: PhaseTemplate) -> list[Rule]:
     citable = sorted(_all_declared_registers() | {r.id for r in template.registers})
     out: list[Rule] = []
     for register in template.registers:
-        out.extend(_register_rules(register, citable))
+        out.extend(replace(rule, identity=f"{template.schema_id}#{_pointer(register, rule)}")
+                   for rule in _register_rules(register, citable))
     return out
+
+
+# Where a derived rule is declared: the keyword it expands, where the schema has one, and otherwise
+# the declaration it derives from, followed by `x-derived/<check>`.
+_AT_REGISTER = {"SECTION_HAS_TEXT": "minLength", "TABLE_HAS_ROWS": "minItems",
+                "TABLE_HAS_COLUMNS": "items/required", "CELL_TOKEN_ABSENT": "x-business-language"}
+
+
+def _pointer(register: Register, rule: Rule) -> str:
+    """The JSON Pointer to the declaration a derived rule expands, unique within its schema."""
+    base = f"/properties/registers/properties/{register.id}"
+    if rule.check in _AT_REGISTER:
+        return f"{base}/{_AT_REGISTER[rule.check]}"
+    column = rule.params.get("column")
+    if column is None:
+        return f"{base}/x-derived/{rule.check}"
+    key = dict(zip(register.columns, register.keys))[column]
+    if rule.check == "CELL_IN_VOCABULARY":
+        return f"{base}/items/properties/{key}/x-vocab"
+    return f"{base}/items/properties/{key}/x-derived/{rule.check}"
 
 
 def coverage(template: PhaseTemplate) -> dict[str, int]:
@@ -227,16 +248,22 @@ def declared_rules(shape: PhaseTemplate) -> list[Rule]:
     from transformation.design.declared import Columns, decode
 
     out = []
-    for entry in shape.entries:
+    for index, entry in enumerate(shape.entries):
         register_id = entry.get("x-register")
         if register_id is None:
-            out.append(decode(entry, None, None))
-            continue
-        register = shape.register(register_id)
-        out.append(decode(entry, register_id, Columns(dict(zip(register.columns, register.keys)))))
+            rule = decode(entry, None, None)
+        else:
+            register = shape.register(register_id)
+            rule = decode(entry, register_id, Columns(dict(zip(register.columns, register.keys))))
+        out.append(replace(rule, identity=f"{shape.schema_id}#/allOf/{index}"))
     return out
 
 
 def expanded_rules(shape: PhaseTemplate) -> list[Rule]:
-    """A phase's whole rule set: what its shape implies, then what it declares beyond that."""
-    return derived_rules(shape) + declared_rules(shape)
+    """A phase's whole rule set: what its shape implies, then what it declares beyond that. Every
+    rule carries an identity no other rule of the set shares."""
+    rules = derived_rules(shape) + declared_rules(shape)
+    seen = [r.identity for r in rules]
+    if len(set(seen)) != len(seen):
+        raise ValueError(f"{shape.schema_id}: two rules share an identity")
+    return rules

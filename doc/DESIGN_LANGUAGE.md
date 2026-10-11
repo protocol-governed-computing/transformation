@@ -86,6 +86,24 @@ A schema declares:
   each under the key it is read by.
 - **Declared rules**: `allOf`, an ordered list (§4).
 
+Which schema judges which phase is declared once, in
+`transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0`. A row there names a phase, its schema's
+`$id`, the workflow its rule set is sealed into, and the template its documents are authored from.
+A procedure parameter written `{"x-dispatch": <field>}` reads as that field of every phase, keyed by
+phase, so a schema never copies the dispatch.
+
+### 2.1 Rule identity
+
+Every rule has an identity: its schema's `$id`, `#`, and a JSON Pointer to where the rule is
+declared. No two rules of a rule set share one.
+
+- A declared rule is the entry it decodes from: `#/allOf/<i>`.
+- A derived rule (§3) is the keyword it expands, where the schema has one: `minLength`,
+  `minItems`, `items/required`, `x-business-language`, or a column's `x-vocab`.
+- A derived rule with no keyword of its own is named after the declaration it derives from, followed
+  by `x-derived/<check>`. A register's base is `/properties/registers/properties/<register>`; a
+  column's is that, followed by `/items/properties/<key>`.
+
 ---
 
 ## 3. Rules derived from shape
@@ -104,6 +122,8 @@ entry in `allOf`.
 | `ROW_WITHOUT_SOURCE_FINDING` | a row whose citation is `null` or absent |
 | `SOURCE_FINDING_UNRESOLVED` | a row none of whose citations names a register the phase may cite, the seed, a ruling or an artifact |
 | `CITATION_ORDINAL_UNRESOLVED` | a citation naming a row past the end of the register it names |
+
+Each derived rule's identity is given in §2.1.
 
 A citation is resolved in the phase it names, or in this document when it names none. A register
 in a prior that was not supplied is not read, and is not reported.
@@ -305,10 +325,14 @@ judgement as a value.
 
 A finding carries:
 
-- the finding code;
-- where it was found: the register, and the row where the rule reads rows;
-- a detail, stating what is wrong in the author's terms;
-- the intent of the rule that found it.
+- `code`: the kind of defect, shared by every rule that finds it;
+- `rule`: the identity of the rule that found it (§2.1);
+- `locator`: where it is, as `{register, row, field}`. `row` is the row's ordinal, or the key a row
+  is named by where the rule reads named places. `field` is the key of the column the rule is about.
+  What the finding cannot place is `null`. A finding about the header has the register `header`;
+  one about the whole document has `document`;
+- `detail`: what is wrong, in the author's terms;
+- `intent`: why the rule exists.
 
 A document is `ADMISSIBLE` when no rule finds anything, and `INADMISSIBLE` otherwise.
 

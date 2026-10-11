@@ -93,7 +93,7 @@ def registers(text: str) -> dict[str, list[dict]]:
 
 
 def fired(text: str) -> list[str]:
-    return sorted(f.rule for f in evaluate(parsed(text), RULES).findings)
+    return sorted(f.code for f in evaluate(parsed(text), RULES).findings)
 
 
 def nodes(text: str) -> dict:
@@ -161,7 +161,7 @@ def test_a_route_to_a_place_the_composition_already_has_resolves():
 
     def fired_against(workflows):
         doc = parsed(design(topology=amendment), {"si.behavior_logic.list": workflows})
-        return [f.rule for f in evaluate(doc, route).findings]
+        return [f.code for f in evaluate(doc, route).findings]
 
     composed = {"domain": D, "wf_code": "WF_SUBMIT_V0", "nodes": ["CC_CHECK_V0", "RECORD_ACCEPTED"]}
     assert fired_against([composed]) == [], fired_against([composed])
@@ -183,7 +183,7 @@ def test_a_contract_redeclared_whole_requires_only_what_it_now_declares():
                            "CT", "human decision")])
 
     def fired_with(text):
-        return [f.rule for f in evaluate(parsed(text, pinned), unbound).findings]
+        return [f.code for f in evaluate(parsed(text, pinned), unbound).findings]
 
     assert fired_with(design(extra=(composition,))) == [], fired_with(design(extra=(composition,)))
     assert fired_with(design()) == ["NODE_INPUT_UNBOUND"], "a contract only called keeps what it had"

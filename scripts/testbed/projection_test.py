@@ -92,7 +92,7 @@ def main() -> int:
     # CLI is what enforces it — this asserts the verdict the CLI acts on.
     blocked = read_seed(CORPUS / "inadmissible_p0_blocking_clarification.md")
     verdict = evaluate(blocked, p0_rules.rule_set())
-    fired = {f.rule for f in verdict.findings}
+    fired = {f.code for f in verdict.findings}
     if not verdict.admissible and "BLOCKING_CLARIFICATION_OUTSTANDING" in fired:
         print("  PASS  corpus blocking-clarification seed refused before projection")
     else:

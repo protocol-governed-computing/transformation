@@ -149,6 +149,7 @@ class DeclaredRule:
 
     id: str
     check: str
+    identity: str = ""
     section_title: str | None = None
     register: str | None = None
     params: dict[str, Any] = field(default_factory=dict)
@@ -163,6 +164,7 @@ class DeclaredRule:
         return DeclaredRule(
             id=data["id"],
             check=data["check"],
+            identity=data.get("identity", ""),
             section_title=data.get("section_title") or register,
             register=register,
             params=dict(data.get("params") or {}),

@@ -22,7 +22,9 @@ import jsonschema
 from transformation.design.evaluate import Block, ParsedDocument
 from transformation.design.schema import column_key
 
-CheckFn = Callable[[ParsedDocument, "object"], list[tuple[str, str]]]
+# Where a finding is: `{register, row, field}`, each `None` when the finding cannot place it.
+Locator = dict[str, Any]
+CheckFn = Callable[[ParsedDocument, "object"], list[tuple[Locator, str]]]
 
 _REGISTRY: dict[str, CheckFn] = {}
 
@@ -73,6 +75,20 @@ def _block(doc: ParsedDocument, rule) -> Block | None:
 
 def _where(rule) -> str:
     return getattr(rule, "register", None) or rule.section_title or "document"
+
+
+def _at(register: str, row: int | str | None = None, field: str | None = None) -> dict:
+    """Where a finding is: the register, the row by ordinal or by the key it is named by, and the
+    field. What the finding cannot place stays `None`."""
+    return {"register": register, "row": row, "field": field}
+
+
+def place(rule, locator: Locator) -> Locator:
+    """A check's locator, with the field filled from the rule when the rule is about one column."""
+    column = rule.params.get("column") if isinstance(rule.params, dict) else None
+    if locator["field"] is None and locator["row"] is not None and isinstance(column, str):
+        return {**locator, "field": column_key(column)}
+    return locator
 
 
 def _value(row: dict, column: str) -> Any:
@@ -187,40 +203,40 @@ def _rows(doc: ParsedDocument, rule):
 
 
 @check("HEADER_FIELD_PRESENT")
-def _header_field_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _header_field_present(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     out = []
     for name in rule.params["fields"]:
         if not doc.header.get(name, "").strip():
-            out.append(("header", f"required field {name!r} absent"))
+            out.append((_at("header"), f"required field {name!r} absent"))
     return out
 
 
 @check("HEADER_FIELD_MATCHES")
-def _header_field_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _header_field_matches(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     out = []
     pattern = re.compile(rule.params["pattern"])
     for name in rule.params["fields"]:
         value = doc.header.get(name, "").strip()
         if value and not pattern.match(value):
-            out.append(("header", f"{name} {value!r} does not match {rule.params['pattern']}"))
+            out.append((_at("header"), f"{name} {value!r} does not match {rule.params['pattern']}"))
     return out
 
 
 @check("SECTION_HAS_TEXT")
-def _section_has_text(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _section_has_text(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     block = _block(doc, rule)
     if block is None:
         # Same reasoning as TABLE_PRESENT: an absent narrative register is a finding, not a skip.
         if getattr(rule, "register", None):
-            return [(_where(rule), "declared register is absent from the document")]
+            return [(_at(_where(rule)), "declared register is absent from the document")]
         return []
     if not block.text():
-        return [(_where(rule), rule.params["detail"])]
+        return [(_at(_where(rule)), rule.params["detail"])]
     return []
 
 
 @check("TABLE_PRESENT")
-def _table_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _table_present(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """The register must be there, and must be readable as rows.
 
     Absence is the finding this check exists for. Returning nothing when the register is missing —
@@ -230,26 +246,26 @@ def _table_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     block = _block(doc, rule)
     if block is None:
-        return [(_where(rule), "declared register is absent from the document")]
+        return [(_at(_where(rule)), "declared register is absent from the document")]
     if block.table is None:
-        return [(_where(rule), "register is present but carries no table, so it cannot be read as rows")]
+        return [(_at(_where(rule)), "register is present but carries no table, so it cannot be read as rows")]
     return []
 
 
 @check("TABLE_HAS_COLUMNS")
-def _table_has_columns(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _table_has_columns(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every row carries every column the register requires. A column with nothing to state carries
     `null`; a row that leaves the column out has not answered it."""
     out = []
     for i, row in _rows(doc, rule):
         for expected in rule.params["columns"]:
             if column_key(expected) not in row:
-                out.append((f"{_where(rule)} row {i}", f"required column {expected!r} absent"))
+                out.append((_at(_where(rule), i), f"required column {expected!r} absent"))
     return out
 
 
 @check("TABLE_HAS_ROWS")
-def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     block = _block(doc, rule)
     if block is None or block.table is None:
         return []
@@ -266,12 +282,12 @@ def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             if minimum == 1
             else f"section declares {rows} row(s); {minimum} are required"
         )
-        return [(_where(rule), detail)]
+        return [(_at(_where(rule)), detail)]
     return []
 
 
 @check("TABLE_ROW_COUNT")
-def _table_row_count(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _table_row_count(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """How many rows a register may carry.
 
     `TABLE_HAS_ROWS` already asserts a floor — a declared register that is empty asserts nothing.
@@ -294,12 +310,12 @@ def _table_row_count(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     maximum = rule.params.get("maximum")
     out = []
     if minimum is not None and rows < int(minimum):
-        out.append((_where(rule), f"register carries {rows} row(s); at least {minimum} required"))
+        out.append((_at(_where(rule)), f"register carries {rows} row(s); at least {minimum} required"))
     if maximum is not None and rows > int(maximum):
         # A rule may say what its own ceiling means; a generic message cannot know why one row.
         detail = rule.params.get("detail")
         out.append((
-            _where(rule),
+            _at(_where(rule)),
             f"register carries {rows} row(s); at most {maximum} permitted"
             + (f" — {detail}" if detail else ""),
         ))
@@ -307,18 +323,18 @@ def _table_row_count(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 
 @check("COLUMN_ABSENT")
-def _column_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _column_absent(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     block = _block(doc, rule)
     if block is None or block.table is None:
         return []
     forbidden = column_key(rule.params["column"])
     if forbidden in block.table.keys:
-        return [(_where(rule), rule.params["detail"])]
+        return [(_at(_where(rule)), rule.params["detail"])]
     return []
 
 
 @check("CELL_OF_TYPE")
-def _cell_of_type(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_of_type(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A column that carries structure holds a value of its declared type.
 
     A routing is a mapping from outcome to target, an interface a mapping per side, a list a list,
@@ -331,13 +347,13 @@ def _cell_of_type(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     key = column_key(rule.params["column"])
     for i, row in _rows(doc, rule):
         if key in row and not validator.is_valid(row[key]):
-            out.append((f"{_where(rule)} row {i}",
+            out.append((_at(_where(rule), i),
                         f"{rule.params['column']!r} does not take its declared form: {row[key]!r}"))
     return out
 
 
 @check("CELL_IN_VOCABULARY")
-def _cell_in_vocabulary(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_in_vocabulary(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     out = []
     column = rule.params["column"]
     vocabulary = rule.params["vocabulary"]
@@ -346,7 +362,7 @@ def _cell_in_vocabulary(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         if value not in vocabulary:
             out.append(
                 (
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{value!r} is not one of {list(vocabulary)}",
                 )
             )
@@ -354,7 +370,7 @@ def _cell_in_vocabulary(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 
 @check("CELL_NOT_EMPTY")
-def _cell_not_empty(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_not_empty(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A column that must carry a value — optionally only for rows in a given state.
 
     `only_when_column` / `only_when_value` narrow the rule to the rows it is really about, the same
@@ -368,30 +384,30 @@ def _cell_not_empty(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         if _gated_out(row, rule):
             continue
         if not _stated(row, column):
-            out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
+            out.append((_at(_where(rule), i), rule.params["detail"]))
     return out
 
 
 @check("CELL_PRESENT")
-def _cell_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_present(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A column every row must carry. For a column whose value may be anything, an empty string and
     `null` are values, so the only way a row leaves it unstated is to leave it out."""
     key = column_key(rule.params["column"])
-    return [(f"{_where(rule)} row {i}", rule.params["detail"])
+    return [(_at(_where(rule), i), rule.params["detail"])
             for i, row in _rows(doc, rule) if key not in row]
 
 
 @check("CITATION_PRESENT")
-def _citation_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _citation_present(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A row must cite where it came from. A citation column that says nothing, `null`, cites
     nothing; a citation is never an answer of "none"."""
     column = rule.params["column"]
-    return [(f"{_where(rule)} row {i}", rule.params["detail"])
+    return [(_at(_where(rule), i), rule.params["detail"])
             for i, row in _rows(doc, rule) if _value(row, column) in (None, "", [])]
 
 
 @check("ROW_ABSENT_WHEN")
-def _row_absent_when(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _row_absent_when(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A register may not carry a row in a given state.
 
     `CELL_IN_VOCABULARY` says which values a column may hold; this says which of them the document
@@ -404,7 +420,7 @@ def _row_absent_when(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     value = rule.params["value"]
     for i, row in _rows(doc, rule):
         if _value(row, column) == value:
-            out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
+            out.append((_at(_where(rule), i), rule.params["detail"]))
     return out
 
 
@@ -428,7 +444,7 @@ GOVERNED_HOLE_MARKERS = (
 
 
 @check("UNRESOLVED_MARKER_ABSENT")
-def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """No register may hedge a cell instead of stating it.
 
     Document-wide rather than per-register: a hole can open in any cell of any register, and a rule
@@ -457,7 +473,7 @@ def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]
                 if marker:
                     out.append(
                         (
-                            f"{register_id} row {i}",
+                            _at(register_id, i),
                             rule.params["detail"].format(marker=marker, column=column),
                         )
                     )
@@ -465,7 +481,7 @@ def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]
 
 
 @check("CELL_MATCHES")
-def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every non-empty cell in a column must match a declared pattern.
 
     Emptiness is CELL_NOT_EMPTY's concern — a rule that checked both would report two findings for
@@ -484,7 +500,7 @@ def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         # cell stating nothing has nothing to match.
         if isinstance(value, str) and value.strip() and not pattern.match(value.strip()):
             value = value.strip()
-            out.append((f"{_where(rule)} row {i}", rule.params["detail"].format(value=value)))
+            out.append((_at(_where(rule), i), rule.params["detail"].format(value=value)))
     return out
 
 
@@ -515,7 +531,7 @@ def _observed_identities(doc: ParsedDocument, operation: str) -> set[str]:
 
 
 @check("CITED_ARTIFACTS_RESOLVE")
-def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Classify every cited artifact identity against the observed baseline, and report only defects.
 
     Field manual §4.7, Identity-Preserving Taxonomy — every reference resolves to one of:
@@ -537,7 +553,7 @@ def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     known = _observed_identities(doc, rule.params["observation"])
     if not known:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no composition was observed — citations cannot be resolved, so this register's "
             "grounding is unchecked",
         )]
@@ -558,7 +574,7 @@ def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             continue
         cited = pattern.findall(_cell(row, column))
         if not cited and rule.params.get("detail_missing"):
-            out.append((f"{_where(rule)} row {i}", rule.params["detail_missing"]))
+            out.append((_at(_where(rule), i), rule.params["detail_missing"]))
             continue
 
         for fqdn in cited:
@@ -567,7 +583,7 @@ def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             code = fqdn.split("::")[-1]
             if code in by_code:                                 # C — wrong domain
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{fqdn!r} names a code that exists elsewhere: {sorted(by_code[code])} — "
                     f"wrong namespace, not a new artifact",
                 ))
@@ -575,7 +591,7 @@ def _cited_artifacts_resolve(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             near = [k for k in by_code if _is_near(code, k)]
             if near:                                            # B — typo alias
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{fqdn!r} closely resembles {sorted(near)[:3]} — likely a misspelled citation",
                 ))
             # D / E — indistinguishable without the CR's proposed set; not flagged.
@@ -596,7 +612,7 @@ def _is_near(a: str, b: str) -> bool:
 
 
 @check("CELL_TOKEN_ABSENT")
-def _cell_token_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_token_absent(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A pattern must not appear in specific columns.
 
     Scoped to columns rather than the whole document, because a register can legitimately hold both
@@ -609,14 +625,14 @@ def _cell_token_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         for i, row in _rows(doc, rule):
             for token in sorted(set(pattern.findall(_cell(row, column)))):
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     rule.params["detail"].format(token=token, column=column),
                 ))
     return out
 
 
 @check("SOURCE_FINDING_RESOLVES")
-def _source_finding_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _source_finding_resolves(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A citation must name something this phase can legitimately cite.
 
     The valid set is declared, not guessed at:
@@ -643,7 +659,7 @@ def _source_finding_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]
         if not cited or any(resolves(c) for c in cited):
             continue                             # nothing cited is ROW_WITHOUT_SOURCE_FINDING's job
         out.append((
-            f"{_where(rule)} row {i}",
+            _at(_where(rule), i),
             f"{_value(row, rule.params['column'])!r} names no register this phase may cite. "
             f"A citation names a register this phase may cite — {_examples(known)} — the seed "
             f"(`phase: p0`), a human ruling (`source: human`), or an artifact already in the "
@@ -663,7 +679,7 @@ def _examples(known: set[str] | list[str], count: int = 3) -> str:
 
 
 @check("REUSE_CANDIDATE_ELIGIBLE")
-def _reuse_candidate_eligible(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _reuse_candidate_eligible(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every artifact offered as a reuse candidate must come from a domain that permits it.
 
     A domain declares which plane it serves; the declaration bounds the *search space* and never
@@ -704,14 +720,14 @@ def _reuse_candidate_eligible(doc: ParsedDocument, rule) -> list[tuple[str, str]
             visibility = declared.get(domain)
             if visibility is None:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{identity!r} belongs to domain {domain!r}, which declares no reuse "
                     f"visibility — eligibility would have to be inferred, and inferring "
                     f"relevance is reserved to the author",
                 ))
             elif visibility not in eligible:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{identity!r} belongs to domain {domain!r}, declared {visibility!r} — "
                     f"not offerable to this change request "
                     f"(eligible: {', '.join(sorted(eligible))})",
@@ -728,7 +744,7 @@ def _owning_domain(doc: ParsedDocument, rule, identity: str) -> str | None:
 
 
 @check("CELL_RESOLVES_IN_REGISTER")
-def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A value in one register must name a row that really exists in another.
 
     The first check that reads two registers at once. Earlier phases judge each register on its own
@@ -797,14 +813,14 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
                     "detail", "a document may only point at what it declared"
                 )
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{part!r} names no row in {target}.{target_column} — {detail}",
                 ))
     return out
 
 
 @check("CELL_PREFIXED_BY_COLUMN")
-def _cell_prefixed_by_column(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cell_prefixed_by_column(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """One column must agree with another in the same row.
 
     A register that classifies its own rows can disagree with itself: a code named `CC_…` filed
@@ -823,7 +839,7 @@ def _cell_prefixed_by_column(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             continue                             # emptiness is CELL_NOT_EMPTY's finding
         if not value.startswith(f"{prefix}{separator}"):
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{value!r} does not agree with {prefix_column} {prefix!r} — "
                 f"the row classifies itself two ways",
             ))
@@ -831,7 +847,7 @@ def _cell_prefixed_by_column(doc: ParsedDocument, rule) -> list[tuple[str, str]]
 
 
 @check("CITED_ARTIFACTS_ABSENT")
-def _cited_artifacts_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cited_artifacts_absent(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """An identity claimed as NEW must not already be in the composition.
 
     The inverse of `CITED_ARTIFACTS_RESOLVE`, and the only rule in the pipeline that reads a
@@ -848,7 +864,7 @@ def _cited_artifacts_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
     if not observed:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no composition was observed — a collision check that cannot see the baseline would "
             "admit every colliding name",
         )]
@@ -859,7 +875,7 @@ def _cited_artifacts_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         for identity in pattern.findall(value):
             if identity in observed:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{identity!r} already exists in the composition — assigning it here would "
                     f"redefine an artifact rather than create one",
                 ))
@@ -867,7 +883,7 @@ def _cited_artifacts_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 
 @check("COLUMN_SEQUENCE_CONTIGUOUS")
-def _column_sequence_contiguous(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _column_sequence_contiguous(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """An integer column must run contiguously from a declared start.
 
     The first rule about a register's rows *as a sequence* rather than each row on its own. Every
@@ -886,7 +902,7 @@ def _column_sequence_contiguous(doc: ParsedDocument, rule) -> list[tuple[str, st
         try:
             seen.append((int(value), i))
         except ValueError:
-            return [(f"{_where(rule)} row {i}", f"{value!r} is not a step number")]
+            return [(_at(_where(rule), i), f"{value!r} is not a step number")]
 
     if not seen:
         return []
@@ -896,7 +912,7 @@ def _column_sequence_contiguous(doc: ParsedDocument, rule) -> list[tuple[str, st
     for number, i in sorted(seen):
         if number != expected:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"step {number} follows {expected - 1} — the sequence skips {expected}, "
                 f"and a gap is an artifact silently dropped",
             ))
@@ -904,12 +920,12 @@ def _column_sequence_contiguous(doc: ParsedDocument, rule) -> list[tuple[str, st
         expected += 1
     duplicates = len(seen) - len({n for n, _ in seen})
     if duplicates:
-        out.append((_where(rule), f"{duplicates} duplicate step number(s) — order must be total"))
+        out.append((_at(_where(rule)), f"{duplicates} duplicate step number(s) — order must be total"))
     return out
 
 
 @check("DEPENDENCY_PRECEDES")
-def _dependency_precedes(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _dependency_precedes(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Everything a row depends on must be built before it.
 
     This is what makes a build order a *topological* sort rather than a list. A mandate whose steps
@@ -945,7 +961,7 @@ def _dependency_precedes(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
                 continue          # built outside this mandate — legitimate
             if prerequisite >= step_number:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{code!r} is step {step_number} but depends on {part!r} at step "
                     f"{prerequisite} — a prerequisite scheduled later is not a build order",
                 ))
@@ -987,7 +1003,7 @@ def _prior_rows(doc: ParsedDocument, rule):
 
 
 @check("NODE_INPUT_BOUND")
-def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A workflow node must be handed every input its contract requires.
 
     A contract declares what it accepts; a workflow node declares what it is handed. Nothing checked
@@ -1037,7 +1053,7 @@ def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         if required:
             declared.setdefault(_bare_identity(str(entry.get("contract"))), set()).update(required)
 
-    bound: dict[tuple[str, str], set[str]] = {}
+    bound: dict[tuple[Locator, str], set[str]] = {}
     for _, row in _rows(doc, rule):
         if _cell(row, "Direction").upper() != "INPUT":
             continue
@@ -1054,7 +1070,7 @@ def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         named = node if node == contract else f"{node} ({contract})"
         for field in missing:
             out.append((
-                f"{topology} row {i}",
+                _at(topology, i),
                 f"{workflow} hands {named} no {field!r}, which that contract requires",
             ))
     return out
@@ -1062,7 +1078,7 @@ def _node_input_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 
 @check("ENTRANCE_SUPPLIES_GATE")
-def _entrance_supplies_gate(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _entrance_supplies_gate(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """An entrance must supply everything the gate of the workflow it invokes requires.
 
     `NODE_INPUT_BOUND` holds a workflow to its contracts; nothing held an entrance to the gate it
@@ -1119,14 +1135,14 @@ def _entrance_supplies_gate(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         required = declared[gate] if gate in declared else observed.get(gate, set())
         for field in sorted(required - fields_sent):
             out.append((
-                f"{rule.register} {entrance}",
+                _at(rule.register, entrance),
                 f"{entrance} invokes {workflow}, whose gate {gate} requires {field!r} — the entrance "
                 f"does not supply it, so every request through it is refused at admission",
             ))
     return out
 
 @check("BINDING_SOURCE_REACHABLE")
-def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A source rooted at another node must name a node the workflow actually runs.
 
     `BINDING_SOURCE_UNROOTED` proves a source is a reference rather than a literal. It cannot prove
@@ -1149,14 +1165,14 @@ def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[str, str]
         for named in sorted(set(pattern.findall(_source(row)))):
             if _bare_identity(named) not in nodes[owner]:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"source names {named!r}, which {owner} never runs — well-rooted and unreachable",
                 ))
     return out
 
 
 @check("TOPOLOGY_ROUTE_RESOLVES")
-def _topology_route_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _topology_route_resolves(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every routing target is a node of the same workflow.
 
     A target is a key, not a contract: once a contract runs at several places, naming the contract
@@ -1168,7 +1184,7 @@ def _topology_route_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     """
     exempt = tuple(rule.params.get("exempt_prefixes") or ())
     rows = list(_rows(doc, rule))
-    composed: dict[tuple[str, str], set[str]] = {}
+    composed: dict[tuple[Locator, str], set[str]] = {}
     observation = rule.params.get("observation")
     for entry in (doc.observed.get(observation) or []) if observation else []:
         composed[(entry["domain"], entry["wf_code"])] = set(entry["nodes"])
@@ -1187,14 +1203,14 @@ def _topology_route_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             if not bare or bare.startswith(exempt) or bare in nodes[workflow]:
                 continue
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{outcome} routes to {target!r}, which is no node of {workflow}",
             ))
     return out
 
 
 @check("PRIOR_PROSE_CARRIED")
-def _prior_prose_carried(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _prior_prose_carried(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A narrative register carried from an upstream phase, inherited or explicitly superseded.
 
     Preservation elsewhere is row-keyed, and a paragraph has no key. That is why the one register
@@ -1214,17 +1230,17 @@ def _prior_prose_carried(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
     if not doc.has_prior(phase):
         return [(
-            _where(rule),
+            _at(_where(rule)),
             f"{phase} was not supplied — this handoff is unchecked, and an unchecked handoff "
             f"looks identical to a preserved one",
         )]
     prior = doc.prior_register(phase, prior_register)
     if prior is None:
-        return [(_where(rule), f"{phase} carries no {prior_register!r} register to carry forward")]
+        return [(_at(_where(rule)), f"{phase} carries no {prior_register!r} register to carry forward")]
 
     rows = _rows(doc, rule)
     if not rows:
-        return [(_where(rule), "no disposition declared — say whether the prose is inherited or refined")]
+        return [(_at(_where(rule)), "no disposition declared — say whether the prose is inherited or refined")]
 
     out = []
     column = rule.params["column"]
@@ -1233,10 +1249,10 @@ def _prior_prose_carried(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         if _cell(row, column).strip().upper() != inherited:
             continue
         if carried is None:
-            out.append((f"{_where(rule)} row {i}", "the register it declares a disposition for is absent"))
+            out.append((_at(_where(rule), i), "the register it declares a disposition for is absent"))
             continue
         if _normalise(carried.text()) != _normalise(prior.text()):
-            out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
+            out.append((_at(_where(rule), i), rule.params["detail"]))
     return out
 
 
@@ -1270,7 +1286,7 @@ def _claim(row: dict, columns: list[str]) -> str:
 
 
 @check("PRIOR_ROWS_CITED")
-def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every row of an upstream register must be carried forward and cited here.
 
     Belief Preservation, stated as k of N: N rows were committed to upstream, k of them are cited
@@ -1282,7 +1298,7 @@ def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     prior_rows, unavailable = _prior_rows(doc, rule)
     if unavailable:
-        return [(_where(rule), unavailable)]
+        return [(_at(_where(rule)), unavailable)]
 
     register = rule.params["prior_register"]
     phase = rule.params["prior_phase"]
@@ -1300,7 +1316,7 @@ def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             continue
         subject = _normalise(_cell(row, key_column)) if key_column else ""
         out.append((
-            f"{_where(rule)}",
+            _at(_where(rule)),
             f"{phase} {register} #{ordinal} of {total} is carried nowhere in this register"
             + (f": {subject!r}" if subject else ""),
         ))
@@ -1308,7 +1324,7 @@ def _prior_rows_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 
 @check("PRIOR_ROW_MATCHES_CITED")
-def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A row that cites an upstream row must still say what that row said.
 
     Projection Fidelity. `PRIOR_ROWS_CITED` proves nothing was dropped; it does not prove anything
@@ -1322,7 +1338,7 @@ def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     """
     prior_rows, unavailable = _prior_rows(doc, rule)
     if unavailable:
-        return [(_where(rule), unavailable)]
+        return [(_at(_where(rule)), unavailable)]
 
     register = rule.params["prior_register"]
     phase = rule.params["prior_phase"]
@@ -1337,7 +1353,7 @@ def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]
         for ordinal in sorted(_cited_ordinals(row, column, register)):
             if ordinal not in upstream:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"cites {register} #{ordinal}, and {phase} declares only "
                     f"{len(upstream)} row(s) there",
                 ))
@@ -1346,7 +1362,7 @@ def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]
             there = _normalise(_cell(upstream[ordinal], prior_key_column))
             if here != there:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"restates {register} #{ordinal} as {here!r}, which {phase} declared as "
                     f"{there!r} — a citation is not a licence to change the claim",
                 ))
@@ -1354,7 +1370,7 @@ def _prior_row_matches_cited(doc: ParsedDocument, rule) -> list[tuple[str, str]]
 
 
 @check("PRIOR_IDENTITIES_COVERED")
-def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Two registers naming artifact identities must name the same ones.
 
     The handoffs above are checked row by row, because a belief is a claim and claims are matched by
@@ -1374,7 +1390,7 @@ def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]
     """
     prior_rows, unavailable = _prior_rows(doc, rule)
     if unavailable:
-        return [(_where(rule), unavailable)]
+        return [(_at(_where(rule)), unavailable)]
 
     phase = rule.params["prior_phase"]
     register = rule.params["prior_register"]
@@ -1443,13 +1459,13 @@ def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]
 
     if require == "prior_in_here":
         return [
-            (f"{_where(rule)}",
+            (_at(_where(rule)),
              f"{identity} is declared at {phase} {register} #{ordinal} and appears nowhere here")
             for identity, ordinal in sorted(there.items(), key=lambda kv: kv[1])
             if identity not in here
         ]
     return [
-        (f"{_where(rule)} row {i}",
+        (_at(_where(rule), i),
          f"{identity} appears in no {phase} {register} row — it was never designed")
         for identity, i in sorted(here.items(), key=lambda kv: kv[1])
         if identity not in there
@@ -1457,7 +1473,7 @@ def _prior_identities_covered(doc: ParsedDocument, rule) -> list[tuple[str, str]
 
 
 @check("PRIOR_ROWS_PRESENT_BY_KEY")
-def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every row of an upstream register must reappear here, matched on what it says.
 
     The third way two documents are compared, and the one that needs no idiom at all.
@@ -1490,7 +1506,7 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
     """
     prior_rows, unavailable = _prior_rows(doc, rule)
     if unavailable:
-        return [(_where(rule), unavailable)]
+        return [(_at(_where(rule)), unavailable)]
 
     phase = rule.params["prior_phase"]
     register = rule.params["prior_register"]
@@ -1529,14 +1545,14 @@ def _prior_rows_present_by_key(doc: ParsedDocument, rule) -> list[tuple[str, str
         if not claim or claim in here:
             continue
         out.append((
-            _where(rule),
+            _at(_where(rule)),
             f"{phase} {register} #{ordinal} of {total} is restated nowhere {where}: {claim!r}",
         ))
     return out
 
 
 @check("REGISTER_COVERS_REGISTER")
-def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every row of one register must be accounted for in another register of the same document.
 
     The cross-phase kinds above check that a handoff between two documents preserved something. This
@@ -1556,7 +1572,7 @@ def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]
     block = doc.register(source)
     if block is None or block.table is None:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             f"{source!r} is absent, so nothing establishes what this register must cover",
         )]
 
@@ -1601,7 +1617,7 @@ def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]
         if not key or _bare_identity(key) in covered:
             continue
         out.append((
-            f"{_where(rule)}",
+            _at(_where(rule)),
             f"{key} is declared at {source} #{ordinal} and this register says nothing about it"
             + (f" ({gate_column} {gate_value})" if gate_column else ""),
         ))
@@ -1619,7 +1635,7 @@ def _bare_identity(value: str) -> str:
 
 
 @check("BINDING_SOURCE_PUBLISHED")
-def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """An output binding must read a field its step's operation actually publishes.
 
     A step names its outputs in the contract's own vocabulary — `staff_record`, `book_details` — and
@@ -1638,7 +1654,7 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
     published = doc.observed.get(observation) or []
     if not published:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no capability surface was observed — a binding source cannot be checked against "
             "operations nobody published",
         )]
@@ -1653,7 +1669,7 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
         }
 
     # Which capability and operation each CS step invokes, addressed the way a binding addresses it.
-    steps: dict[tuple[str, str], tuple[str, str]] = {}
+    steps: dict[tuple[Locator, str], tuple[Locator, str]] = {}
     composition = doc.register(rule.params["step_register"])
     if composition and composition.table:
         for row in composition.table.rows:
@@ -1680,7 +1696,7 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
         field = bound[len(prefix):].split(".")[0]
         if field not in declared:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{operation} on {capability.split('::')[-1]} publishes {sorted(declared)}, "
                 f"not {field!r} — a binding cannot read a field the operation never yields",
             ))
@@ -1688,7 +1704,7 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
 
 
 @check("ROWS_CONFINED_TO_PRIOR")
-def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """No row here may assert something the upstream register does not.
 
     `PRIOR_ROWS_PRESENT_BY_KEY` is coverage — it catches the row that went missing. This is the
@@ -1707,7 +1723,7 @@ def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     prior_rows, unavailable = _prior_rows(doc, rule)
     if unavailable:
-        return [(_where(rule), unavailable)]
+        return [(_at(_where(rule)), unavailable)]
 
     phase = rule.params["prior_phase"]
     register = rule.params["prior_register"]
@@ -1722,7 +1738,7 @@ def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
         if not claim or claim in upstream:
             continue
         out.append((
-            f"{_where(rule)} row {i}",
+            _at(_where(rule), i),
             f"states what {phase} {register} does not: {claim!r} — this phase restates business "
             f"content, so a new claim belongs upstream where a person owns it",
         ))
@@ -1753,7 +1769,7 @@ def _topology(doc: ParsedDocument, rule):
 
 
 @check("DISCHARGE_GROUNDED_IN_TOPOLOGY")
-def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A stated discharge must name a step the act really has, and an outcome that step reports.
 
     A register read only for presence documents intent and enforces nothing. The seed says the
@@ -1788,7 +1804,7 @@ def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[str
         node = topology.get((act, step))
         if node is None:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{step!r} is no step of {act} — the discharge names a place in an act that has "
                 f"no such place, so nothing carries the refusal out",
             ))
@@ -1797,7 +1813,7 @@ def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[str
         if outcome not in reported:
             known = ", ".join(sorted(reported)) or "nothing"
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{step.split('::')[-1]} does not report {outcome!r} — it reports {known}, and a "
                 f"discharge on an outcome the step never returns never happens",
             ))
@@ -1805,7 +1821,7 @@ def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[str
 
 
 @check("DISCHARGE_OUTCOME_REFUSES")
-def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """The outcome a discharge names must route to an ending that refuses.
 
     The separate claim, and the one the other kind cannot make: a step may report exactly the
@@ -1843,7 +1859,7 @@ def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str
         ending = topology.get((act, destination))
         if ending is None:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{outcome!r} routes to {destination!r} and {act.split('::')[-1]} declares no such "
                 f"node — an ending the topology does not state is one nothing can be said about",
             ))
@@ -1851,7 +1867,7 @@ def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str
         node_type = _cell(ending, type_column).strip().upper()
         if node_type != refusing:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{outcome!r} routes to {destination!r}, typed {node_type or 'nothing'} — a "
                 f"discharge must reach an ending typed {refusing}, and this one does not refuse",
             ))
@@ -1859,7 +1875,7 @@ def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str
 
 
 @check("EMISSION_GROUNDED_IN_ENDING")
-def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """An announcement must be attached to an ending the act has, and one that completes it.
 
     A moment names something that happened. Announcing one from an ending that refuses the act
@@ -1907,7 +1923,7 @@ def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, s
         ending = prop[len(prefix):].strip()
         if not ending:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{prop!r} names no ending — an announcement with no site is emitted from nowhere",
             ))
             continue
@@ -1915,7 +1931,7 @@ def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, s
         if node is None:
             declared = sorted(n for a, n in topology if a == act)
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{ending!r} is no node of {act.split('::')[-1]} — it declares "
                 f"{', '.join(declared) or 'no nodes'}, and a moment cannot be announced from a "
                 f"place the act does not have",
@@ -1932,7 +1948,7 @@ def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, s
                 refusals.get(_bare_identity(m)) for m in announced):
             continue
         out.append((
-            f"{_where(rule)} row {i}",
+            _at(_where(rule), i),
             f"{ending!r} is typed {node_type or 'nothing'} — a moment names something that "
             f"happened, so it is announced only from an ending typed {completing}, or from one "
             f"typed {refusing} when every moment announced is declared "
@@ -1942,7 +1958,7 @@ def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, s
 
 
 @check("GOVERNING_RULE_IN_SEALED_SET")
-def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A cited rule must really be in force, in the composition this design is pinned to.
 
     The register that names it exists so a refusal carried out by the governance surface can be
@@ -1998,14 +2014,14 @@ def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, 
         declared = in_force.get(wf)
         if declared is None:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{wf.split('::')[-1]} carries no sealed rule set in the pinned composition — "
                 f"nothing there can be discharging anything",
             ))
             continue
         if cited not in declared:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"{cited!r} is not in force at {phase} — the composition this design is pinned to "
                 f"declares no such rule, so the refusal is carried out by nothing. A design cannot "
                 f"discharge a refusal by citing a rule its own change is adding",
@@ -2014,7 +2030,7 @@ def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, 
 
 
 @check("STEP_OPERATION_PUBLISHED")
-def _step_operation_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _step_operation_published(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A step must name an operation its capability actually offers.
 
     `STEP_CONSUMES_PUBLISHED` skips a step whose operation it cannot resolve, with the note that the
@@ -2036,7 +2052,7 @@ def _step_operation_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
     published = doc.observed.get(observation) or []
     if not published:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no capability surface was observed — a step's operation cannot be checked against "
             "operations nobody published",
         )]
@@ -2053,19 +2069,19 @@ def _step_operation_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
             continue
         capability, operation = _cell(row, "Capability"), _cell(row, "Operation")
         if capability not in offered:
-            out.append((f"{_where(rule)} row {i}",
+            out.append((_at(_where(rule), i),
                         f"{capability!r} publishes no capability surface — a side effect is reused, "
                         f"never authored, so one the composition does not carry names nothing"))
             continue
         if operation and operation not in offered[capability]:
-            out.append((f"{_where(rule)} row {i}",
+            out.append((_at(_where(rule), i),
                         f"{capability} offers no operation {operation!r} — it publishes "
                         f"{', '.join(sorted(offered[capability])) or 'none'}"))
     return out
 
 
 @check("STEP_CONSUMES_PUBLISHED")
-def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A step must hand its operation fields the operation accepts.
 
     The mirror of `BINDING_SOURCE_PUBLISHED`, and the half that was missing. That rule asks whether a
@@ -2085,7 +2101,7 @@ def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     published = doc.observed.get(observation) or []
     if not published:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no capability surface was observed — a step's inputs cannot be checked against "
             "operations nobody published",
         )]
@@ -2112,7 +2128,7 @@ def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]
                 continue
             if field not in declared:
                 out.append((
-                    f"{_where(rule)} row {i}",
+                    _at(_where(rule), i),
                     f"{operation} on {capability.split('::')[-1]} accepts "
                     f"{sorted(declared) or 'no input'}, not {field!r} — a step cannot hand an "
                     f"operation a field it does not take",
@@ -2121,7 +2137,7 @@ def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]
 
 
 @check("CITED_ORDINAL_RESOLVES")
-def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A citation naming a row by ordinal must name a row that is there.
 
     `SOURCE_FINDING_RESOLVES` asks whether a citation names a register this phase may cite. It never
@@ -2144,7 +2160,7 @@ def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     column = rule.params["column"]
 
-    out: list[tuple[str, str]] = []
+    out: list[tuple[Locator, str]] = []
     for index, row in _rows(doc, rule):
         for citation in _cited(row, column):
             if "register" not in citation or "row" not in citation:
@@ -2155,7 +2171,7 @@ def _cited_ordinal_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
                 continue
             held = len(_content_rows(block))
             if ordinal < 1 or ordinal > held:
-                where = f"{_where(rule)} row {index}"
+                where = _at(_where(rule), index)
                 out.append((
                     where,
                     f"cites {register} #{ordinal}, which holds {held} row(s) — the citation "
@@ -2174,7 +2190,7 @@ def _composition_steps(doc: ParsedDocument, register: str):
 
 
 @check("STEP_INPUTS_BOUND")
-def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """Every input a step consumes must be bound to something.
 
     A composition says what a step hands its capability; the bindings say where each value comes
@@ -2187,7 +2203,7 @@ def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     this one holds a contract to the capability it calls.
     """
     composition = rule.params["composition_register"]
-    bound: dict[tuple[str, str], set[str]] = {}
+    bound: dict[tuple[Locator, str], set[str]] = {}
     for _, row in _rows(doc, rule):
         if _cell(row, "Direction").upper() != "INPUT":
             continue
@@ -2218,21 +2234,21 @@ def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     # use domain-side names there while the bindings use the transform's, so comparing them would
     # report a defect where a mapping exists. Transform steps become checkable once a transform's
     # contract can be observed; until then this asserts only what it can know.
-    out: list[tuple[str, str]] = []
+    out: list[tuple[Locator, str]] = []
     for (owner, step), row in sorted(_composition_steps(doc, composition).items()):
         if _cell(row, "Kind").upper() != "CS":
             continue
         satisfied = (bound.get((owner, step), set()) | passed_through.get(owner, set())
                      | produced.get(owner, set()))
         for field in sorted(set(_items(row, "Consumes")) - satisfied):
-            out.append((f"{composition} {owner}/{step}",
+            out.append((_at(composition, f"{owner}/{step}"),
                         f"consumes {field!r} and binds it to nothing — the capability receives "
                         f"no value for it"))
     return out
 
 
 @check("CONTRACT_OUTPUT_PRODUCED")
-def _contract_output_produced(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _contract_output_produced(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A contract's declared output must name a value one of its steps surfaces.
 
     Surfaced, not consumed: a step's OUTPUT binding carries the *domain* name a value takes when it
@@ -2254,14 +2270,14 @@ def _contract_output_produced(doc: ParsedDocument, rule) -> list[tuple[str, str]
             if _cell(row, "Direction").upper() == "OUTPUT":
                 surfaced.setdefault(owner, set()).add(_cell(row, "Field"))
 
-    out: list[tuple[str, str]] = []
+    out: list[tuple[Locator, str]] = []
     for i, row in _rows(doc, rule):
         artifact = _bare_identity(_cell(row, "Artifact"))
         if artifact not in owners or _cell(row, "Direction").upper() != "OUTPUT":
             continue
         field = _cell(row, "Field")
         if field and field not in surfaced.get(artifact, set()):
-            out.append((f"{_where(rule)} row {i}",
+            out.append((_at(_where(rule), i),
                         f"{artifact} declares output {field!r}, which no step of it surfaces — "
                         f"its steps surface {', '.join(sorted(surfaced.get(artifact, set()))) or 'nothing'}"))
     return out
@@ -2279,7 +2295,7 @@ def _interface_map(value: Any, side: str) -> dict[str, str]:
 
 
 @check("STEP_INTERFACE_CONFORMS")
-def _step_interface_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _step_interface_conforms(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A transform step must hand its transform the inputs that transform declares.
 
     The side-effect half of this has been checked since `STEP_CONSUMES_UNDECLARED_INPUT`, because
@@ -2304,19 +2320,19 @@ def _step_interface_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]
         # passed the capability surface and not the transform surface. A rule that cannot see its
         # subject has not checked it, and saying so is the difference between the two.
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no transform surface was observed — a step's interface cannot be checked against "
             "transforms nobody published",
         )]
 
-    out: list[tuple[str, str]] = []
+    out: list[tuple[Locator, str]] = []
     for index, row in _rows(doc, rule):
         if _cell(row, "Kind").upper() != "CT":
             continue
         contract = observed.get(_cell(row, "Capability"))
         if contract is None:
             continue
-        where = f"{_where(rule)} row {index}"
+        where = _at(_where(rule), index)
         interface = _value(row, "Interface")
         supplied = _interface_map(interface, "in")
         produced = _interface_map(interface, "out")
@@ -2337,7 +2353,7 @@ def _step_interface_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]
 
 
 @check("STEP_BINDINGS_MATCH_INTERFACE")
-def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A binding may only name a field the step's Interface declares.
 
     The Interface states what the step hands its capability and reads back; the bindings say where
@@ -2351,7 +2367,7 @@ def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str,
     because its `Consumes`/`Produces` already name the operation's own fields, and
     `STEP_CONSUMES_UNDECLARED_INPUT` holds those to the published surface.
     """
-    declared: dict[tuple[str, str], tuple[set[str], set[str]]] = {}
+    declared: dict[tuple[Locator, str], tuple[set[str], set[str]]] = {}
     for (owner, step), row in _composition_steps(doc, rule.params["composition_register"]).items():
         interface = _value(row, "Interface")
         if not isinstance(interface, dict) or not interface:
@@ -2364,7 +2380,7 @@ def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str,
         declared[(owner, step)] = (set(_interface_map(interface, "in")),
                                    set(_interface_map(interface, "out").values()))
 
-    out: list[tuple[str, str]] = []
+    out: list[tuple[Locator, str]] = []
     for index, row in _rows(doc, rule):
         key = (_bare_identity(_cell(row, "Owner")), _cell(row, "Step"))
         if key not in declared:
@@ -2373,14 +2389,14 @@ def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str,
         allowed = declared[key][0] if direction == "INPUT" else declared[key][1]
         field = _cell(row, "Field")
         if field and field not in allowed:
-            out.append((f"{_where(rule)} row {index}",
+            out.append((_at(_where(rule), index),
                         f"binds {field!r} on {key[1]}, which its interface does not carry — it "
                         f"declares {', '.join(sorted(allowed)) or 'nothing'} in that direction"))
     return out
 
 
 @check("IMPLEMENTATION_MODULE_CONFORMS")
-def _implementation_module_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _implementation_module_conforms(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A transform's implementation sits where its domain says implementations live.
 
     A capability transform is the one family whose artifact points outside the composition, and the
@@ -2410,7 +2426,7 @@ def _implementation_module_conforms(doc: ParsedDocument, rule) -> list[tuple[str
         expected = f"{template.format(domain=domain)}.{bare.lower()}"
         if module != expected:
             out.append((
-                f"{_where(rule)} row {i}",
+                _at(_where(rule), i),
                 f"implementation is declared at {module!r}; {domain} resolves transforms at "
                 f"{expected!r}. A module the loader does not look for is a transform that does not "
                 f"run, and nothing below this notices until it is invoked",
@@ -2419,7 +2435,7 @@ def _implementation_module_conforms(doc: ParsedDocument, rule) -> list[tuple[str
 
 
 @check("CROSS_SUBDOMAIN_REACH_READ_ONLY")
-def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """An act reaching into another subdomain may read what it holds and never change it.
 
     A subdomain owns what it holds, and ownership that does not include being the only writer is not
@@ -2438,7 +2454,7 @@ def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[st
     capabilities = doc.observed.get(rule.params["capability_observation"]) or []
     if not artifacts or not contracts or not capabilities:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "the composition was not observed — a reach across a subdomain boundary cannot be "
             "checked against subdomains nobody published",
         )]
@@ -2456,7 +2472,7 @@ def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[st
               for c in capabilities if isinstance(c, dict)
               for op, spec in (c.get("operations") or {}).items()}
 
-    writes: dict[str, list[tuple[str, str]]] = {}
+    writes: dict[str, list[tuple[Locator, str]]] = {}
     for contract in contracts:
         if not isinstance(contract, dict):
             continue
@@ -2481,7 +2497,7 @@ def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[st
             continue
         for op, store in writes.get(node, []):
             out.append((
-                f"{rule.params['topology_register']} row {i}",
+                _at(rule.params['topology_register'], i),
                 f"{workflow} is in {here} and reaches {node} in {there}, which performs {op} on "
                 f"{store}. A subdomain may read what another holds and never change it — the owner "
                 f"of a record is the only writer of it",
@@ -2495,7 +2511,7 @@ def _routing_outcomes(routing: Any) -> set[str]:
 
 
 @check("OUTCOME_GROUNDED_IN_OPERATION")
-def _outcome_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _outcome_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A step may only branch on an outcome its operation answers, or name what produced the rest.
 
     This is the data-to-decision closure, and until now it was asked as "is the cell filled?" —
@@ -2521,7 +2537,7 @@ def _outcome_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str,
     observed = doc.observed.get(rule.params["observation"]) or []
     if not observed:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no capability surface was observed — whether a step branches on an outcome its "
             "operation answers cannot be checked against operations nobody published",
         )]
@@ -2550,7 +2566,7 @@ def _outcome_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str,
         if not undeclared or _cell(row, column) not in none_markers:
             continue
         out.append((
-            f"{_where(rule)} row {i}",
+            _at(_where(rule), i),
             rule.params["detail"].format(
                 outcomes=", ".join(undeclared),
                 operation=operation,
@@ -2561,7 +2577,7 @@ def _outcome_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str,
 
 
 @check("INTERPRETATION_TRANSFORM_REFUSES")
-def _interpretation_transform_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _interpretation_transform_refuses(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A transform that interprets an observation must be able to refuse it.
 
     A read reports that the store answered, never what it found, so a step reading state names the
@@ -2587,7 +2603,7 @@ def _interpretation_transform_refuses(doc: ParsedDocument, rule) -> list[tuple[s
     observed = doc.observed.get(rule.params["observation"])
     if not observed:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no transform surface was observed — whether an interpreting transform can refuse "
             "cannot be checked against transforms nobody published",
         )]
@@ -2605,7 +2621,7 @@ def _interpretation_transform_refuses(doc: ParsedDocument, rule) -> list[tuple[s
         if not named or named in ("—", "-"):
             continue
         declared = refusal.get(_bare_identity(named))
-        where = f"{_where(rule)} row {i}"
+        where = _at(_where(rule), i)
         if declared is None:
             out.append((
                 where,
@@ -2627,7 +2643,7 @@ def _interpretation_transform_refuses(doc: ParsedDocument, rule) -> list[tuple[s
 
 
 @check("STORE_GROUNDED_IN_CAPABILITY")
-def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A step names a store when its capability keeps one, and does not when it does not.
 
     `Store` is the third em-dash column in the step register and the only one no check read at all:
@@ -2646,7 +2662,7 @@ def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[str, 
     observed = doc.observed.get(rule.params["observation"]) or []
     if not observed:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no capability surface was observed — whether a step addresses a store cannot be "
             "checked against capabilities nobody published",
         )]
@@ -2672,12 +2688,12 @@ def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[str, 
         if bool(_items(row, rule.params["column"])) == keeps_records:
             continue
         detail = rule.params["detail_missing"] if keeps_records else rule.params["detail_spurious"]
-        out.append((f"{_where(rule)} row {i}", detail.format(capability=capability)))
+        out.append((_at(_where(rule), i), detail.format(capability=capability)))
     return out
 
 
 @check("CONSUMPTION_GROUNDED_IN_OPERATION")
-def _consumption_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _consumption_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A step consuming nothing must invoke an operation that takes nothing.
 
     `STEP_CONSUMES_UNDECLARED_INPUT` holds every named field to the published surface and skips the
@@ -2695,7 +2711,7 @@ def _consumption_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[
     observed = doc.observed.get(rule.params["observation"]) or []
     if not observed:
         return [(
-            _where(rule),
+            _at(_where(rule)),
             "no capability surface was observed — whether a step hands an operation nothing cannot "
             "be checked against operations nobody published",
         )]
@@ -2715,7 +2731,7 @@ def _consumption_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[
         if _items(row, rule.params["column"]):
             continue
         out.append((
-            f"{_where(rule)} row {i}",
+            _at(_where(rule), i),
             rule.params["detail"].format(
                 operation=operation,
                 accepts=", ".join(sorted(declared)),
@@ -2805,7 +2821,7 @@ def _own_binding(doc: ParsedDocument, rule) -> dict[str, str]:
 
 
 @check("REACH_IS_USED")
-def _reach_is_used(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _reach_is_used(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A declared reach must be read by something the act does.
 
     Half of one statement, and the half that alone permits a reserve: an act may declare a reach to
@@ -2819,7 +2835,7 @@ def _reach_is_used(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     observed = doc.observed.get(rule.params["observation"]) or []
     if not observed:
-        return [(_where(rule),
+        return [(_at(_where(rule)),
                  "no store surface was observed — whether a declared reach is read cannot be "
                  "checked against stores nobody published")]
 
@@ -2835,7 +2851,7 @@ def _reach_is_used(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             if stores & reads.get(act, set()):
                 continue
             out.append((
-                f"{_where(rule)} {act}",
+                _at(_where(rule), act),
                 rule.params["detail"].format(
                     binding=binding,
                     stores=", ".join(sorted(s.split("::")[-1] for s in stores)) or "no records",
@@ -2845,7 +2861,7 @@ def _reach_is_used(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 
 @check("READ_IS_DECLARED")
-def _read_is_declared(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _read_is_declared(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """An act reads nothing it did not declare a reach to.
 
     The other half. A step addressing records that neither the act's own binding nor any reach it
@@ -2857,7 +2873,7 @@ def _read_is_declared(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     observed = doc.observed.get(rule.params["observation"]) or []
     if not observed:
-        return [(_where(rule),
+        return [(_at(_where(rule)),
                  "no store surface was observed — whether an act reads what it declared cannot be "
                  "checked against stores nobody published")]
 
@@ -2874,14 +2890,14 @@ def _read_is_declared(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             permitted |= covers.get(binding, set())
         for store in sorted(reads.get(act, set()) - permitted):
             out.append((
-                f"{_where(rule)} {act}",
+                _at(_where(rule), act),
                 rule.params["detail"].format(store=store, binding=owned),
             ))
     return out
 
 
 @check("COLUMN_VALUES_UNIQUE")
-def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[Locator, str]]:
     """A column whose value identifies the row, so two rows may not carry the same one.
 
     Every other register check asks whether a row says the right thing. This asks whether the
@@ -2893,7 +2909,7 @@ def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     `CODE_V0` is one subject stated twice, and a comparison on the full string would call it two.
     """
     seen: dict[tuple[str, ...], int] = {}
-    out: list[tuple[str, str]] = []
+    out: list[tuple[Locator, str]] = []
     # A key is one column, or several that identify a row only together: a topology node is a
     # place within its workflow, and the same key names another place in another workflow.
     columns = rule.params.get("columns") or [rule.params["column"]]
@@ -2909,6 +2925,6 @@ def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             continue
         first = seen.setdefault(key, index)
         if first != index:
-            out.append((f"{_where(rule)} row {index}",
+            out.append((_at(_where(rule), index),
                         rule.params["detail"].format(*key, value=" · ".join(key), first=first)))
     return out

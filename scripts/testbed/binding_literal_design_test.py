@@ -56,7 +56,7 @@ def design(step_sources=(), molecule_sources=(), generated_owner=None) -> str:
 def fired(text: str) -> list[str]:
     header, sections, registers = parse_text(text)
     doc = ParsedDocument(header=header, sections=sections, registers=registers, raw=text, path="probe")
-    return sorted(f.rule for f in evaluate(doc, RULES).findings)
+    return sorted(f.code for f in evaluate(doc, RULES).findings)
 
 
 def test_every_literal_form_passes_in_a_step_binding():

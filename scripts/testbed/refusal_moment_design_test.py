@@ -42,7 +42,7 @@ def design(properties) -> str:
 def fired(properties) -> list[str]:
     header, sections, registers = parse_text(design(properties))
     doc = ParsedDocument(header=header, sections=sections, registers=registers, raw="", path="probe")
-    return [f.rule for f in evaluate(doc, RULES).findings]
+    return [f.code for f in evaluate(doc, RULES).findings]
 
 
 DECLARED = (REFUSED, "moment", "refusal")

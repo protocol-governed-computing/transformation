@@ -114,7 +114,7 @@ def rate(verdict: Verdict, doc: ParsedDocument | None, policy: dict[str, Any]) -
     if doc is None:
         return Merit(rating=minimum, maximum=maximum, deductions=[])
 
-    fired = [f.rule for f in verdict.findings]
+    fired = [f.code for f in verdict.findings]
     claimed: set[int] = set()
     deductions: list[Deduction] = []
     remaining_spec = None

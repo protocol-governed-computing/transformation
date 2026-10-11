@@ -196,7 +196,7 @@ def compiled_verdict(
     rules: list[dict],
     observed: dict | None = None,
     priors: dict | None = None,
-) -> tuple[str, list[tuple[str, str]]]:
+) -> tuple[str, list[tuple[str, ...]]]:
     """Drive the compiled phase's atoms exactly as the workflow composes them."""
     parsed = ct_pure_parse_registers_v0.execute({"document_text": seed_text})
     parsed_priors = ct_pure_parse_prior_phases_v0.execute({"prior_texts": priors or {}})
@@ -211,7 +211,7 @@ def compiled_verdict(
             "priors": parsed_priors["priors"],
         }
     )
-    findings = [(f["rule"], f["where"]) for f in result["findings"]]
+    findings = [(f["code"], f["rule"], *map(str, f["locator"].values())) for f in result["findings"]]
     return result["verdict"], findings
 
 
@@ -220,14 +220,14 @@ def genesis_verdict(
     rules,
     observed: dict | None = None,
     priors: dict | None = None,
-) -> tuple[str, list[tuple[str, str]]]:
+) -> tuple[str, list[tuple[str, ...]]]:
     doc = read_seed(doc_path)
     doc.observed = observed or {}
     # The genesis path parses its priors with the same reader the transform uses, so a divergence
     # is a difference in rule evaluation rather than in how the two paths read a document.
     doc.priors = ct_pure_parse_prior_phases_v0.execute({"prior_texts": priors or {}})["priors"]
     verdict = evaluate(doc, rules)
-    return verdict.verdict, [(f.rule, f.where) for f in verdict.findings]
+    return verdict.verdict, [(f.code, f.rule, *map(str, f.locator.values())) for f in verdict.findings]
 
 
 def main() -> int:

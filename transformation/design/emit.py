@@ -37,21 +37,13 @@ import yaml
 
 from inspector import api as inspector_api
 
+from transformation.design.catalog import PHASES
+
 REPO = Path(__file__).resolve().parents[2]
 WORKFLOWS = REPO / "registry" / "design" / "workflows"
 
-# phase id → the workflow artifact carrying its sealed rule set.
-SEALED_IN = {
-    "p0": "WF_P0_SEED_ADMISSIBILITY_V1.md",
-    "p1": "WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V1.md",
-    "p2": "WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1.md",
-    "p3": "WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1.md",
-    "p4": "WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1.md",
-    "p5": "WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1.md",
-    "p6": "WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1.md",
-    "p7": "WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2.md",
-    "p8": "WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1.md",
-}
+# The workflow each phase's rule set is sealed into, as the dispatch declares it.
+SEALED_IN = {spec.id: f"{spec.workflow.split('::')[-1]}.md" for spec in PHASES}
 
 # How a design names this generator, and how construction reaches it. One spelling, read by the
 # provenance the artifacts carry and by the register a design states — the same string in both, or
@@ -453,7 +445,7 @@ def declared(phase_id: str) -> list[dict]:
 
     out = []
     for rule in RULE_MODULES[phase_id].rule_set():
-        entry: dict = {"id": rule.id, "check": rule.check}
+        entry: dict = {"id": rule.id, "identity": rule.identity, "check": rule.check}
         if rule.register:
             entry["register"] = rule.register
         if rule.section_title and rule.section_title != rule.register:

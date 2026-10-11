@@ -765,8 +765,8 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
         seed="",
         rules_evaluated=surface.get("rules_evaluated") or 0,
         findings=[
-            Finding(rule=f["rule"], where=f.get("where", ""), detail=f.get("detail", ""),
-                    intent=f.get("intent", ""))
+            Finding(code=f["code"], rule=f["rule"], locator=f["locator"],
+                    detail=f.get("detail", ""), intent=f.get("intent", ""))
             for f in (surface.get("findings") or [])
         ],
     )
@@ -876,7 +876,7 @@ def main() -> int:
         )
 
         verdict = result.surface.get("verdict")
-        fired = sorted(f["rule"] for f in (result.surface.get("findings") or []))
+        fired = sorted(f["code"] for f in (result.surface.get("findings") or []))
         expected = sorted(want_rule_ids)
         rules = result.surface.get("rules_evaluated")
 

@@ -98,10 +98,12 @@ core:
         prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/build_order/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: build_order
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/build_order/items/required
           check: TABLE_HAS_COLUMNS
           register: build_order
           params:
@@ -114,6 +116,7 @@ core:
             - Depends On
           intent: downstream phases read these columns by name
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/build_order/items/properties/action/x-vocab
           check: CELL_IN_VOCABULARY
           register: build_order
           params:
@@ -124,6 +127,7 @@ core:
             - NEW
           intent: Action is a controlled vocabulary declared by the template
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/build_order/items/properties/depends_on/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: build_order
           params:
@@ -136,10 +140,12 @@ core:
                 type: string
           intent: Depends On carries structure, and its value must take the declared form
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/critical_path/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: critical_path
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/critical_path/items/required
           check: TABLE_HAS_COLUMNS
           register: critical_path
           params:
@@ -148,10 +154,12 @@ core:
             - Code
           intent: downstream phases read these columns by name
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/mandate_artifact_summary/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: mandate_artifact_summary
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/mandate_artifact_summary/items/required
           check: TABLE_HAS_COLUMNS
           register: mandate_artifact_summary
           params:
@@ -161,10 +169,12 @@ core:
             - Description
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/mandate_artifact_summary/minItems
           check: TABLE_HAS_ROWS
           register: mandate_artifact_summary
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/mandate_artifact_summary/items/properties/action/x-vocab
           check: CELL_IN_VOCABULARY
           register: mandate_artifact_summary
           params:
@@ -175,10 +185,12 @@ core:
             - NEW
           intent: Action is a controlled vocabulary declared by the template
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/field_declarations/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: field_declarations
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/field_declarations/items/required
           check: TABLE_HAS_COLUMNS
           register: field_declarations
           params:
@@ -187,14 +199,17 @@ core:
             - Subdomain Field
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/field_declarations/minItems
           check: TABLE_HAS_ROWS
           register: field_declarations
           intent: an empty required register asserts nothing
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/new_capabilities/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: new_capabilities
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/new_capabilities/items/required
           check: TABLE_HAS_COLUMNS
           register: new_capabilities
           params:
@@ -205,10 +220,12 @@ core:
             - Outputs
           intent: downstream phases read these columns by name
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/new_intents/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: new_intents
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/new_intents/items/required
           check: TABLE_HAS_COLUMNS
           register: new_intents
           params:
@@ -219,10 +236,12 @@ core:
             - Inputs
           intent: downstream phases read these columns by name
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/cross_subdomain_notes/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: cross_subdomain_notes
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/properties/registers/properties/cross_subdomain_notes/items/required
           check: TABLE_HAS_COLUMNS
           register: cross_subdomain_notes
           params:
@@ -231,6 +250,7 @@ core:
             - Note
           intent: downstream phases read these columns by name
         - id: BUILD_STEPS_NOT_CONTIGUOUS
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/0
           check: COLUMN_SEQUENCE_CONTIGUOUS
           register: build_order
           params:
@@ -238,6 +258,7 @@ core:
             start: 1
           intent: the build sequence is total and gapless, because a gap is a dropped artifact
         - id: DEPENDENCY_SCHEDULED_LATER
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/1
           check: DEPENDENCY_PRECEDES
           register: build_order
           params:
@@ -246,6 +267,7 @@ core:
             order_column: Step
           intent: everything a step depends on is built before it — this is what makes it a sort
         - id: BUILD_CODE_MALFORMED
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/2
           check: CELL_MATCHES
           register: build_order
           params:
@@ -254,6 +276,7 @@ core:
             detail: build code {value!r} must be a binding FQDN copied verbatim from Stage 7
           intent: a mandate orders binding identities, never re-typed approximations
         - id: BUILD_CODE_ALREADY_EXISTS
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/3
           check: CITED_ARTIFACTS_ABSENT
           register: build_order
           params:
@@ -262,6 +285,7 @@ core:
             observation: si.artifact.list
           intent: an artifact mandated for authoring must not already be in the composition
         - id: CRITICAL_PATH_NOT_IN_BUILD_ORDER
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/4
           check: CELL_RESOLVES_IN_REGISTER
           register: critical_path
           params:
@@ -271,6 +295,7 @@ core:
             detail: the critical path runs through steps the mandate schedules, not past them
           intent: the critical path is a path through this build order
         - id: CRITICAL_PATH_NOT_CONTIGUOUS
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/5
           check: COLUMN_SEQUENCE_CONTIGUOUS
           register: critical_path
           params:
@@ -278,6 +303,7 @@ core:
             start: 1
           intent: a path is an ordered chain, not an unordered set of steps
         - id: CAPABILITY_WITHOUT_PURPOSE
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/6
           check: CELL_NOT_EMPTY
           register: new_capabilities
           params:
@@ -285,6 +311,7 @@ core:
             detail: capability states no purpose — a builder needs to know what to build, not only its name
           intent: a mandated capability says what it is for
         - id: INTENT_WITHOUT_WORKFLOW
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/7
           check: CELL_NOT_EMPTY
           register: new_intents
           params:
@@ -292,6 +319,7 @@ core:
             detail: intent names no workflow — an entry point that starts nothing cannot be authored
           intent: every mandated intent names the workflow it starts
         - id: DESIGNED_ARTIFACT_NOT_SCHEDULED
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/8
           check: PRIOR_IDENTITIES_COVERED
           register: build_order
           params:
@@ -302,6 +330,7 @@ core:
             require: prior_in_here
           intent: an artifact the design declared and the mandate never schedules is not deferred, it is lost
         - id: SCHEDULED_ARTIFACT_NOT_DESIGNED
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/9
           check: PRIOR_IDENTITIES_COVERED
           register: build_order
           params:
@@ -312,6 +341,7 @@ core:
             require: here_in_prior
           intent: a mandate orders the build; it does not get to add to it
         - id: SCHEDULED_ARTIFACT_UNPLACED
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/10
           check: REGISTER_COVERS_REGISTER
           register: field_declarations
           params:
@@ -320,6 +350,7 @@ core:
             column: Code
           intent: every artifact the mandate schedules declares the subdomain it is built into
         - id: AMENDED_ARTIFACT_UNPLACED
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/11
           check: PRIOR_IDENTITIES_COVERED
           register: field_declarations
           params:
@@ -345,6 +376,7 @@ core:
             - TE_
           intent: an artifact this change amends declares the subdomain it is placed in, as a scheduled one does
         - id: REGISTER_CELL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/12
           check: UNRESOLVED_MARKER_ABSENT
           params:
             exempt: []
@@ -352,6 +384,7 @@ core:
               as a clarification, do not hedge it in a register'
           intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/13
           check: HEADER_FIELD_PRESENT
           params:
             fields:
@@ -361,6 +394,7 @@ core:
             - Feeds
           intent: a dossier document states its phase, its CR, its lifecycle state, and what it feeds
         - id: LIFECYCLE_STATE_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P8_V0#/allOf/14
           check: HEADER_FIELD_MATCHES
           params:
             fields:

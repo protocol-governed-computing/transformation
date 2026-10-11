@@ -94,10 +94,12 @@ core:
         prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: entities
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/items/required
           check: TABLE_HAS_COLUMNS
           register: entities
           params:
@@ -109,10 +111,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/minItems
           check: TABLE_HAS_ROWS
           register: entities
           intent: an empty required register asserts nothing
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: entities
           params:
@@ -196,6 +200,7 @@ core:
                         const: human
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/x-business-language
           check: CELL_TOKEN_ABSENT
           register: entities
           params:
@@ -208,6 +213,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: entities
           params:
@@ -215,6 +221,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: entities
           params:
@@ -317,16 +324,19 @@ core:
             - withdrawn_facts
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entities/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: entities
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: entity_attributes
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/items/required
           check: TABLE_HAS_COLUMNS
           register: entity_attributes
           params:
@@ -338,10 +348,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/minItems
           check: TABLE_HAS_ROWS
           register: entity_attributes
           intent: an empty required register asserts nothing
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: entity_attributes
           params:
@@ -350,6 +362,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/x-business-language
           check: CELL_TOKEN_ABSENT
           register: entity_attributes
           params:
@@ -362,6 +375,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: entity_attributes
           params:
@@ -369,6 +383,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: entity_attributes
           params:
@@ -376,16 +391,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/entity_attributes/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: entity_attributes
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: business_processes
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/items/required
           check: TABLE_HAS_COLUMNS
           register: business_processes
           params:
@@ -397,10 +415,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/minItems
           check: TABLE_HAS_ROWS
           register: business_processes
           intent: an empty required register asserts nothing
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: business_processes
           params:
@@ -409,6 +429,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/x-business-language
           check: CELL_TOKEN_ABSENT
           register: business_processes
           params:
@@ -421,6 +442,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: business_processes
           params:
@@ -428,6 +450,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: business_processes
           params:
@@ -435,16 +458,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/business_processes/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: business_processes
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: process_steps
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/items/required
           check: TABLE_HAS_COLUMNS
           register: process_steps
           params:
@@ -457,10 +483,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/minItems
           check: TABLE_HAS_ROWS
           register: process_steps
           intent: an empty required register asserts nothing
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: process_steps
           params:
@@ -469,6 +497,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/x-business-language
           check: CELL_TOKEN_ABSENT
           register: process_steps
           params:
@@ -482,6 +511,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: process_steps
           params:
@@ -489,6 +519,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: process_steps
           params:
@@ -496,16 +527,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/process_steps/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: process_steps
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: belief_verification
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/items/required
           check: TABLE_HAS_COLUMNS
           register: belief_verification
           params:
@@ -516,10 +550,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/minItems
           check: TABLE_HAS_ROWS
           register: belief_verification
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/items/properties/result/x-vocab
           check: CELL_IN_VOCABULARY
           register: belief_verification
           params:
@@ -530,6 +566,7 @@ core:
             - INSUFFICIENT_EVIDENCE
           intent: Result is a controlled vocabulary declared by the template
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: belief_verification
           params:
@@ -538,6 +575,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: belief_verification
           params:
@@ -545,6 +583,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: belief_verification
           params:
@@ -552,16 +591,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/belief_verification/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: belief_verification
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/pps_baseline_fqdns/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: pps_baseline_fqdns
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/pps_baseline_fqdns/items/required
           check: TABLE_HAS_COLUMNS
           register: pps_baseline_fqdns
           params:
@@ -573,10 +615,12 @@ core:
             - Cannot Do
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/pps_baseline_fqdns/minItems
           check: TABLE_HAS_ROWS
           register: pps_baseline_fqdns
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/pps_baseline_fqdns/items/properties/fit/x-vocab
           check: CELL_IN_VOCABULARY
           register: pps_baseline_fqdns
           params:
@@ -587,10 +631,12 @@ core:
             - MISMATCH
           intent: Fit is a controlled vocabulary declared by the template
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: gaps
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/items/required
           check: TABLE_HAS_COLUMNS
           register: gaps
           params:
@@ -602,10 +648,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/minItems
           check: TABLE_HAS_ROWS
           register: gaps
           intent: an empty required register asserts nothing
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: gaps
           params:
@@ -614,6 +662,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/x-business-language
           check: CELL_TOKEN_ABSENT
           register: gaps
           params:
@@ -626,6 +675,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: gaps
           params:
@@ -633,6 +683,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: gaps
           params:
@@ -640,16 +691,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/gaps/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: gaps
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: architectural_observations
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/items/required
           check: TABLE_HAS_COLUMNS
           register: architectural_observations
           params:
@@ -660,10 +714,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/minItems
           check: TABLE_HAS_ROWS
           register: architectural_observations
           intent: an empty required register asserts nothing
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: architectural_observations
           params:
@@ -672,6 +728,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/x-business-language
           check: CELL_TOKEN_ABSENT
           register: architectural_observations
           params:
@@ -682,6 +739,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: architectural_observations
           params:
@@ -689,6 +747,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: architectural_observations
           params:
@@ -696,16 +755,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/architectural_observations/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: architectural_observations
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: discovery_concerns
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/items/required
           check: TABLE_HAS_COLUMNS
           register: discovery_concerns
           params:
@@ -717,10 +779,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/minItems
           check: TABLE_HAS_ROWS
           register: discovery_concerns
           intent: an empty required register asserts nothing
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: discovery_concerns
           params:
@@ -729,6 +793,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/x-business-language
           check: CELL_TOKEN_ABSENT
           register: discovery_concerns
           params:
@@ -740,6 +805,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: discovery_concerns
           params:
@@ -747,6 +813,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: discovery_concerns
           params:
@@ -754,16 +821,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/discovery_concerns/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: discovery_concerns
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/open_questions/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: open_questions
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/open_questions/items/required
           check: TABLE_HAS_COLUMNS
           register: open_questions
           params:
@@ -774,6 +844,7 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/open_questions/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: open_questions
           params:
@@ -782,6 +853,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/open_questions/x-business-language
           check: CELL_TOKEN_ABSENT
           register: open_questions
           params:
@@ -794,6 +866,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/open_questions/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: open_questions
           params:
@@ -801,6 +874,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/open_questions/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: open_questions
           params:
@@ -808,12 +882,14 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/properties/registers/properties/open_questions/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: open_questions
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: BASELINE_IDENTITY_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/0
           check: CITED_ARTIFACTS_RESOLVE
           register: pps_baseline_fqdns
           params:
@@ -823,6 +899,7 @@ core:
             detail_missing: baseline row names no artifact identity
           intent: the baseline register records what already exists, so every row must be observable
         - id: VERIFIED_BELIEF_IDENTITY_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/1
           check: CITED_ARTIFACTS_RESOLVE
           register: belief_verification
           params:
@@ -833,6 +910,7 @@ core:
             only_when_value: VERIFIED
           intent: a belief grounded on an identity must be grounded on one that is really there
         - id: BELIEF_WITHOUT_EVIDENCE
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/2
           check: CELL_NOT_EMPTY
           register: belief_verification
           params:
@@ -840,6 +918,7 @@ core:
             detail: belief has a result but records nothing about how it was reached
           intent: a result without evidence is an assertion, not a verification
         - id: BELIEF_NOT_CARRIED_FROM_P1
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/3
           check: PRIOR_ROWS_CITED
           register: belief_verification
           params:
@@ -849,6 +928,7 @@ core:
             citation_column: Source Finding
           intent: a belief nobody carried forward is forgotten, not resolved
         - id: BELIEF_RESTATED_FROM_P1
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/4
           check: PRIOR_ROW_MATCHES_CITED
           register: belief_verification
           params:
@@ -859,6 +939,7 @@ core:
             citation_column: Source Finding
           intent: a verification must resolve the belief it cites, not a substitute for it
         - id: REGISTER_CELL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/5
           check: UNRESOLVED_MARKER_ABSENT
           params:
             exempt:
@@ -869,6 +950,7 @@ core:
               as a clarification, do not hedge it in a register'
           intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/6
           check: HEADER_FIELD_PRESENT
           params:
             fields:
@@ -878,6 +960,7 @@ core:
             - Feeds
           intent: a dossier document states its phase, its CR, its lifecycle state, and what it feeds
         - id: LIFECYCLE_STATE_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P2_V0#/allOf/7
           check: HEADER_FIELD_MATCHES
           params:
             fields:

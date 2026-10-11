@@ -94,10 +94,12 @@ core:
         prior_texts: $.payload.prior_texts
         rule_set:
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/analysis_findings/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: analysis_findings
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/analysis_findings/items/required
           check: TABLE_HAS_COLUMNS
           register: analysis_findings
           params:
@@ -111,10 +113,12 @@ core:
             - Evidence
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/analysis_findings/minItems
           check: TABLE_HAS_ROWS
           register: analysis_findings
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/analysis_findings/items/properties/evidence_status/x-vocab
           check: CELL_IN_VOCABULARY
           register: analysis_findings
           params:
@@ -125,6 +129,7 @@ core:
             - OPEN
           intent: Evidence Status is a controlled vocabulary declared by the template
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/analysis_findings/items/properties/confidence/x-vocab
           check: CELL_IN_VOCABULARY
           register: analysis_findings
           params:
@@ -135,6 +140,7 @@ core:
             - LOW
           intent: Confidence is a controlled vocabulary declared by the template
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/analysis_findings/items/properties/resolution_status/x-vocab
           check: CELL_IN_VOCABULARY
           register: analysis_findings
           params:
@@ -144,10 +150,12 @@ core:
             - OPEN
           intent: Resolution Status is a controlled vocabulary declared by the template
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/verification_results/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: verification_results
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/verification_results/items/required
           check: TABLE_HAS_COLUMNS
           register: verification_results
           params:
@@ -158,10 +166,12 @@ core:
             - Evidence
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/verification_results/minItems
           check: TABLE_HAS_ROWS
           register: verification_results
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/verification_results/items/properties/result/x-vocab
           check: CELL_IN_VOCABULARY
           register: verification_results
           params:
@@ -171,6 +181,7 @@ core:
             - OVERTURNED
           intent: Result is a controlled vocabulary declared by the template
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/verification_results/items/properties/origin/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: verification_results
           params:
@@ -254,10 +265,12 @@ core:
                         const: human
           intent: Origin carries structure, and its value must take the declared form
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/dependency_discoveries/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: dependency_discoveries
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/dependency_discoveries/items/required
           check: TABLE_HAS_COLUMNS
           register: dependency_discoveries
           params:
@@ -268,10 +281,12 @@ core:
             - Evidence
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/dependency_discoveries/minItems
           check: TABLE_HAS_ROWS
           register: dependency_discoveries
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/dependency_discoveries/items/properties/disposition/x-vocab
           check: CELL_IN_VOCABULARY
           register: dependency_discoveries
           params:
@@ -284,10 +299,12 @@ core:
             - INVESTIGATE
           intent: Disposition is a controlled vocabulary declared by the template
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/impact_analysis/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: impact_analysis
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/impact_analysis/items/required
           check: TABLE_HAS_COLUMNS
           register: impact_analysis
           params:
@@ -298,14 +315,17 @@ core:
             - Evidence
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/impact_analysis/minItems
           check: TABLE_HAS_ROWS
           register: impact_analysis
           intent: an empty required register asserts nothing
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: authoring_decisions
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/items/required
           check: TABLE_HAS_COLUMNS
           register: authoring_decisions
           params:
@@ -317,10 +337,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/minItems
           check: TABLE_HAS_ROWS
           register: authoring_decisions
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/items/properties/decision/x-vocab
           check: CELL_IN_VOCABULARY
           register: authoring_decisions
           params:
@@ -331,6 +353,7 @@ core:
             - AUTHOR_NEW
           intent: Decision is a controlled vocabulary declared by the template
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: authoring_decisions
           params:
@@ -339,6 +362,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/x-business-language
           check: CELL_TOKEN_ABSENT
           register: authoring_decisions
           params:
@@ -349,6 +373,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: authoring_decisions
           params:
@@ -356,6 +381,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: authoring_decisions
           params:
@@ -458,16 +484,19 @@ core:
             - withdrawn_facts
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/authoring_decisions/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: authoring_decisions
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: placement_decision
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/items/required
           check: TABLE_HAS_COLUMNS
           register: placement_decision
           params:
@@ -478,10 +507,12 @@ core:
             - Source Finding
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/minItems
           check: TABLE_HAS_ROWS
           register: placement_decision
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/items/properties/decision/x-vocab
           check: CELL_IN_VOCABULARY
           register: placement_decision
           params:
@@ -491,6 +522,7 @@ core:
             - EXTEND
           intent: Decision is a controlled vocabulary declared by the template
         - id: CELL_NOT_OF_TYPE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
           register: placement_decision
           params:
@@ -499,6 +531,7 @@ core:
               oneOf: *id001
           intent: Source Finding carries structure, and its value must take the declared form
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/x-business-language
           check: CELL_TOKEN_ABSENT
           register: placement_decision
           params:
@@ -509,6 +542,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: ROW_WITHOUT_SOURCE_FINDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/items/properties/source_finding/x-derived/CITATION_PRESENT
           check: CITATION_PRESENT
           register: placement_decision
           params:
@@ -516,6 +550,7 @@ core:
             detail: row cites no earlier finding — a phase restates its input, it does not add to it
           intent: an uncited row has no provenance in the dossier
         - id: SOURCE_FINDING_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/items/properties/source_finding/x-derived/SOURCE_FINDING_RESOLVES
           check: SOURCE_FINDING_RESOLVES
           register: placement_decision
           params:
@@ -523,16 +558,19 @@ core:
             known_registers: *id002
           intent: a citation must name something this phase can actually cite
         - id: CITATION_ORDINAL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/placement_decision/items/properties/source_finding/x-derived/CITED_ORDINAL_RESOLVES
           check: CITED_ORDINAL_RESOLVES
           register: placement_decision
           params:
             column: Source Finding
           intent: an ordinal past the end of a register cites a finding that is not there
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/saturation/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: saturation
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/saturation/items/required
           check: TABLE_HAS_COLUMNS
           register: saturation
           params:
@@ -542,10 +580,12 @@ core:
             - Evidence
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/saturation/minItems
           check: TABLE_HAS_ROWS
           register: saturation
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/saturation/items/properties/status/x-vocab
           check: CELL_IN_VOCABULARY
           register: saturation
           params:
@@ -555,6 +595,7 @@ core:
             - NOT_SATISFIED
           intent: Status is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/properties/registers/properties/saturation/x-business-language
           check: CELL_TOKEN_ABSENT
           register: saturation
           params:
@@ -565,6 +606,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REUSE_CANDIDATE_NOT_ELIGIBLE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/0
           check: REUSE_CANDIDATE_ELIGIBLE
           register: authoring_decisions
           params:
@@ -577,6 +619,7 @@ core:
             - business
           intent: a change request may only be offered candidates from a domain that permits reuse
         - id: DECISION_WITHOUT_ALTERNATIVES
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/1
           check: CELL_NOT_EMPTY
           register: authoring_decisions
           params:
@@ -585,6 +628,7 @@ core:
               with the search shown
           intent: a committed decision shows the search that produced it
         - id: DECISION_WITHOUT_RATIONALE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/2
           check: CELL_NOT_EMPTY
           register: authoring_decisions
           params:
@@ -592,6 +636,7 @@ core:
             detail: decision states no rationale — a classification without a reason is an assertion
           intent: every decision traces to a grounded reason
         - id: CITED_ALTERNATIVE_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/3
           check: CITED_ARTIFACTS_RESOLVE
           register: authoring_decisions
           params:
@@ -600,6 +645,7 @@ core:
             observation: si.artifact.list
           intent: an alternative examined must be one that really exists
         - id: IMPACT_WITHOUT_EVIDENCE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/4
           check: CELL_NOT_EMPTY
           register: impact_analysis
           params:
@@ -607,6 +653,7 @@ core:
             detail: impact row carries no evidence — consumer counts are observed, never estimated
           intent: impact is mechanically captured, never summarised from memory
         - id: VERIFICATION_WITHOUT_EVIDENCE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/5
           check: CELL_NOT_EMPTY
           register: verification_results
           params:
@@ -615,6 +662,7 @@ core:
               did not happen
           intent: an overturned answer is marked with what overturned it, never erased
         - id: SATURATION_CRITERIA_INCOMPLETE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/6
           check: TABLE_HAS_ROWS
           register: saturation
           params:
@@ -622,6 +670,7 @@ core:
           intent: analysis is saturated only against every declared criterion; a claim resting on fewer is the
             gap the criteria exist to close
         - id: SATURATION_CLAIMED_WITHOUT_EVIDENCE
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/7
           check: CELL_NOT_EMPTY
           register: saturation
           params:
@@ -629,6 +678,7 @@ core:
             detail: criterion is asserted satisfied with nothing to show for it
           intent: saturation is demonstrated, not declared
         - id: BELIEF_RESULT_NOT_REVERIFIED
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/8
           check: PRIOR_ROWS_CITED
           register: verification_results
           params:
@@ -638,6 +688,7 @@ core:
             citation_column: Origin
           intent: a result nobody re-verified was inherited, and grounding is not inherited
         - id: BELIEF_RESULT_RESTATED_FROM_P2
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/9
           check: PRIOR_ROW_MATCHES_CITED
           register: verification_results
           params:
@@ -648,6 +699,7 @@ core:
             citation_column: Origin
           intent: a re-verification must address the result it cites, not a substitute for it
         - id: REGISTER_CELL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/10
           check: UNRESOLVED_MARKER_ABSENT
           params:
             exempt: []
@@ -655,6 +707,7 @@ core:
               as a clarification, do not hedge it in a register'
           intent: an unanswered question left in a register reads as decided to every later phase
         - id: HEADER_FIELD_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/11
           check: HEADER_FIELD_PRESENT
           params:
             fields:
@@ -664,6 +717,7 @@ core:
             - Feeds
           intent: a dossier document states its phase, its CR, its lifecycle state, and what it feeds
         - id: LIFECYCLE_STATE_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P3_V0#/allOf/12
           check: HEADER_FIELD_MATCHES
           params:
             fields:

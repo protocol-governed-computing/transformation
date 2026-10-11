@@ -165,7 +165,7 @@ def _doc(action: str, withdrawal: bool) -> ParsedDocument:
 
 
 def _findings(doc: ParsedDocument, *ids: str) -> list[str]:
-    return [f.rule for f in evaluate(doc, [r for r in rule_set() if r.id in ids]).findings]
+    return [f.code for f in evaluate(doc, [r for r in rule_set() if r.id in ids]).findings]
 
 
 def test_a_design_may_re_point():

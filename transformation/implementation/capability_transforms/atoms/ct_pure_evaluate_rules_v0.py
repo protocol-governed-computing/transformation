@@ -22,7 +22,7 @@ from typing import Any, Dict, List
 
 from runtime.ct_executor import CTExecutionError
 
-from transformation.design.checks import dispatch, kinds
+from transformation.design.checks import dispatch, kinds, place
 from transformation.design.evaluate import DeclaredRule, ParsedDocument
 
 ADMISSIBLE = "ADMISSIBLE"
@@ -69,7 +69,7 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
         priors=inputs["priors"] or {},
     )
 
-    findings: List[Dict[str, str]] = []
+    findings: List[Dict[str, Any]] = []
 
     for entry in rule_set:
         rule = DeclaredRule.from_mapping(entry)
@@ -80,11 +80,12 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
                 f"CT_PURE_EVALUATE_RULES_V0: rule {rule.id!r} names unknown check kind "
                 f"{rule.check!r}; declared kinds are {kinds()}"
             )
-        for where, detail in check(doc, rule):
+        for at, detail in check(doc, rule):
             findings.append(
                 {
-                    "rule": rule.id,
-                    "where": where,
+                    "code": rule.id,
+                    "rule": rule.identity,
+                    "locator": place(rule, at),
                     "detail": detail,
                     "intent": rule.intent,
                 }

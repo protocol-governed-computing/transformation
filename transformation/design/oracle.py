@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from transformation.design.checks import dispatch
+from transformation.design.checks import dispatch, place
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.read import read_seed
 from transformation.design.rules import Rule
@@ -28,13 +28,18 @@ INADMISSIBLE = "INADMISSIBLE"
 
 @dataclass(frozen=True)
 class Finding:
+    """One defect. `code` names its kind, `rule` the declaration that found it, and `locator` the
+    register, row and field it is in."""
+
+    code: str
     rule: str
-    where: str
+    locator: dict
     detail: str
     intent: str = ""
 
     def __str__(self) -> str:
-        return f"[{self.rule}] {self.where}: {self.detail}"
+        at = " ".join(str(v) for v in self.locator.values() if v is not None)
+        return f"[{self.code}] {at}: {self.detail}"
 
 
 @dataclass
@@ -55,8 +60,9 @@ class Verdict:
             "rules_evaluated": self.rules_evaluated,
             "findings": [
                 {
+                    "code": f.code,
                     "rule": f.rule,
-                    "where": f.where,
+                    "locator": f.locator,
                     "detail": f.detail,
                     "intent": f.intent,
                 }
@@ -81,10 +87,9 @@ def evaluate(doc: ParsedDocument, rules: list[Rule]) -> Verdict:
     for rule in declared:
         # dispatch() fails hard on an unknown kind: a skipped rule reports green over an
         # unevaluated subject, which is exactly the vacuity failure the oracle exists to catch.
-        for where, detail in dispatch(rule.check)(doc, rule):
-            findings.append(
-                Finding(rule=rule.id, where=where, detail=detail, intent=rule.intent)
-            )
+        for at, detail in dispatch(rule.check)(doc, rule):
+            findings.append(Finding(code=rule.id, rule=rule.identity, locator=place(rule, at),
+                                    detail=detail, intent=rule.intent))
 
     return Verdict(
         verdict=INADMISSIBLE if findings else ADMISSIBLE,

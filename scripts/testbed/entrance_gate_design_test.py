@@ -54,7 +54,7 @@ def fired(text: str) -> list[str]:
     header, sections, registers = parse_text(text)
     doc = ParsedDocument(header=header, sections=sections, registers=registers, raw=text, path="probe",
                          observed=PINNED)
-    return [f.rule for f in evaluate(doc, RULE).findings]
+    return [f.code for f in evaluate(doc, RULE).findings]
 
 
 def test_an_entrance_that_stops_supplying_what_a_reused_gate_requires_is_refused():

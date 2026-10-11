@@ -3125,15 +3125,7 @@
         "params": {
           "observation": "si.rule_set.list",
           "phase_workflows": {
-            "p0": "WF_P0_SEED_ADMISSIBILITY",
-            "p1": "WF_P1_CHANGE_REQUEST_ADMISSIBILITY",
-            "p2": "WF_P2_DOMAIN_MODEL_ADMISSIBILITY",
-            "p3": "WF_P3_ANALYSIS_LOOP_ADMISSIBILITY",
-            "p4": "WF_P4_BUSINESS_MODEL_ADMISSIBILITY",
-            "p5": "WF_P5_BUSINESS_INTENT_ADMISSIBILITY",
-            "p6": "WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY",
-            "p7": "WF_P7_DESIGN_INTENT_ADMISSIBILITY",
-            "p8": "WF_P8_AUTHORING_MANDATE_ADMISSIBILITY"
+            "x-dispatch": "lineage"
           }
         }
       }

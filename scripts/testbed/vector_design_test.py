@@ -94,7 +94,7 @@ RULES = [r for r in rule_set() if r.id in HELD or (
 
 
 def fired(text: str) -> list[str]:
-    return sorted(f.rule for f in evaluate(parsed(text), RULES).findings)
+    return sorted(f.code for f in evaluate(parsed(text), RULES).findings)
 
 
 def vector(code: str) -> dict:

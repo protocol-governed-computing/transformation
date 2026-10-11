@@ -317,6 +317,22 @@ M3.4b. `IMPLEMENTATION_MODULE_CONFORMS` goes with its column in M5 (D6). 26 proc
 
 No rule changes: sealed rule sets, declarations and the comparison are unchanged.
 
+### M3.4c — identity, locators, dispatch
+
+- **Rule identity.** Every sealed rule carries `identity`: its schema's `$id` and a JSON Pointer to
+  where it is declared (DESIGN_LANGUAGE §2.1). Unique within a rule set, and refused at expansion
+  when it is not.
+- **Findings.** A finding is `{code, rule, locator, detail, intent}`. `code` is the oracle's `rule`;
+  `rule` is now the identity. `locator` is `{register, row, field}` and replaces `where`. The
+  comparison reads the locator back as the oracle's `where`: the register, then `row <n>` or the
+  row's key. The field is not compared, because the oracle never stated it.
+- **The dispatch.** `transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0` states each phase's
+  schema, workflow, template, gate, key rule and rung. It replaces the catalogue's table and
+  `emit.SEALED_IN`. The P7 parameter `phase_workflows` reads it through `x-dispatch`.
+
+No rule changes meaning: sealed rule sets differ only by `identity`, and declarations and the
+comparison are unchanged.
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.

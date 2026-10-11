@@ -18,7 +18,9 @@ from typing import Any
 class Rule:
     """One declared admissibility rule.
 
-    `id` is the finding code the oracle emits. `register` names the register identity the rule
+    `id` is the finding code the oracle emits, shared by every rule finding the same kind of defect.
+    `identity` is the rule's own: its schema's `$id` and a JSON Pointer to where it is declared.
+    `register` names the register identity the rule
     governs — stable across retitling — with `section_title` as the fallback for a document that
     carries no register markers. Either may be None for a whole-document rule. `check` names a
     kind in `checks.py`, and `params` must satisfy that kind's contract; `tc phase meta` asserts
@@ -27,6 +29,7 @@ class Rule:
 
     id: str
     check: str
+    identity: str = ""
     section_title: str | None = None
     register: str | None = None
     params: dict[str, Any] = field(default_factory=dict)

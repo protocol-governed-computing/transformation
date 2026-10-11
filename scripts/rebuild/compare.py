@@ -36,6 +36,18 @@ RESTATED_AS_CONSTRAINTS = ("BELIEF_STATED_AS_FACT", "STORE_PATH_FORMAT_MISMATCH"
                            "BINDING_SOURCE_MALFORMED")
 
 
+def _where(finding: dict) -> str:
+    """The oracle's place string. M3.4c: the rebuild places a finding by a structured locator — the
+    register, the row's ordinal or key, the field. Read back, it is the register, then `row <n>` for
+    an ordinal or the key itself. The field is not compared: the oracle never stated it."""
+    if "locator" not in finding:
+        return finding["where"]
+    register, row = finding["locator"]["register"], finding["locator"]["row"]
+    if row is None:
+        return register
+    return f"{register} row {row}" if isinstance(row, int) else f"{register} {row}"
+
+
 def _normalised(finding: dict, side: str) -> tuple | None:
     """A finding as the comparison reads it, after the divergences the charter declares (§8).
 
@@ -47,11 +59,14 @@ def _normalised(finding: dict, side: str) -> tuple | None:
       an unresolved ordinal is compared once per row.
     - M3.4a-1: a procedure restated as a constraint words its finding as the general kind does.
       Compared by code and place.
+    - M3.4c: the rebuild names a finding's kind `code` and places it by a locator. Both read as the
+      oracle's `rule` and `where`.
     - M3.3b-1: a citation is a mapping, so an unresolved one is shown as the mapping. Both read as
       the register and the row. A citation that does not structure is refused by its type, which
       reads as the unresolved citation it was.
     """
-    code, where, detail = CODE_MAP.get(finding["rule"], finding["rule"]), finding["where"], finding["detail"]
+    raw = finding.get("code", finding["rule"])
+    code, where, detail = CODE_MAP.get(raw, raw), _where(finding), finding["detail"]
     if code == "CITATION_ROW_UNRESOLVED":
         code = "CITATION_ORDINAL_UNRESOLVED"
     if code == "CITATION_ORDINAL_UNRESOLVED":

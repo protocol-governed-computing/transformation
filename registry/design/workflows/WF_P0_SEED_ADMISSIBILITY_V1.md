@@ -88,16 +88,19 @@ core:
         prior_texts: {}
         rule_set:
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/subdomain_purpose/minLength
           check: SECTION_HAS_TEXT
           register: subdomain_purpose
           params:
             detail: narrative register is empty — it states nothing
           intent: a narrative register carries the context nothing downstream can rederive
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/cr_type/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: cr_type
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/cr_type/items/required
           check: TABLE_HAS_COLUMNS
           register: cr_type
           params:
@@ -107,10 +110,12 @@ core:
             - Rationale
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/cr_type/minItems
           check: TABLE_HAS_ROWS
           register: cr_type
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/cr_type/items/properties/classification/x-vocab
           check: CELL_IN_VOCABULARY
           register: cr_type
           params:
@@ -122,6 +127,7 @@ core:
             - DEPRECATE
           intent: Classification is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/cr_type/x-business-language
           check: CELL_TOKEN_ABSENT
           register: cr_type
           params:
@@ -134,10 +140,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_vocabulary/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: business_vocabulary
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_vocabulary/items/required
           check: TABLE_HAS_COLUMNS
           register: business_vocabulary
           params:
@@ -146,10 +154,12 @@ core:
             - Definition
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_vocabulary/minItems
           check: TABLE_HAS_ROWS
           register: business_vocabulary
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_vocabulary/x-business-language
           check: CELL_TOKEN_ABSENT
           register: business_vocabulary
           params:
@@ -161,10 +171,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/requested_outcomes/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: requested_outcomes
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/requested_outcomes/items/required
           check: TABLE_HAS_COLUMNS
           register: requested_outcomes
           params:
@@ -172,10 +184,12 @@ core:
             - Outcome
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/requested_outcomes/minItems
           check: TABLE_HAS_ROWS
           register: requested_outcomes
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/requested_outcomes/x-business-language
           check: CELL_TOKEN_ABSENT
           register: requested_outcomes
           params:
@@ -186,10 +200,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/known_facts/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: known_facts
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/known_facts/items/required
           check: TABLE_HAS_COLUMNS
           register: known_facts
           params:
@@ -198,10 +214,12 @@ core:
             - Certainty
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/known_facts/minItems
           check: TABLE_HAS_ROWS
           register: known_facts
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/known_facts/items/properties/certainty/x-vocab
           check: CELL_IN_VOCABULARY
           register: known_facts
           params:
@@ -212,6 +230,7 @@ core:
             - LOW
           intent: Certainty is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/known_facts/x-business-language
           check: CELL_TOKEN_ABSENT
           register: known_facts
           params:
@@ -223,10 +242,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/system_beliefs/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: system_beliefs
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/system_beliefs/items/required
           check: TABLE_HAS_COLUMNS
           register: system_beliefs
           params:
@@ -236,10 +257,12 @@ core:
             - Verification Goal
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/system_beliefs/minItems
           check: TABLE_HAS_ROWS
           register: system_beliefs
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/system_beliefs/x-business-language
           check: CELL_TOKEN_ABSENT
           register: system_beliefs
           params:
@@ -252,10 +275,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/assumptions/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: assumptions
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/assumptions/items/required
           check: TABLE_HAS_COLUMNS
           register: assumptions
           params:
@@ -264,6 +289,7 @@ core:
             - Basis
           intent: downstream phases read these columns by name
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/assumptions/x-business-language
           check: CELL_TOKEN_ABSENT
           register: assumptions
           params:
@@ -275,10 +301,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/constraints/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: constraints
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/constraints/items/required
           check: TABLE_HAS_COLUMNS
           register: constraints
           params:
@@ -287,6 +315,7 @@ core:
             - Source
           intent: downstream phases read these columns by name
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/constraints/x-business-language
           check: CELL_TOKEN_ABSENT
           register: constraints
           params:
@@ -298,10 +327,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_invariants/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: business_invariants
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_invariants/items/required
           check: TABLE_HAS_COLUMNS
           register: business_invariants
           params:
@@ -309,10 +340,12 @@ core:
             - Invariant
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_invariants/minItems
           check: TABLE_HAS_ROWS
           register: business_invariants
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_invariants/x-business-language
           check: CELL_TOKEN_ABSENT
           register: business_invariants
           params:
@@ -323,10 +356,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/lifecycle_states/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: lifecycle_states
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/lifecycle_states/items/required
           check: TABLE_HAS_COLUMNS
           register: lifecycle_states
           params:
@@ -336,10 +371,12 @@ core:
             - Meaning
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/lifecycle_states/minItems
           check: TABLE_HAS_ROWS
           register: lifecycle_states
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/lifecycle_states/x-business-language
           check: CELL_TOKEN_ABSENT
           register: lifecycle_states
           params:
@@ -352,10 +389,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_events/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: business_events
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_events/items/required
           check: TABLE_HAS_COLUMNS
           register: business_events
           params:
@@ -365,10 +404,12 @@ core:
             - Significance
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_events/minItems
           check: TABLE_HAS_ROWS
           register: business_events
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/business_events/x-business-language
           check: CELL_TOKEN_ABSENT
           register: business_events
           params:
@@ -381,10 +422,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/authority_boundaries/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: authority_boundaries
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/authority_boundaries/items/required
           check: TABLE_HAS_COLUMNS
           register: authority_boundaries
           params:
@@ -393,10 +436,12 @@ core:
             - Authoritative Owner
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/authority_boundaries/minItems
           check: TABLE_HAS_ROWS
           register: authority_boundaries
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/authority_boundaries/x-business-language
           check: CELL_TOKEN_ABSENT
           register: authority_boundaries
           params:
@@ -408,10 +453,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/out_of_scope/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: out_of_scope
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/out_of_scope/items/required
           check: TABLE_HAS_COLUMNS
           register: out_of_scope
           params:
@@ -420,10 +467,12 @@ core:
             - Reason
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/out_of_scope/minItems
           check: TABLE_HAS_ROWS
           register: out_of_scope
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/out_of_scope/x-business-language
           check: CELL_TOKEN_ABSENT
           register: out_of_scope
           params:
@@ -435,10 +484,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/governance_scope/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: governance_scope
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/governance_scope/items/required
           check: TABLE_HAS_COLUMNS
           register: governance_scope
           params:
@@ -447,10 +498,12 @@ core:
             - Relationship
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/governance_scope/minItems
           check: TABLE_HAS_ROWS
           register: governance_scope
           intent: an empty required register asserts nothing
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/governance_scope/items/properties/relationship/x-vocab
           check: CELL_IN_VOCABULARY
           register: governance_scope
           params:
@@ -463,6 +516,7 @@ core:
             - ADJACENT
           intent: Relationship is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/governance_scope/x-business-language
           check: CELL_TOKEN_ABSENT
           register: governance_scope
           params:
@@ -474,10 +528,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/clarification_requests/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: clarification_requests
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/clarification_requests/items/required
           check: TABLE_HAS_COLUMNS
           register: clarification_requests
           params:
@@ -488,6 +544,7 @@ core:
             - Owner
           intent: downstream phases read these columns by name
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/clarification_requests/items/properties/blocking/x-vocab
           check: CELL_IN_VOCABULARY
           register: clarification_requests
           params:
@@ -497,6 +554,7 @@ core:
             - 'NO'
           intent: Blocking is a controlled vocabulary declared by the template
         - id: CELL_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/clarification_requests/items/properties/owner/x-vocab
           check: CELL_IN_VOCABULARY
           register: clarification_requests
           params:
@@ -507,6 +565,7 @@ core:
             - GOVERNANCE
           intent: Owner is a controlled vocabulary declared by the template
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/clarification_requests/x-business-language
           check: CELL_TOKEN_ABSENT
           register: clarification_requests
           params:
@@ -520,10 +579,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/acceptance_criteria/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: acceptance_criteria
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/acceptance_criteria/items/required
           check: TABLE_HAS_COLUMNS
           register: acceptance_criteria
           params:
@@ -531,10 +592,12 @@ core:
             - Criterion
           intent: downstream phases read these columns by name
         - id: REGISTER_EMPTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/acceptance_criteria/minItems
           check: TABLE_HAS_ROWS
           register: acceptance_criteria
           intent: an empty required register asserts nothing
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/acceptance_criteria/x-business-language
           check: CELL_TOKEN_ABSENT
           register: acceptance_criteria
           params:
@@ -545,10 +608,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/identity_and_sameness/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: identity_and_sameness
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/identity_and_sameness/items/required
           check: TABLE_HAS_COLUMNS
           register: identity_and_sameness
           params:
@@ -558,6 +623,7 @@ core:
             - Two Are The Same When
           intent: downstream phases read these columns by name
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/identity_and_sameness/x-business-language
           check: CELL_TOKEN_ABSENT
           register: identity_and_sameness
           params:
@@ -570,10 +636,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/lifecycle_transitions/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: lifecycle_transitions
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/lifecycle_transitions/items/required
           check: TABLE_HAS_COLUMNS
           register: lifecycle_transitions
           params:
@@ -585,6 +653,7 @@ core:
             - Cascade
           intent: downstream phases read these columns by name
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/lifecycle_transitions/x-business-language
           check: CELL_TOKEN_ABSENT
           register: lifecycle_transitions
           params:
@@ -599,10 +668,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/operation_refusals/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: operation_refusals
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/operation_refusals/items/required
           check: TABLE_HAS_COLUMNS
           register: operation_refusals
           params:
@@ -612,6 +683,7 @@ core:
             - Business Reason
           intent: downstream phases read these columns by name
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/operation_refusals/x-business-language
           check: CELL_TOKEN_ABSENT
           register: operation_refusals
           params:
@@ -624,10 +696,12 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: REGISTER_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/authority_deferrals/x-derived/TABLE_PRESENT
           check: TABLE_PRESENT
           register: authority_deferrals
           intent: a declared register must be present and readable as rows
         - id: REGISTER_COLUMN_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/authority_deferrals/items/required
           check: TABLE_HAS_COLUMNS
           register: authority_deferrals
           params:
@@ -637,6 +711,7 @@ core:
             - Until
           intent: downstream phases read these columns by name
         - id: DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/properties/registers/properties/authority_deferrals/x-business-language
           check: CELL_TOKEN_ABSENT
           register: authority_deferrals
           params:
@@ -649,6 +724,7 @@ core:
               meaning, not design'
           intent: business registers name no compiled artifact
         - id: BELIEF_CARRIES_CERTAINTY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/0
           check: COLUMN_ABSENT
           register: system_beliefs
           params:
@@ -656,6 +732,7 @@ core:
             detail: beliefs must not carry a Certainty column — that would make them facts
           intent: the truth/belief split is what P2 verification depends on
         - id: BELIEF_WITHOUT_VERIFICATION_GOAL
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/1
           check: CELL_NOT_EMPTY
           register: system_beliefs
           params:
@@ -663,6 +740,7 @@ core:
             detail: every belief must state what P2 has to establish
           intent: an unverifiable belief silently becomes an assumption
         - id: BELIEF_STATED_AS_FACT
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/2
           check: CELL_TOKEN_ABSENT
           register: system_beliefs
           params:
@@ -672,6 +750,7 @@ core:
             detail: belief is asserted, not suspected ({token!r}) — state it as a belief or move it to Known Facts
           intent: P0 must not promote a System Belief to a Known Fact
         - id: REGISTER_CELL_UNRESOLVED
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/3
           check: UNRESOLVED_MARKER_ABSENT
           params:
             exempt:
@@ -680,6 +759,7 @@ core:
               as a clarification, do not hedge it in a register'
           intent: an unanswered question left in a register reads as decided to every later phase
         - id: BLOCKING_CLARIFICATION_OUTSTANDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/4
           check: ROW_ABSENT_WHEN
           register: clarification_requests
           params:
@@ -689,6 +769,7 @@ core:
               into the document before any phase consumes it
           intent: a blocking question the next phase never sees is answered by invention
         - id: BUSINESS_CLARIFICATION_OUTSTANDING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/5
           check: ROW_ABSENT_WHEN
           register: clarification_requests
           params:
@@ -698,6 +779,7 @@ core:
               re-author the seed rather than carrying the question forward
           intent: a business question that outlives the seed is answered downstream by inference
         - id: HEADER_FIELD_MISSING
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/6
           check: HEADER_FIELD_PRESENT
           params:
             fields:
@@ -707,6 +789,7 @@ core:
             - Feeds
           intent: a dossier document states its phase, its CR, its lifecycle state, and what it feeds
         - id: LIFECYCLE_STATE_NOT_IN_VOCABULARY
+          identity: transformation.schemas.REGISTER_SCHEMA_P0_V0#/allOf/7
           check: HEADER_FIELD_MATCHES
           params:
             fields:
