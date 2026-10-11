@@ -10,69 +10,32 @@ header:
   Feeds: Construction
 registers:
   build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: '1'
-      Step: '1'
-      Code: workload::CC_VERIFY_TERMINATION_V2
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: collatz
-      Depends On: —
+  - wave: '1'
+    step: '1'
+    code: workload::CC_VERIFY_TERMINATION_V2
+    action: NEW
+    subdomain: collatz
+    depends_on: null
   critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: '1'
-      Code: workload::CC_VERIFY_TERMINATION_V2
+  - position: '1'
+    code: workload::CC_VERIFY_TERMINATION_V2
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '1'
-      Description: The termination gate, deciding with the capability that refuses unless a boolean is true.
-    - Action (REPLACE, EXTEND, NEW): REPLACE
-      Count: '1'
-      Description: The termination gate it stands in for.
+  - action: NEW
+    count: '1'
+    description: The termination gate, deciding with the capability that refuses unless a boolean is true.
+  - action: REPLACE
+    count: '1'
+    description: The termination gate it stands in for.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: workload::CC_VERIFY_TERMINATION_V2
-      Subdomain Field: collatz
+  - code: workload::CC_VERIFY_TERMINATION_V2
+    subdomain_field: collatz
   new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: workload::CC_VERIFY_TERMINATION_V2
-      Purpose: Verify all Collatz sequences terminate at 1
-      Inputs: sequences
-      Outputs: all_terminate, non_terminating, conjecture_holds
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows: []
-  cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows: []
+  - code: workload::CC_VERIFY_TERMINATION_V2
+    purpose: Verify all Collatz sequences terminate at 1
+    inputs: sequences
+    outputs: all_terminate, non_terminating, conjecture_holds
+  new_intents: null
+  cross_subdomain_notes: null
 ```
 
 IN WHAT ORDER. Mechanically derived from the design; it reconciles with Stage 7 exactly and adds

@@ -60,19 +60,39 @@
             "type": "object",
             "properties": {
               "entity": {
-                "title": "Entity"
+                "title": "Entity",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "description": {
-                "title": "Description"
+                "title": "Description",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "store_model": {
-                "title": "Store Model"
+                "title": "Store Model",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
-                "title": "Evidence Status"
+                "title": "Evidence Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -96,19 +116,39 @@
             "type": "object",
             "properties": {
               "entity": {
-                "title": "Entity"
+                "title": "Entity",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "attribute": {
-                "title": "Attribute"
+                "title": "Attribute",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "meaning": {
-                "title": "Meaning"
+                "title": "Meaning",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
-                "title": "Evidence Status"
+                "title": "Evidence Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -132,19 +172,39 @@
             "type": "object",
             "properties": {
               "process": {
-                "title": "Process"
+                "title": "Process",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "initiator": {
-                "title": "Initiator"
+                "title": "Initiator",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "outcome": {
-                "title": "Outcome"
+                "title": "Outcome",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
-                "title": "Evidence Status"
+                "title": "Evidence Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -168,22 +228,46 @@
             "type": "object",
             "properties": {
               "process": {
-                "title": "Process"
+                "title": "Process",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step": {
-                "title": "Step #"
+                "title": "Step #",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "action": {
-                "title": "Action"
+                "title": "Action",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "record_produced": {
-                "title": "Record Produced"
+                "title": "Record Produced",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
-                "title": "Evidence Status"
+                "title": "Evidence Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -208,20 +292,36 @@
             "type": "object",
             "properties": {
               "belief": {
-                "title": "Belief"
+                "title": "Belief",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "result": {
                 "title": "Result",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "belief_result"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -243,23 +343,43 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "fqdn": {
-                "title": "FQDN"
+                "title": "FQDN",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "what_it_does": {
-                "title": "What It Does"
+                "title": "What It Does",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "fit": {
                 "title": "Fit",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "fit"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "cannot_do": {
-                "title": "Cannot Do"
+                "title": "Cannot Do",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -282,19 +402,39 @@
             "type": "object",
             "properties": {
               "gap": {
-                "title": "Gap"
+                "title": "Gap",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "severity": {
-                "title": "Severity"
+                "title": "Severity",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "impact": {
-                "title": "Impact"
+                "title": "Impact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
-                "title": "Evidence Status"
+                "title": "Evidence Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -318,16 +458,32 @@
             "type": "object",
             "properties": {
               "observation": {
-                "title": "Observation"
+                "title": "Observation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
-                "title": "Evidence Status"
+                "title": "Evidence Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -350,19 +506,39 @@
             "type": "object",
             "properties": {
               "concern": {
-                "title": "Concern"
+                "title": "Concern",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "severity": {
-                "title": "Severity"
+                "title": "Severity",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
-                "title": "Evidence Status"
+                "title": "Evidence Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -386,16 +562,32 @@
             "type": "object",
             "properties": {
               "question": {
-                "title": "Question"
+                "title": "Question",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "category": {
-                "title": "Category"
+                "title": "Category",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "why_it_matters": {
-                "title": "Why It Matters"
+                "title": "Why It Matters",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [

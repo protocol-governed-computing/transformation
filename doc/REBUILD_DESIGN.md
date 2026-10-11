@@ -74,7 +74,7 @@ Prose for a person.
 | routing `OUTCOME -> target; …` | a mapping, outcome to target |
 | interface `in: a=b; out: …` | two mappings, `in` and `out` |
 | comma-separated names | a list |
-| a literal or a generated value in a binding | `{literal: …}` or `{generated: <artifact>}`, never a reserved word |
+| a literal or a generated value in a binding | `{literal: …}` or `{generated: true}`, never a reserved word |
 | a citation `S2 gaps #1` | a mapping `{phase: p2, register: gaps, row: 1}` |
 | YAML inside a cell | YAML |
 

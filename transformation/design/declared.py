@@ -8,7 +8,8 @@ Every entry carries `x-finding`: the finding code an author reads, the rule's in
 text when it has one. What the entry states is one of three things:
 
 - **a constraint**, in JSON Schema keywords over the register (`minItems`, `maxItems`) or over each
-  row (`items`): a column that must say something, match a pattern, or not start with a prefix; a
+  row (`items`): a column that must be present, say something, match a pattern, or not start with a
+  prefix; a
   column or a value that must not appear. A rule that governs only some rows states its gate with
   `if` and `then`;
 - **an annotation**, relating rows to other rows: `x-key`, `x-reference`, `x-carriage` or
@@ -53,6 +54,7 @@ _ANNOTATED = {kind: (construct, mode) for construct, modes in ANNOTATIONS.items(
 _GATE = {"only_when_column", "only_when_value", "only_when_values"}
 CONSTRAINTS = {
     "CELL_NOT_EMPTY": {"column", "detail"} | _GATE,
+    "CELL_PRESENT": {"column", "detail"},
     "CELL_MATCHES": {"column", "pattern", "detail"} | _GATE,
     "CELL_TOKEN_ABSENT": {"columns", "pattern", "detail"},
     "COLUMN_ABSENT": {"column", "detail"},
@@ -124,6 +126,8 @@ def encode(rule: Rule, cols: Columns | None) -> dict:
         if kind == "CELL_NOT_EMPTY":
             k = cols.key(p["column"])
             entry.update(_row(rule, cols, {"properties": {k: {"minLength": 1}}}))
+        elif kind == "CELL_PRESENT":
+            entry["items"] = {"required": [cols.key(p["column"])]}
         elif kind == "CELL_MATCHES":
             k = cols.key(p["column"])
             entry.update(_row(rule, cols, {"properties": {k: {"pattern": p["pattern"]}}}))
@@ -205,6 +209,8 @@ def decode(entry: dict, register: str | None, cols: Columns | None) -> Rule:
             (k, test), = negated["properties"].items()
             return rule("ROW_ABSENT_WHEN", {"column": cols.title(k), "value": test["const"], **detail})
         return rule("COLUMN_ABSENT", {"column": cols.title(negated["required"][0]), **detail})
+    if set(items) == {"required"}:
+        return rule("CELL_PRESENT", {"column": cols.title(items["required"][0]), **detail})
     body, gate = _ungate(items, cols)
     properties = body["properties"]
     if all("not" in v for v in properties.values()):

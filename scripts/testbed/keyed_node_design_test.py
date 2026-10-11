@@ -16,7 +16,7 @@ from __future__ import annotations
 import sys
 
 import machine
-from transformation.build.render import _binding, render_all
+from transformation.build.render import render_all
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
 from transformation.design.p7_design_intent.rules import rule_set
@@ -29,23 +29,23 @@ WF, CHECK, RECORD = f"{D}::WF_SUBMIT_V0", f"{D}::CC_CHECK_V0", f"{D}::CC_RECORD_
 NEW = [("Submit", "WF", WF), ("Asked to submit", "IN", f"{D}::IN_SUBMIT_V0"), ("Check", "CC", CHECK),
        ("Record", "CC", RECORD)]
 TOPOLOGY = [  # node, runs, type, routing
-    (f"{D}::IN_SUBMIT_V0", "", "IN", f"ACK -> {CHECK}"),
-    (CHECK, "", "CC", "SUCCESS -> RECORD_ACCEPTED; NOT_FOUND -> RECORD_UNKNOWN; DENIED -> RECORD_DENIED"),
-    ("RECORD_ACCEPTED", RECORD, "CC", "SUCCESS -> EXIT_SUCCESS"),
-    ("RECORD_UNKNOWN", RECORD, "CC", "SUCCESS -> EXIT_REFUSED"),
-    ("RECORD_DENIED", RECORD, "CC", "SUCCESS -> EXIT_REFUSED"),
-    ("EXIT_SUCCESS", "", "EXIT_SUCCESS", "—"),
-    ("EXIT_REFUSED", "", "EXIT", "—"),
+    (f"{D}::IN_SUBMIT_V0", "", "IN", {"ACK": CHECK}),
+    (CHECK, "", "CC", {"SUCCESS": "RECORD_ACCEPTED", "NOT_FOUND": "RECORD_UNKNOWN", "DENIED": "RECORD_DENIED"}),
+    ("RECORD_ACCEPTED", RECORD, "CC", {"SUCCESS": "EXIT_SUCCESS"}),
+    ("RECORD_UNKNOWN", RECORD, "CC", {"SUCCESS": "EXIT_REFUSED"}),
+    ("RECORD_DENIED", RECORD, "CC", {"SUCCESS": "EXIT_REFUSED"}),
+    ("EXIT_SUCCESS", "", "EXIT_SUCCESS", None),
+    ("EXIT_REFUSED", "", "EXIT", None),
 ]
 INTERFACE = [(RECORD, "INPUT", "reason"), (RECORD, "INPUT", "entry"), (CHECK, "INPUT", "entry")]
 BINDINGS = [  # step, field, source
     (CHECK, "entry", "input.entry"),
     ("RECORD_ACCEPTED", "entry", "input.entry"),
-    ("RECORD_ACCEPTED", "reason", '"accepted"'),
+    ("RECORD_ACCEPTED", "reason", {"literal": "accepted"}),
     ("RECORD_UNKNOWN", "entry", "input.entry"),
-    ("RECORD_UNKNOWN", "reason", '"unknown"'),
+    ("RECORD_UNKNOWN", "reason", {"literal": "unknown"}),
     ("RECORD_DENIED", "entry", f"results.{CHECK}.entry"),
-    ("RECORD_DENIED", "reason", '"denied"'),
+    ("RECORD_DENIED", "reason", {"literal": "denied"}),
 ]
 DISCHARGES = [("Submit an entry", "The entry is unknown", "RECORD_UNKNOWN", "SUCCESS")]
 HELD = {"TOPOLOGY_NODE_UNDECLARED", "TOPOLOGY_NODE_REPEATED", "TOPOLOGY_ROUTE_UNRESOLVED",
@@ -71,7 +71,7 @@ def design(topology=TOPOLOGY, bindings=BINDINGS, discharges=DISCHARGES, keyed=Tr
                  [(c, f, code, c, "keyed", "NEW", "human decision") for c, f, code in NEW]),
         _table("execution_topology", header, rows),
         _table("interface_fields", ["Artifact", "Direction", "Field", "Type", "Required", "Default", "Meaning"],
-                 [(a, d, f, "string", "YES", "—", f) for a, d, f in INTERFACE]),
+                 [(a, d, f, "string", "YES", None, f) for a, d, f in INTERFACE]),
         _table("step_bindings", ["Owner", "Step", "Direction", "Field", "Bound To", "Source Finding"],
                  [(WF, s, "INPUT", f, b, "human decision") for s, f, b in bindings]),
         _table("refusal_discharge", ["Operation", "Refused When", "Act", "Step", "Outcome", "Source Finding"],
@@ -97,8 +97,8 @@ def fired(text: str) -> list[str]:
 
 
 def nodes(text: str) -> dict:
-    mandate = {"build_order": [{"Code": code} for _, _, code in NEW],
-               "field_declarations": [{"Code": code, "Subdomain Field": "keyed"} for _, _, code in NEW]}
+    mandate = {"build_order": [{"code": code} for _, _, code in NEW],
+               "field_declarations": [{"code": code, "subdomain_field": "keyed"} for _, _, code in NEW]}
     workflow = next(a for a in render_all(registers(text), mandate) if a["machine"]["fqdn"] == WF)
     return workflow["machine"]["core"]["nodes"]
 
@@ -115,7 +115,7 @@ def test_each_key_renders_as_a_node_running_its_contract_with_its_own_inputs():
 
 def test_a_design_without_the_column_renders_as_it_always_did():
     plain = [row for row in TOPOLOGY if not row[1]]
-    plain[1] = (CHECK, "", "CC", "SUCCESS -> EXIT_SUCCESS; NOT_FOUND -> EXIT_REFUSED")
+    plain[1] = (CHECK, "", "CC", {"SUCCESS": "EXIT_SUCCESS", "NOT_FOUND": "EXIT_REFUSED"})
     rendered = nodes(design(topology=plain, bindings=BINDINGS[:1], discharges=[], keyed=False))
     assert rendered["CC_CHECK_V0"]["code"] == "CC_CHECK_V0", rendered
     assert fired(design(topology=plain, bindings=BINDINGS[:1], discharges=[], keyed=False)) == []
@@ -129,8 +129,9 @@ def test_each_rule_fires_on_the_defect_it_names():
     unkeyed = [(n, "" if n == "RECORD_DENIED" else r, t, route) for n, r, t, route in TOPOLOGY]
     undeclared = [(n, f"{D}::CC_RECORDS_V0" if n == "RECORD_DENIED" else r, t, route)
                   for n, r, t, route in TOPOLOGY]
-    repeated = TOPOLOGY + [("RECORD_DENIED", RECORD, "CC", "SUCCESS -> EXIT_REFUSED")]
-    by_contract = [(n, r, t, route.replace("RECORD_UNKNOWN", RECORD)) for n, r, t, route in TOPOLOGY]
+    repeated = TOPOLOGY + [("RECORD_DENIED", RECORD, "CC", {"SUCCESS": "EXIT_REFUSED"})]
+    by_contract = [(n, r, t, {o: RECORD if to == "RECORD_UNKNOWN" else to for o, to in route.items()}
+                    if route else route) for n, r, t, route in TOPOLOGY]
     unbound = [b for b in BINDINGS if b[:2] != ("RECORD_UNKNOWN", "reason")]
     unreachable = [b if b[0] != "RECORD_DENIED" or b[1] != "entry"
                    else (b[0], b[1], "results.RECORD_ELSEWHERE.entry") for b in BINDINGS]
@@ -154,8 +155,8 @@ def test_each_rule_fires_on_the_defect_it_names():
 def test_a_route_to_a_place_the_composition_already_has_resolves():
     # An amendment declares the places it changes. It routes on to a place the workflow already has
     # and does not redeclare, which resolves against the composition and nowhere else.
-    amendment = [(f"{D}::IN_SUBMIT_V0", "", "IN", f"ACK -> {CHECK}"),
-                 (CHECK, "", "CC", "SUCCESS -> RECORD_ACCEPTED; NOT_FOUND -> EXIT_REFUSED")]
+    amendment = [(f"{D}::IN_SUBMIT_V0", "", "IN", {"ACK": CHECK}),
+                 (CHECK, "", "CC", {"SUCCESS": "RECORD_ACCEPTED", "NOT_FOUND": "EXIT_REFUSED"})]
     route = [r for r in rule_set() if r.id == "TOPOLOGY_ROUTE_UNRESOLVED"]
 
     def fired_against(workflows):
@@ -186,16 +187,6 @@ def test_a_contract_redeclared_whole_requires_only_what_it_now_declares():
 
     assert fired_with(design(extra=(composition,))) == [], fired_with(design(extra=(composition,)))
     assert fired_with(design()) == ["NODE_INPUT_UNBOUND"], "a contract only called keeps what it had"
-
-def test_an_input_written_as_an_object_that_does_not_parse_is_refused():
-    # Kept as a string, it handed the runtime a literal the design never meant (`3c` RT-6).
-    assert _binding("{'reason': 'late'}") == {"reason": "late"}
-    try:
-        _binding("{reason: late}")
-    except ValueError as exc:
-        assert "does not parse" in str(exc), exc
-    else:
-        raise AssertionError("an unparseable object was kept as a string")
 
 
 if __name__ == "__main__":

@@ -9,80 +9,25 @@ header:
   Status: DRAFT
   Feeds: Artifact Authoring
 registers:
-  build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: NONE IDENTIFIED
-      Step: ''
-      Code: ''
-      Action (REPLACE, EXTEND, NEW): ''
-      Subdomain: ''
-      Depends On: ''
-  critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: NONE IDENTIFIED
-      Code: ''
+  build_order: []
+  critical_path: []
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Count: '3'
-      Description: The phase workflow that seals the rule set judging a design, the contract that observes the composition a design is judged against, and the transform carrying the check kinds the rules are built from — all three reached by invoking the generator §16 declares, and none of them written.
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '0'
-      Description: The change authors no artifact. What it adds is two registers of the design language, five rules and two check kinds, and every one of those is a source of an artifact that already exists.
+  - action: EXTEND
+    count: '3'
+    description: The phase workflow that seals the rule set judging a design, the contract that observes the composition a design is judged against, and the transform carrying the check kinds the rules are built from — all three reached by invoking the generator §16 declares, and none of them written.
+  - action: NEW
+    count: '0'
+    description: The change authors no artifact. What it adds is two registers of the design language, five rules and two check kinds, and every one of those is a source of an artifact that already exists.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
-      Subdomain Field: design
-    - Code: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V0
-      Subdomain Field: design
-    - Code: transformation::CT_PURE_EVALUATE_RULES_V0
-      Subdomain Field: design
-  new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Inputs: ''
-      Outputs: ''
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Workflow: ''
-      Inputs: ''
-  cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: NONE IDENTIFIED
-      Note: ''
+  - code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
+    subdomain_field: design
+  - code: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V0
+    subdomain_field: design
+  - code: transformation::CT_PURE_EVALUATE_RULES_V0
+    subdomain_field: design
+  new_capabilities: []
+  new_intents: []
+  cross_subdomain_notes: []
 ```
 
 Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing added, nothing dropped.

@@ -43,37 +43,65 @@
             "type": "object",
             "properties": {
               "question_id": {
-                "title": "Question Id"
+                "title": "Question Id",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "finding": {
-                "title": "Finding"
+                "title": "Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "impact": {
-                "title": "Impact"
+                "title": "Impact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence_status": {
                 "title": "Evidence Status",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "evidence_status"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "confidence": {
                 "title": "Confidence",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "certainty"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "resolution_status": {
                 "title": "Resolution Status",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "resolution_status"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -98,20 +126,36 @@
             "type": "object",
             "properties": {
               "item": {
-                "title": "Item"
+                "title": "Item",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "origin": {
-                "title": "Origin"
+                "title": "Origin",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "result": {
                 "title": "Result",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "verification_result"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -133,20 +177,36 @@
             "type": "object",
             "properties": {
               "dependency": {
-                "title": "Dependency"
+                "title": "Dependency",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "type": {
-                "title": "Type"
+                "title": "Type",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "disposition": {
                 "title": "Disposition",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "dependency_disposition"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -168,16 +228,32 @@
             "type": "object",
             "properties": {
               "artifact": {
-                "title": "Artifact"
+                "title": "Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "impact_scope": {
-                "title": "Impact Scope"
+                "title": "Impact Scope",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "consumer_count": {
-                "title": "Consumer Count"
+                "title": "Consumer Count",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -199,23 +275,43 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "decision": {
                 "title": "Decision",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "reuse_decision"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "rationale": {
-                "title": "Rationale"
+                "title": "Rationale",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "alternatives_checked": {
-                "title": "Alternatives Checked"
+                "title": "Alternatives Checked",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -245,16 +341,32 @@
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "placement_decision"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "subdomain": {
-                "title": "Subdomain"
+                "title": "Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "rationale": {
-                "title": "Rationale"
+                "title": "Rationale",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -279,17 +391,29 @@
             "type": "object",
             "properties": {
               "criterion": {
-                "title": "Criterion"
+                "title": "Criterion",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "status": {
                 "title": "Status",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "saturation_status"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "evidence": {
-                "title": "Evidence"
+                "title": "Evidence",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [

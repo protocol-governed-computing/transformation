@@ -10,312 +10,196 @@ header:
   Feeds: Stage 2 — Domain Model Discovery
 registers:
   cr_type:
-    columns:
-    - Subdomain
-    - Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE)
-    - Rationale
-    - Source Finding
-    rows:
-    - Subdomain: catalog
-      Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE): MODIFY
-      Rationale: The catalog is built. It applies its rules as each request states them rather than holding them itself, registers what its own check found incomplete, and checks a copy of the book rather than the book it records. Nothing is added to what the catalog does; its own rules are made to hold however it is reached.
-      Source Finding: 'CR seed §1 CR Type #1'
+  - subdomain: catalog
+    classification: MODIFY
+    rationale: The catalog is built. It applies its rules as each request states them rather than holding them itself, registers what its own check found incomplete, and checks a copy of the book rather than the book it records. Nothing is added to what the catalog does; its own rules are made to hold however it is reached.
+    source_finding: 'CR seed §1 CR Type #1'
   business_vocabulary:
-    columns:
-    - Term
-    - Definition
-    - Source Finding
-    rows:
-    - Term: Authorized staff
-      Definition: A library staff member permitted to perform catalog operations.
-      Source Finding: 'CR seed §2 Business Vocabulary #1'
-    - Term: Staff credentials
-      Definition: What a request presents about the person performing it.
-      Source Finding: 'CR seed §2 Business Vocabulary #2'
-    - Term: Description
-      Definition: What the library says a book, a work or a further edition must contain.
-      Source Finding: 'CR seed §2 Business Vocabulary #3'
-    - Term: Business rule
-      Definition: 'Something the library decided about the catalog: who may perform an operation, and what a book, a work or a further edition must contain.'
-      Source Finding: 'CR seed §2 Business Vocabulary #4'
+  - term: Authorized staff
+    definition: A library staff member permitted to perform catalog operations.
+    source_finding: 'CR seed §2 Business Vocabulary #1'
+  - term: Staff credentials
+    definition: What a request presents about the person performing it.
+    source_finding: 'CR seed §2 Business Vocabulary #2'
+  - term: Description
+    definition: What the library says a book, a work or a further edition must contain.
+    source_finding: 'CR seed §2 Business Vocabulary #3'
+  - term: Business rule
+    definition: 'Something the library decided about the catalog: who may perform an operation, and what a book, a work or a further edition must contain.'
+    source_finding: 'CR seed §2 Business Vocabulary #4'
   requested_outcomes:
-    columns:
-    - Outcome
-    - Source Finding
-    rows:
-    - Outcome: The catalog holds the rules that decide who is authorized to perform a catalog operation, and refuses anyone they do not admit, whatever the request says.
-      Source Finding: 'CR seed §3 Requested Outcomes #1'
-    - Outcome: The catalog holds what a book, a work and a further edition must contain, and refuses a registration that does not meet it.
-      Source Finding: 'CR seed §3 Requested Outcomes #2'
-    - Outcome: The catalog checks the book, work or edition it records, not a copy supplied beside it.
-      Source Finding: 'CR seed §3 Requested Outcomes #3'
-    - Outcome: The catalog registers a physical copy as registered, whatever state the request gives it.
-      Source Finding: 'CR seed §3 Requested Outcomes #4'
-    - Outcome: Every correct request from authorized staff is admitted, with the same outcome as today.
-      Source Finding: 'CR seed §3 Requested Outcomes #5'
+  - outcome: The catalog holds the rules that decide who is authorized to perform a catalog operation, and refuses anyone they do not admit, whatever the request says.
+    source_finding: 'CR seed §3 Requested Outcomes #1'
+  - outcome: The catalog holds what a book, a work and a further edition must contain, and refuses a registration that does not meet it.
+    source_finding: 'CR seed §3 Requested Outcomes #2'
+  - outcome: The catalog checks the book, work or edition it records, not a copy supplied beside it.
+    source_finding: 'CR seed §3 Requested Outcomes #3'
+  - outcome: The catalog registers a physical copy as registered, whatever state the request gives it.
+    source_finding: 'CR seed §3 Requested Outcomes #4'
+  - outcome: Every correct request from authorized staff is admitted, with the same outcome as today.
+    source_finding: 'CR seed §3 Requested Outcomes #5'
   known_facts:
-    columns:
-    - Fact
-    - Certainty (HIGH, MEDIUM, LOW)
-    - Source Finding
-    rows:
-    - Fact: Only authorized staff perform catalog operations.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #1'
-    - Fact: The catalog does not decide who is authorized; it requires that they are.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #2'
-    - Fact: A book's bibliographic information is its title, author, publication year and subject.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #3'
-    - Fact: A book carries at least one subject.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #4'
-    - Fact: The catalog records a publication year as a number.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #5'
-    - Fact: A work names its title and author.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #6'
-    - Fact: A further edition is described as a book is.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #7'
-    - Fact: A registration that does not meet the library's description is refused.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #8'
-    - Fact: What a request says about the catalog's rules is ignored, not refused; it is not part of the request.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #9'
-    - Fact: A physical copy's registration leads to registered, whatever the request carries.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #10'
-    - Fact: Every rule of the catalog's own is held by the catalog.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #11'
-    - Fact: The library adds to its record and does not rewrite it.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #12'
+  - fact: Only authorized staff perform catalog operations.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #1'
+  - fact: The catalog does not decide who is authorized; it requires that they are.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #2'
+  - fact: A book's bibliographic information is its title, author, publication year and subject.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #3'
+  - fact: A book carries at least one subject.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #4'
+  - fact: The catalog records a publication year as a number.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #5'
+  - fact: A work names its title and author.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #6'
+  - fact: A further edition is described as a book is.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #7'
+  - fact: A registration that does not meet the library's description is refused.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #8'
+  - fact: What a request says about the catalog's rules is ignored, not refused; it is not part of the request.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #9'
+  - fact: A physical copy's registration leads to registered, whatever the request carries.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #10'
+  - fact: Every rule of the catalog's own is held by the catalog.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #11'
+  - fact: The library adds to its record and does not rewrite it.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #12'
   system_beliefs:
-    columns:
-    - Belief
-    - Why It Matters
-    - Verification Goal
-    - Source Finding
-    rows:
-    - Belief: Every catalog operation confirms the person performing it is authorized, against rules the request supplies.
-      Why It Matters: 'This is the hole the library most needs closed: a request supplying no rules is confirmed whoever sends it.'
-      Verification Goal: Establish where each operation reads its authorization rules from.
-      Source Finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #1'
-    - Belief: The catalog checks a book, a work and a further edition against what each must contain, and registers them whatever the check finds.
-      Why It Matters: A check nothing acts on refuses nothing.
-      Verification Goal: Establish what each registration does with what its check finds.
-      Source Finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #2'
-    - Belief: The catalog checks a copy of the book supplied beside it, not the book it records.
-      Why It Matters: A check of the wrong thing would judge something other than what is written, even if it refused.
-      Verification Goal: Establish what each check reads, and what each registration writes.
-      Source Finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #3'
-    - Belief: The descriptions a book, a work and a further edition are checked against come from the request.
-      Why It Matters: A request supplying an empty description has nothing checked against it.
-      Verification Goal: Establish where each description is read from.
-      Source Finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #4'
-    - Belief: A physical copy is registered in whatever state the request gives it.
-      Why It Matters: A copy was registered already retired.
-      Verification Goal: Establish where a copy's registered state comes from.
-      Source Finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #5'
-  assumptions:
-    columns:
-    - Assumption
-    - Basis
-    - Source Finding
-    rows:
-    - Assumption: NONE IDENTIFIED
-      Basis: ''
-      Source Finding: ''
+  - belief: Every catalog operation confirms the person performing it is authorized, against rules the request supplies.
+    why_it_matters: 'This is the hole the library most needs closed: a request supplying no rules is confirmed whoever sends it.'
+    verification_goal: Establish where each operation reads its authorization rules from.
+    source_finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #1'
+  - belief: The catalog checks a book, a work and a further edition against what each must contain, and registers them whatever the check finds.
+    why_it_matters: A check nothing acts on refuses nothing.
+    verification_goal: Establish what each registration does with what its check finds.
+    source_finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #2'
+  - belief: The catalog checks a copy of the book supplied beside it, not the book it records.
+    why_it_matters: A check of the wrong thing would judge something other than what is written, even if it refused.
+    verification_goal: Establish what each check reads, and what each registration writes.
+    source_finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #3'
+  - belief: The descriptions a book, a work and a further edition are checked against come from the request.
+    why_it_matters: A request supplying an empty description has nothing checked against it.
+    verification_goal: Establish where each description is read from.
+    source_finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #4'
+  - belief: A physical copy is registered in whatever state the request gives it.
+    why_it_matters: A copy was registered already retired.
+    verification_goal: Establish where a copy's registered state comes from.
+    source_finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #5'
+  assumptions: []
   constraints:
-    columns:
-    - Constraint
-    - Source
-    - Source Finding
-    rows:
-    - Constraint: Every correct request from authorized staff is admitted, with the same outcome as today.
-      Source: Business author
-      Source Finding: 'CR seed §7 Constraints #1'
-    - Constraint: Records made under a request's own rules stay as they were made.
-      Source: Business author — the record is added to, never rewritten.
-      Source Finding: 'CR seed §7 Constraints #2'
+  - constraint: Every correct request from authorized staff is admitted, with the same outcome as today.
+    source: Business author
+    source_finding: 'CR seed §7 Constraints #1'
+  - constraint: Records made under a request's own rules stay as they were made.
+    source: Business author — the record is added to, never rewritten.
+    source_finding: 'CR seed §7 Constraints #2'
   business_invariants:
-    columns:
-    - Invariant
-    - Source Finding
-    rows:
-    - Invariant: No catalog operation is performed by anyone the library has not authorized.
-      Source Finding: 'CR seed §8 Business Invariants #1'
-    - Invariant: No book, work or further edition is registered without what the library says it must contain.
-      Source Finding: 'CR seed §8 Business Invariants #2'
-    - Invariant: What the catalog checks is what it records.
-      Source Finding: 'CR seed §8 Business Invariants #3'
-    - Invariant: No physical copy is registered in any state but registered.
-      Source Finding: 'CR seed §8 Business Invariants #4'
-    - Invariant: A business rule of the catalog's is held by the catalog, and no request changes it.
-      Source Finding: 'CR seed §8 Business Invariants #5'
-    - Invariant: A refusal changes no record.
-      Source Finding: 'CR seed §8 Business Invariants #6'
+  - invariant: No catalog operation is performed by anyone the library has not authorized.
+    source_finding: 'CR seed §8 Business Invariants #1'
+  - invariant: No book, work or further edition is registered without what the library says it must contain.
+    source_finding: 'CR seed §8 Business Invariants #2'
+  - invariant: What the catalog checks is what it records.
+    source_finding: 'CR seed §8 Business Invariants #3'
+  - invariant: No physical copy is registered in any state but registered.
+    source_finding: 'CR seed §8 Business Invariants #4'
+  - invariant: A business rule of the catalog's is held by the catalog, and no request changes it.
+    source_finding: 'CR seed §8 Business Invariants #5'
+  - invariant: A refusal changes no record.
+    source_finding: 'CR seed §8 Business Invariants #6'
   lifecycle_states:
-    columns:
-    - Object
-    - State
-    - Meaning
-    - Source Finding
-    rows:
-    - Object: Physical copy
-      State: Registered
-      Meaning: On the shelf and in service. The only state a copy is registered in.
-      Source Finding: 'CR seed §9 Lifecycle States #1'
-    - Object: Physical copy
-      State: Retired
-      Meaning: Taken out of service; unchanged by this change.
-      Source Finding: 'CR seed §9 Lifecycle States #2'
+  - object: Physical copy
+    state: Registered
+    meaning: On the shelf and in service. The only state a copy is registered in.
+    source_finding: 'CR seed §9 Lifecycle States #1'
+  - object: Physical copy
+    state: Retired
+    meaning: Taken out of service; unchanged by this change.
+    source_finding: 'CR seed §9 Lifecycle States #2'
   business_events:
-    columns:
-    - Event
-    - When It Occurs
-    - Significance
-    - Source Finding
-    rows:
-    - Event: A work was registered
-      When It Occurs: When authorized staff register a complete book
-      Significance: Unchanged by this change.
-      Source Finding: 'CR seed §10 Business Events #1'
+  - event: A work was registered
+    when_it_occurs: When authorized staff register a complete book
+    significance: Unchanged by this change.
+    source_finding: 'CR seed §10 Business Events #1'
   authority_boundaries:
-    columns:
-    - Business Object
-    - Authoritative Owner
-    - Source Finding
-    rows:
-    - Business Object: The rules a catalog operation's staff credentials are judged by
-      Authoritative Owner: Catalog
-      Source Finding: 'CR seed §11 Authority Boundaries #1'
-    - Business Object: What a book, a work and a further edition must contain
-      Authoritative Owner: Catalog
-      Source Finding: 'CR seed §11 Authority Boundaries #2'
-    - Business Object: Which staff are authorized
-      Authoritative Owner: The staff function
-      Source Finding: 'CR seed §11 Authority Boundaries #3'
+  - business_object: The rules a catalog operation's staff credentials are judged by
+    authoritative_owner: Catalog
+    source_finding: 'CR seed §11 Authority Boundaries #1'
+  - business_object: What a book, a work and a further edition must contain
+    authoritative_owner: Catalog
+    source_finding: 'CR seed §11 Authority Boundaries #2'
+  - business_object: Which staff are authorized
+    authoritative_owner: The staff function
+    source_finding: 'CR seed §11 Authority Boundaries #3'
   out_of_scope:
-    columns:
-    - Item
-    - Reason
-    - Source Finding
-    rows:
-    - Item: Who a caller is, and whether the credentials a request presents are genuine
-      Reason: The catalog holds the rules credentials are judged by; it does not authenticate them.
-      Source Finding: 'CR seed §12 Out of Scope #1'
-    - Item: Which staff are authorized
-      Reason: That belongs to the staff function.
-      Source Finding: 'CR seed §12 Out of Scope #2'
-    - Item: Loans, members and every function other than the catalog
-      Reason: Not this change.
-      Source Finding: 'CR seed §12 Out of Scope #3'
-    - Item: Records already in the catalog
-      Reason: The library adds to its record and does not rewrite it.
-      Source Finding: 'CR seed §12 Out of Scope #4'
+  - item: Who a caller is, and whether the credentials a request presents are genuine
+    reason: The catalog holds the rules credentials are judged by; it does not authenticate them.
+    source_finding: 'CR seed §12 Out of Scope #1'
+  - item: Which staff are authorized
+    reason: That belongs to the staff function.
+    source_finding: 'CR seed §12 Out of Scope #2'
+  - item: Loans, members and every function other than the catalog
+    reason: Not this change.
+    source_finding: 'CR seed §12 Out of Scope #3'
+  - item: Records already in the catalog
+    reason: The library adds to its record and does not rewrite it.
+    source_finding: 'CR seed §12 Out of Scope #4'
   governance_scope:
-    columns:
-    - Scope Item
-    - Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT)
-    - Source Finding
-    rows:
-    - Scope Item: catalog
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): MODIFIED
-      Source Finding: 'CR seed §13 Governance Scope #1'
-  clarification_requests:
-    columns:
-    - Question
-    - Why Needed
-    - Blocking (YES, NO)
-    - Owner (HUMAN, SNAPSHOT, GOVERNANCE)
-    - Source Finding
-    rows:
-    - Question: NONE IDENTIFIED
-      Why Needed: ''
-      Blocking (YES, NO): ''
-      Owner (HUMAN, SNAPSHOT, GOVERNANCE): ''
-      Source Finding: ''
+  - scope_item: catalog
+    relationship: MODIFIED
+    source_finding: 'CR seed §13 Governance Scope #1'
+  clarification_requests: []
   acceptance_criteria:
-    columns:
-    - Criterion
-    - Source Finding
-    rows:
-    - Criterion: A catalog operation requested by anyone the library has not authorized is refused, whatever rules the request states, and no record changes.
-      Source Finding: 'CR seed §15 Acceptance Criteria #1'
-    - Criterion: A book, a work or a further edition missing what the library says it must contain is refused, whatever description the request states, and nothing is registered by it.
-      Source Finding: 'CR seed §15 Acceptance Criteria #2'
-    - Criterion: What the catalog checks for a registration is what it records.
-      Source Finding: 'CR seed §15 Acceptance Criteria #3'
-    - Criterion: A physical copy is registered as registered, whatever state the request gives it.
-      Source Finding: 'CR seed §15 Acceptance Criteria #4'
-    - Criterion: A request stating rules of its own is judged by the catalog's rules, and is not refused for stating them.
-      Source Finding: 'CR seed §15 Acceptance Criteria #5'
-    - Criterion: Every correct request from authorized staff is admitted, with the same outcome as before this change.
-      Source Finding: 'CR seed §15 Acceptance Criteria #6'
-    - Criterion: Records made before this change are unchanged by it.
-      Source Finding: 'CR seed §15 Acceptance Criteria #7'
-  identity_and_sameness:
-    columns:
-    - Business Object
-    - Identified By
-    - Two Are The Same When
-    - Source Finding
-    rows:
-    - Business Object: NONE IDENTIFIED
-      Identified By: ''
-      Two Are The Same When: ''
-      Source Finding: ''
+  - criterion: A catalog operation requested by anyone the library has not authorized is refused, whatever rules the request states, and no record changes.
+    source_finding: 'CR seed §15 Acceptance Criteria #1'
+  - criterion: A book, a work or a further edition missing what the library says it must contain is refused, whatever description the request states, and nothing is registered by it.
+    source_finding: 'CR seed §15 Acceptance Criteria #2'
+  - criterion: What the catalog checks for a registration is what it records.
+    source_finding: 'CR seed §15 Acceptance Criteria #3'
+  - criterion: A physical copy is registered as registered, whatever state the request gives it.
+    source_finding: 'CR seed §15 Acceptance Criteria #4'
+  - criterion: A request stating rules of its own is judged by the catalog's rules, and is not refused for stating them.
+    source_finding: 'CR seed §15 Acceptance Criteria #5'
+  - criterion: Every correct request from authorized staff is admitted, with the same outcome as before this change.
+    source_finding: 'CR seed §15 Acceptance Criteria #6'
+  - criterion: Records made before this change are unchanged by it.
+    source_finding: 'CR seed §15 Acceptance Criteria #7'
+  identity_and_sameness: []
   lifecycle_transitions:
-    columns:
-    - Object
-    - From State
-    - To State
-    - Triggered By
-    - Cascade
-    - Source Finding
-    rows:
-    - Object: Physical copy
-      From State: Does not exist
-      To State: Registered
-      Triggered By: Authorized staff registering it
-      Cascade: Unchanged by this change.
-      Source Finding: 'CR seed §17 Lifecycle Transitions #1'
+  - object: Physical copy
+    from_state: Does not exist
+    to_state: Registered
+    triggered_by: Authorized staff registering it
+    cascade: Unchanged by this change.
+    source_finding: 'CR seed §17 Lifecycle Transitions #1'
   operation_refusals:
-    columns:
-    - Operation
-    - Refused When
-    - Business Reason
-    - Source Finding
-    rows:
-    - Operation: Any catalog operation
-      Refused When: The person performing it is not authorized staff
-      Business Reason: Only authorized staff perform catalog operations.
-      Source Finding: 'CR seed §18 Operation Refusals #1'
-    - Operation: Registering a book
-      Refused When: It lacks what the library says a book must contain
-      Business Reason: The library said the parts are required.
-      Source Finding: 'CR seed §18 Operation Refusals #2'
-    - Operation: Registering a further edition
-      Refused When: It lacks what the library says an edition must contain
-      Business Reason: The library said the parts are required.
-      Source Finding: 'CR seed §18 Operation Refusals #3'
+  - operation: Any catalog operation
+    refused_when: The person performing it is not authorized staff
+    business_reason: Only authorized staff perform catalog operations.
+    source_finding: 'CR seed §18 Operation Refusals #1'
+  - operation: Registering a book
+    refused_when: It lacks what the library says a book must contain
+    business_reason: The library said the parts are required.
+    source_finding: 'CR seed §18 Operation Refusals #2'
+  - operation: Registering a further edition
+    refused_when: It lacks what the library says an edition must contain
+    business_reason: The library said the parts are required.
+    source_finding: 'CR seed §18 Operation Refusals #3'
   authority_deferrals:
-    columns:
-    - Business Object
-    - Deferred To
-    - Until
-    - Source Finding
-    rows:
-    - Business Object: Which staff are authorized
-      Deferred To: The staff function
-      Until: Always; it is not the catalog's to decide.
-      Source Finding: 'CR seed §19 Authority Deferrals #1'
+  - business_object: Which staff are authorized
+    deferred_to: The staff function
+    until: Always; it is not the catalog's to decide.
+    source_finding: 'CR seed §19 Authority Deferrals #1'
 ```
 
 Projected from the change seed. Every row is the seed's own, cited to the section it was

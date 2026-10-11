@@ -50,16 +50,32 @@
             "type": "object",
             "properties": {
               "actor": {
-                "title": "Actor"
+                "title": "Actor",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "role": {
-                "title": "Role"
+                "title": "Role",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "authority_class": {
-                "title": "Authority Class"
+                "title": "Authority Class",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -82,16 +98,32 @@
             "type": "object",
             "properties": {
               "entity": {
-                "title": "Entity"
+                "title": "Entity",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "description": {
-                "title": "Description"
+                "title": "Description",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "store_model": {
-                "title": "Store Model"
+                "title": "Store Model",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -114,13 +146,25 @@
             "type": "object",
             "properties": {
               "resource": {
-                "title": "Resource"
+                "title": "Resource",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "description": {
-                "title": "Description"
+                "title": "Description",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -141,16 +185,32 @@
             "type": "object",
             "properties": {
               "event": {
-                "title": "Event"
+                "title": "Event",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "trigger": {
-                "title": "Trigger"
+                "title": "Trigger",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "lifecycle_meaning": {
-                "title": "Lifecycle Meaning"
+                "title": "Lifecycle Meaning",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -173,19 +233,39 @@
             "type": "object",
             "properties": {
               "subject": {
-                "title": "Subject"
+                "title": "Subject",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "verb": {
-                "title": "Verb"
+                "title": "Verb",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "object": {
-                "title": "Object"
+                "title": "Object",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "capability_need": {
-                "title": "Capability Need"
+                "title": "Capability Need",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -208,19 +288,39 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "status": {
-                "title": "Status"
+                "title": "Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "gap_register_entry": {
-                "title": "Gap Register Entry"
+                "title": "Gap Register Entry",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "notes": {
-                "title": "Notes"
+                "title": "Notes",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -244,19 +344,39 @@
             "type": "object",
             "properties": {
               "from": {
-                "title": "From"
+                "title": "From",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "to": {
-                "title": "To"
+                "title": "To",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "dependency_type": {
-                "title": "Dependency Type"
+                "title": "Dependency Type",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "pps_status": {
-                "title": "PPS Status"
+                "title": "PPS Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -279,16 +399,32 @@
             "type": "object",
             "properties": {
               "number": {
-                "title": "#"
+                "title": "#",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "constraint": {
-                "title": "Constraint"
+                "title": "Constraint",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source": {
-                "title": "Source"
+                "title": "Source",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -310,19 +446,39 @@
             "type": "object",
             "properties": {
               "gap_code": {
-                "title": "Gap Code"
+                "title": "Gap Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "owner_subdomain": {
-                "title": "Owner Subdomain"
+                "title": "Owner Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "resolution": {
-                "title": "Resolution"
+                "title": "Resolution",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -346,19 +502,39 @@
             "type": "object",
             "properties": {
               "number": {
-                "title": "#"
+                "title": "#",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "decision": {
-                "title": "Decision"
+                "title": "Decision",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "rationale": {
-                "title": "Rationale"
+                "title": "Rationale",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "constraints_imposed": {
-                "title": "Constraints Imposed"
+                "title": "Constraints Imposed",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -381,10 +557,18 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "gap_register_ref": {
-                "title": "Gap Register Ref"
+                "title": "Gap Register Ref",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [

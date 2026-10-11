@@ -18,263 +18,174 @@ registers:
     reinstated, and it announces the moments the business declared matter. It does not govern who borrows
     a book, what a borrower may do, or what the library charges.
   cr_type:
-    columns:
-    - Subdomain
-    - Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE)
-    - Rationale
-    rows:
-    - Subdomain: catalog
-      Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE): MODIFY
-      Rationale: Two operations state that they need things they do not use, and one states a publication year in a form the catalog does not hold it in. Correct requests are turned away. What each operation needs is restated to match what it does.
+  - subdomain: catalog
+    classification: MODIFY
+    rationale: Two operations state that they need things they do not use, and one states a publication year in a form the catalog does not hold it in. Correct requests are turned away. What each operation needs is restated to match what it does.
   business_vocabulary:
-    columns:
-    - Term
-    - Definition
-    rows:
-    - Term: Operation
-      Definition: Something a librarian asks the catalog to do.
-    - Term: Request
-      Definition: One asking, with what the librarian supplied.
-    - Term: Admission
-      Definition: The catalog deciding whether a request may proceed.
-    - Term: Requirement
-      Definition: Something an operation states a request must supply.
-    - Term: Correction
-      Definition: Changing some details of a record the catalog already holds.
-    - Term: Further edition
-      Definition: Another edition of a work the library already carries.
-    - Term: Publication year
-      Definition: The year an edition was published, which the catalog holds as a number.
+  - term: Operation
+    definition: Something a librarian asks the catalog to do.
+  - term: Request
+    definition: One asking, with what the librarian supplied.
+  - term: Admission
+    definition: The catalog deciding whether a request may proceed.
+  - term: Requirement
+    definition: Something an operation states a request must supply.
+  - term: Correction
+    definition: Changing some details of a record the catalog already holds.
+  - term: Further edition
+    definition: Another edition of a work the library already carries.
+  - term: Publication year
+    definition: The year an edition was published, which the catalog holds as a number.
   requested_outcomes:
-    columns:
-    - Outcome
-    rows:
-    - Outcome: Registering a further edition asks for the publication year in the form the catalog holds it.
-    - Outcome: Correcting bibliographic information asks for the record and the changes, and nothing it does not use.
-    - Outcome: A correct request for either operation is admitted.
-    - Outcome: Every requirement an operation states is something that operation uses.
-    - Outcome: Who may perform each operation, and what they must be authorised to do, is unchanged.
+  - outcome: Registering a further edition asks for the publication year in the form the catalog holds it.
+  - outcome: Correcting bibliographic information asks for the record and the changes, and nothing it does not use.
+  - outcome: A correct request for either operation is admitted.
+  - outcome: Every requirement an operation states is something that operation uses.
+  - outcome: Who may perform each operation, and what they must be authorised to do, is unchanged.
   known_facts:
-    columns:
-    - Fact
-    - Certainty (HIGH, MEDIUM, LOW)
-    rows:
-    - Fact: The catalog holds a publication year as a number, wherever it holds one.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Registering a work for the first time asks for the publication year as a number.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Registering a further edition of that same work asks for it as text.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A correction names the record it corrects and supplies the fields it changes.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A correction does not restate the fields it leaves alone; that is what makes it a correction.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Correcting bibliographic information asks for the title, author and publication year of the record.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The steps that carry out a correction read the record named and the changed fields, and read none of those three.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A requirement an operation does not use turns away correct requests and admits nothing extra.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A librarian correcting the subject headings of a record is turned away for not resupplying its title.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The library's end-to-end exercise of the catalog fails at both operations today.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Both failures are the boundary behaving correctly on a wrong statement.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Nothing compared what an operation asks for against what it uses, for as long as the boundary admitted everything.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
+  - fact: The catalog holds a publication year as a number, wherever it holds one.
+    certainty: HIGH
+  - fact: Registering a work for the first time asks for the publication year as a number.
+    certainty: HIGH
+  - fact: Registering a further edition of that same work asks for it as text.
+    certainty: HIGH
+  - fact: A correction names the record it corrects and supplies the fields it changes.
+    certainty: HIGH
+  - fact: A correction does not restate the fields it leaves alone; that is what makes it a correction.
+    certainty: HIGH
+  - fact: Correcting bibliographic information asks for the title, author and publication year of the record.
+    certainty: HIGH
+  - fact: The steps that carry out a correction read the record named and the changed fields, and read none of those three.
+    certainty: HIGH
+  - fact: A requirement an operation does not use turns away correct requests and admits nothing extra.
+    certainty: HIGH
+  - fact: A librarian correcting the subject headings of a record is turned away for not resupplying its title.
+    certainty: HIGH
+  - fact: The library's end-to-end exercise of the catalog fails at both operations today.
+    certainty: HIGH
+  - fact: Both failures are the boundary behaving correctly on a wrong statement.
+    certainty: HIGH
+  - fact: Nothing compared what an operation asks for against what it uses, for as long as the boundary admitted everything.
+    certainty: HIGH
   system_beliefs:
-    columns:
-    - Belief
-    - Why It Matters
-    - Verification Goal
-    rows:
-    - Belief: Registering a further edition asks for the publication year as text while the neighbouring operation asks for a number.
-      Why It Matters: One half of the change.
-      Verification Goal: Confirm both statements, and confirm which form the catalog records.
-    - Belief: Correcting bibliographic information asks for three details it does not use.
-      Why It Matters: The other half.
-      Verification Goal: Confirm the three, and confirm no step of the correction reads them.
-    - Belief: No other catalog operation asks for something it does not use.
-      Why It Matters: Says whether this is two instances or a pattern across the subdomain.
-      Verification Goal: Establish, for every catalog operation, what it asks for and what it uses.
-    - Belief: Who may perform each operation is stated separately from what the operation needs.
-      Why It Matters: Decides whether restating requirements can affect authorisation.
-      Verification Goal: Confirm the two are separate statements.
-    - Belief: The details a correction changes are supplied together, as the changed fields.
-      Why It Matters: Decides whether removing three requirements loses anything.
-      Verification Goal: Confirm the changed fields carry the details being corrected.
+  - belief: Registering a further edition asks for the publication year as text while the neighbouring operation asks for a number.
+    why_it_matters: One half of the change.
+    verification_goal: Confirm both statements, and confirm which form the catalog records.
+  - belief: Correcting bibliographic information asks for three details it does not use.
+    why_it_matters: The other half.
+    verification_goal: Confirm the three, and confirm no step of the correction reads them.
+  - belief: No other catalog operation asks for something it does not use.
+    why_it_matters: Says whether this is two instances or a pattern across the subdomain.
+    verification_goal: Establish, for every catalog operation, what it asks for and what it uses.
+  - belief: Who may perform each operation is stated separately from what the operation needs.
+    why_it_matters: Decides whether restating requirements can affect authorisation.
+    verification_goal: Confirm the two are separate statements.
+  - belief: The details a correction changes are supplied together, as the changed fields.
+    why_it_matters: Decides whether removing three requirements loses anything.
+    verification_goal: Confirm the changed fields carry the details being corrected.
   assumptions:
-    columns:
-    - Assumption
-    - Basis
-    rows:
-    - Assumption: A librarian supplies a publication year the way the catalog displays it.
-      Basis: The catalog holds and shows it as a number.
-    - Assumption: The two operations were written from a third, and the requirements were carried across without being reconsidered.
-      Basis: Registering a work needs the title, author and year; correcting a record does not, and asks for all three.
+  - assumption: A librarian supplies a publication year the way the catalog displays it.
+    basis: The catalog holds and shows it as a number.
+  - assumption: The two operations were written from a third, and the requirements were carried across without being reconsidered.
+    basis: Registering a work needs the title, author and year; correcting a record does not, and asks for all three.
   constraints:
-    columns:
-    - Constraint
-    - Source
-    rows:
-    - Constraint: Every requirement an operation keeps is one that operation uses.
-      Source: Business author
-    - Constraint: Nothing about who may perform an operation changes.
-      Source: Business author
-    - Constraint: The records the catalog already holds are not migrated, rewritten or revalidated.
-      Source: Business author
-    - Constraint: A publication year is a number, in every operation that names one.
-      Source: Business author
-    - Constraint: No operation gains a requirement in this change.
-      Source: Business author
+  - constraint: Every requirement an operation keeps is one that operation uses.
+    source: Business author
+  - constraint: Nothing about who may perform an operation changes.
+    source: Business author
+  - constraint: The records the catalog already holds are not migrated, rewritten or revalidated.
+    source: Business author
+  - constraint: A publication year is a number, in every operation that names one.
+    source: Business author
+  - constraint: No operation gains a requirement in this change.
+    source: Business author
   business_invariants:
-    columns:
-    - Invariant
-    rows:
-    - Invariant: An operation requires only what it uses.
-    - Invariant: A publication year is stated as a number wherever an operation asks for one.
-    - Invariant: A correction requires the record it corrects and the changes it makes.
-    - Invariant: A correct request is admitted.
-    - Invariant: What an operation requires is stated separately from who may perform it.
+  - invariant: An operation requires only what it uses.
+  - invariant: A publication year is stated as a number wherever an operation asks for one.
+  - invariant: A correction requires the record it corrects and the changes it makes.
+  - invariant: A correct request is admitted.
+  - invariant: What an operation requires is stated separately from who may perform it.
   lifecycle_states:
-    columns:
-    - Object
-    - State
-    - Meaning
-    rows:
-    - Object: Request
-      State: Admitted
-      Meaning: The catalog accepted it and the operation proceeds.
-    - Object: Request
-      State: Turned away
-      Meaning: The catalog refused it before anything happened.
-    - Object: Request
-      State: Correct and turned away
-      Meaning: Everything the operation needs was supplied and it was refused anyway. This is the state this change ends.
+  - object: Request
+    state: Admitted
+    meaning: The catalog accepted it and the operation proceeds.
+  - object: Request
+    state: Turned away
+    meaning: The catalog refused it before anything happened.
+  - object: Request
+    state: Correct and turned away
+    meaning: Everything the operation needs was supplied and it was refused anyway. This is the state this change ends.
   business_events:
-    columns:
-    - Event
-    - When It Occurs
-    - Significance
-    rows:
-    - Event: A request was admitted
-      When It Occurs: When a librarian supplied what the operation needs
-      Significance: The operation proceeds and the catalog changes.
-    - Event: A request was turned away
-      When It Occurs: When something the operation needs was missing or in the wrong form
-      Significance: The librarian is told before anything happened, and the catalog is unchanged.
+  - event: A request was admitted
+    when_it_occurs: When a librarian supplied what the operation needs
+    significance: The operation proceeds and the catalog changes.
+  - event: A request was turned away
+    when_it_occurs: When something the operation needs was missing or in the wrong form
+    significance: The librarian is told before anything happened, and the catalog is unchanged.
   authority_boundaries:
-    columns:
-    - Business Object
-    - Authoritative Owner
-    rows:
-    - Business Object: What each catalog operation requires
-      Authoritative Owner: The catalog subdomain
-    - Business Object: The form a publication year takes
-      Authoritative Owner: The catalog subdomain
-    - Business Object: Who may perform a catalog operation
-      Authoritative Owner: The library's authorisation rules
-    - Business Object: Whether a request is admitted
-      Authoritative Owner: The catalog boundary
+  - business_object: What each catalog operation requires
+    authoritative_owner: The catalog subdomain
+  - business_object: The form a publication year takes
+    authoritative_owner: The catalog subdomain
+  - business_object: Who may perform a catalog operation
+    authoritative_owner: The library's authorisation rules
+  - business_object: Whether a request is admitted
+    authoritative_owner: The catalog boundary
   out_of_scope:
-    columns:
-    - Item
-    - Reason
-    rows:
-    - Item: Who may perform any catalog operation
-      Reason: A separate statement, unchanged by this.
-    - Item: The records the catalog already holds
-      Reason: No held record changes; only what a new request must supply.
-    - Item: Operations of subdomains other than the catalog
-      Reason: Each subdomain's own change.
-    - Item: Whether the boundary should determine admission at all
-      Reason: Settled; the boundary does what it always declared.
+  - item: Who may perform any catalog operation
+    reason: A separate statement, unchanged by this.
+  - item: The records the catalog already holds
+    reason: No held record changes; only what a new request must supply.
+  - item: Operations of subdomains other than the catalog
+    reason: Each subdomain's own change.
+  - item: Whether the boundary should determine admission at all
+    reason: Settled; the boundary does what it always declared.
   governance_scope:
-    columns:
-    - Scope Item
-    - Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT)
-    rows:
-    - Scope Item: catalog
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): MODIFIED
-  clarification_requests:
-    columns:
-    - Question
-    - Why Needed
-    - Blocking (YES, NO)
-    - Owner (HUMAN, SNAPSHOT, GOVERNANCE)
-    rows:
-    - Question: NONE IDENTIFIED
-      Why Needed: ''
-      Blocking (YES, NO): ''
-      Owner (HUMAN, SNAPSHOT, GOVERNANCE): ''
+  - scope_item: catalog
+    relationship: MODIFIED
+  clarification_requests: []
   acceptance_criteria:
-    columns:
-    - Criterion
-    rows:
-    - Criterion: Registering a further edition of a held work, with the publication year as a number, is admitted and the edition is registered.
-    - Criterion: Correcting the subject headings of a held record, naming the record and the changes only, is admitted and the record is corrected.
-    - Criterion: The library's end-to-end exercise of the catalog completes, with every criterion holding.
-    - Criterion: A request omitting something either operation still needs is turned away.
-    - Criterion: A librarian not authorised for either operation is refused exactly as today.
-    - Criterion: No catalog operation requires anything it does not use.
+  - criterion: Registering a further edition of a held work, with the publication year as a number, is admitted and the edition is registered.
+  - criterion: Correcting the subject headings of a held record, naming the record and the changes only, is admitted and the record is corrected.
+  - criterion: The library's end-to-end exercise of the catalog completes, with every criterion holding.
+  - criterion: A request omitting something either operation still needs is turned away.
+  - criterion: A librarian not authorised for either operation is refused exactly as today.
+  - criterion: No catalog operation requires anything it does not use.
   identity_and_sameness:
-    columns:
-    - Business Object
-    - Identified By
-    - Two Are The Same When
-    rows:
-    - Business Object: Record
-      Identified By: The identity the catalog holds it under
-      Two Are The Same When: Two requests name the same identity.
-    - Business Object: Requirement
-      Identified By: The operation that states it and the thing it asks for
-      Two Are The Same When: One operation asks for one thing once.
-    - Business Object: Publication year
-      Identified By: The year itself
-      Two Are The Same When: Two are the same year, however either was supplied.
+  - business_object: Record
+    identified_by: The identity the catalog holds it under
+    two_are_the_same_when: Two requests name the same identity.
+  - business_object: Requirement
+    identified_by: The operation that states it and the thing it asks for
+    two_are_the_same_when: One operation asks for one thing once.
+  - business_object: Publication year
+    identified_by: The year itself
+    two_are_the_same_when: Two are the same year, however either was supplied.
   lifecycle_transitions:
-    columns:
-    - Object
-    - From State
-    - To State
-    - Triggered By
-    - Cascade
-    rows:
-    - Object: Request
-      From State: Correct and turned away
-      To State: Admitted
-      Triggered By: The operation stating only what it uses.
-      Cascade: The operation proceeds as it always would have. Nothing about the catalog's records changes.
-    - Object: Request
-      From State: Admitted
-      To State: Turned away
-      Triggered By: Something the operation needs being absent.
-      Cascade: The catalog is unchanged and the librarian is told.
+  - object: Request
+    from_state: Correct and turned away
+    to_state: Admitted
+    triggered_by: The operation stating only what it uses.
+    cascade: The operation proceeds as it always would have. Nothing about the catalog's records changes.
+  - object: Request
+    from_state: Admitted
+    to_state: Turned away
+    triggered_by: Something the operation needs being absent.
+    cascade: The catalog is unchanged and the librarian is told.
   operation_refusals:
-    columns:
-    - Operation
-    - Refused When
-    - Business Reason
-    rows:
-    - Operation: Registering a further edition
-      Refused When: The publication year is not supplied
-      Business Reason: The catalog holds an edition by the work it belongs to and the year it was published, so an edition without a year cannot be placed.
-    - Operation: Correcting bibliographic information
-      Refused When: The record to correct is not named
-      Business Reason: A correction with no subject changes nothing, and the catalog would not know what to change.
-    - Operation: Correcting bibliographic information
-      Refused When: No changed fields are supplied
-      Business Reason: A correction that changes nothing is not a correction.
+  - operation: Registering a further edition
+    refused_when: The publication year is not supplied
+    business_reason: The catalog holds an edition by the work it belongs to and the year it was published, so an edition without a year cannot be placed.
+  - operation: Correcting bibliographic information
+    refused_when: The record to correct is not named
+    business_reason: A correction with no subject changes nothing, and the catalog would not know what to change.
+  - operation: Correcting bibliographic information
+    refused_when: No changed fields are supplied
+    business_reason: A correction that changes nothing is not a correction.
   authority_deferrals:
-    columns:
-    - Business Object
-    - Deferred To
-    - Until
-    rows:
-    - Business Object: What operations of other subdomains require
-      Deferred To: Each subdomain
-      Until: That subdomain raises the change that needs it.
+  - business_object: What operations of other subdomains require
+    deferred_to: Each subdomain
+    until: That subdomain raises the change that needs it.
 ```
 
 Reorganized faithfully from `p0_business_problem_statement.md`. Human input only — nothing here was

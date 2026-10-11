@@ -9,86 +9,31 @@ header:
   Status: DRAFT
   Feeds: Artifact Authoring
 registers:
-  build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: NONE IDENTIFIED
-      Step: ''
-      Code: ''
-      Action (REPLACE, EXTEND, NEW): ''
-      Subdomain: ''
-      Depends On: ''
-  critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: NONE IDENTIFIED
-      Code: ''
+  build_order: []
+  critical_path: []
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Count: '6'
-      Description: The six acts that complete a declared moment, each re-rendered whole so that it announces what it completed. One of them announces three.
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '0'
-      Description: The change authors no artifact. All six moments were declared long ago and referenced by nothing; what was missing was the acts saying they had completed them.
+  - action: EXTEND
+    count: '6'
+    description: The six acts that complete a declared moment, each re-rendered whole so that it announces what it completed. One of them announces three.
+  - action: NEW
+    count: '0'
+    description: The change authors no artifact. All six moments were declared long ago and referenced by nothing; what was missing was the acts saying they had completed them.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Subdomain Field: catalog
-    - Code: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Subdomain Field: catalog
-    - Code: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
-      Subdomain Field: catalog
-    - Code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Subdomain Field: catalog
-    - Code: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
-      Subdomain Field: catalog
-    - Code: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
-      Subdomain Field: catalog
-  new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Inputs: ''
-      Outputs: ''
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Workflow: ''
-      Inputs: ''
-  cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: NONE IDENTIFIED
-      Note: ''
+  - code: book_library_mgmt::WF_REGISTER_BOOK_V0
+    subdomain_field: catalog
+  - code: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    subdomain_field: catalog
+  - code: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
+    subdomain_field: catalog
+  - code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    subdomain_field: catalog
+  - code: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
+    subdomain_field: catalog
+  - code: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
+    subdomain_field: catalog
+  new_capabilities: []
+  new_intents: []
+  cross_subdomain_notes: []
 ```
 
 Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing added, nothing dropped.

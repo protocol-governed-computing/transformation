@@ -30,7 +30,6 @@ from typing import Callable
 
 import yaml
 
-from transformation.design.checks import EMPTINESS_SENTINEL, is_sentinel
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.schema import PhaseShape as PhaseTemplate, load
 
@@ -39,6 +38,7 @@ from transformation.design.schema import PhaseShape as PhaseTemplate, load
 # what makes it wrong — `#12` pointing at row 11 resolves to a claim the row does not make, and
 # nothing downstream can tell.
 PROVENANCE_COLUMN = "Source Finding"
+PROVENANCE_KEY = "source_finding"
 
 
 class _Dumper(yaml.SafeDumper):
@@ -49,39 +49,16 @@ _Dumper.add_representer(
     str, lambda d, v: d.represent_scalar("tag:yaml.org,2002:str", v, style="|" if "\n" in v else None))
 
 
-def _template_layout(template: PhaseTemplate) -> list[tuple[str, str, str, list[str]]]:
-    """(number, title, register id, column headings) in template order.
+def _template_layout(template: PhaseTemplate) -> list[tuple[str, str, str, tuple[str, ...]]]:
+    """(number, title, register id, column keys) in the order the schema declares them.
 
-    The template is the single declaration of the document's shape, so the projection reads it
-    rather than restating it. A register added to the template appears in the projection with no
-    code change; one restated here would be a second declaration that can disagree.
-
-    Headings are taken verbatim from the template's own header row, not from the parsed column
-    names: `Certainty (HIGH, MEDIUM, LOW)` declares both the column and the values it admits, and a
-    projection that emitted the bare name would strip the vocabulary out of the document while the
-    rules went on enforcing it.
-
-    The section a register is cited by is the template's. Every seed numbers its sections as the
-    template does, so the citation names a section the seed's reader finds.
+    The schema is the single declaration of the document's shape, so the projection reads it rather
+    than restating it. A register added to the schema appears in the projection with no code change.
+    The section a register is cited by is the schema's, and every seed numbers its sections as the
+    schema does, so the citation names a section the seed's reader finds.
     """
-    return [
-        (register.section_number or "", register.section_title, register.id, list(register.headings))
-        for register in template.registers
-    ]
-
-
-def _value(row: dict[str, str], heading: str) -> str:
-    """A row's value for a column heading, matched the way the checks match one.
-
-    A heading carrying a controlled vocabulary is longer in one document than another —
-    `Relationship (CREATED, ADJACENT)` became `Relationship (CREATED, EXTENDED, …)` when P1's
-    vocabulary was widened — so the column is addressed by its name, never by the whole heading.
-    """
-    name = heading.split("(")[0].strip()
-    for key, value in row.items():
-        if key.startswith(name):
-            return str(value).strip()
-    return ""
+    return [(register.section_number or "", register.section_title, register.id, register.keys)
+            for register in template.registers]
 
 
 def project_p1(prior: ParsedDocument) -> str:
@@ -91,23 +68,21 @@ def project_p1(prior: ParsedDocument) -> str:
     cr = prior.header.get("CR", "")
     subject = (prior.raw.splitlines() or [""])[0].split("—")[-1].strip()
 
-    registers: dict[str, dict] = {}
+    registers: dict[str, list | None] = {}
     headings: list[str] = []
-    for number, title, register_id, columns in _template_layout(template):
+    for number, title, register_id, keys in _template_layout(template):
         source = by_id.get(register_id)
-        content = [dict(row) for row in (source.get("rows") or [])] if source else []
-        rows = []
-        for ordinal, row in enumerate(content, start=1):
-            # The emptiness sentinel is not a row and is projected as itself. Citing it to a seed
-            # finding invents a finding — the seed said the register has no entries, which is not
-            # something any row of it said.
-            if is_sentinel(row):
-                rows.append(dict(zip(columns, [EMPTINESS_SENTINEL] + [""] * (len(columns) - 1))))
-                continue
-            values = [_value(row, column) for column in columns[:-1]]
-            values.append(f"CR seed §{number} {title} #{ordinal}")
-            rows.append(dict(zip(columns, values)))
-        registers[register_id] = {"columns": columns, "rows": rows}
+        content = source.get("value") if source else None
+        if not isinstance(content, list):
+            # A seed register that states nothing is projected as stating nothing; one the seed
+            # declared empty is projected declared empty. Neither is cited: no row of the seed said it.
+            registers[register_id] = content
+        else:
+            registers[register_id] = [
+                {**{k: row.get(k) for k in keys if k != PROVENANCE_KEY},
+                 PROVENANCE_KEY: f"CR seed §{number} {title} #{ordinal}"}
+                for ordinal, row in enumerate(content, start=1)
+            ]
         headings += [f"## {number}. {title}", "", "---", ""]
 
     machine = yaml.dump(

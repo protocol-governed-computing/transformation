@@ -17,122 +17,93 @@ registers:
     maintaining the authoritative record once that decision has been made. This authoritative ledger is
     the foundation that the rest of the blockchain system relies on.
   cr_type:
-    columns:
-    - Subdomain
-    - Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE)
-    - Rationale
-    rows:
-    - Subdomain: chain
-      Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE): NEW_SUBDOMAIN
-      Rationale: The canonical ledger is a distinct concern from block proposal and needs its own governance boundary; it is not an extension of an existing subdomain.
+  - subdomain: chain
+    classification: NEW_SUBDOMAIN
+    rationale: The canonical ledger is a distinct concern from block proposal and needs its own governance boundary; it is not an extension of an existing subdomain.
   business_vocabulary:
-    columns:
-    - Term
-    - Definition
-    rows:
-    - Term: Chain
-      Definition: The authoritative, ordered, append-only ledger of committed blocks.
-    - Term: Block
-      Definition: A unit of the ledger produced by a proposer and recorded on the chain; carries the transactions of its round.
-    - Term: Proposed Block
-      Definition: A block produced by a proposer in the consensus loop, not yet committed and not yet authoritative.
-    - Term: Commit
-      Definition: 'To make a proposed block part of the canonical chain: its content is hashed as its signature, it is linked to its predecessor, and it is recorded as canonical. Commit is irreversible.'
-    - Term: Genesis Block
-      Definition: The chain's first block. It has the same form as any block and contains the first system transaction — a mint crediting the mint wallet — performed by the Genesis Actor.
-    - Term: Bootstrap
-      Definition: The one-time genesis sequence that establishes the initial chain and supply, before the consensus loop runs.
-    - Term: Genesis Actor
-      Definition: The special, permanent actor that receives the initial minted supply at bootstrap and owns the mint wallet thereafter.
-    - Term: Proposer
-      Definition: The validator selected to produce a block in a given round.
-    - Term: BachiCoin
-      Definition: The system's unit of value; the supply is a closed monetary system.
+  - term: Chain
+    definition: The authoritative, ordered, append-only ledger of committed blocks.
+  - term: Block
+    definition: A unit of the ledger produced by a proposer and recorded on the chain; carries the transactions of its round.
+  - term: Proposed Block
+    definition: A block produced by a proposer in the consensus loop, not yet committed and not yet authoritative.
+  - term: Commit
+    definition: 'To make a proposed block part of the canonical chain: its content is hashed as its signature, it is linked to its predecessor, and it is recorded as canonical. Commit is irreversible.'
+  - term: Genesis Block
+    definition: The chain's first block. It has the same form as any block and contains the first system transaction — a mint crediting the mint wallet — performed by the Genesis Actor.
+  - term: Bootstrap
+    definition: The one-time genesis sequence that establishes the initial chain and supply, before the consensus loop runs.
+  - term: Genesis Actor
+    definition: The special, permanent actor that receives the initial minted supply at bootstrap and owns the mint wallet thereafter.
+  - term: Proposer
+    definition: The validator selected to produce a block in a given round.
+  - term: BachiCoin
+    definition: The system's unit of value; the supply is a closed monetary system.
   requested_outcomes:
-    columns:
-    - Outcome
-    rows:
-    - Outcome: Establish a closed, canonical chain that commits proposer-produced blocks to an authoritative, append-only record.
-    - Outcome: Bootstrap the chain from a genesis block that mints the initial supply to a Genesis Actor before the consensus loop runs.
-    - Outcome: For this increment, commit all proposed blocks directly to the chain, with attestation and finalization deferred to future iterations.
+  - outcome: Establish a closed, canonical chain that commits proposer-produced blocks to an authoritative, append-only record.
+  - outcome: Bootstrap the chain from a genesis block that mints the initial supply to a Genesis Actor before the consensus loop runs.
+  - outcome: For this increment, commit all proposed blocks directly to the chain, with attestation and finalization deferred to future iterations.
   known_facts:
-    columns:
-    - Fact
-    - Certainty (HIGH, MEDIUM, LOW)
-    rows:
-    - Fact: A canonical chain is required as the authoritative record of committed blocks.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A genesis bootstrap is required, and must occur before consensus execution begins.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The genesis block shall mint an initial supply of 1,000,000 BachiCoin.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The initial supply shall be assigned to a Genesis Actor, which is permanent and owns the mint wallet.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Minting occurs only during genesis bootstrap; no minting and no burning occur in this release.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: For this development increment, all proposer-produced blocks are committed to the chain.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Attestation and finalization are intentionally deferred to a future iteration.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Consensus proposes; the chain records and is the authoritative source of committed history.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: In this release, the chain commits every proposed block without additional validation.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: On commit, a block and its contained transactions become authoritative and immutable.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Wallet balances are derived from committed transactions and reconciled on the chain after commit; the chain does not maintain independent balance state.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
+  - fact: A canonical chain is required as the authoritative record of committed blocks.
+    certainty: HIGH
+  - fact: A genesis bootstrap is required, and must occur before consensus execution begins.
+    certainty: HIGH
+  - fact: The genesis block shall mint an initial supply of 1,000,000 BachiCoin.
+    certainty: HIGH
+  - fact: The initial supply shall be assigned to a Genesis Actor, which is permanent and owns the mint wallet.
+    certainty: HIGH
+  - fact: Minting occurs only during genesis bootstrap; no minting and no burning occur in this release.
+    certainty: HIGH
+  - fact: For this development increment, all proposer-produced blocks are committed to the chain.
+    certainty: HIGH
+  - fact: Attestation and finalization are intentionally deferred to a future iteration.
+    certainty: HIGH
+  - fact: Consensus proposes; the chain records and is the authoritative source of committed history.
+    certainty: HIGH
+  - fact: In this release, the chain commits every proposed block without additional validation.
+    certainty: HIGH
+  - fact: On commit, a block and its contained transactions become authoritative and immutable.
+    certainty: HIGH
+  - fact: Wallet balances are derived from committed transactions and reconciled on the chain after commit; the chain does not maintain independent balance state.
+    certainty: HIGH
   system_beliefs:
-    columns:
-    - Belief
-    - Why It Matters
-    - Verification Goal
-    rows:
-    - Belief: The current implementation does not yet provide a chain that commits proposed blocks.
-      Why It Matters: This CR exists to fill that gap; if a commit capability already exists, the CR scope changes.
-      Verification Goal: Confirm no existing capability commits proposed blocks to a ledger.
-    - Belief: A consensus loop already exists that proposes blocks and drives slot processing.
-      Why It Matters: The chain commits exactly the blocks this loop proposes — its upstream producer.
-      Verification Goal: Identify the governing workflows, their producers, the records emitted, and the owning subdomain.
-    - Belief: A block-proposal capability already exists.
-      Why It Matters: Defines the input the chain commit consumes.
-      Verification Goal: Identify the capability that produces a proposed block and the record it emits.
-    - Belief: A validator registry already exists.
-      Why It Matters: Validators feed proposer selection upstream of the chain.
-      Verification Goal: Identify where validators are registered and how proposer selection reads it.
-    - Belief: A wallet capability already exists.
-      Why It Matters: Genesis mints the initial supply to the mint wallet held by the Genesis Actor.
-      Verification Goal: Identify the wallet capability and how a balance or mint is recorded.
-    - Belief: A transaction capability already exists.
-      Why It Matters: Part of the pipeline from actor to wallet to transaction to mempool.
-      Verification Goal: Identify the transaction capability and its place in that pipeline.
-    - Belief: A mempool already exists.
-      Why It Matters: Transactions queue there before block formation.
-      Verification Goal: Identify the mempool store and how transactions queue before a block is formed.
-    - Belief: An orchestration subdomain already exists.
-      Why It Matters: Drives slot processing and the consensus loop.
-      Verification Goal: Identify the orchestration driver and what it invokes.
-    - Belief: 'Adjacent subdomains exist: identity, wallet, transaction, mempool, consensus, orchestration.'
-      Why It Matters: Establishes the neighbourhood the new chain subdomain plugs into.
-      Verification Goal: Confirm each named subdomain exists and note its owning boundary.
+  - belief: The current implementation does not yet provide a chain that commits proposed blocks.
+    why_it_matters: This CR exists to fill that gap; if a commit capability already exists, the CR scope changes.
+    verification_goal: Confirm no existing capability commits proposed blocks to a ledger.
+  - belief: A consensus loop already exists that proposes blocks and drives slot processing.
+    why_it_matters: The chain commits exactly the blocks this loop proposes — its upstream producer.
+    verification_goal: Identify the governing workflows, their producers, the records emitted, and the owning subdomain.
+  - belief: A block-proposal capability already exists.
+    why_it_matters: Defines the input the chain commit consumes.
+    verification_goal: Identify the capability that produces a proposed block and the record it emits.
+  - belief: A validator registry already exists.
+    why_it_matters: Validators feed proposer selection upstream of the chain.
+    verification_goal: Identify where validators are registered and how proposer selection reads it.
+  - belief: A wallet capability already exists.
+    why_it_matters: Genesis mints the initial supply to the mint wallet held by the Genesis Actor.
+    verification_goal: Identify the wallet capability and how a balance or mint is recorded.
+  - belief: A transaction capability already exists.
+    why_it_matters: Part of the pipeline from actor to wallet to transaction to mempool.
+    verification_goal: Identify the transaction capability and its place in that pipeline.
+  - belief: A mempool already exists.
+    why_it_matters: Transactions queue there before block formation.
+    verification_goal: Identify the mempool store and how transactions queue before a block is formed.
+  - belief: An orchestration subdomain already exists.
+    why_it_matters: Drives slot processing and the consensus loop.
+    verification_goal: Identify the orchestration driver and what it invokes.
+  - belief: 'Adjacent subdomains exist: identity, wallet, transaction, mempool, consensus, orchestration.'
+    why_it_matters: Establishes the neighbourhood the new chain subdomain plugs into.
+    verification_goal: Confirm each named subdomain exists and note its owning boundary.
   assumptions:
-    columns:
-    - Assumption
-    - Basis
-    rows:
-    - Assumption: All proposed blocks are good and are committed as finalized, with no rejection path this increment.
-      Basis: Incremental-development decision; attestation and finalization deferred.
+  - assumption: All proposed blocks are good and are committed as finalized, with no rejection path this increment.
+    basis: Incremental-development decision; attestation and finalization deferred.
   constraints:
-    columns:
-    - Constraint
-    - Source
-    rows:
-    - Constraint: Closed monetary system — no supply enters or leaves except by the system's own rules.
-      Source: Business policy
-    - Constraint: The chain is immutable — a committed block cannot be altered or removed.
-      Source: Business policy
-    - Constraint: Genesis supply is fixed at 1,000,000 BachiCoin, minted to the Genesis Actor at bootstrap.
-      Source: Business policy
+  - constraint: Closed monetary system — no supply enters or leaves except by the system's own rules.
+    source: Business policy
+  - constraint: The chain is immutable — a committed block cannot be altered or removed.
+    source: Business policy
+  - constraint: Genesis supply is fixed at 1,000,000 BachiCoin, minted to the Genesis Actor at bootstrap.
+    source: Business policy
 ```
 
 The reference subject, carried over from RI-0's elicitation for `blockchain/chain` and reorganized

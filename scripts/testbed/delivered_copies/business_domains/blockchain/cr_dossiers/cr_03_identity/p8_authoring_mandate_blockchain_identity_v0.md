@@ -9,63 +9,26 @@ header:
   Status: DRAFT
   Feeds: Artifact Authoring
 registers:
-  build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows: []
-  critical_path:
-    columns:
-    - Position
-    - Code
-    rows: []
+  build_order: null
+  critical_path: null
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Count: '1'
-      Description: One capability contract, rendered whole under its own code. Four of its five steps are unchanged; the fifth calls a keyed update in place of a keyed write, taking the record the fourth step assembles as the fields to set.
+  - action: EXTEND
+    count: '1'
+    description: One capability contract, rendered whole under its own code. Four of its five steps are unchanged; the fifth calls a keyed update in place of a keyed write, taking the record the fourth step assembles as the fields to set.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Subdomain Field: identity
-  new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows: []
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows: []
+  - code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    subdomain_field: identity
+  new_capabilities: null
+  new_intents: null
   cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: capability_side_effects::CS_MUTABLE_JSON_V0
-      Note: 'The keyed update this correction calls was added to the capability before this change was designed, on the neutral surface and not by this domain. A business domain may not author a capability, and the operation it needed did not exist: the store offered a keyed write and a filtered update, and nothing that changed part of one record addressed by its key. Identity depends on it exactly as the change that established this function depended on a clock.'
-    - Code: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
-      Note: Composes the amended contract and is not amended. Its routing reads the contract's result statuses, which the correction preserves, so re-rendering the contract changes nothing the workflow observes.
-    - Code: blockchain::CC_RESOLVE_ACTOR_V0
-      Note: Reached unchanged, and the only reader of the store. From this change forward it will read records still carrying the name and preferences a decision had been stripping. It reads the record whole and asserts nothing about its shape, so more fields reach it and nothing about it needs to change.
-    - Code: blockchain::TI_ACCEPT_ACTOR_V0
-      Note: Unchanged, with blockchain::TI_REJECT_ACTOR_V0 and both egress declarations. They name a workflow rather than a contract, which is why a correction inside a contract is invisible to every caller.
+  - code: capability_side_effects::CS_MUTABLE_JSON_V0
+    note: 'The keyed update this correction calls was added to the capability before this change was designed, on the neutral surface and not by this domain. A business domain may not author a capability, and the operation it needed did not exist: the store offered a keyed write and a filtered update, and nothing that changed part of one record addressed by its key. Identity depends on it exactly as the change that established this function depended on a clock.'
+  - code: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
+    note: Composes the amended contract and is not amended. Its routing reads the contract's result statuses, which the correction preserves, so re-rendering the contract changes nothing the workflow observes.
+  - code: blockchain::CC_RESOLVE_ACTOR_V0
+    note: Reached unchanged, and the only reader of the store. From this change forward it will read records still carrying the name and preferences a decision had been stripping. It reads the record whole and asserts nothing about its shape, so more fields reach it and nothing about it needs to change.
+  - code: blockchain::TI_ACCEPT_ACTOR_V0
+    note: Unchanged, with blockchain::TI_REJECT_ACTOR_V0 and both egress declarations. They name a workflow rather than a contract, which is why a correction inside a contract is invisible to every caller.
 ```
 
 Mechanically derived from the design. Every artifact the design declares appears here exactly once,

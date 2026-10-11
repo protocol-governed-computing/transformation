@@ -10,96 +10,56 @@ header:
   Feeds: Artifact Authoring
 registers:
   build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: '1'
-      Step: '1'
-      Code: transformation::VOCAB_FACT_PROVENANCE_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: build
-      Depends On: —
-    - Wave: '2'
-      Step: '2'
-      Code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: build
-      Depends On: transformation::VOCAB_FACT_PROVENANCE_V0
+  - wave: '1'
+    step: '1'
+    code: transformation::VOCAB_FACT_PROVENANCE_V0
+    action: NEW
+    subdomain: build
+    depends_on: null
+  - wave: '2'
+    step: '2'
+    code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
+    action: NEW
+    subdomain: build
+    depends_on:
+    - transformation::VOCAB_FACT_PROVENANCE_V0
   critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: '1'
-      Code: transformation::VOCAB_FACT_PROVENANCE_V0
-    - Position: '2'
-      Code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
+  - position: '1'
+    code: transformation::VOCAB_FACT_PROVENANCE_V0
+  - position: '2'
+    code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '2'
-      Description: The vocabulary of origins a rendered fact may have, and the transform that reports one origin per leaf. The vocabulary is admitted first because the transform's every answer is drawn from it.
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Count: '2'
-      Description: The renderer, which becomes answerable for each value it writes and gains an output carrying one source per leaf; and the measure, whose population is unchanged and whose test becomes provenance rather than presence.
-    - Action (REPLACE, EXTEND, NEW): REPLACE
-      Count: '0'
-      Description: Nothing is stood down. The build manifest already written for a domain that does not exist was removed by hand before this change was raised, and no artifact is superseded by it.
+  - action: NEW
+    count: '2'
+    description: The vocabulary of origins a rendered fact may have, and the transform that reports one origin per leaf. The vocabulary is admitted first because the transform's every answer is drawn from it.
+  - action: EXTEND
+    count: '2'
+    description: The renderer, which becomes answerable for each value it writes and gains an output carrying one source per leaf; and the measure, whose population is unchanged and whose test becomes provenance rather than presence.
+  - action: REPLACE
+    count: '0'
+    description: Nothing is stood down. The build manifest already written for a domain that does not exist was removed by hand before this change was raised, and no artifact is superseded by it.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: transformation::VOCAB_FACT_PROVENANCE_V0
-      Subdomain Field: build
-    - Code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
-      Subdomain Field: build
-    - Code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
-      Subdomain Field: build
-    - Code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
-      Subdomain Field: build
+  - code: transformation::VOCAB_FACT_PROVENANCE_V0
+    subdomain_field: build
+  - code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
+    subdomain_field: build
+  - code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    subdomain_field: build
+  - code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
+    subdomain_field: build
   new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
-      Purpose: Report, for each leaf of a rendered artifact, whether the design stated it, a constitution governs it, or the renderer supplied it
-      Inputs: rendered, sources
-      Outputs: provenance, governed_by
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Workflow: ''
-      Inputs: ''
+  - code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
+    purpose: Report, for each leaf of a rendered artifact, whether the design stated it, a constitution governs it, or the renderer supplied it
+    inputs: rendered, sources
+    outputs: provenance, governed_by
+  new_intents: []
   cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
-      Note: Extended by `design`, not here. A phase's registers and the rule set that judges them are that subdomain's. Until its vocabulary register gains a column for the group and one for the spelling, every design scheduling a vocabulary reads short — which is this change refusing correctly, not failing.
-    - Code: vocabulary::CONSTITUTION_VOCABULARY_V0
-      Note: Unchanged, and named as the authority the new vocabulary is governed by. It carries the rule the first rendered vocabulary was refused against.
-    - Code: transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0
-      Note: Unchanged. Named because both authored artifacts and all three amendments are compiled under it.
+  - code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V0
+    note: Extended by `design`, not here. A phase's registers and the rule set that judges them are that subdomain's. Until its vocabulary register gains a column for the group and one for the spelling, every design scheduling a vocabulary reads short — which is this change refusing correctly, not failing.
+  - code: vocabulary::CONSTITUTION_VOCABULARY_V0
+    note: Unchanged, and named as the authority the new vocabulary is governed by. It carries the rule the first rendered vocabulary was refused against.
+  - code: transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0
+    note: Unchanged. Named because both authored artifacts and all three amendments are compiled under it.
 ```
 
 Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing added, nothing dropped.

@@ -26,7 +26,8 @@ from transformation.build.render import render_all, render_document
 
 
 def _registers(parsed: list) -> Dict[str, list]:
-    return {entry["id"]: entry.get("rows") or [] for entry in parsed or []}
+    return {entry["id"]: entry["value"] if isinstance(entry.get("value"), list) else []
+            for entry in parsed or []}
 
 
 def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:

@@ -10,268 +10,200 @@ header:
   Feeds: Stage 5 — Business Intent
 registers:
   actors:
-    columns:
-    - Actor
-    - Role
-    - Authority Class
-    - Source Finding
-    rows:
-    - Actor: Catalog
-      Role: States what each of its operations needs, and decides whether a request may proceed.
-      Authority Class: Declaring — what an operation requires is the catalog's own account of what it does.
-      Source Finding: 'S1 authority_boundaries #1'
-    - Actor: Library staff
-      Role: Make the requests the catalog admits or turns away.
-      Authority Class: Acting — unchanged by this change.
-      Source Finding: 'S2 entities #2'
-    - Actor: The library's authorisation rules
-      Role: Decide who may perform each operation.
-      Authority Class: Deciding — stated separately from what an operation needs, and untouched.
-      Source Finding: 'S2 belief_verification #4'
+  - actor: Catalog
+    role: States what each of its operations needs, and decides whether a request may proceed.
+    authority_class: Declaring — what an operation requires is the catalog's own account of what it does.
+    source_finding: 'S1 authority_boundaries #1'
+  - actor: Library staff
+    role: Make the requests the catalog admits or turns away.
+    authority_class: Acting — unchanged by this change.
+    source_finding: 'S2 entities #2'
+  - actor: The library's authorisation rules
+    role: Decide who may perform each operation.
+    authority_class: Deciding — stated separately from what an operation needs, and untouched.
+    source_finding: 'S2 belief_verification #4'
   bm_entities:
-    columns:
-    - Entity
-    - Description
-    - Store Model
-    - Source Finding
-    rows:
-    - Entity: Operation
-      Description: Something a librarian asks the catalog to do.
-      Store Model: Ten are declared for this subdomain, each with a boundary and a workflow.
-      Source Finding: 'S2 entities #1'
-    - Entity: Requirement
-      Description: Something an operation states a request must supply.
-      Store Model: Declared at the operation's boundary, as a name and the form the value takes.
-      Source Finding: 'S2 entities #3'
-    - Entity: Use
-      Description: A step of the operation reading something the request supplied.
-      Store Model: Declared in the operation's own steps.
-      Source Finding: 'S2 entities #4'
-    - Entity: Request
-      Description: One asking, with what the librarian supplied.
-      Store Model: Not held; it is what arrives at the boundary.
-      Source Finding: 'S2 entities #2'
+  - entity: Operation
+    description: Something a librarian asks the catalog to do.
+    store_model: Ten are declared for this subdomain, each with a boundary and a workflow.
+    source_finding: 'S2 entities #1'
+  - entity: Requirement
+    description: Something an operation states a request must supply.
+    store_model: Declared at the operation's boundary, as a name and the form the value takes.
+    source_finding: 'S2 entities #3'
+  - entity: Use
+    description: A step of the operation reading something the request supplied.
+    store_model: Declared in the operation's own steps.
+    source_finding: 'S2 entities #4'
+  - entity: Request
+    description: One asking, with what the librarian supplied.
+    store_model: Not held; it is what arrives at the boundary.
+    source_finding: 'S2 entities #2'
   resources:
-    columns:
-    - Resource
-    - Description
-    - Source Finding
-    rows:
-    - Resource: The three boundaries being corrected
-      Description: Registering a further edition, correcting bibliographic information, and registering a work.
-      Source Finding: 'S3 analysis_findings #1'
-    - Resource: The seven boundaries that already agree
-      Description: Registering a physical copy, retiring and reinstating a book record and a physical copy, retrieving book details, and searching the catalog.
-      Source Finding: 'S2 architectural_observations #1'
-    - Resource: The library's end-to-end exercise of the catalog
-      Description: Registering a work, adding two further editions, correcting a legacy record. Stops today at the second edition.
-      Source Finding: 'S3 verification_results #6'
-    - Resource: The four statements of a publication year's form
-      Description: Three boundaries and the description supplied with each request. Three say number; one says word.
-      Source Finding: 'S3 analysis_findings #3'
+  - resource: The three boundaries being corrected
+    description: Registering a further edition, correcting bibliographic information, and registering a work.
+    source_finding: 'S3 analysis_findings #1'
+  - resource: The seven boundaries that already agree
+    description: Registering a physical copy, retiring and reinstating a book record and a physical copy, retrieving book details, and searching the catalog.
+    source_finding: 'S2 architectural_observations #1'
+  - resource: The library's end-to-end exercise of the catalog
+    description: Registering a work, adding two further editions, correcting a legacy record. Stops today at the second edition.
+    source_finding: 'S3 verification_results #6'
+  - resource: The four statements of a publication year's form
+    description: Three boundaries and the description supplied with each request. Three say number; one says word.
+    source_finding: 'S3 analysis_findings #3'
   events:
-    columns:
-    - Event
-    - Trigger
-    - Lifecycle Meaning
-    - Source Finding
-    rows:
-    - Event: A request was admitted
-      Trigger: A librarian supplying what the operation needs
-      Lifecycle Meaning: The operation proceeds and the catalog changes.
-      Source Finding: 'S1 business_events #1'
-    - Event: A request was turned away
-      Trigger: Something the operation needs being missing or in the wrong form
-      Lifecycle Meaning: The librarian is told before anything happened, and the catalog is unchanged.
-      Source Finding: 'S1 business_events #2'
-    - Event: A correct request was turned away
-      Trigger: A boundary requiring something its operation does not use, or requiring it in a form the catalog does not hold
-      Lifecycle Meaning: The state this change ends. It is the present state of two of the ten operations.
-      Source Finding: 'S1 lifecycle_states #3'
-    - Event: A request was admitted that the operation could not carry out
-      Trigger: A boundary requiring less than its operation reads
-      Lifecycle Meaning: Latent in registering a work; the failure appears part-way through instead of at the boundary.
-      Source Finding: 'S2 gaps #3'
+  - event: A request was admitted
+    trigger: A librarian supplying what the operation needs
+    lifecycle_meaning: The operation proceeds and the catalog changes.
+    source_finding: 'S1 business_events #1'
+  - event: A request was turned away
+    trigger: Something the operation needs being missing or in the wrong form
+    lifecycle_meaning: The librarian is told before anything happened, and the catalog is unchanged.
+    source_finding: 'S1 business_events #2'
+  - event: A correct request was turned away
+    trigger: A boundary requiring something its operation does not use, or requiring it in a form the catalog does not hold
+    lifecycle_meaning: The state this change ends. It is the present state of two of the ten operations.
+    source_finding: 'S1 lifecycle_states #3'
+  - event: A request was admitted that the operation could not carry out
+    trigger: A boundary requiring less than its operation reads
+    lifecycle_meaning: Latent in registering a work; the failure appears part-way through instead of at the boundary.
+    source_finding: 'S2 gaps #3'
   relationships:
-    columns:
-    - Subject
-    - Verb
-    - Object
-    - Capability Need
-    - Source Finding
-    rows:
-    - Subject: Operation
-      Verb: requires
-      Object: Requirement
-      Capability Need: Admitting a request to register a further edition.
-      Source Finding: 'S3 authoring_decisions #1'
-    - Subject: Operation
-      Verb: requires
-      Object: Requirement
-      Capability Need: Admitting a request to correct bibliographic information.
-      Source Finding: 'S3 authoring_decisions #2'
-    - Subject: Operation
-      Verb: requires
-      Object: Requirement
-      Capability Need: Admitting a request to register a work — deferred; the requirement it lacks is one every present caller sends elsewhere.
-      Source Finding: 'S3 authoring_decisions #3'
-    - Subject: Operation
-      Verb: uses
-      Object: Requirement
-      Capability Need: Agreement between what an operation requires and what its steps read.
-      Source Finding: 'S3 analysis_findings #2'
+  - subject: Operation
+    verb: requires
+    object: Requirement
+    capability_need: Admitting a request to register a further edition.
+    source_finding: 'S3 authoring_decisions #1'
+  - subject: Operation
+    verb: requires
+    object: Requirement
+    capability_need: Admitting a request to correct bibliographic information.
+    source_finding: 'S3 authoring_decisions #2'
+  - subject: Operation
+    verb: requires
+    object: Requirement
+    capability_need: Admitting a request to register a work — deferred; the requirement it lacks is one every present caller sends elsewhere.
+    source_finding: 'S3 authoring_decisions #3'
+  - subject: Operation
+    verb: uses
+    object: Requirement
+    capability_need: Agreement between what an operation requires and what its steps read.
+    source_finding: 'S3 analysis_findings #2'
   capability_graph:
-    columns:
-    - Capability
-    - Source Finding
-    - Status
-    - Gap Register Entry
-    - Notes
-    rows:
-    - Capability: Admitting a request to register a further edition
-      Source Finding: 'S3 authoring_decisions #1'
-      Status: CRITICAL
-      Gap Register Entry: GAP-1
-      Notes: Turns away every correct request today; the library's exercise stops here.
-    - Capability: Admitting a request to correct bibliographic information
-      Source Finding: 'S3 authoring_decisions #2'
-      Status: CRITICAL
-      Gap Register Entry: GAP-2
-      Notes: Turns away every correction today.
-    - Capability: Admitting a request to register a work
-      Source Finding: 'S3 authoring_decisions #3'
-      Status: DEFERRED
-      Gap Register Entry: ''
-      Notes: A real defect of the same kind, read in the other direction. Correcting it moves a caller, which this change's seed forbids.
-    - Capability: Deciding who may perform an operation
-      Source Finding: 'S3 dependency_discoveries #3'
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Declared uniformly across all ten operations and untouched.
-    - Capability: The three operations
-      Source Finding: 'S3 authoring_decisions #4'
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: No step is added, removed or rebound; each operation is correct.
-    - Capability: Holding what the catalog knows
-      Source Finding: 'S3 dependency_discoveries #4'
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Six stores, unchanged; no held record is migrated or revalidated.
+  - capability: Admitting a request to register a further edition
+    source_finding: 'S3 authoring_decisions #1'
+    status: CRITICAL
+    gap_register_entry: GAP-1
+    notes: Turns away every correct request today; the library's exercise stops here.
+  - capability: Admitting a request to correct bibliographic information
+    source_finding: 'S3 authoring_decisions #2'
+    status: CRITICAL
+    gap_register_entry: GAP-2
+    notes: Turns away every correction today.
+  - capability: Admitting a request to register a work
+    source_finding: 'S3 authoring_decisions #3'
+    status: DEFERRED
+    gap_register_entry: ''
+    notes: A real defect of the same kind, read in the other direction. Correcting it moves a caller, which this change's seed forbids.
+  - capability: Deciding who may perform an operation
+    source_finding: 'S3 dependency_discoveries #3'
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Declared uniformly across all ten operations and untouched.
+  - capability: The three operations
+    source_finding: 'S3 authoring_decisions #4'
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: No step is added, removed or rebound; each operation is correct.
+  - capability: Holding what the catalog knows
+    source_finding: 'S3 dependency_discoveries #4'
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Six stores, unchanged; no held record is migrated or revalidated.
   dependency_graph:
-    columns:
-    - From
-    - To
-    - Dependency Type
-    - PPS Status
-    - Source Finding
-    rows:
-    - From: catalog
-      To: catalog
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: 'S3 dependency_discoveries #2 — all three operations already run and already read what they read.'
-    - From: catalog
-      To: intent
-      Dependency Type: data read
-      PPS Status: SATISFIED
-      Source Finding: 'S3 dependency_discoveries #1 — all three boundaries are declared artifacts of this subdomain.'
-    - From: catalog
-      To: structure
-      Dependency Type: data read
-      PPS Status: SATISFIED
-      Source Finding: 'S3 dependency_discoveries #4 — the six stores are declared and unchanged.'
+  - from: catalog
+    to: catalog
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: 'S3 dependency_discoveries #2 — all three operations already run and already read what they read.'
+  - from: catalog
+    to: intent
+    dependency_type: data read
+    pps_status: SATISFIED
+    source_finding: 'S3 dependency_discoveries #1 — all three boundaries are declared artifacts of this subdomain.'
+  - from: catalog
+    to: structure
+    dependency_type: data read
+    pps_status: SATISFIED
+    source_finding: 'S3 dependency_discoveries #4 — the six stores are declared and unchanged.'
   constraint_register:
-    columns:
-    - '#'
-    - Constraint
-    - Source Finding
-    - Source
-    rows:
-    - '#': '1'
-      Constraint: An operation requires only what it uses, and uses only what it requires.
-      Source Finding: 'S3 analysis_findings #2'
-      Source: governance rule
-    - '#': '2'
-      Constraint: Nothing about who may perform an operation changes.
-      Source Finding: 'S1 constraints #2'
-      Source: governance rule
-    - '#': '3'
-      Constraint: The records the catalog already holds are not migrated, rewritten or revalidated.
-      Source Finding: 'S1 constraints #3'
-      Source: governance rule
-    - '#': '4'
-      Constraint: A publication year is stated as a number wherever an operation asks for one.
-      Source Finding: 'S1 constraints #4'
-      Source: governance rule
-    - '#': '5'
-      Constraint: No correct request becomes harder to make.
-      Source Finding: 'S3 analysis_findings #1'
-      Source: governance rule
-    - '#': '6'
-      Constraint: The form of a detail the catalog holds is settled by no artifact, so agreement among the statements of it is the only authority available.
-      Source Finding: 'S3 analysis_findings #3'
-      Source: domain knowledge
+  - number: '1'
+    constraint: An operation requires only what it uses, and uses only what it requires.
+    source_finding: 'S3 analysis_findings #2'
+    source: governance rule
+  - number: '2'
+    constraint: Nothing about who may perform an operation changes.
+    source_finding: 'S1 constraints #2'
+    source: governance rule
+  - number: '3'
+    constraint: The records the catalog already holds are not migrated, rewritten or revalidated.
+    source_finding: 'S1 constraints #3'
+    source: governance rule
+  - number: '4'
+    constraint: A publication year is stated as a number wherever an operation asks for one.
+    source_finding: 'S1 constraints #4'
+    source: governance rule
+  - number: '5'
+    constraint: No correct request becomes harder to make.
+    source_finding: 'S3 analysis_findings #1'
+    source: governance rule
+  - number: '6'
+    constraint: The form of a detail the catalog holds is settled by no artifact, so agreement among the statements of it is the only authority available.
+    source_finding: 'S3 analysis_findings #3'
+    source: domain knowledge
   gap_register:
-    columns:
-    - Gap Code
-    - Source Finding
-    - Capability
-    - Owner Subdomain
-    - Resolution
-    rows:
-    - Gap Code: GAP-1
-      Source Finding: 'S3 authoring_decisions #1'
-      Capability: Admitting a request to register a further edition
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-2
-      Source Finding: 'S3 authoring_decisions #2'
-      Capability: Admitting a request to correct bibliographic information
-      Owner Subdomain: catalog
-      Resolution: EXTEND
+  - gap_code: GAP-1
+    source_finding: 'S3 authoring_decisions #1'
+    capability: Admitting a request to register a further edition
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-2
+    source_finding: 'S3 authoring_decisions #2'
+    capability: Admitting a request to correct bibliographic information
+    owner_subdomain: catalog
+    resolution: EXTEND
   design_decisions:
-    columns:
-    - '#'
-    - Decision
-    - Source Finding
-    - Rationale
-    - Constraints Imposed
-    rows:
-    - '#': '1'
-      Decision: Registering a further edition states the publication year as a number.
-      Source Finding: 'S3 authoring_decisions #1'
-      Rationale: Three of the four statements of the form say number, and every year the library supplies is a number.
-      Constraints Imposed: Rules out changing the operation to accept a word, and rules out leaving the form to whichever statement is read first.
-    - '#': '2'
-      Decision: Correcting bibliographic information withdraws the title, the author and the publication year.
-      Source Finding: 'S3 authoring_decisions #2'
-      Rationale: No step of the correction reads any of the three, and a correction that restates the fields it leaves alone is not a correction.
-      Constraints Imposed: Rules out making the operation read them to justify requiring them.
-    - '#': '3'
-      Decision: Registering a work is not corrected here.
-      Source Finding: 'S3 authoring_decisions #3'
-      Rationale: The act reads the subject at the top of the request and every present caller sends it nested inside the details of the book, so requiring it makes every present request fail. Constraint 5 forbids exactly that.
-      Constraints Imposed: Rules out correcting a boundary whose correction moves a caller, and fixes that the defect is deferred intact rather than dropped.
-    - '#': '4'
-      Decision: No step of any of the three operations changes.
-      Source Finding: 'S3 authoring_decisions #4'
-      Rationale: What each operation does is correct; it is the boundary above it that is wrong.
-      Constraints Imposed: Rules out rewriting the operations, and confines the change to three declarations.
-    - '#': '5'
-      Decision: The change is one act over three boundaries, not three unrelated corrections.
-      Source Finding: 'S3 analysis_findings #2'
-      Rationale: All three break one invariant, read in both directions; stating it one-sidedly is what let the third survive.
-      Constraints Imposed: Rules out completing the change with two of the three corrected.
+  - number: '1'
+    decision: Registering a further edition states the publication year as a number.
+    source_finding: 'S3 authoring_decisions #1'
+    rationale: Three of the four statements of the form say number, and every year the library supplies is a number.
+    constraints_imposed: Rules out changing the operation to accept a word, and rules out leaving the form to whichever statement is read first.
+  - number: '2'
+    decision: Correcting bibliographic information withdraws the title, the author and the publication year.
+    source_finding: 'S3 authoring_decisions #2'
+    rationale: No step of the correction reads any of the three, and a correction that restates the fields it leaves alone is not a correction.
+    constraints_imposed: Rules out making the operation read them to justify requiring them.
+  - number: '3'
+    decision: Registering a work is not corrected here.
+    source_finding: 'S3 authoring_decisions #3'
+    rationale: The act reads the subject at the top of the request and every present caller sends it nested inside the details of the book, so requiring it makes every present request fail. Constraint 5 forbids exactly that.
+    constraints_imposed: Rules out correcting a boundary whose correction moves a caller, and fixes that the defect is deferred intact rather than dropped.
+  - number: '4'
+    decision: No step of any of the three operations changes.
+    source_finding: 'S3 authoring_decisions #4'
+    rationale: What each operation does is correct; it is the boundary above it that is wrong.
+    constraints_imposed: Rules out rewriting the operations, and confines the change to three declarations.
+  - number: '5'
+    decision: The change is one act over three boundaries, not three unrelated corrections.
+    source_finding: 'S3 analysis_findings #2'
+    rationale: All three break one invariant, read in both directions; stating it one-sidedly is what let the third survive.
+    constraints_imposed: Rules out completing the change with two of the three corrected.
   authoring_scope:
-    columns:
-    - Capability
-    - Gap Register Ref
-    rows:
-    - Capability: Admitting a request to register a further edition
-      Gap Register Ref: GAP-1
-    - Capability: Admitting a request to correct bibliographic information
-      Gap Register Ref: GAP-2
+  - capability: Admitting a request to register a further edition
+    gap_register_ref: GAP-1
+  - capability: Admitting a request to correct bibliographic information
+    gap_register_ref: GAP-2
 ```
 
 Consolidation of Stages 1–3, not re-litigation. Every row projects from a finding already made.

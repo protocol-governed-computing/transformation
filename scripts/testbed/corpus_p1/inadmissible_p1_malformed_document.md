@@ -8,537 +8,440 @@ header:
   CR: cr_01_catalog
   Status: SUBMITTED Discovery
 registers:
-  cr_type:
-    columns:
-    - Subdomain
-    - Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE)
-    - Rationale
-    - Source Finding
-    rows: []
+  cr_type: null
   business_vocabulary:
-    columns:
-    - Term
-    - Source Finding
-    rows:
-    - Term: book_library_mgmt
-      Source Finding: 'CR seed §2 Business Vocabulary #1'
-    - Term: Catalog
-      Source Finding: 'CR seed §2 Business Vocabulary #2'
-    - Term: Book
-      Source Finding: 'CR seed §2 Business Vocabulary #3'
-    - Term: Bibliographic Information
-      Source Finding: 'CR seed §2 Business Vocabulary #4'
-    - Term: Subject
-      Source Finding: 'CR seed §2 Business Vocabulary #5'
-    - Term: Physical Copy
-      Source Finding: 'CR seed §2 Business Vocabulary #6'
-    - Term: Barcode
-      Source Finding: 'CR seed §2 Business Vocabulary #7'
-    - Term: Catalog Record
-      Source Finding: 'CR seed §2 Business Vocabulary #8'
-    - Term: Book Details
-      Source Finding: 'CR seed §2 Business Vocabulary #9'
-    - Term: Obsolete Record
-      Source Finding: 'CR seed §2 Business Vocabulary #10'
-    - Term: Authorized Staff
-      Source Finding: 'CR seed §2 Business Vocabulary #11'
-    - Term: Business Operation
-      Source Finding: 'CR seed §2 Business Vocabulary #12'
+  - term: book_library_mgmt
+    source_finding: 'CR seed §2 Business Vocabulary #1'
+  - term: Catalog
+    source_finding: 'CR seed §2 Business Vocabulary #2'
+  - term: Book
+    source_finding: 'CR seed §2 Business Vocabulary #3'
+  - term: Bibliographic Information
+    source_finding: 'CR seed §2 Business Vocabulary #4'
+  - term: Subject
+    source_finding: 'CR seed §2 Business Vocabulary #5'
+  - term: Physical Copy
+    source_finding: 'CR seed §2 Business Vocabulary #6'
+  - term: Barcode
+    source_finding: 'CR seed §2 Business Vocabulary #7'
+  - term: Catalog Record
+    source_finding: 'CR seed §2 Business Vocabulary #8'
+  - term: Book Details
+    source_finding: 'CR seed §2 Business Vocabulary #9'
+  - term: Obsolete Record
+    source_finding: 'CR seed §2 Business Vocabulary #10'
+  - term: Authorized Staff
+    source_finding: 'CR seed §2 Business Vocabulary #11'
+  - term: Business Operation
+    source_finding: 'CR seed §2 Business Vocabulary #12'
   requested_outcomes:
-    columns:
-    - Outcome
-    - Source Finding
-    rows:
-    - Outcome: A single authoritative record exists for each book the library holds.
-      Source Finding: 'CR seed §3 Requested Outcomes #1'
-    - Outcome: A single authoritative record exists for each physical copy the library owns.
-      Source Finding: 'CR seed §3 Requested Outcomes #2'
-    - Outcome: Authorized staff can register new books, register physical copies, update bibliographic information, retire obsolete records, search the catalog, and retrieve complete book details.
-      Source Finding: 'CR seed §3 Requested Outcomes #3'
-    - Outcome: Catalog descriptions are consistent and duplicate entries no longer occur.
-      Source Finding: 'CR seed §3 Requested Outcomes #4'
-    - Outcome: Materials can be located by what kind of book they are, without the difficulty the manual catalog produces.
-      Source Finding: 'CR seed §3 Requested Outcomes #5'
-    - Outcome: Every business operation performed against the catalog is traceable and auditable.
-      Source Finding: 'CR seed §3 Requested Outcomes #6'
+  - outcome: A single authoritative record exists for each book the library holds.
+    source_finding: 'CR seed §3 Requested Outcomes #1'
+  - outcome: A single authoritative record exists for each physical copy the library owns.
+    source_finding: 'CR seed §3 Requested Outcomes #2'
+  - outcome: Authorized staff can register new books, register physical copies, update bibliographic information, retire obsolete records, search the catalog, and retrieve complete book details.
+    source_finding: 'CR seed §3 Requested Outcomes #3'
+  - outcome: Catalog descriptions are consistent and duplicate entries no longer occur.
+    source_finding: 'CR seed §3 Requested Outcomes #4'
+  - outcome: Materials can be located by what kind of book they are, without the difficulty the manual catalog produces.
+    source_finding: 'CR seed §3 Requested Outcomes #5'
+  - outcome: Every business operation performed against the catalog is traceable and auditable.
+    source_finding: 'CR seed §3 Requested Outcomes #6'
   known_facts:
-    columns:
-    - Fact
-    - Certainty (HIGH, MEDIUM, LOW)
-    - Source Finding
-    rows:
-    - Fact: UNRESOLVED
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #1'
-    - Fact: 'The project scope covers ten functions: catalog, circulation, patron, staff, reservations, acquisitions, inventory, notifications, policy, reporting.'
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #2'
-    - Fact: The scope of this change request is limited to the catalog function only.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #3'
-    - Fact: A community library maintains thousands of books and other published materials.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #4'
-    - Fact: '"Book" is the general term for anything the library catalogs, including published materials that are not books.'
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #5'
-    - Fact: Catalog records are maintained manually today.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #6'
-    - Fact: Manual maintenance produces inconsistent descriptions, duplicate entries, and difficulty locating materials.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #7'
-    - Fact: The library requires a governed catalog management capability providing a single authoritative record for each book and each physical copy it owns.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #8'
-    - Fact: A book's bibliographic information is its title, author, publication year and subject.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #9'
-    - Fact: A book carries at least one subject and may carry several.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #10'
-    - Fact: Subject says what kind of book it is, and is what staff search on when looking for material rather than for a known title.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #11'
-    - Fact: A book's subject is free text; the library maintains no list of permitted subjects.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #12'
-    - Fact: Staff search the catalog by subject or by title.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #13'
-    - Fact: A search returns the bibliographic information of each matching registered book, and nothing about its physical copies.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #14'
-    - Fact: Title, author and publication year together identify a book.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #15'
-    - Fact: Title and author are compared without regard to letter case or repeated spacing; case and spacing do not change which book is meant.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #16'
-    - Fact: Each physical copy belongs to exactly one book.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #17'
-    - Fact: Registering a book requires at least one physical copy; a book is never registered without a copy.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #18'
-    - Fact: Each physical copy carries a barcode the library assigns, which identifies that copy among all the copies the library owns.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #19'
-    - Fact: A physical copy may be retired on its own, when it is lost or damaged.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #20'
-    - Fact: A physical copy may be registered against a retired book.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #21'
-    - Fact: A catalog record is never deleted; retirement is the only way a record leaves use.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #22'
-    - Fact: Authorized staff may return a retired book record or a retired physical copy to the registered state.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #23'
-    - Fact: An update to bibliographic information may change the title, author or publication year.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #24'
-    - Fact: An update is refused when the changed title, author and publication year would match another registered book.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #25'
-    - Fact: 'No retirement follows automatically from another: retiring a book does not retire its copies, and retiring the last copy does not retire the book.'
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #26'
-    - Fact: A registration whose title, author and publication year match a registered book is refused, because the book already exists.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #27'
-    - Fact: A retired book is excluded from search results, and its details remain retrievable.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #28'
-    - Fact: Retrieving complete book details returns the book's bibliographic information and the physical copies the library holds of it.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #29'
-    - Fact: The catalog does not manage which staff are authorized; it requires staff to be authorized.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #30'
-    - Fact: Deciding who is authorized belongs to the staff function, which governs library employees.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #31'
-    - Fact: Patrons are library users, not employees, and the patron function does not decide staff authorization.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #32'
-    - Fact: Only authorized staff may perform catalog operations.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #33'
-    - Fact: Every business operation must be traceable and auditable.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #34'
-    - Fact: The catalog starts empty; the records staff maintain manually today are not imported by this change.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #35'
-    - Fact: 'The operations required of the catalog are: register a new book, register a physical copy, update bibliographic information, retire an obsolete record, search the catalog, retrieve complete book details.'
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #36'
-    - Fact: Borrowing, reservations, fines, patron management, acquisitions and inventory reconciliation are excluded from this release.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #37'
-    - Fact: The excluded capabilities are expected to be introduced through future governed change requests.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #38'
-    - Fact: The excluded capabilities must not be designed into the initial solution.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-      Source Finding: 'CR seed §4 Known Facts — Business Truths #39'
+  - fact: UNRESOLVED
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #1'
+  - fact: 'The project scope covers ten functions: catalog, circulation, patron, staff, reservations, acquisitions, inventory, notifications, policy, reporting.'
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #2'
+  - fact: The scope of this change request is limited to the catalog function only.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #3'
+  - fact: A community library maintains thousands of books and other published materials.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #4'
+  - fact: '"Book" is the general term for anything the library catalogs, including published materials that are not books.'
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #5'
+  - fact: Catalog records are maintained manually today.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #6'
+  - fact: Manual maintenance produces inconsistent descriptions, duplicate entries, and difficulty locating materials.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #7'
+  - fact: The library requires a governed catalog management capability providing a single authoritative record for each book and each physical copy it owns.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #8'
+  - fact: A book's bibliographic information is its title, author, publication year and subject.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #9'
+  - fact: A book carries at least one subject and may carry several.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #10'
+  - fact: Subject says what kind of book it is, and is what staff search on when looking for material rather than for a known title.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #11'
+  - fact: A book's subject is free text; the library maintains no list of permitted subjects.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #12'
+  - fact: Staff search the catalog by subject or by title.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #13'
+  - fact: A search returns the bibliographic information of each matching registered book, and nothing about its physical copies.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #14'
+  - fact: Title, author and publication year together identify a book.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #15'
+  - fact: Title and author are compared without regard to letter case or repeated spacing; case and spacing do not change which book is meant.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #16'
+  - fact: Each physical copy belongs to exactly one book.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #17'
+  - fact: Registering a book requires at least one physical copy; a book is never registered without a copy.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #18'
+  - fact: Each physical copy carries a barcode the library assigns, which identifies that copy among all the copies the library owns.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #19'
+  - fact: A physical copy may be retired on its own, when it is lost or damaged.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #20'
+  - fact: A physical copy may be registered against a retired book.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #21'
+  - fact: A catalog record is never deleted; retirement is the only way a record leaves use.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #22'
+  - fact: Authorized staff may return a retired book record or a retired physical copy to the registered state.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #23'
+  - fact: An update to bibliographic information may change the title, author or publication year.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #24'
+  - fact: An update is refused when the changed title, author and publication year would match another registered book.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #25'
+  - fact: 'No retirement follows automatically from another: retiring a book does not retire its copies, and retiring the last copy does not retire the book.'
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #26'
+  - fact: A registration whose title, author and publication year match a registered book is refused, because the book already exists.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #27'
+  - fact: A retired book is excluded from search results, and its details remain retrievable.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #28'
+  - fact: Retrieving complete book details returns the book's bibliographic information and the physical copies the library holds of it.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #29'
+  - fact: The catalog does not manage which staff are authorized; it requires staff to be authorized.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #30'
+  - fact: Deciding who is authorized belongs to the staff function, which governs library employees.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #31'
+  - fact: Patrons are library users, not employees, and the patron function does not decide staff authorization.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #32'
+  - fact: Only authorized staff may perform catalog operations.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #33'
+  - fact: Every business operation must be traceable and auditable.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #34'
+  - fact: The catalog starts empty; the records staff maintain manually today are not imported by this change.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #35'
+  - fact: 'The operations required of the catalog are: register a new book, register a physical copy, update bibliographic information, retire an obsolete record, search the catalog, retrieve complete book details.'
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #36'
+  - fact: Borrowing, reservations, fines, patron management, acquisitions and inventory reconciliation are excluded from this release.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #37'
+  - fact: The excluded capabilities are expected to be introduced through future governed change requests.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #38'
+  - fact: The excluded capabilities must not be designed into the initial solution.
+    certainty: HIGH
+    source_finding: 'CR seed §4 Known Facts — Business Truths #39'
   system_beliefs:
-    columns:
-    - Belief
-    - Why It Matters
-    - Verification Goal
-    - Source Finding
-    rows:
-    - Belief: book_library_mgmt does not appear to be part of the current software baseline.
-      Why It Matters: The change is classified NEW_SUBDOMAIN on that basis; if the project already exists, this is an extension and its scope is different.
-      Verification Goal: Confirm no artifact in the pinned composition carries the book_library_mgmt namespace.
-      Source Finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #1'
-    - Belief: No capability in the current composition manages a library catalog.
-      Why It Matters: This change exists to fill that gap; if such a capability exists, the change becomes a reuse or an extension.
-      Verification Goal: Confirm nothing in the composition registers, describes, searches or retires a catalog record.
-      Source Finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #2'
+  - belief: book_library_mgmt does not appear to be part of the current software baseline.
+    why_it_matters: The change is classified NEW_SUBDOMAIN on that basis; if the project already exists, this is an extension and its scope is different.
+    verification_goal: Confirm no artifact in the pinned composition carries the book_library_mgmt namespace.
+    source_finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #1'
+  - belief: No capability in the current composition manages a library catalog.
+    why_it_matters: This change exists to fill that gap; if such a capability exists, the change becomes a reuse or an extension.
+    verification_goal: Confirm nothing in the composition registers, describes, searches or retires a catalog record.
+    source_finding: 'CR seed §5 Existing-System Beliefs — Requiring Verification #2'
   assumptions:
-    columns:
-    - Assumption
-    - Basis
-    - Source Finding
-    rows:
-    - Assumption: '"Thousands of books" describes the size of the collection and states no performance requirement.'
-      Basis: Confirmed by the business author; the statement names no performance target.
-      Source Finding: 'CR seed §6 Assumptions #1'
-    - Assumption: The library is treated as a single collection; no branch or location distinction is required.
-      Basis: Confirmed by the business author; the statement names no branch or location.
-      Source Finding: 'CR seed §6 Assumptions #2'
-    - Assumption: The nine remaining project functions are named to establish future scope, not to be governed by this change.
-      Basis: Confirmed by the business author; the statement limits this change request to catalog only.
-      Source Finding: 'CR seed §6 Assumptions #3'
+  - assumption: '"Thousands of books" describes the size of the collection and states no performance requirement.'
+    basis: Confirmed by the business author; the statement names no performance target.
+    source_finding: 'CR seed §6 Assumptions #1'
+  - assumption: The library is treated as a single collection; no branch or location distinction is required.
+    basis: Confirmed by the business author; the statement names no branch or location.
+    source_finding: 'CR seed §6 Assumptions #2'
+  - assumption: The nine remaining project functions are named to establish future scope, not to be governed by this change.
+    basis: Confirmed by the business author; the statement limits this change request to catalog only.
+    source_finding: 'CR seed §6 Assumptions #3'
   constraints:
-    columns:
-    - Constraint
-    - Source
-    - Source Finding
-    rows:
-    - Constraint: Capabilities deferred to future change requests must not be designed into this solution.
-      Source: Business policy
-      Source Finding: 'CR seed §7 Constraints #1'
-    - Constraint: Only authorized staff may perform catalog operations.
-      Source: Business policy
-      Source Finding: 'CR seed §7 Constraints #2'
-    - Constraint: Every business operation must leave a record that can be traced and audited.
-      Source: Business policy
-      Source Finding: 'CR seed §7 Constraints #3'
-    - Constraint: A physical copy may never be recorded against more than one book.
-      Source: Business policy
-      Source Finding: 'CR seed §7 Constraints #4'
-    - Constraint: The catalog must not import the records staff maintain manually today.
-      Source: Business policy
-      Source Finding: 'CR seed §7 Constraints #5'
+  - constraint: Capabilities deferred to future change requests must not be designed into this solution.
+    source: Business policy
+    source_finding: 'CR seed §7 Constraints #1'
+  - constraint: Only authorized staff may perform catalog operations.
+    source: Business policy
+    source_finding: 'CR seed §7 Constraints #2'
+  - constraint: Every business operation must leave a record that can be traced and audited.
+    source: Business policy
+    source_finding: 'CR seed §7 Constraints #3'
+  - constraint: A physical copy may never be recorded against more than one book.
+    source: Business policy
+    source_finding: 'CR seed §7 Constraints #4'
+  - constraint: The catalog must not import the records staff maintain manually today.
+    source: Business policy
+    source_finding: 'CR seed §7 Constraints #5'
   business_invariants:
-    columns:
-    - Invariant
-    - Source Finding
-    rows:
-    - Invariant: Each physical copy belongs to exactly one book.
-      Source Finding: 'CR seed §8 Business Invariants #1'
-    - Invariant: Each book the library holds has exactly one authoritative record.
-      Source Finding: 'CR seed §8 Business Invariants #2'
-    - Invariant: Each physical copy the library owns has exactly one authoritative record.
-      Source Finding: 'CR seed §8 Business Invariants #3'
-    - Invariant: No two registered books share the same title, author and publication year.
-      Source Finding: 'CR seed §8 Business Invariants #4'
-    - Invariant: A book carries at least one subject.
-      Source Finding: 'CR seed §8 Business Invariants #5'
-    - Invariant: No two physical copies the library owns share the same barcode.
-      Source Finding: 'CR seed §8 Business Invariants #6'
-    - Invariant: No catalog record is ever deleted.
-      Source Finding: 'CR seed §8 Business Invariants #7'
-    - Invariant: Every business operation performed against the catalog is traceable and auditable.
-      Source Finding: 'CR seed §8 Business Invariants #8'
-    - Invariant: Only authorized staff perform catalog operations.
-      Source Finding: 'CR seed §8 Business Invariants #9'
+  - invariant: Each physical copy belongs to exactly one book.
+    source_finding: 'CR seed §8 Business Invariants #1'
+  - invariant: Each book the library holds has exactly one authoritative record.
+    source_finding: 'CR seed §8 Business Invariants #2'
+  - invariant: Each physical copy the library owns has exactly one authoritative record.
+    source_finding: 'CR seed §8 Business Invariants #3'
+  - invariant: No two registered books share the same title, author and publication year.
+    source_finding: 'CR seed §8 Business Invariants #4'
+  - invariant: A book carries at least one subject.
+    source_finding: 'CR seed §8 Business Invariants #5'
+  - invariant: No two physical copies the library owns share the same barcode.
+    source_finding: 'CR seed §8 Business Invariants #6'
+  - invariant: No catalog record is ever deleted.
+    source_finding: 'CR seed §8 Business Invariants #7'
+  - invariant: Every business operation performed against the catalog is traceable and auditable.
+    source_finding: 'CR seed §8 Business Invariants #8'
+  - invariant: Only authorized staff perform catalog operations.
+    source_finding: 'CR seed §8 Business Invariants #9'
   lifecycle_states:
-    columns:
-    - Object
-    - State
-    - Meaning
-    - Source Finding
-    rows:
-    - Object: Book
-      State: Registered
-      Meaning: The book has been registered and the catalog holds its authoritative record.
-      Source Finding: 'CR seed §9 Lifecycle States #1'
-    - Object: Book
-      State: Retired
-      Meaning: The record has been judged obsolete and is no longer to be used; the book is excluded from search, its details remain retrievable, and staff may return it to Registered.
-      Source Finding: 'CR seed §9 Lifecycle States #2'
-    - Object: Physical Copy
-      State: Registered
-      Meaning: The copy has been registered against exactly one book.
-      Source Finding: 'CR seed §9 Lifecycle States #3'
-    - Object: Physical Copy
-      State: Retired
-      Meaning: The copy has been lost or damaged and is no longer held by the library; staff may return it to Registered.
-      Source Finding: 'CR seed §9 Lifecycle States #4'
+  - object: Book
+    state: Registered
+    meaning: The book has been registered and the catalog holds its authoritative record.
+    source_finding: 'CR seed §9 Lifecycle States #1'
+  - object: Book
+    state: Retired
+    meaning: The record has been judged obsolete and is no longer to be used; the book is excluded from search, its details remain retrievable, and staff may return it to Registered.
+    source_finding: 'CR seed §9 Lifecycle States #2'
+  - object: Physical Copy
+    state: Registered
+    meaning: The copy has been registered against exactly one book.
+    source_finding: 'CR seed §9 Lifecycle States #3'
+  - object: Physical Copy
+    state: Retired
+    meaning: The copy has been lost or damaged and is no longer held by the library; staff may return it to Registered.
+    source_finding: 'CR seed §9 Lifecycle States #4'
   business_events: |2
 
     ---
   authority_boundaries:
-    columns:
-    - Business Object
-    - Authoritative Owner
-    - Source Finding
-    rows:
-    - Business Object: Book record
-      Authoritative Owner: Catalog
-      Source Finding: 'CR seed §11 Authority Boundaries #1'
-    - Business Object: Physical copy record
-      Authoritative Owner: Catalog
-      Source Finding: 'CR seed §11 Authority Boundaries #2'
-    - Business Object: Bibliographic information
-      Authoritative Owner: Catalog
-      Source Finding: 'CR seed §11 Authority Boundaries #3'
-    - Business Object: The judgement that a record is obsolete
-      Authoritative Owner: Authorized staff
-      Source Finding: 'CR seed §11 Authority Boundaries #4'
+  - business_object: Book record
+    authoritative_owner: Catalog
+    source_finding: 'CR seed §11 Authority Boundaries #1'
+  - business_object: Physical copy record
+    authoritative_owner: Catalog
+    source_finding: 'CR seed §11 Authority Boundaries #2'
+  - business_object: Bibliographic information
+    authoritative_owner: Catalog
+    source_finding: 'CR seed §11 Authority Boundaries #3'
+  - business_object: The judgement that a record is obsolete
+    authoritative_owner: Authorized staff
+    source_finding: 'CR seed §11 Authority Boundaries #4'
   out_of_scope:
-    columns:
-    - Item
-    - Reason
-    - Source Finding
-    rows:
-    - Item: Circulation
-      Reason: A project function; this change request is limited to catalog only.
-      Source Finding: 'CR seed §12 Out of Scope #1'
-    - Item: Patron
-      Reason: A project function; this change request is limited to catalog only, and patron management is declared excluded from this release.
-      Source Finding: 'CR seed §12 Out of Scope #2'
-    - Item: Staff
-      Reason: A project function; this change request is limited to catalog only, and it is where deciding who is authorized is deferred to.
-      Source Finding: 'CR seed §12 Out of Scope #3'
-    - Item: Reservations
-      Reason: A project function, declared excluded from this release; expected through a future governed change request.
-      Source Finding: 'CR seed §12 Out of Scope #4'
-    - Item: Acquisitions
-      Reason: A project function, declared excluded from this release; expected through a future governed change request.
-      Source Finding: 'CR seed §12 Out of Scope #5'
-    - Item: Inventory
-      Reason: A project function; inventory reconciliation is declared excluded from this release.
-      Source Finding: 'CR seed §12 Out of Scope #6'
-    - Item: Notifications
-      Reason: A project function; this change request is limited to catalog only.
-      Source Finding: 'CR seed §12 Out of Scope #7'
-    - Item: Policy
-      Reason: A project function; this change request is limited to catalog only.
-      Source Finding: 'CR seed §12 Out of Scope #8'
-    - Item: Reporting
-      Reason: A project function; this change request is limited to catalog only.
-      Source Finding: 'CR seed §12 Out of Scope #9'
-    - Item: Borrowing
-      Reason: Declared excluded from this release; expected through a future governed change request.
-      Source Finding: 'CR seed §12 Out of Scope #10'
-    - Item: Fines
-      Reason: Declared excluded from this release; expected through a future governed change request.
-      Source Finding: 'CR seed §12 Out of Scope #11'
-    - Item: Import of the records staff maintain manually today
-      Reason: The catalog starts empty.
-      Source Finding: 'CR seed §12 Out of Scope #12'
+  - item: Circulation
+    reason: A project function; this change request is limited to catalog only.
+    source_finding: 'CR seed §12 Out of Scope #1'
+  - item: Patron
+    reason: A project function; this change request is limited to catalog only, and patron management is declared excluded from this release.
+    source_finding: 'CR seed §12 Out of Scope #2'
+  - item: Staff
+    reason: A project function; this change request is limited to catalog only, and it is where deciding who is authorized is deferred to.
+    source_finding: 'CR seed §12 Out of Scope #3'
+  - item: Reservations
+    reason: A project function, declared excluded from this release; expected through a future governed change request.
+    source_finding: 'CR seed §12 Out of Scope #4'
+  - item: Acquisitions
+    reason: A project function, declared excluded from this release; expected through a future governed change request.
+    source_finding: 'CR seed §12 Out of Scope #5'
+  - item: Inventory
+    reason: A project function; inventory reconciliation is declared excluded from this release.
+    source_finding: 'CR seed §12 Out of Scope #6'
+  - item: Notifications
+    reason: A project function; this change request is limited to catalog only.
+    source_finding: 'CR seed §12 Out of Scope #7'
+  - item: Policy
+    reason: A project function; this change request is limited to catalog only.
+    source_finding: 'CR seed §12 Out of Scope #8'
+  - item: Reporting
+    reason: A project function; this change request is limited to catalog only.
+    source_finding: 'CR seed §12 Out of Scope #9'
+  - item: Borrowing
+    reason: Declared excluded from this release; expected through a future governed change request.
+    source_finding: 'CR seed §12 Out of Scope #10'
+  - item: Fines
+    reason: Declared excluded from this release; expected through a future governed change request.
+    source_finding: 'CR seed §12 Out of Scope #11'
+  - item: Import of the records staff maintain manually today
+    reason: The catalog starts empty.
+    source_finding: 'CR seed §12 Out of Scope #12'
   governance_scope:
-    columns:
-    - Scope Item
-    - Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT)
-    - Source Finding
-    rows:
-    - Scope Item: catalog
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): CREATED
-      Source Finding: 'CR seed §13 Governance Scope #1'
-    - Scope Item: circulation
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #2'
-    - Scope Item: patron
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #3'
-    - Scope Item: staff
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #4'
-    - Scope Item: reservations
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #5'
-    - Scope Item: acquisitions
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #6'
-    - Scope Item: inventory
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #7'
-    - Scope Item: notifications
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #8'
-    - Scope Item: policy
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #9'
-    - Scope Item: reporting
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-      Source Finding: 'CR seed §13 Governance Scope #10'
-  clarification_requests:
-    columns:
-    - Question
-    - Why Needed
-    - Blocking (YES, NO)
-    - Owner (HUMAN, SNAPSHOT, GOVERNANCE)
-    - Source Finding
-    rows: []
+  - scope_item: catalog
+    relationship: CREATED
+    source_finding: 'CR seed §13 Governance Scope #1'
+  - scope_item: circulation
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #2'
+  - scope_item: patron
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #3'
+  - scope_item: staff
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #4'
+  - scope_item: reservations
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #5'
+  - scope_item: acquisitions
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #6'
+  - scope_item: inventory
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #7'
+  - scope_item: notifications
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #8'
+  - scope_item: policy
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #9'
+  - scope_item: reporting
+    relationship: ADJACENT
+    source_finding: 'CR seed §13 Governance Scope #10'
+  clarification_requests: null
   acceptance_criteria:
-    columns:
-    - Criterion
-    - Source Finding
-    rows:
-    - Criterion: Authorized staff can register a new book with at least one physical copy, and the catalog then holds exactly one record for it.
-      Source Finding: 'CR seed §15 Acceptance Criteria #1'
-    - Criterion: A registration whose title, author and publication year match a registered book is refused, and the reason states that the book already exists.
-      Source Finding: 'CR seed §15 Acceptance Criteria #2'
-    - Criterion: A registration offering no physical copy is refused.
-      Source Finding: 'CR seed §15 Acceptance Criteria #3'
-    - Criterion: A registration carrying no subject is refused.
-      Source Finding: 'CR seed §15 Acceptance Criteria #4'
-    - Criterion: Authorized staff can register a further physical copy against a registered book, and it is recorded against that book only.
-      Source Finding: 'CR seed §15 Acceptance Criteria #5'
-    - Criterion: Authorized staff can update a registered book's bibliographic information, and a later retrieval returns the updated version.
-      Source Finding: 'CR seed §15 Acceptance Criteria #6'
-    - Criterion: Authorized staff can retire a book record, and its physical copies are unaffected.
-      Source Finding: 'CR seed §15 Acceptance Criteria #7'
-    - Criterion: Authorized staff can retire a physical copy, and the book record is unaffected, including when it is the last copy.
-      Source Finding: 'CR seed §15 Acceptance Criteria #8'
-    - Criterion: Authorized staff can search by subject and locate registered books of that kind.
-      Source Finding: 'CR seed §15 Acceptance Criteria #9'
-    - Criterion: Authorized staff can search by title and locate a registered book by name.
-      Source Finding: 'CR seed §15 Acceptance Criteria #10'
-    - Criterion: A search returns the bibliographic information of each matching book and nothing about its physical copies.
-      Source Finding: 'CR seed §15 Acceptance Criteria #11'
-    - Criterion: A retired book does not appear in search results, and its details can still be retrieved.
-      Source Finding: 'CR seed §15 Acceptance Criteria #12'
-    - Criterion: Authorized staff can retrieve the complete details of a registered book, including the physical copies the library holds of it.
-      Source Finding: 'CR seed §15 Acceptance Criteria #13'
-    - Criterion: Authorized staff can register a physical copy against a retired book.
-      Source Finding: 'CR seed §15 Acceptance Criteria #14'
-    - Criterion: Authorized staff can return a retired book record to the registered state, and it appears in search again.
-      Source Finding: 'CR seed §15 Acceptance Criteria #15'
-    - Criterion: Authorized staff can return a retired physical copy to the registered state.
-      Source Finding: 'CR seed §15 Acceptance Criteria #16'
-    - Criterion: An update that would make a book's title, author and publication year match another registered book is refused.
-      Source Finding: 'CR seed §15 Acceptance Criteria #17'
-    - Criterion: A copy registration whose barcode matches a copy the library already owns is refused.
-      Source Finding: 'CR seed §15 Acceptance Criteria #18'
-    - Criterion: A staff member who is not authorized cannot perform any catalog operation.
-      Source Finding: 'CR seed §15 Acceptance Criteria #19'
-    - Criterion: Every catalog operation performed can be traced and audited afterwards.
-      Source Finding: 'CR seed §15 Acceptance Criteria #20'
+  - criterion: Authorized staff can register a new book with at least one physical copy, and the catalog then holds exactly one record for it.
+    source_finding: 'CR seed §15 Acceptance Criteria #1'
+  - criterion: A registration whose title, author and publication year match a registered book is refused, and the reason states that the book already exists.
+    source_finding: 'CR seed §15 Acceptance Criteria #2'
+  - criterion: A registration offering no physical copy is refused.
+    source_finding: 'CR seed §15 Acceptance Criteria #3'
+  - criterion: A registration carrying no subject is refused.
+    source_finding: 'CR seed §15 Acceptance Criteria #4'
+  - criterion: Authorized staff can register a further physical copy against a registered book, and it is recorded against that book only.
+    source_finding: 'CR seed §15 Acceptance Criteria #5'
+  - criterion: Authorized staff can update a registered book's bibliographic information, and a later retrieval returns the updated version.
+    source_finding: 'CR seed §15 Acceptance Criteria #6'
+  - criterion: Authorized staff can retire a book record, and its physical copies are unaffected.
+    source_finding: 'CR seed §15 Acceptance Criteria #7'
+  - criterion: Authorized staff can retire a physical copy, and the book record is unaffected, including when it is the last copy.
+    source_finding: 'CR seed §15 Acceptance Criteria #8'
+  - criterion: Authorized staff can search by subject and locate registered books of that kind.
+    source_finding: 'CR seed §15 Acceptance Criteria #9'
+  - criterion: Authorized staff can search by title and locate a registered book by name.
+    source_finding: 'CR seed §15 Acceptance Criteria #10'
+  - criterion: A search returns the bibliographic information of each matching book and nothing about its physical copies.
+    source_finding: 'CR seed §15 Acceptance Criteria #11'
+  - criterion: A retired book does not appear in search results, and its details can still be retrieved.
+    source_finding: 'CR seed §15 Acceptance Criteria #12'
+  - criterion: Authorized staff can retrieve the complete details of a registered book, including the physical copies the library holds of it.
+    source_finding: 'CR seed §15 Acceptance Criteria #13'
+  - criterion: Authorized staff can register a physical copy against a retired book.
+    source_finding: 'CR seed §15 Acceptance Criteria #14'
+  - criterion: Authorized staff can return a retired book record to the registered state, and it appears in search again.
+    source_finding: 'CR seed §15 Acceptance Criteria #15'
+  - criterion: Authorized staff can return a retired physical copy to the registered state.
+    source_finding: 'CR seed §15 Acceptance Criteria #16'
+  - criterion: An update that would make a book's title, author and publication year match another registered book is refused.
+    source_finding: 'CR seed §15 Acceptance Criteria #17'
+  - criterion: A copy registration whose barcode matches a copy the library already owns is refused.
+    source_finding: 'CR seed §15 Acceptance Criteria #18'
+  - criterion: A staff member who is not authorized cannot perform any catalog operation.
+    source_finding: 'CR seed §15 Acceptance Criteria #19'
+  - criterion: Every catalog operation performed can be traced and audited afterwards.
+    source_finding: 'CR seed §15 Acceptance Criteria #20'
   identity_and_sameness:
-    columns:
-    - Business Object
-    - Identified By
-    - Two Are The Same When
-    - Source Finding
-    rows:
-    - Business Object: Book
-      Identified By: Its title, author and publication year together.
-      Two Are The Same When: Their publication year matches and their titles and authors match without regard to letter case or repeated spacing.
-      Source Finding: 'CR seed §16 Identity and Sameness #1'
-    - Business Object: Physical Copy
-      Identified By: The barcode the library assigns to it.
-      Two Are The Same When: Their barcodes match.
-      Source Finding: 'CR seed §16 Identity and Sameness #2'
+  - business_object: Book
+    identified_by: Its title, author and publication year together.
+    two_are_the_same_when: Their publication year matches and their titles and authors match without regard to letter case or repeated spacing.
+    source_finding: 'CR seed §16 Identity and Sameness #1'
+  - business_object: Physical Copy
+    identified_by: The barcode the library assigns to it.
+    two_are_the_same_when: Their barcodes match.
+    source_finding: 'CR seed §16 Identity and Sameness #2'
   lifecycle_transitions:
-    columns:
-    - Object
-    - From State
-    - To State
-    - Triggered By
-    - Cascade
-    - Source Finding
-    rows:
-    - Object: Book
-      From State: —
-      To State: Registered
-      Triggered By: Authorized staff register the book together with its first physical copy.
-      Cascade: None beyond the first copy being registered with it.
-      Source Finding: 'CR seed §17 Lifecycle Transitions #1'
-    - Object: Book
-      From State: Registered
-      To State: Retired
-      Triggered By: Authorized staff judge the record obsolete and retire it.
-      Cascade: None — the book's physical copies are unaffected.
-      Source Finding: 'CR seed §17 Lifecycle Transitions #2'
-    - Object: Book
-      From State: Retired
-      To State: Registered
-      Triggered By: Authorized staff return the retired book record to the registered state.
-      Cascade: None — the book's physical copies are unaffected.
-      Source Finding: 'CR seed §17 Lifecycle Transitions #3'
-    - Object: Physical Copy
-      From State: —
-      To State: Registered
-      Triggered By: Authorized staff register the copy against a registered book.
-      Cascade: None.
-      Source Finding: 'CR seed §17 Lifecycle Transitions #4'
-    - Object: Physical Copy
-      From State: Registered
-      To State: Retired
-      Triggered By: Authorized staff retire a copy that is lost or damaged.
-      Cascade: None — the book record is unaffected, including when it is the last copy.
-      Source Finding: 'CR seed §17 Lifecycle Transitions #5'
-    - Object: Physical Copy
-      From State: Retired
-      To State: Registered
-      Triggered By: Authorized staff return the retired copy to the registered state.
-      Cascade: None — the book record is unaffected.
-      Source Finding: 'CR seed §17 Lifecycle Transitions #6'
+  - object: Book
+    from_state: null
+    to_state: Registered
+    triggered_by: Authorized staff register the book together with its first physical copy.
+    cascade: None beyond the first copy being registered with it.
+    source_finding: 'CR seed §17 Lifecycle Transitions #1'
+  - object: Book
+    from_state: Registered
+    to_state: Retired
+    triggered_by: Authorized staff judge the record obsolete and retire it.
+    cascade: None — the book's physical copies are unaffected.
+    source_finding: 'CR seed §17 Lifecycle Transitions #2'
+  - object: Book
+    from_state: Retired
+    to_state: Registered
+    triggered_by: Authorized staff return the retired book record to the registered state.
+    cascade: None — the book's physical copies are unaffected.
+    source_finding: 'CR seed §17 Lifecycle Transitions #3'
+  - object: Physical Copy
+    from_state: null
+    to_state: Registered
+    triggered_by: Authorized staff register the copy against a registered book.
+    cascade: None.
+    source_finding: 'CR seed §17 Lifecycle Transitions #4'
+  - object: Physical Copy
+    from_state: Registered
+    to_state: Retired
+    triggered_by: Authorized staff retire a copy that is lost or damaged.
+    cascade: None — the book record is unaffected, including when it is the last copy.
+    source_finding: 'CR seed §17 Lifecycle Transitions #5'
+  - object: Physical Copy
+    from_state: Retired
+    to_state: Registered
+    triggered_by: Authorized staff return the retired copy to the registered state.
+    cascade: None — the book record is unaffected.
+    source_finding: 'CR seed §17 Lifecycle Transitions #6'
   operation_refusals:
-    columns:
-    - Operation
-    - Refused When
-    - Business Reason
-    - Source Finding
-    rows:
-    - Operation: Register a book
-      Refused When: Its title, author and publication year match a registered book.
-      Business Reason: The catalog holds one record per book; the book already exists, and a further copy is what staff register instead.
-      Source Finding: 'CR seed §18 Operation Refusals #1'
-    - Operation: Register a book
-      Refused When: No physical copy is offered with it.
-      Business Reason: A book is never registered without at least one copy.
-      Source Finding: 'CR seed §18 Operation Refusals #2'
-    - Operation: Register a book
-      Refused When: It carries no subject.
-      Business Reason: A book carries at least one subject, and subject is what staff search on.
-      Source Finding: 'CR seed §18 Operation Refusals #3'
-    - Operation: Register a physical copy
-      Refused When: The book it names is not registered.
-      Business Reason: Each physical copy belongs to exactly one book.
-      Source Finding: 'CR seed §18 Operation Refusals #4'
-    - Operation: Register a physical copy
-      Refused When: Its barcode matches a copy the library already owns.
-      Business Reason: A barcode identifies one copy; no two copies share one.
-      Source Finding: 'CR seed §18 Operation Refusals #5'
-    - Operation: Update bibliographic information
-      Refused When: The changed title, author and publication year would match another registered book.
-      Business Reason: Title, author and publication year identify a book; an update must not make one book a duplicate of another.
-      Source Finding: 'CR seed §18 Operation Refusals #6'
-    - Operation: Any catalog operation
-      Refused When: The staff member performing it is not authorized.
-      Business Reason: Only authorized staff may perform catalog operations.
-      Source Finding: 'CR seed §18 Operation Refusals #7'
+  - operation: Register a book
+    refused_when: Its title, author and publication year match a registered book.
+    business_reason: The catalog holds one record per book; the book already exists, and a further copy is what staff register instead.
+    source_finding: 'CR seed §18 Operation Refusals #1'
+  - operation: Register a book
+    refused_when: No physical copy is offered with it.
+    business_reason: A book is never registered without at least one copy.
+    source_finding: 'CR seed §18 Operation Refusals #2'
+  - operation: Register a book
+    refused_when: It carries no subject.
+    business_reason: A book carries at least one subject, and subject is what staff search on.
+    source_finding: 'CR seed §18 Operation Refusals #3'
+  - operation: Register a physical copy
+    refused_when: The book it names is not registered.
+    business_reason: Each physical copy belongs to exactly one book.
+    source_finding: 'CR seed §18 Operation Refusals #4'
+  - operation: Register a physical copy
+    refused_when: Its barcode matches a copy the library already owns.
+    business_reason: A barcode identifies one copy; no two copies share one.
+    source_finding: 'CR seed §18 Operation Refusals #5'
+  - operation: Update bibliographic information
+    refused_when: The changed title, author and publication year would match another registered book.
+    business_reason: Title, author and publication year identify a book; an update must not make one book a duplicate of another.
+    source_finding: 'CR seed §18 Operation Refusals #6'
+  - operation: Any catalog operation
+    refused_when: The staff member performing it is not authorized.
+    business_reason: Only authorized staff may perform catalog operations.
+    source_finding: 'CR seed §18 Operation Refusals #7'
   authority_deferrals:
-    columns:
-    - Business Object
-    - Deferred To
-    - Until
-    - Source Finding
-    rows:
-    - Business Object: Which staff are authorized
-      Deferred To: The staff function, which governs library employees
-      Until: A future governed change request introduces the staff function.
-      Source Finding: 'CR seed §19 Authority Deferrals #1'
+  - business_object: Which staff are authorized
+    deferred_to: The staff function, which governs library employees
+    until: A future governed change request introduces the staff function.
+    source_finding: 'CR seed §19 Authority Deferrals #1'
 ```
 
 Projected from the change seed. Every row is the seed's own, cited to the section it was

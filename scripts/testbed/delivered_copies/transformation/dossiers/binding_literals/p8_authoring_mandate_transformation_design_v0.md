@@ -10,80 +10,33 @@ header:
   Feeds: Artifact Authoring
 registers:
   build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: '1'
-      Step: '1'
-      Code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: design
-      Depends On: —
+  - wave: '1'
+    step: '1'
+    code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
+    action: NEW
+    subdomain: design
+    depends_on: null
   critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: '1'
-      Code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
+  - position: '1'
+    code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): REPLACE
-      Count: '1'
-      Description: The Design Intent's workflow, stood down by its successor naming it; not scheduled, because nothing is authored for it.
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Count: '0'
-      Description: Nothing is extended.
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '1'
-      Description: The Design Intent's successor workflow, reached by invoking the generator §16 of the design declares, and never written.
+  - action: REPLACE
+    count: '1'
+    description: The Design Intent's workflow, stood down by its successor naming it; not scheduled, because nothing is authored for it.
+  - action: EXTEND
+    count: '0'
+    description: Nothing is extended.
+  - action: NEW
+    count: '1'
+    description: The Design Intent's successor workflow, reached by invoking the generator §16 of the design declares, and never written.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
-      Subdomain Field: design
-    - Code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
-      Subdomain Field: design
-  new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Inputs: ''
-      Outputs: ''
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Workflow: ''
-      Inputs: ''
-  cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: NONE IDENTIFIED
-      Note: ''
+  - code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
+    subdomain_field: design
+  - code: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
+    subdomain_field: design
+  new_capabilities: []
+  new_intents: []
+  cross_subdomain_notes: []
 ```
 
 Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing added, nothing dropped.

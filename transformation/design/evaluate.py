@@ -15,8 +15,20 @@ from typing import Any, Mapping
 
 @dataclass
 class Table:
-    columns: list[str] = field(default_factory=list)
-    rows: list[dict[str, str]] = field(default_factory=list)
+    """A register's rows. `rows` holds content only: an empty list is either a register declared
+    empty (`declared_empty`) or one that states nothing at all (`stated` false)."""
+
+    rows: list[dict[str, Any]] = field(default_factory=list)
+    declared_empty: bool = False
+    stated: bool = True
+
+    @property
+    def keys(self) -> list[str]:
+        """Every column key a row carries, in first-seen order."""
+        out: list[str] = []
+        for row in self.rows:
+            out += [k for k in row if k not in out]
+        return out
 
 
 @dataclass
@@ -33,18 +45,7 @@ class Block:
 
     @staticmethod
     def from_mapping(data: Mapping[str, Any]) -> "Block":
-        table = None
-        if data.get("columns"):
-            table = Table(
-                columns=list(data.get("columns") or []),
-                rows=[dict(r) for r in (data.get("rows") or [])],
-            )
-        return Block(
-            number=data.get("number"),
-            title=data.get("title", ""),
-            body=data.get("text", ""),
-            table=table,
-        )
+        return Block(number=data.get("number"), title=data.get("title", ""), body=data.get("text", ""))
 
 
 def _register_block(registers: list, register_id: str) -> "Block | None":
@@ -55,19 +56,16 @@ def _register_block(registers: list, register_id: str) -> "Block | None":
     with a same-phase rule about what a register contains.
     """
     for entry in registers:
-        if entry.get("id") == register_id:
-            table = None
-            if entry.get("columns"):
-                table = Table(
-                    columns=list(entry["columns"]),
-                    rows=[dict(r) for r in (entry.get("rows") or [])],
-                )
-            return Block(
-                number=None,
-                title=register_id,
-                body=entry.get("text", ""),
-                table=table,
-            )
+        if entry.get("id") != register_id:
+            continue
+        value = entry.get("value")
+        if isinstance(value, list):
+            table = Table(rows=[dict(r) for r in value if isinstance(r, Mapping)],
+                          declared_empty=not value)
+            return Block(number=None, title=register_id, table=table)
+        if value is None:
+            return Block(number=None, title=register_id, table=Table(stated=False))
+        return Block(number=None, title=register_id, body=str(value))
     return None
 
 

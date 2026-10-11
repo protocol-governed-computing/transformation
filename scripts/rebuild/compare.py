@@ -5,7 +5,8 @@
 3. The oracle judges each original; the rebuild judges each conversion. Both use the working
    tree's declared rules and the frozen composition.
 4. For each document: the verdict must be identical, and so must every finding's code, location
-   and detail. `CODE_MAP` is where a declared divergence would translate a retired code; it is empty
+   and detail, read through the normalisations the charter's divergences declare. The number of
+   rules evaluated is not compared: `declarations.py` owns the rule sets. `CODE_MAP` is where a declared divergence would translate a retired code; it is empty
    until a milestone declares one in the charter.
 
     python scripts/rebuild/compare.py [--keep DIR]
@@ -16,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -28,6 +30,24 @@ SNAPSHOT = Path.home() / "pgc-oracle" / "snapshot"
 HERE = Path(__file__).resolve().parent
 
 CODE_MAP: dict[str, str] = {}
+
+
+def _normalised(finding: dict, side: str) -> tuple | None:
+    """A finding as the comparison reads it, after the divergences the charter declares (§8).
+
+    - M2-2: a missing column is reported per row, not per register. Both sides read as the register
+      and the column, once.
+    - M3.3-6: a governed hole names the column by its key, not its heading. Both read as the
+      register and the row, with the detail's column dropped.
+    """
+    code, where, detail = CODE_MAP.get(finding["rule"], finding["rule"]), finding["where"], finding["detail"]
+    register = where.split(" row ")[0]
+    if code == "REGISTER_COLUMN_MISSING":
+        column = re.search(r"required column '([^']+)' absent", detail)
+        return (code, register, column.group(1) if column else detail)
+    if code == "REGISTER_CELL_UNRESOLVED":
+        return (code, where, re.sub(r"^'[^']*' ", "", detail))
+    return (code, where, detail)
 
 
 def oracle(*args: str, stdin: str | None = None) -> str:
@@ -48,9 +68,18 @@ def rebuild(*args: str, stdin: str) -> str:
     return done.stdout
 
 
-def findings(result: dict) -> Counter:
-    return Counter((CODE_MAP.get(f["rule"], f["rule"]), f["where"], f["detail"])
-                   for f in result.get("findings", []))
+def _empty_registers(path: Path) -> set[str]:
+    """The registers a converted document carries with no rows: declared empty, or stating nothing."""
+    from transformation.design.read import parse_text
+
+    _, _, registers = parse_text(path.read_text(encoding="utf-8"))
+    return {r["id"] for r in registers if r["value"] is None or r["value"] == []}
+
+
+def findings(result: dict, side: str) -> Counter:
+    seen = Counter(_normalised(f, side) for f in result.get("findings", []))
+    # A per-row missing column collapses to one finding per register and column.
+    return Counter({k: (1 if k[0] == "REGISTER_COLUMN_MISSING" else v) for k, v in seen.items()})
 
 
 def main(argv: list[str]) -> int:
@@ -75,9 +104,11 @@ def main(argv: list[str]) -> int:
         else:
             if a["verdict"] != b["verdict"]:
                 problems.append(f"verdict {a['verdict']} → {b['verdict']}")
-            if a.get("rules_evaluated") != b.get("rules_evaluated"):
-                problems.append(f"rules evaluated {a.get('rules_evaluated')} → {b.get('rules_evaluated')}")
-            fa, fb = findings(a), findings(b)
+            fa, fb = findings(a, 'oracle'), findings(b, 'rebuild')
+            # M2-2: a register with no rows has no column to miss.
+            empty = _empty_registers(mirror / before["doc"])
+            fa = Counter({k: v for k, v in fa.items()
+                          if not (k[0] == "REGISTER_COLUMN_MISSING" and k[1] in empty)})
             for f in sorted((fa - fb).elements()):
                 problems.append(f"only oracle:  {f[0]} @ {f[1]} — {f[2][:160]}")
             for f in sorted((fb - fa).elements()):

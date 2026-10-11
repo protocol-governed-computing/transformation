@@ -10,83 +10,46 @@ header:
   Feeds: Construction
 registers:
   build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: '1'
-      Step: '1'
-      Code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: ai_licensing
-      Depends On: —
-    - Wave: '1'
-      Step: '2'
-      Code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: agent_governance
-      Depends On: —
+  - wave: '1'
+    step: '1'
+    code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
+    action: NEW
+    subdomain: ai_licensing
+    depends_on: null
+  - wave: '1'
+    step: '2'
+    code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
+    action: NEW
+    subdomain: agent_governance
+    depends_on: null
   critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: '1'
-      Code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
-    - Position: '2'
-      Code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
+  - position: '1'
+    code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
+  - position: '2'
+    code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '2'
-      Description: The reclaim, answering a refused removal, and the parameter check, reporting whether every declared rule passed.
-    - Action (REPLACE, EXTEND, NEW): REPLACE
-      Count: '2'
-      Description: The published versions they stand in for, stood down unchanged.
+  - action: NEW
+    count: '2'
+    description: The reclaim, answering a refused removal, and the parameter check, reporting whether every declared rule passed.
+  - action: REPLACE
+    count: '2'
+    description: The published versions they stand in for, stood down unchanged.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
-      Subdomain Field: ai_licensing
-    - Code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
-      Subdomain Field: agent_governance
+  - code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
+    subdomain_field: ai_licensing
+  - code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
+    subdomain_field: agent_governance
   new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
-      Purpose: Reclaim license from inactive user
-      Inputs: license_id, employee_id, last_active_date, evaluation_date, threshold_days
-      Outputs: result_status, is_inactive, days_inactive
-    - Code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
-      Purpose: Enforce declared parameter constraints for an authorized tool
-      Inputs: tool_name, parameters
-      Outputs: rules, validation_result
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows: []
-  cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows: []
+  - code: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
+    purpose: Reclaim license from inactive user
+    inputs: license_id, employee_id, last_active_date, evaluation_date, threshold_days
+    outputs: result_status, is_inactive, days_inactive
+  - code: ai_governance::CC_VALIDATE_TOOL_PARAMETERS_V1
+    purpose: Enforce declared parameter constraints for an authorized tool
+    inputs: tool_name, parameters
+    outputs: rules, validation_result
+  new_intents: null
+  cross_subdomain_notes: null
 ```
 
 IN WHAT ORDER. Mechanically derived from the design; it reconciles with Stage 7 exactly and adds

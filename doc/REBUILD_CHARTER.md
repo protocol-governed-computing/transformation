@@ -189,7 +189,7 @@ what that moves in the comparison. Counts are cells in the converted corpus.
 | M2-6 | Routing is `OUTCOME -> target; …`, malformed segments dropped (§4.4), 2,291 cells. | A mapping, outcome to target. The converter writes a cell it cannot parse as the string it was. | A malformed routing string becomes a type finding. Each such corpus case is listed in the code map. |
 | M2-7 | Interface is `in: a=b, …; out: …`, 430 cells. | Two mappings, `in` and `out`. | As M2-6. |
 | M2-8 | Name lists are comma-separated, dashes dropped. | Lists. | None expected. |
-| M2-9 | A binding is a path, a quoted or numeric literal, or the word `generated`. | A path string, `{literal: …}`, or `{generated: <artifact>}`. Construction renders the same values. | `BINDING_SOURCE_MALFORMED` no longer sees literal spellings. `GENERATED_SOURCE_WITHOUT_GENERATOR` reads the typed marker. |
+| M2-9 | A binding is a path, a quoted or numeric literal, or the word `generated`. | A path string, `{literal: …}`, or `{generated: true}`. Construction renders the same values. | `BINDING_SOURCE_MALFORMED` no longer sees literal spellings. `GENERATED_SOURCE_WITHOUT_GENERATOR` reads the typed marker. |
 | M2-10 | A test value is YAML inside a cell, and one that does not parse is `TEST_VALUE_UNPARSEABLE`, 744 cells. | A native YAML value. | `TEST_VALUE_UNPARSEABLE` retires: a value that does not parse is a document that does not parse. Its two probes go. |
 
 **Deferred from M2 to M3: citations.** Provenance cells (15,337) carry several idioms: `S2 gaps #1`,
@@ -200,6 +200,28 @@ They stay strings in M2.
 
 **Deferred from M2 to M4: the header.** `Stage`, `CR`, `Status` and `Feeds` stay as they are until M4
 adds `rule_set` and drops `Status`.
+
+### M3.3a — structure, built
+
+Confirmed with the structure divergences above (M2-1 to M2-10, citations and the header deferred).
+Measured over the corpus, the fixtures and the test copies before any code.
+
+| # | Oracle | Rebuild | Effect |
+|---|---|---|---|
+| M3.3-1 | A gate compares upper-cased values (C8). | Exact comparison, as JSON Schema `const` and `enum`. | Gate columns are vocabulary columns; none of 20,820 vocabulary cells matches only when upper-cased. None expected. |
+| M3.3-2 | A vocabulary compares the upper-cased cell (C11). | Exact membership. | None: 0 of 20,820 cells. |
+| M3.3-3 | A reference splits its cell on `;` and resolves each part. | A reference cell is one value. | None: no cell of the 21 referencing columns holds a `;`. |
+| M3.3-4 | — | A value of the wrong type is `CELL_NOT_OF_TYPE`, one derived rule per typed column. | New rules in p7 (12) and p8 (1) only. A column whose value may be anything declares no type and gets no rule. No corpus document holds a value of the wrong type, so the comparison needs no code map. |
+| M3.3-5 | Rule params name columns by title. | Unchanged in M3.3a. A title is read through the schema's key function, the one that keyed the column. | None. The sealed p0 and p1 rule sets do not change. The p7 and p8 workflows that do change, `WF_P7_…_V2` and `WF_P8_…_V1`, were not published in v5, so they are re-emitted in place and need no successor (D3 applies to a published one). |
+| M3.3-6 | A governed hole's detail names the column by its heading. | It names the column by its key. | Detail text only; compared without the column. |
+| M3.3-7 | Four p7 columns keep a lowercase vocabulary in their title (`Kind (atom, molecule)`), and two rules name a column by its full heading (`Storage Type (CS_…)`). | Titles and params are the bare column names (`Kind`, `Purity`, `Refusal`, `Storage Type`). | None: the rules named the bare names already, and were read by prefix. |
+| M3.3-8 | An ending's routing written `emit <moment>` reads as no routes. | `null`. The moment is declared as an `emit.<ending>` property, which construction reads. | None: 6 cells in the cr_05 fixture, and the same notation in 4 delivered blockchain designs. |
+| M3.3-9 | A test value is unstated when its cell is blank (`CELL_NOT_EMPTY`). | A test value may be anything, `""` and `null` included, so it is unstated only when its row leaves the column out (`CELL_PRESENT`, `required`). | None: no corpus row leaves a test value blank. |
+| M2-2, measured | A register missing a column is a finding even with no rows. | A register with no rows has no column to miss. | 2 documents (`declared_reach`, `refusal_discharge` p7, `vocabulary_extensions`). |
+
+**Lists.** Measured: `Depends On`, `Consumes`, `Produces`, `CS Bindings`, `Generator Sources`,
+`Consults`, and `artifact_properties.Value` for the properties that name several values. Every
+other column stays one string.
 
 ## 9. The in-flight dossiers
 

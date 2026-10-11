@@ -17,292 +17,203 @@ registers:
     Other parts of the platform govern what a composition contains; this subdomain governs how a
     composition is allowed to change.
   cr_type:
-    columns:
-    - Subdomain
-    - Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE)
-    - Rationale
-    rows:
-    - Subdomain: design
-      Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE): NEW_SUBDOMAIN
-      Rationale: The pipeline that decides which changes are admissible is a distinct concern from the capabilities it admits, and needs its own governance boundary. It extends nothing that exists.
+  - subdomain: design
+    classification: NEW_SUBDOMAIN
+    rationale: The pipeline that decides which changes are admissible is a distinct concern from the capabilities it admits, and needs its own governance boundary. It extends nothing that exists.
   business_vocabulary:
-    columns:
-    - Term
-    - Definition
-    rows:
-    - Term: Phase
-      Definition: One governed step of the change pipeline, with declared inputs, outputs and rules.
-    - Term: Seed
-      Definition: The business problem statement reorganized into fixed registers, and the only input later phases accept.
-    - Term: Seed Phase
-      Definition: 'The first phase: it turns a person''s problem statement into a seed.'
-    - Term: Rule Set
-      Definition: The declared set of conditions that decide whether a seed is admissible. Governance, not implementation.
-    - Term: Check Mechanism
-      Definition: A means of performing one kind of condition test. Implementation; carries no judgement about what should be tested.
-    - Term: Verdict
-      Definition: 'The outcome of applying the rule set to a seed: admissible or inadmissible. There is no partial pass.'
-    - Term: Finding
-      Definition: One recorded failure of one rule, naming the rule, where it failed, and why that matters.
-    - Term: Gate
-      Definition: A point where a person accepts responsibility before the pipeline continues.
-    - Term: Author of Record
-      Definition: The person accountable for a seed's content.
-    - Term: Business Truth
-      Definition: Something the business authoritatively decides or requires.
-    - Term: System Belief
-      Definition: Something believed about what already exists, which must be verified rather than assumed.
-    - Term: Clarification
-      Definition: An open question that must be asked and never guessed.
+  - term: Phase
+    definition: One governed step of the change pipeline, with declared inputs, outputs and rules.
+  - term: Seed
+    definition: The business problem statement reorganized into fixed registers, and the only input later phases accept.
+  - term: Seed Phase
+    definition: 'The first phase: it turns a person''s problem statement into a seed.'
+  - term: Rule Set
+    definition: The declared set of conditions that decide whether a seed is admissible. Governance, not implementation.
+  - term: Check Mechanism
+    definition: A means of performing one kind of condition test. Implementation; carries no judgement about what should be tested.
+  - term: Verdict
+    definition: 'The outcome of applying the rule set to a seed: admissible or inadmissible. There is no partial pass.'
+  - term: Finding
+    definition: One recorded failure of one rule, naming the rule, where it failed, and why that matters.
+  - term: Gate
+    definition: A point where a person accepts responsibility before the pipeline continues.
+  - term: Author of Record
+    definition: The person accountable for a seed's content.
+  - term: Business Truth
+    definition: Something the business authoritatively decides or requires.
+  - term: System Belief
+    definition: Something believed about what already exists, which must be verified rather than assumed.
+  - term: Clarification
+    definition: An open question that must be asked and never guessed.
   requested_outcomes:
-    columns:
-    - Outcome
-    rows:
-    - Outcome: Establish the seed phase as a governed capability of the platform, with its rules readable from the composition rather than from a build tool.
-    - Outcome: Produce a verdict for any offered seed, reporting every rule the seed failed rather than stopping at the first failure.
-    - Outcome: 'Record accountability: a person is the author of record for a seed, and a person confirms at the gate that it says what they meant.'
+  - outcome: Establish the seed phase as a governed capability of the platform, with its rules readable from the composition rather than from a build tool.
+  - outcome: Produce a verdict for any offered seed, reporting every rule the seed failed rather than stopping at the first failure.
+  - outcome: 'Record accountability: a person is the author of record for a seed, and a person confirms at the gate that it says what they meant.'
   known_facts:
-    columns:
-    - Fact
-    - Certainty (HIGH, MEDIUM, LOW)
-    rows:
-    - Fact: The change pipeline must be governed the same way the capabilities it admits are governed.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The seed phase reorganizes a problem statement; it never decides business content.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A seed is either admissible or inadmissible; there is no partial pass and no warning tier.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Every rule is applied to every seed; evaluation does not stop at the first failure.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The rule set is governance and must be readable from the composition and versioned as declared behaviour.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A check mechanism is implementation and may live in code, provided it carries no judgement about what should be tested.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A person is the author of record for a seed, and a person confirms it at the gate.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The seed phase may not add business content the problem statement does not contain.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The seed phase may not resolve an open question by guessing.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The seed phase may not assign any design.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The seed phase may not promote a System Belief into a Business Truth.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Changing the rule set requires the same governed change process as any other declared behaviour.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: This change establishes the seed phase and its rule set only.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The rule set is carried sealed inside the phase's own compiled artifact, alongside the workflow that applies it.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The sealed rule set is generated from the declaration rather than typed, and the two are compared on every run.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A phase receives the seed as text, the whole document travelling with the request.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A verdict must be reproducible from what was judged, so a phase is never handed a location to read.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
+  - fact: The change pipeline must be governed the same way the capabilities it admits are governed.
+    certainty: HIGH
+  - fact: The seed phase reorganizes a problem statement; it never decides business content.
+    certainty: HIGH
+  - fact: A seed is either admissible or inadmissible; there is no partial pass and no warning tier.
+    certainty: HIGH
+  - fact: Every rule is applied to every seed; evaluation does not stop at the first failure.
+    certainty: HIGH
+  - fact: The rule set is governance and must be readable from the composition and versioned as declared behaviour.
+    certainty: HIGH
+  - fact: A check mechanism is implementation and may live in code, provided it carries no judgement about what should be tested.
+    certainty: HIGH
+  - fact: A person is the author of record for a seed, and a person confirms it at the gate.
+    certainty: HIGH
+  - fact: The seed phase may not add business content the problem statement does not contain.
+    certainty: HIGH
+  - fact: The seed phase may not resolve an open question by guessing.
+    certainty: HIGH
+  - fact: The seed phase may not assign any design.
+    certainty: HIGH
+  - fact: The seed phase may not promote a System Belief into a Business Truth.
+    certainty: HIGH
+  - fact: Changing the rule set requires the same governed change process as any other declared behaviour.
+    certainty: HIGH
+  - fact: This change establishes the seed phase and its rule set only.
+    certainty: HIGH
+  - fact: The rule set is carried sealed inside the phase's own compiled artifact, alongside the workflow that applies it.
+    certainty: HIGH
+  - fact: The sealed rule set is generated from the declaration rather than typed, and the two are compared on every run.
+    certainty: HIGH
+  - fact: A phase receives the seed as text, the whole document travelling with the request.
+    certainty: HIGH
+  - fact: A verdict must be reproducible from what was judged, so a phase is never handed a location to read.
+    certainty: HIGH
   system_beliefs:
-    columns:
-    - Belief
-    - Why It Matters
-    - Verification Goal
-    rows:
-    - Belief: No capability in the current composition decides seed admissibility.
-      Why It Matters: This CR exists to fill that gap; if such a capability exists, the CR scope changes.
-      Verification Goal: Confirm no existing capability produces a seed verdict.
-    - Belief: A capability for declaring pure, deterministic transforms already exists.
-      Why It Matters: The check mechanisms are pure transforms and should reuse it rather than author a new form.
-      Verification Goal: Identify the governing declaration for pure capability transforms and its purity obligations.
-    - Belief: A capability for declaring governed calls already exists, and forbids orchestration logic inside them.
-      Why It Matters: Determines whether a rule can be a governed call or must be data the phase evaluates.
-      Verification Goal: Identify the governing declaration for capability contracts and what it forbids.
-    - Belief: A workflow form already exists that composes governed calls as a fixed graph without iteration.
-      Why It Matters: Determines how the phase applies many rules to many registers.
-      Verification Goal: Identify the workflow declaration and confirm whether iteration is available to it.
-    - Belief: An actor form already exists for recording accountability.
-      Why It Matters: The author of record and the gate reviewer are actors.
-      Verification Goal: Identify the actor declaration and how a workflow binds one.
-    - Belief: A form for declaring rules as data, separate from the mechanism that enforces them, already exists.
-      Why It Matters: If so, the rule set should reuse it rather than invent a carrier.
-      Verification Goal: Identify how existing rules are declared apart from their enforcement, and whether that form fits a rule set applied to a document.
-    - Belief: Vocabulary extension is restricted to specific declared categories.
-      Why It Matters: Determines whether the controlled vocabularies of the seed may be declared as vocabulary.
-      Verification Goal: Identify what may be extended as vocabulary and what may not.
-    - Belief: The platform's existing content is largely infrastructure rather than business capability.
-      Why It Matters: Establishes what this subdomain can legitimately reuse.
-      Verification Goal: Identify which existing capabilities are reuse candidates for a pipeline subdomain.
+  - belief: No capability in the current composition decides seed admissibility.
+    why_it_matters: This CR exists to fill that gap; if such a capability exists, the CR scope changes.
+    verification_goal: Confirm no existing capability produces a seed verdict.
+  - belief: A capability for declaring pure, deterministic transforms already exists.
+    why_it_matters: The check mechanisms are pure transforms and should reuse it rather than author a new form.
+    verification_goal: Identify the governing declaration for pure capability transforms and its purity obligations.
+  - belief: A capability for declaring governed calls already exists, and forbids orchestration logic inside them.
+    why_it_matters: Determines whether a rule can be a governed call or must be data the phase evaluates.
+    verification_goal: Identify the governing declaration for capability contracts and what it forbids.
+  - belief: A workflow form already exists that composes governed calls as a fixed graph without iteration.
+    why_it_matters: Determines how the phase applies many rules to many registers.
+    verification_goal: Identify the workflow declaration and confirm whether iteration is available to it.
+  - belief: An actor form already exists for recording accountability.
+    why_it_matters: The author of record and the gate reviewer are actors.
+    verification_goal: Identify the actor declaration and how a workflow binds one.
+  - belief: A form for declaring rules as data, separate from the mechanism that enforces them, already exists.
+    why_it_matters: If so, the rule set should reuse it rather than invent a carrier.
+    verification_goal: Identify how existing rules are declared apart from their enforcement, and whether that form fits a rule set applied to a document.
+  - belief: Vocabulary extension is restricted to specific declared categories.
+    why_it_matters: Determines whether the controlled vocabularies of the seed may be declared as vocabulary.
+    verification_goal: Identify what may be extended as vocabulary and what may not.
+  - belief: The platform's existing content is largely infrastructure rather than business capability.
+    why_it_matters: Establishes what this subdomain can legitimately reuse.
+    verification_goal: Identify which existing capabilities are reuse candidates for a pipeline subdomain.
   assumptions:
-    columns:
-    - Assumption
-    - Basis
-    rows:
-    - Assumption: The seed template's register structure is stable and will not change while this CR is in flight.
-      Basis: It is fixed by the reference elicitation already in use.
-    - Assumption: A person can supply every register by hand, so the pipeline never depends on an automated drafter.
-      Basis: Stated release constraint.
+  - assumption: The seed template's register structure is stable and will not change while this CR is in flight.
+    basis: It is fixed by the reference elicitation already in use.
+  - assumption: A person can supply every register by hand, so the pipeline never depends on an automated drafter.
+    basis: Stated release constraint.
   constraints:
-    columns:
-    - Constraint
-    - Source
-    rows:
-    - Constraint: What is checked, and why, must be readable from the composition; only how a check runs may live in code.
-      Source: Business policy
-    - Constraint: The pipeline is reachable only from a local command line, not over any network boundary.
-      Source: Business policy
-    - Constraint: Dossiers are evidence about a composition and must never become part of one.
-      Source: Business policy
-    - Constraint: 'A verdict must be reproducible: the same seed and the same rule set always give the same verdict.'
-      Source: Business policy
+  - constraint: What is checked, and why, must be readable from the composition; only how a check runs may live in code.
+    source: Business policy
+  - constraint: The pipeline is reachable only from a local command line, not over any network boundary.
+    source: Business policy
+  - constraint: Dossiers are evidence about a composition and must never become part of one.
+    source: Business policy
+  - constraint: 'A verdict must be reproducible: the same seed and the same rule set always give the same verdict.'
+    source: Business policy
   business_invariants:
-    columns:
-    - Invariant
-    rows:
-    - Invariant: A seed has exactly one verdict.
-    - Invariant: Every rule in the rule set is applied to every seed offered to the phase.
-    - Invariant: An inadmissible seed carries at least one finding, and an admissible seed carries none.
-    - Invariant: Every finding names the rule that produced it.
-    - Invariant: Every seed has exactly one author of record.
-    - Invariant: The same seed and rule set always produce the same verdict.
-    - Invariant: A seed that has not passed the gate is never consumed by a later phase.
+  - invariant: A seed has exactly one verdict.
+  - invariant: Every rule in the rule set is applied to every seed offered to the phase.
+  - invariant: An inadmissible seed carries at least one finding, and an admissible seed carries none.
+  - invariant: Every finding names the rule that produced it.
+  - invariant: Every seed has exactly one author of record.
+  - invariant: The same seed and rule set always produce the same verdict.
+  - invariant: A seed that has not passed the gate is never consumed by a later phase.
   lifecycle_states:
-    columns:
-    - Object
-    - State
-    - Meaning
-    rows:
-    - Object: Seed
-      State: Drafted
-      Meaning: Reorganized from a problem statement; not yet judged.
-    - Object: Seed
-      State: Admissible
-      Meaning: The rule set found no findings.
-    - Object: Seed
-      State: Inadmissible
-      Meaning: At least one finding was recorded; the seed cannot proceed.
-    - Object: Seed
-      State: Accepted
-      Meaning: A person confirmed at the gate that it says what they meant.
-    - Object: Rule Set
-      State: Active
-      Meaning: The declared rules currently deciding admissibility.
-    - Object: Rule Set
-      State: Superseded
-      Meaning: Replaced by a later version through a governed change.
+  - object: Seed
+    state: Drafted
+    meaning: Reorganized from a problem statement; not yet judged.
+  - object: Seed
+    state: Admissible
+    meaning: The rule set found no findings.
+  - object: Seed
+    state: Inadmissible
+    meaning: At least one finding was recorded; the seed cannot proceed.
+  - object: Seed
+    state: Accepted
+    meaning: A person confirmed at the gate that it says what they meant.
+  - object: Rule Set
+    state: Active
+    meaning: The declared rules currently deciding admissibility.
+  - object: Rule Set
+    state: Superseded
+    meaning: Replaced by a later version through a governed change.
   business_events:
-    columns:
-    - Event
-    - When It Occurs
-    - Significance
-    rows:
-    - Event: Seed Offered
-      When It Occurs: When a seed is submitted to the phase for judgement.
-      Significance: The phase has something to decide about.
-    - Event: Verdict Reached
-      When It Occurs: When the rule set has been applied in full.
-      Significance: The seed's admissibility is established and recorded.
-    - Event: Seed Accepted
-      When It Occurs: When a person confirms the seed at the gate.
-      Significance: Accountability is recorded and later phases may consume it.
-    - Event: Seed Rejected
-      When It Occurs: When a verdict is inadmissible, or a person declines at the gate.
-      Significance: The change does not proceed, and the cause is recorded.
+  - event: Seed Offered
+    when_it_occurs: When a seed is submitted to the phase for judgement.
+    significance: The phase has something to decide about.
+  - event: Verdict Reached
+    when_it_occurs: When the rule set has been applied in full.
+    significance: The seed's admissibility is established and recorded.
+  - event: Seed Accepted
+    when_it_occurs: When a person confirms the seed at the gate.
+    significance: Accountability is recorded and later phases may consume it.
+  - event: Seed Rejected
+    when_it_occurs: When a verdict is inadmissible, or a person declines at the gate.
+    significance: The change does not proceed, and the cause is recorded.
   authority_boundaries:
-    columns:
-    - Business Object
-    - Authoritative Owner
-    rows:
-    - Business Object: Problem Statement
-      Authoritative Owner: The person who wrote it
-    - Business Object: Seed content
-      Authoritative Owner: The author of record
-    - Business Object: Rule Set
-      Authoritative Owner: Phases
-    - Business Object: Verdict
-      Authoritative Owner: Phases
-    - Business Object: Finding
-      Authoritative Owner: Phases
-    - Business Object: Gate acceptance
-      Authoritative Owner: The gate reviewer
+  - business_object: Problem Statement
+    authoritative_owner: The person who wrote it
+  - business_object: Seed content
+    authoritative_owner: The author of record
+  - business_object: Rule Set
+    authoritative_owner: Phases
+  - business_object: Verdict
+    authoritative_owner: Phases
+  - business_object: Finding
+    authoritative_owner: Phases
+  - business_object: Gate acceptance
+    authoritative_owner: The gate reviewer
   out_of_scope:
-    columns:
-    - Item
-    - Reason
-    rows:
-    - Item: The remaining phases of the pipeline.
-      Reason: This change establishes the seed phase only; the rest arrive as later change requests.
-    - Item: Automated drafting of a seed.
-      Reason: The pipeline must not depend on it; it may be added later behind the same rules.
-    - Item: Reachability over any network boundary.
-      Reason: The pipeline is build-time and local only.
-    - Item: Rules that require reading an existing composition.
-      Reason: The seed phase judges a document alone; composition-aware rules belong to later phases.
-    - Item: Deciding which parts of a composition may be reused by a later change.
-      Reason: A property of the analysis phase, not the seed phase.
+  - item: The remaining phases of the pipeline.
+    reason: This change establishes the seed phase only; the rest arrive as later change requests.
+  - item: Automated drafting of a seed.
+    reason: The pipeline must not depend on it; it may be added later behind the same rules.
+  - item: Reachability over any network boundary.
+    reason: The pipeline is build-time and local only.
+  - item: Rules that require reading an existing composition.
+    reason: The seed phase judges a document alone; composition-aware rules belong to later phases.
+  - item: Deciding which parts of a composition may be reused by a later change.
+    reason: A property of the analysis phase, not the seed phase.
   governance_scope:
-    columns:
-    - Scope Item
-    - Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT)
-    rows:
-    - Scope Item: phases
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): CREATED
-    - Scope Item: capability_transforms
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-    - Scope Item: capability_contracts
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-    - Scope Item: workflow
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-    - Scope Item: intent
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-    - Scope Item: runtime_binding
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-    - Scope Item: governance
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): ADJACENT
-  clarification_requests:
-    columns:
-    - Question
-    - Why Needed
-    - Blocking (YES, NO)
-    - Owner (HUMAN, SNAPSHOT, GOVERNANCE)
-    rows:
-    - Question: NONE IDENTIFIED
-      Why Needed: ''
-      Blocking (YES, NO): ''
-      Owner (HUMAN, SNAPSHOT, GOVERNANCE): ''
+  - scope_item: phases
+    relationship: CREATED
+  - scope_item: capability_transforms
+    relationship: ADJACENT
+  - scope_item: capability_contracts
+    relationship: ADJACENT
+  - scope_item: workflow
+    relationship: ADJACENT
+  - scope_item: intent
+    relationship: ADJACENT
+  - scope_item: runtime_binding
+    relationship: ADJACENT
+  - scope_item: governance
+    relationship: ADJACENT
+  clarification_requests: []
   acceptance_criteria:
-    columns:
-    - Criterion
-    rows:
-    - Criterion: A person can offer a seed to the phase and receive a verdict of admissible or inadmissible.
-    - Criterion: An inadmissible seed reports every rule it failed, not only the first.
-    - Criterion: The rules deciding admissibility can be read from the composition without reading any code.
-    - Criterion: Offering the same seed twice produces the same verdict.
-    - Criterion: A seed records exactly one author of record, and a gate acceptance records the person who gave it.
-    - Criterion: A seed that fails the gate is not consumed by any later phase.
-  identity_and_sameness:
-    columns:
-    - Business Object
-    - Identified By
-    - Two Are The Same When
-    rows: []
-  lifecycle_transitions:
-    columns:
-    - Object
-    - From State
-    - To State
-    - Triggered By
-    - Cascade
-    rows: []
-  operation_refusals:
-    columns:
-    - Operation
-    - Refused When
-    - Business Reason
-    rows: []
-  authority_deferrals:
-    columns:
-    - Business Object
-    - Deferred To
-    - Until
-    rows: []
+  - criterion: A person can offer a seed to the phase and receive a verdict of admissible or inadmissible.
+  - criterion: An inadmissible seed reports every rule it failed, not only the first.
+  - criterion: The rules deciding admissibility can be read from the composition without reading any code.
+  - criterion: Offering the same seed twice produces the same verdict.
+  - criterion: A seed records exactly one author of record, and a gate acceptance records the person who gave it.
+  - criterion: A seed that fails the gate is not consumed by any later phase.
+  identity_and_sameness: null
+  lifecycle_transitions: null
+  operation_refusals: null
+  authority_deferrals: null
 ```
 
 Reorganized faithfully from `p0_business_problem_statement.md`. Human input only — nothing here was

@@ -75,17 +75,29 @@
             "type": "object",
             "properties": {
               "subdomain": {
-                "title": "Subdomain"
+                "title": "Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "classification": {
                 "title": "Classification",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "classification"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "rationale": {
-                "title": "Rationale"
+                "title": "Rationale",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -107,10 +119,18 @@
             "type": "object",
             "properties": {
               "term": {
-                "title": "Term"
+                "title": "Term",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "definition": {
-                "title": "Definition"
+                "title": "Definition",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -131,7 +151,11 @@
             "type": "object",
             "properties": {
               "outcome": {
-                "title": "Outcome"
+                "title": "Outcome",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -151,14 +175,22 @@
             "type": "object",
             "properties": {
               "fact": {
-                "title": "Fact"
+                "title": "Fact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "certainty": {
                 "title": "Certainty",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "certainty"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -179,13 +211,25 @@
             "type": "object",
             "properties": {
               "belief": {
-                "title": "Belief"
+                "title": "Belief",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "why_it_matters": {
-                "title": "Why It Matters"
+                "title": "Why It Matters",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "verification_goal": {
-                "title": "Verification Goal"
+                "title": "Verification Goal",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -207,10 +251,18 @@
             "type": "object",
             "properties": {
               "assumption": {
-                "title": "Assumption"
+                "title": "Assumption",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "basis": {
-                "title": "Basis"
+                "title": "Basis",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -230,10 +282,18 @@
             "type": "object",
             "properties": {
               "constraint": {
-                "title": "Constraint"
+                "title": "Constraint",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source": {
-                "title": "Source"
+                "title": "Source",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -253,7 +313,11 @@
             "type": "object",
             "properties": {
               "invariant": {
-                "title": "Invariant"
+                "title": "Invariant",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -273,13 +337,25 @@
             "type": "object",
             "properties": {
               "object": {
-                "title": "Object"
+                "title": "Object",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "state": {
-                "title": "State"
+                "title": "State",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "meaning": {
-                "title": "Meaning"
+                "title": "Meaning",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -301,13 +377,25 @@
             "type": "object",
             "properties": {
               "event": {
-                "title": "Event"
+                "title": "Event",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "when_it_occurs": {
-                "title": "When It Occurs"
+                "title": "When It Occurs",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "significance": {
-                "title": "Significance"
+                "title": "Significance",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -329,10 +417,18 @@
             "type": "object",
             "properties": {
               "business_object": {
-                "title": "Business Object"
+                "title": "Business Object",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "authoritative_owner": {
-                "title": "Authoritative Owner"
+                "title": "Authoritative Owner",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -353,10 +449,18 @@
             "type": "object",
             "properties": {
               "item": {
-                "title": "Item"
+                "title": "Item",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "reason": {
-                "title": "Reason"
+                "title": "Reason",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -377,14 +481,22 @@
             "type": "object",
             "properties": {
               "scope_item": {
-                "title": "Scope Item"
+                "title": "Scope Item",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "relationship": {
                 "title": "Relationship",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "scope_relationship"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -405,24 +517,40 @@
             "type": "object",
             "properties": {
               "question": {
-                "title": "Question"
+                "title": "Question",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "why_needed": {
-                "title": "Why Needed"
+                "title": "Why Needed",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "blocking": {
                 "title": "Blocking",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "yes_no"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "owner": {
                 "title": "Owner",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "clarification_owner"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -444,7 +572,11 @@
             "type": "object",
             "properties": {
               "criterion": {
-                "title": "Criterion"
+                "title": "Criterion",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -464,13 +596,25 @@
             "type": "object",
             "properties": {
               "business_object": {
-                "title": "Business Object"
+                "title": "Business Object",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "identified_by": {
-                "title": "Identified By"
+                "title": "Identified By",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "two_are_the_same_when": {
-                "title": "Two Are The Same When"
+                "title": "Two Are The Same When",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -491,19 +635,39 @@
             "type": "object",
             "properties": {
               "object": {
-                "title": "Object"
+                "title": "Object",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "from_state": {
-                "title": "From State"
+                "title": "From State",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "to_state": {
-                "title": "To State"
+                "title": "To State",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "triggered_by": {
-                "title": "Triggered By"
+                "title": "Triggered By",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "cascade": {
-                "title": "Cascade"
+                "title": "Cascade",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -526,13 +690,25 @@
             "type": "object",
             "properties": {
               "operation": {
-                "title": "Operation"
+                "title": "Operation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "refused_when": {
-                "title": "Refused When"
+                "title": "Refused When",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "business_reason": {
-                "title": "Business Reason"
+                "title": "Business Reason",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -553,13 +729,25 @@
             "type": "object",
             "properties": {
               "business_object": {
-                "title": "Business Object"
+                "title": "Business Object",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "deferred_to": {
-                "title": "Deferred To"
+                "title": "Deferred To",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "until": {
-                "title": "Until"
+                "title": "Until",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [

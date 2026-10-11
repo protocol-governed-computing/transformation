@@ -10,7 +10,8 @@ header and no registers, and the rule set reports every register missing. A read
 report a parse error where the author needs a governance finding.
 
 The shape it returns is the one every consumer receives: header fields, the sections of the prose,
-and the registers, each a table as columns and rows or a text-only register as its text. `parse_text`
+and the registers, each with its value as the Machine block states it: a list of rows, each a
+mapping from column key to a typed value; a text; or null, present and stating nothing. `parse_text`
 is the single parser. The compiled transforms call it and return plain data across the capability
 boundary.
 """
@@ -32,13 +33,8 @@ FENCE_CLOSE = "```"
 
 
 def _text(value: Any) -> str:
-    """A cell as the text the rules judge. A value YAML typed (a number, a boolean) is read back as
-    the text that wrote it; an absent value is empty."""
-    if value is None:
-        return ""
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    return str(value)
+    """A header field as text. An absent value is empty."""
+    return "" if value is None else str(value)
 
 
 def _machine_block(lines: list[str]) -> tuple[Any, set[int]]:
@@ -49,8 +45,10 @@ def _machine_block(lines: list[str]) -> tuple[Any, set[int]]:
         opened = next((j for j in range(i + 1, len(lines)) if lines[j].strip()), None)
         if opened is None or not FENCE_OPEN.match(lines[opened].strip()):
             return None, {i}
+        # The closing fence starts its line. An indented one is inside a value — a test value may be
+        # a whole document, Machine block and all — and closes nothing.
         closed = next((j for j in range(opened + 1, len(lines))
-                       if lines[j].strip() == FENCE_CLOSE), None)
+                       if lines[j].rstrip() == FENCE_CLOSE), None)
         if closed is None:
             return None, set(range(i, len(lines)))
         try:
@@ -62,21 +60,11 @@ def _machine_block(lines: list[str]) -> tuple[Any, set[int]]:
 
 
 def _registers(data: Any) -> list[dict[str, Any]]:
-    registers: list[dict[str, Any]] = []
+    """Each register by id, with its value as written: a list of rows, a text, or null."""
     declared = data.get("registers") if isinstance(data, dict) else None
     if not isinstance(declared, dict):
-        return registers
-    for register_id, body in declared.items():
-        if isinstance(body, dict):
-            columns = [_text(c) for c in (body.get("columns") or [])]
-            rows = []
-            for row in body.get("rows") or []:
-                if isinstance(row, dict):
-                    rows.append({_text(k): _text(row.get(k)) for k in row})
-            registers.append({"id": str(register_id), "columns": columns, "rows": rows, "text": ""})
-        else:
-            registers.append({"id": str(register_id), "columns": [], "rows": [], "text": _text(body)})
-    return registers
+        return []
+    return [{"id": str(register_id), "value": value} for register_id, value in declared.items()]
 
 
 def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]], list[dict[str, Any]]]:
@@ -102,8 +90,6 @@ def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]], list[di
             current = {
                 "number": int(match.group(1)) if match.group(1) and match.group(1).isdigit() else None,
                 "title": match.group(2).strip(),
-                "columns": [],
-                "rows": [],
             }
             body = []
         elif current is not None:

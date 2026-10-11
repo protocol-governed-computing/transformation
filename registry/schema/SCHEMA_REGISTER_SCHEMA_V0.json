@@ -239,8 +239,32 @@
               "pattern": "^[a-z][a-z0-9_]*$"
             }
           }
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "items": {
+          "type": "object"
+        },
+        "additionalProperties": {},
+        "properties": {
+          "type": "object"
+        },
+        "oneOf": {
+          "type": "array"
         }
-      }
+      },
+      "description": "A column: its display name, its vocabulary if it draws on one, and the type of its value. Text, or null when it says nothing, unless the column carries structure."
     },
     "handoff": {
       "type": "array",

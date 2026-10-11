@@ -21,479 +21,424 @@ registers:
     entries and difficulty locating materials. It does not govern who borrows the collection, what is
     ordered, who the library's patrons are, or which staff are authorized.
   purpose_provenance:
-    columns:
-    - Source
-    - Disposition (INHERITED, REFINED)
-    - Refinement
-    rows:
-    - Source: CR seed §0 Subdomain Purpose
-      Disposition (INHERITED, REFINED): REFINED
-      Refinement: States the authority the subdomain establishes — a book exists in the collection because the catalog says so — the lifecycle it manages from registration through retirement and back, and the four functions it explicitly does not govern. The seed states what the catalog is for and why it exists; none of these four additions contradicts it.
+  - source: CR seed §0 Subdomain Purpose
+    disposition: REFINED
+    refinement: States the authority the subdomain establishes — a book exists in the collection because the catalog says so — the lifecycle it manages from registration through retirement and back, and the four functions it explicitly does not govern. The seed states what the catalog is for and why it exists; none of these four additions contradicts it.
   subdomain_purposes:
-    columns:
-    - Subdomain
-    - Purpose
-    - Source Finding
-    rows:
-    - Subdomain: catalog
-      Purpose: Governs the library's authoritative description of what it holds — one record per book it catalogs and one per physical copy it owns — and the lifecycle of both from registration through retirement and back.
-      Source Finding: 'S1 cr_type #1'
+  - subdomain: catalog
+    purpose: Governs the library's authoritative description of what it holds — one record per book it catalogs and one per physical copy it owns — and the lifecycle of both from registration through retirement and back.
+    source_finding: 'S1 cr_type #1'
   scope_boundary:
-    columns:
-    - Capability
-    - Status (IN_SCOPE, DEFERRED)
-    - Notes
-    - Source Finding
-    rows:
-    - Capability: Register a book together with its first physical copy
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: A book is never registered without a copy
-      Source Finding: S4 authoring_scope GAP-05
-    - Capability: Register a further physical copy against a registered book
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Refused if the barcode is already owned or the book is not registered
-      Source Finding: S4 authoring_scope GAP-06
-    - Capability: Update a book's bibliographic information
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Refused if the change would make the book a duplicate of another
-      Source Finding: S4 authoring_scope GAP-07
-    - Capability: Retire a book record
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Leaves the book's copies untouched
-      Source Finding: S4 authoring_scope GAP-08
-    - Capability: Retire a physical copy
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Leaves the book record untouched, including when it was the last copy
-      Source Finding: S4 authoring_scope GAP-09
-    - Capability: Return a retired book record to the registered state
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Reinstatement is explicit, never derived
-      Source Finding: S4 authoring_scope GAP-10
-    - Capability: Return a retired physical copy to the registered state
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Reinstatement is explicit, never derived
-      Source Finding: S4 authoring_scope GAP-11
-    - Capability: Search the catalog by subject or title
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Retired books are excluded from results
-      Source Finding: S4 authoring_scope GAP-12
-    - Capability: Retrieve a book's complete details with the copies held
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Serves retired books as well as registered ones
-      Source Finding: S4 authoring_scope GAP-13
-    - Capability: Confirm the staff member performing an operation is authorized
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: The catalog reads authorization; it never grants it
-      Source Finding: S4 authoring_scope GAP-04
-    - Capability: Record every performed catalog operation in the catalog's own audit trail
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: The catalog owns the trail it appends to
-      Source Finding: S4 authoring_scope GAP-01
-    - Capability: Read every book record so that a search can select among them by content
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: An existing mechanism amended to publish records; owned by platform, not by the catalog
-      Source Finding: S4 authoring_scope GAP-17
-    - Capability: Deciding which staff are authorized
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Notes: Belongs to the staff function, which a future change request introduces
-      Source Finding: 'S1 authority_deferrals #1'
-    - Capability: Deleting a catalog record
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Notes: 'Not deferred but excluded: a record is never deleted, so no capability is authored for it'
-      Source Finding: 'S1 business_invariants #9'
-    - Capability: Importing the records staff maintain manually today
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Notes: The catalog starts empty
-      Source Finding: S1 out_of_scope Import of the records staff maintain manually today
-    - Capability: Circulation, patron, staff, reservations, acquisitions, inventory, notifications, policy and reporting
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Notes: The nine remaining project functions, adjacent and untouched
-      Source Finding: 'S1 governance_scope #2'
+  - capability: Register a book together with its first physical copy
+    status: IN_SCOPE
+    notes: A book is never registered without a copy
+    source_finding: S4 authoring_scope GAP-05
+  - capability: Register a further physical copy against a registered book
+    status: IN_SCOPE
+    notes: Refused if the barcode is already owned or the book is not registered
+    source_finding: S4 authoring_scope GAP-06
+  - capability: Update a book's bibliographic information
+    status: IN_SCOPE
+    notes: Refused if the change would make the book a duplicate of another
+    source_finding: S4 authoring_scope GAP-07
+  - capability: Retire a book record
+    status: IN_SCOPE
+    notes: Leaves the book's copies untouched
+    source_finding: S4 authoring_scope GAP-08
+  - capability: Retire a physical copy
+    status: IN_SCOPE
+    notes: Leaves the book record untouched, including when it was the last copy
+    source_finding: S4 authoring_scope GAP-09
+  - capability: Return a retired book record to the registered state
+    status: IN_SCOPE
+    notes: Reinstatement is explicit, never derived
+    source_finding: S4 authoring_scope GAP-10
+  - capability: Return a retired physical copy to the registered state
+    status: IN_SCOPE
+    notes: Reinstatement is explicit, never derived
+    source_finding: S4 authoring_scope GAP-11
+  - capability: Search the catalog by subject or title
+    status: IN_SCOPE
+    notes: Retired books are excluded from results
+    source_finding: S4 authoring_scope GAP-12
+  - capability: Retrieve a book's complete details with the copies held
+    status: IN_SCOPE
+    notes: Serves retired books as well as registered ones
+    source_finding: S4 authoring_scope GAP-13
+  - capability: Confirm the staff member performing an operation is authorized
+    status: IN_SCOPE
+    notes: The catalog reads authorization; it never grants it
+    source_finding: S4 authoring_scope GAP-04
+  - capability: Record every performed catalog operation in the catalog's own audit trail
+    status: IN_SCOPE
+    notes: The catalog owns the trail it appends to
+    source_finding: S4 authoring_scope GAP-01
+  - capability: Read every book record so that a search can select among them by content
+    status: IN_SCOPE
+    notes: An existing mechanism amended to publish records; owned by platform, not by the catalog
+    source_finding: S4 authoring_scope GAP-17
+  - capability: Deciding which staff are authorized
+    status: DEFERRED
+    notes: Belongs to the staff function, which a future change request introduces
+    source_finding: 'S1 authority_deferrals #1'
+  - capability: Deleting a catalog record
+    status: DEFERRED
+    notes: 'Not deferred but excluded: a record is never deleted, so no capability is authored for it'
+    source_finding: 'S1 business_invariants #9'
+  - capability: Importing the records staff maintain manually today
+    status: DEFERRED
+    notes: The catalog starts empty
+    source_finding: S1 out_of_scope Import of the records staff maintain manually today
+  - capability: Circulation, patron, staff, reservations, acquisitions, inventory, notifications, policy and reporting
+    status: DEFERRED
+    notes: The nine remaining project functions, adjacent and untouched
+    source_finding: 'S1 governance_scope #2'
   business_objects:
-    columns:
-    - Store Name
-    - Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID)
-    - Business Rationale
-    - Source Finding
-    rows:
-    - Store Name: Book record
-      Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID): MUTABLE_STATE
-      Business Rationale: The library requires one authoritative record per book, its bibliographic information is correctable, and its state moves from registered to retired and back on the same record
-      Source Finding: S4 bm_entities Book
-    - Store Name: Physical copy record
-      Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID): MUTABLE_STATE
-      Business Rationale: The library requires one authoritative record per copy it owns, and a copy's state moves both ways on the same record
-      Source Finding: S4 bm_entities Physical Copy
-    - Store Name: Catalog audit trail
-      Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID): APPEND_ONLY_JOURNAL
-      Business Rationale: Every operation must be traceable afterwards, and a trail that could be amended would not be evidence
-      Source Finding: S4 resources Catalog audit trail
-    - Store Name: Book identity registry
-      Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID): IDENTITY_REGISTRY
-      Business Rationale: Duplicate prevention needs an atomic claim on a book's identity at the moment of registration
-      Source Finding: 'S4 design_decisions #3'
-    - Store Name: Copy barcode registry
-      Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID): IDENTITY_REGISTRY
-      Business Rationale: No two copies the library owns may share a barcode, and the claim must hold at the moment of registration
-      Source Finding: 'S1 business_invariants #6'
+  - store_name: Book record
+    record_model: MUTABLE_STATE
+    business_rationale: The library requires one authoritative record per book, its bibliographic information is correctable, and its state moves from registered to retired and back on the same record
+    source_finding: S4 bm_entities Book
+  - store_name: Physical copy record
+    record_model: MUTABLE_STATE
+    business_rationale: The library requires one authoritative record per copy it owns, and a copy's state moves both ways on the same record
+    source_finding: S4 bm_entities Physical Copy
+  - store_name: Catalog audit trail
+    record_model: APPEND_ONLY_JOURNAL
+    business_rationale: Every operation must be traceable afterwards, and a trail that could be amended would not be evidence
+    source_finding: S4 resources Catalog audit trail
+  - store_name: Book identity registry
+    record_model: IDENTITY_REGISTRY
+    business_rationale: Duplicate prevention needs an atomic claim on a book's identity at the moment of registration
+    source_finding: 'S4 design_decisions #3'
+  - store_name: Copy barcode registry
+    record_model: IDENTITY_REGISTRY
+    business_rationale: No two copies the library owns may share a barcode, and the claim must hold at the moment of registration
+    source_finding: 'S1 business_invariants #6'
   identity_semantics:
-    columns:
-    - Store Name
-    - Identity Field
-    - Source
-    - Uniqueness Rule
-    - Cross-Subdomain Relationship
-    - Source Finding
-    rows:
-    - Store Name: Book record
-      Identity Field: Title, author and publication year together
-      Source: Supplied by the staff member registering the book
-      Uniqueness Rule: Two registrations carrying the same publication year, and the same title and author without regard to letter case or repeated spacing, describe the same book, and the second is refused
-      Cross-Subdomain Relationship: None
-      Source Finding: 'S1 identity_and_sameness #1'
-    - Store Name: Physical copy record
-      Identity Field: Barcode
-      Source: Assigned by the library and supplied when the copy is registered
-      Uniqueness Rule: Two records carrying the same barcode describe the same copy, and the second is refused
-      Cross-Subdomain Relationship: Names exactly one book record
-      Source Finding: 'S1 identity_and_sameness #2'
-    - Store Name: Catalog audit trail
-      Identity Field: Append position
-      Source: Assigned when the entry is appended
-      Uniqueness Rule: Each performed operation appends exactly one entry, and no entry is amended or removed
-      Cross-Subdomain Relationship: Names the staff member who performed the operation
-      Source Finding: S4 resources Catalog audit trail
-    - Store Name: Book identity registry
-      Identity Field: The key formed from title, author and publication year
-      Source: Formed by the catalog, comparing title and author without regard to letter case or repeated spacing
-      Uniqueness Rule: The key is claimed once; a second claim on it fails and the registration is refused
-      Cross-Subdomain Relationship: None
-      Source Finding: 'S4 design_decisions #3'
-    - Store Name: Copy barcode registry
-      Identity Field: Barcode
-      Source: Assigned by the library
-      Uniqueness Rule: The barcode is claimed once; a second claim on it fails and the copy registration is refused
-      Cross-Subdomain Relationship: None
-      Source Finding: 'S1 business_invariants #6'
+  - store_name: Book record
+    identity_field: Title, author and publication year together
+    source: Supplied by the staff member registering the book
+    uniqueness_rule: Two registrations carrying the same publication year, and the same title and author without regard to letter case or repeated spacing, describe the same book, and the second is refused
+    cross_subdomain_relationship: None
+    source_finding: 'S1 identity_and_sameness #1'
+  - store_name: Physical copy record
+    identity_field: Barcode
+    source: Assigned by the library and supplied when the copy is registered
+    uniqueness_rule: Two records carrying the same barcode describe the same copy, and the second is refused
+    cross_subdomain_relationship: Names exactly one book record
+    source_finding: 'S1 identity_and_sameness #2'
+  - store_name: Catalog audit trail
+    identity_field: Append position
+    source: Assigned when the entry is appended
+    uniqueness_rule: Each performed operation appends exactly one entry, and no entry is amended or removed
+    cross_subdomain_relationship: Names the staff member who performed the operation
+    source_finding: S4 resources Catalog audit trail
+  - store_name: Book identity registry
+    identity_field: The key formed from title, author and publication year
+    source: Formed by the catalog, comparing title and author without regard to letter case or repeated spacing
+    uniqueness_rule: The key is claimed once; a second claim on it fails and the registration is refused
+    cross_subdomain_relationship: None
+    source_finding: 'S4 design_decisions #3'
+  - store_name: Copy barcode registry
+    identity_field: Barcode
+    source: Assigned by the library
+    uniqueness_rule: The barcode is claimed once; a second claim on it fails and the copy registration is refused
+    cross_subdomain_relationship: None
+    source_finding: 'S1 business_invariants #6'
   invariants:
-    columns:
-    - Invariant
-    - Business Reason
-    - Source Finding
-    rows:
-    - Invariant: Each physical copy belongs to exactly one book
-      Business Reason: A copy the library owns is a copy of one published thing; a copy recorded against two books would make the collection's description untrue
-      Source Finding: 'S1 business_invariants #1'
-    - Invariant: Each book the library holds has exactly one authoritative record
-      Business Reason: The library needs one place that says what it holds, which is the whole point of a governed catalog
-      Source Finding: 'S1 business_invariants #2'
-    - Invariant: Each physical copy the library owns has exactly one authoritative record
-      Business Reason: Two records for one copy would make the library's count of what it owns unreliable
-      Source Finding: 'S1 business_invariants #3'
-    - Invariant: No two registered books share the same title, author and publication year
-      Business Reason: Duplicate entries are the pain this change exists to remove
-      Source Finding: 'S1 business_invariants #4'
-    - Invariant: A book carries at least one subject
-      Business Reason: Subject is what staff search on when looking for material rather than a known title, so a book with none could not be found that way
-      Source Finding: 'S1 business_invariants #5'
-    - Invariant: No two physical copies the library owns share the same barcode
-      Business Reason: A barcode is how staff name one copy among several of the same book, including when retiring one
-      Source Finding: 'S1 business_invariants #6'
-    - Invariant: Every business operation performed against the catalog is traceable and auditable
-      Business Reason: The library must be able to account afterwards for every change to its description of itself
-      Source Finding: 'S1 business_invariants #7'
-    - Invariant: Only authorized staff perform catalog operations
-      Business Reason: The catalog is the library's authoritative record, and an unauthorized change to it would not be authoritative
-      Source Finding: 'S1 business_invariants #8'
-    - Invariant: No catalog record is ever deleted
-      Business Reason: Retirement is the only way a record leaves use; a deleted record would leave its audit trail pointing at nothing
-      Source Finding: 'S1 business_invariants #9'
-    - Invariant: A registered book always has at the moment of registration at least one physical copy
-      Business Reason: The library catalogs what it holds, and a book it holds no copy of is not a holding
-      Source Finding: 'S1 operation_refusals #2'
+  - invariant: Each physical copy belongs to exactly one book
+    business_reason: A copy the library owns is a copy of one published thing; a copy recorded against two books would make the collection's description untrue
+    source_finding: 'S1 business_invariants #1'
+  - invariant: Each book the library holds has exactly one authoritative record
+    business_reason: The library needs one place that says what it holds, which is the whole point of a governed catalog
+    source_finding: 'S1 business_invariants #2'
+  - invariant: Each physical copy the library owns has exactly one authoritative record
+    business_reason: Two records for one copy would make the library's count of what it owns unreliable
+    source_finding: 'S1 business_invariants #3'
+  - invariant: No two registered books share the same title, author and publication year
+    business_reason: Duplicate entries are the pain this change exists to remove
+    source_finding: 'S1 business_invariants #4'
+  - invariant: A book carries at least one subject
+    business_reason: Subject is what staff search on when looking for material rather than a known title, so a book with none could not be found that way
+    source_finding: 'S1 business_invariants #5'
+  - invariant: No two physical copies the library owns share the same barcode
+    business_reason: A barcode is how staff name one copy among several of the same book, including when retiring one
+    source_finding: 'S1 business_invariants #6'
+  - invariant: Every business operation performed against the catalog is traceable and auditable
+    business_reason: The library must be able to account afterwards for every change to its description of itself
+    source_finding: 'S1 business_invariants #7'
+  - invariant: Only authorized staff perform catalog operations
+    business_reason: The catalog is the library's authoritative record, and an unauthorized change to it would not be authoritative
+    source_finding: 'S1 business_invariants #8'
+  - invariant: No catalog record is ever deleted
+    business_reason: Retirement is the only way a record leaves use; a deleted record would leave its audit trail pointing at nothing
+    source_finding: 'S1 business_invariants #9'
+  - invariant: A registered book always has at the moment of registration at least one physical copy
+    business_reason: The library catalogs what it holds, and a book it holds no copy of is not a holding
+    source_finding: 'S1 operation_refusals #2'
   actions:
-    columns:
-    - Action
-    - Object
-    - Trigger
-    - Status (IN_SCOPE, DEFERRED)
-    - Source Finding
-    rows:
-    - Action: Register
-      Object: Book, with its first physical copy
-      Trigger: An authorized staff member registers a book the library has acquired
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Register a book together with its first physical copy
-    - Action: Register
-      Object: Physical copy
-      Trigger: An authorized staff member records a further copy of a registered book
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Register a further physical copy against a registered book
-    - Action: Update
-      Object: Book's bibliographic information
-      Trigger: An authorized staff member corrects or changes a book's description
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Update a book's bibliographic information
-    - Action: Retire
-      Object: Book record
-      Trigger: An authorized staff member judges the record obsolete
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Retire a book record
-    - Action: Retire
-      Object: Physical copy
-      Trigger: A copy is lost or damaged
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Retire a physical copy
-    - Action: Reinstate
-      Object: Book record
-      Trigger: An authorized staff member returns a retired book to use
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Return a retired book record to the registered state
-    - Action: Reinstate
-      Object: Physical copy
-      Trigger: An authorized staff member returns a retired copy to use
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Return a retired physical copy to the registered state
-    - Action: Search
-      Object: Catalog
-      Trigger: An authorized staff member looks for material by subject or by title
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Search the catalog by subject or title, excluding retired books
-    - Action: Retrieve
-      Object: Book's complete details
-      Trigger: An authorized staff member asks what the library holds of one book
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: S4 capability_graph Retrieve a book's complete details with the copies the library holds
-    - Action: Delete
-      Object: Book record or physical copy
-      Trigger: Never — no trigger exists, because a record is never deleted
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Source Finding: 'S1 business_invariants #9'
+  - action: Register
+    object: Book, with its first physical copy
+    trigger: An authorized staff member registers a book the library has acquired
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Register a book together with its first physical copy
+  - action: Register
+    object: Physical copy
+    trigger: An authorized staff member records a further copy of a registered book
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Register a further physical copy against a registered book
+  - action: Update
+    object: Book's bibliographic information
+    trigger: An authorized staff member corrects or changes a book's description
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Update a book's bibliographic information
+  - action: Retire
+    object: Book record
+    trigger: An authorized staff member judges the record obsolete
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Retire a book record
+  - action: Retire
+    object: Physical copy
+    trigger: A copy is lost or damaged
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Retire a physical copy
+  - action: Reinstate
+    object: Book record
+    trigger: An authorized staff member returns a retired book to use
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Return a retired book record to the registered state
+  - action: Reinstate
+    object: Physical copy
+    trigger: An authorized staff member returns a retired copy to use
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Return a retired physical copy to the registered state
+  - action: Search
+    object: Catalog
+    trigger: An authorized staff member looks for material by subject or by title
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Search the catalog by subject or title, excluding retired books
+  - action: Retrieve
+    object: Book's complete details
+    trigger: An authorized staff member asks what the library holds of one book
+    status: IN_SCOPE
+    source_finding: S4 capability_graph Retrieve a book's complete details with the copies the library holds
+  - action: Delete
+    object: Book record or physical copy
+    trigger: Never — no trigger exists, because a record is never deleted
+    status: DEFERRED
+    source_finding: 'S1 business_invariants #9'
   provisional_codes:
-    columns:
-    - Subdomain
-    - Provisional Code
-    - Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE)
-    - Summary
-    - Source Finding
-    rows:
-    - Subdomain: catalog
-      Provisional Code: AC_LIBRARY_STAFF_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): AC
-      Summary: The authorized staff member who performs a catalog operation
-      Source Finding: S4 actors Authorized staff member
-    - Subdomain: catalog
-      Provisional Code: IN_REGISTER_BOOK_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to register a book together with its first physical copy
-      Source Finding: S5 actions Register
-    - Subdomain: catalog
-      Provisional Code: IN_REGISTER_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to register a further copy against a registered book
-      Source Finding: S5 actions Register
-    - Subdomain: catalog
-      Provisional Code: IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to change a registered book's description
-      Source Finding: S5 actions Update
-    - Subdomain: catalog
-      Provisional Code: IN_RETIRE_BOOK_RECORD_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to retire a book record judged obsolete
-      Source Finding: S5 actions Retire
-    - Subdomain: catalog
-      Provisional Code: IN_RETIRE_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to retire a lost or damaged copy
-      Source Finding: S5 actions Retire
-    - Subdomain: catalog
-      Provisional Code: IN_REINSTATE_BOOK_RECORD_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to return a retired book record to the registered state
-      Source Finding: S5 actions Reinstate
-    - Subdomain: catalog
-      Provisional Code: IN_REINSTATE_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to return a retired copy to the registered state
-      Source Finding: S5 actions Reinstate
-    - Subdomain: catalog
-      Provisional Code: IN_SEARCH_CATALOG_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request to locate material by subject or by title
-      Source Finding: S5 actions Search
-    - Subdomain: catalog
-      Provisional Code: IN_RETRIEVE_BOOK_DETAILS_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): IN
-      Summary: A request for a book's complete details with the copies held
-      Source Finding: S5 actions Retrieve
-    - Subdomain: catalog
-      Provisional Code: WF_REGISTER_BOOK_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Registering a book and its first copy, end to end
-      Source Finding: S4 capability_graph Register a book together with its first physical copy
-    - Subdomain: catalog
-      Provisional Code: WF_REGISTER_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Registering a further copy against a registered book
-      Source Finding: S4 capability_graph Register a further physical copy against a registered book
-    - Subdomain: catalog
-      Provisional Code: WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Changing a book's description without making it a duplicate
-      Source Finding: S4 capability_graph Update a book's bibliographic information
-    - Subdomain: catalog
-      Provisional Code: WF_RETIRE_BOOK_RECORD_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Retiring a book record, leaving its copies untouched
-      Source Finding: S4 capability_graph Retire a book record
-    - Subdomain: catalog
-      Provisional Code: WF_RETIRE_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Retiring a copy, leaving the book record untouched
-      Source Finding: S4 capability_graph Retire a physical copy
-    - Subdomain: catalog
-      Provisional Code: WF_REINSTATE_BOOK_RECORD_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Returning a retired book record to the registered state
-      Source Finding: S4 capability_graph Return a retired book record to the registered state
-    - Subdomain: catalog
-      Provisional Code: WF_REINSTATE_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Returning a retired copy to the registered state
-      Source Finding: S4 capability_graph Return a retired physical copy to the registered state
-    - Subdomain: catalog
-      Provisional Code: WF_SEARCH_CATALOG_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Searching by subject or title, excluding retired books, and recording that it happened
-      Source Finding: S4 capability_graph Search the catalog by subject or title, excluding retired books
-    - Subdomain: catalog
-      Provisional Code: WF_RETRIEVE_BOOK_DETAILS_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): WF
-      Summary: Assembling a book with the copies the library holds of it
-      Source Finding: S4 capability_graph Retrieve a book's complete details with the copies the library holds
-    - Subdomain: catalog
-      Provisional Code: CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Confirm the staff member may perform catalog operations
-      Source Finding: S4 capability_graph Confirm the staff member performing an operation is authorized
-    - Subdomain: catalog
-      Provisional Code: CC_CLAIM_BOOK_IDENTITY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Claim a book's identity so a second registration of the same book is refused
-      Source Finding: S4 capability_graph Enforce that one book exists per title, author and publication year
-    - Subdomain: catalog
-      Provisional Code: CC_CLAIM_COPY_BARCODE_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Claim a copy's barcode so a second copy carrying it is refused
-      Source Finding: S4 capability_graph Enforce that one physical copy exists per barcode
-    - Subdomain: catalog
-      Provisional Code: CC_REGISTER_BOOK_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Record a book's bibliographic information as the catalog's authoritative description of it
-      Source Finding: S4 capability_graph Register a book together with its first physical copy
-    - Subdomain: catalog
-      Provisional Code: CC_REGISTER_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Record a copy against exactly one book
-      Source Finding: S4 capability_graph Register a further physical copy against a registered book
-    - Subdomain: catalog
-      Provisional Code: CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Replace a book's descriptive content, refusing a change that duplicates another book
-      Source Finding: S4 capability_graph Update a book's bibliographic information
-    - Subdomain: catalog
-      Provisional Code: CC_RETIRE_BOOK_RECORD_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Mark a book record retired so it is no longer offered as current
-      Source Finding: S4 capability_graph Retire a book record
-    - Subdomain: catalog
-      Provisional Code: CC_RETIRE_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Mark a copy retired so the library no longer holds it
-      Source Finding: S4 capability_graph Retire a physical copy
-    - Subdomain: catalog
-      Provisional Code: CC_REINSTATE_BOOK_RECORD_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Mark a retired book record registered again
-      Source Finding: S4 capability_graph Return a retired book record to the registered state
-    - Subdomain: catalog
-      Provisional Code: CC_REINSTATE_PHYSICAL_COPY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Mark a retired copy registered again
-      Source Finding: S4 capability_graph Return a retired physical copy to the registered state
-    - Subdomain: catalog
-      Provisional Code: CC_SEARCH_CATALOG_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Select the registered books matching a subject or title, excluding retired ones
-      Source Finding: S4 capability_graph Search the catalog by subject or title, excluding retired books
-    - Subdomain: catalog
-      Provisional Code: CC_ASSEMBLE_BOOK_DETAILS_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Assemble a book's record with the copies recorded against it
-      Source Finding: S4 capability_graph Retrieve a book's complete details with the copies the library holds
-    - Subdomain: catalog
-      Provisional Code: CC_APPEND_CATALOG_OPERATION_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Append a durable account of a performed operation to the catalog's own audit trail
-      Source Finding: S4 capability_graph Record a performed catalog operation in the catalog's audit trail
-    - Subdomain: catalog
-      Provisional Code: CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CT
-      Summary: Forms the single key claimed for a book from its title, author and publication year
-      Source Finding: S4 gap_register GAP-06
-    - Subdomain: catalog
-      Provisional Code: CC_VALIDATE_BOOK_SUBMISSION_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Confirms a registration carries what a book record requires, before any identity is claimed
-      Source Finding: S4 gap_register GAP-06
-    - Subdomain: catalog
-      Provisional Code: CC_RESOLVE_BOOK_IDENTITY_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): CC
-      Summary: Resolves a registered book by its identifying key, so an update names the book independently of the attributes it changes
-      Source Finding: S4 gap_register GAP-08
-    - Subdomain: catalog
-      Provisional Code: EV_BOOK_REGISTERED_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): EV
-      Summary: The moment a book enters the catalog
-      Source Finding: S4 gap_register GAP-16
-    - Subdomain: catalog
-      Provisional Code: EV_PHYSICAL_COPY_REGISTERED_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): EV
-      Summary: The moment the library records another copy it owns
-      Source Finding: S4 gap_register GAP-16
-    - Subdomain: catalog
-      Provisional Code: EV_BIBLIOGRAPHIC_INFORMATION_UPDATED_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): EV
-      Summary: The moment a book's authoritative description changes
-      Source Finding: S4 gap_register GAP-16
-    - Subdomain: catalog
-      Provisional Code: EV_BOOK_RETIRED_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): EV
-      Summary: The moment a book record is judged obsolete
-      Source Finding: S4 gap_register GAP-16
-    - Subdomain: catalog
-      Provisional Code: EV_PHYSICAL_COPY_RETIRED_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): EV
-      Summary: The moment the library no longer holds a copy
-      Source Finding: S4 gap_register GAP-16
-    - Subdomain: catalog
-      Provisional Code: RB_CATALOG_BINDINGS_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): RB
-      Summary: Binds the catalog's operations to the stores and mechanisms they use
-      Source Finding: S4 gap_register GAP-03
-    - Subdomain: catalog
-      Provisional Code: STRUCTURE_CATALOG_STORAGE_V0
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): STRUCTURE
-      Summary: Declares the stores the catalog owns and the paths they occupy
-      Source Finding: S4 gap_register GAP-02
-  cross_subdomain_refs:
-    columns:
-    - CC Code
-    - Defined In
-    - Role
-    - Source Finding
-    rows: []
+  - subdomain: catalog
+    provisional_code: AC_LIBRARY_STAFF_V0
+    family: AC
+    summary: The authorized staff member who performs a catalog operation
+    source_finding: S4 actors Authorized staff member
+  - subdomain: catalog
+    provisional_code: IN_REGISTER_BOOK_V0
+    family: IN
+    summary: A request to register a book together with its first physical copy
+    source_finding: S5 actions Register
+  - subdomain: catalog
+    provisional_code: IN_REGISTER_PHYSICAL_COPY_V0
+    family: IN
+    summary: A request to register a further copy against a registered book
+    source_finding: S5 actions Register
+  - subdomain: catalog
+    provisional_code: IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    family: IN
+    summary: A request to change a registered book's description
+    source_finding: S5 actions Update
+  - subdomain: catalog
+    provisional_code: IN_RETIRE_BOOK_RECORD_V0
+    family: IN
+    summary: A request to retire a book record judged obsolete
+    source_finding: S5 actions Retire
+  - subdomain: catalog
+    provisional_code: IN_RETIRE_PHYSICAL_COPY_V0
+    family: IN
+    summary: A request to retire a lost or damaged copy
+    source_finding: S5 actions Retire
+  - subdomain: catalog
+    provisional_code: IN_REINSTATE_BOOK_RECORD_V0
+    family: IN
+    summary: A request to return a retired book record to the registered state
+    source_finding: S5 actions Reinstate
+  - subdomain: catalog
+    provisional_code: IN_REINSTATE_PHYSICAL_COPY_V0
+    family: IN
+    summary: A request to return a retired copy to the registered state
+    source_finding: S5 actions Reinstate
+  - subdomain: catalog
+    provisional_code: IN_SEARCH_CATALOG_V0
+    family: IN
+    summary: A request to locate material by subject or by title
+    source_finding: S5 actions Search
+  - subdomain: catalog
+    provisional_code: IN_RETRIEVE_BOOK_DETAILS_V0
+    family: IN
+    summary: A request for a book's complete details with the copies held
+    source_finding: S5 actions Retrieve
+  - subdomain: catalog
+    provisional_code: WF_REGISTER_BOOK_V0
+    family: WF
+    summary: Registering a book and its first copy, end to end
+    source_finding: S4 capability_graph Register a book together with its first physical copy
+  - subdomain: catalog
+    provisional_code: WF_REGISTER_PHYSICAL_COPY_V0
+    family: WF
+    summary: Registering a further copy against a registered book
+    source_finding: S4 capability_graph Register a further physical copy against a registered book
+  - subdomain: catalog
+    provisional_code: WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    family: WF
+    summary: Changing a book's description without making it a duplicate
+    source_finding: S4 capability_graph Update a book's bibliographic information
+  - subdomain: catalog
+    provisional_code: WF_RETIRE_BOOK_RECORD_V0
+    family: WF
+    summary: Retiring a book record, leaving its copies untouched
+    source_finding: S4 capability_graph Retire a book record
+  - subdomain: catalog
+    provisional_code: WF_RETIRE_PHYSICAL_COPY_V0
+    family: WF
+    summary: Retiring a copy, leaving the book record untouched
+    source_finding: S4 capability_graph Retire a physical copy
+  - subdomain: catalog
+    provisional_code: WF_REINSTATE_BOOK_RECORD_V0
+    family: WF
+    summary: Returning a retired book record to the registered state
+    source_finding: S4 capability_graph Return a retired book record to the registered state
+  - subdomain: catalog
+    provisional_code: WF_REINSTATE_PHYSICAL_COPY_V0
+    family: WF
+    summary: Returning a retired copy to the registered state
+    source_finding: S4 capability_graph Return a retired physical copy to the registered state
+  - subdomain: catalog
+    provisional_code: WF_SEARCH_CATALOG_V0
+    family: WF
+    summary: Searching by subject or title, excluding retired books, and recording that it happened
+    source_finding: S4 capability_graph Search the catalog by subject or title, excluding retired books
+  - subdomain: catalog
+    provisional_code: WF_RETRIEVE_BOOK_DETAILS_V0
+    family: WF
+    summary: Assembling a book with the copies the library holds of it
+    source_finding: S4 capability_graph Retrieve a book's complete details with the copies the library holds
+  - subdomain: catalog
+    provisional_code: CC_CONFIRM_STAFF_AUTHORIZED_V0
+    family: CC
+    summary: Confirm the staff member may perform catalog operations
+    source_finding: S4 capability_graph Confirm the staff member performing an operation is authorized
+  - subdomain: catalog
+    provisional_code: CC_CLAIM_BOOK_IDENTITY_V0
+    family: CC
+    summary: Claim a book's identity so a second registration of the same book is refused
+    source_finding: S4 capability_graph Enforce that one book exists per title, author and publication year
+  - subdomain: catalog
+    provisional_code: CC_CLAIM_COPY_BARCODE_V0
+    family: CC
+    summary: Claim a copy's barcode so a second copy carrying it is refused
+    source_finding: S4 capability_graph Enforce that one physical copy exists per barcode
+  - subdomain: catalog
+    provisional_code: CC_REGISTER_BOOK_V0
+    family: CC
+    summary: Record a book's bibliographic information as the catalog's authoritative description of it
+    source_finding: S4 capability_graph Register a book together with its first physical copy
+  - subdomain: catalog
+    provisional_code: CC_REGISTER_PHYSICAL_COPY_V0
+    family: CC
+    summary: Record a copy against exactly one book
+    source_finding: S4 capability_graph Register a further physical copy against a registered book
+  - subdomain: catalog
+    provisional_code: CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    family: CC
+    summary: Replace a book's descriptive content, refusing a change that duplicates another book
+    source_finding: S4 capability_graph Update a book's bibliographic information
+  - subdomain: catalog
+    provisional_code: CC_RETIRE_BOOK_RECORD_V0
+    family: CC
+    summary: Mark a book record retired so it is no longer offered as current
+    source_finding: S4 capability_graph Retire a book record
+  - subdomain: catalog
+    provisional_code: CC_RETIRE_PHYSICAL_COPY_V0
+    family: CC
+    summary: Mark a copy retired so the library no longer holds it
+    source_finding: S4 capability_graph Retire a physical copy
+  - subdomain: catalog
+    provisional_code: CC_REINSTATE_BOOK_RECORD_V0
+    family: CC
+    summary: Mark a retired book record registered again
+    source_finding: S4 capability_graph Return a retired book record to the registered state
+  - subdomain: catalog
+    provisional_code: CC_REINSTATE_PHYSICAL_COPY_V0
+    family: CC
+    summary: Mark a retired copy registered again
+    source_finding: S4 capability_graph Return a retired physical copy to the registered state
+  - subdomain: catalog
+    provisional_code: CC_SEARCH_CATALOG_V0
+    family: CC
+    summary: Select the registered books matching a subject or title, excluding retired ones
+    source_finding: S4 capability_graph Search the catalog by subject or title, excluding retired books
+  - subdomain: catalog
+    provisional_code: CC_ASSEMBLE_BOOK_DETAILS_V0
+    family: CC
+    summary: Assemble a book's record with the copies recorded against it
+    source_finding: S4 capability_graph Retrieve a book's complete details with the copies the library holds
+  - subdomain: catalog
+    provisional_code: CC_APPEND_CATALOG_OPERATION_V0
+    family: CC
+    summary: Append a durable account of a performed operation to the catalog's own audit trail
+    source_finding: S4 capability_graph Record a performed catalog operation in the catalog's audit trail
+  - subdomain: catalog
+    provisional_code: CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
+    family: CT
+    summary: Forms the single key claimed for a book from its title, author and publication year
+    source_finding: S4 gap_register GAP-06
+  - subdomain: catalog
+    provisional_code: CC_VALIDATE_BOOK_SUBMISSION_V0
+    family: CC
+    summary: Confirms a registration carries what a book record requires, before any identity is claimed
+    source_finding: S4 gap_register GAP-06
+  - subdomain: catalog
+    provisional_code: CC_RESOLVE_BOOK_IDENTITY_V0
+    family: CC
+    summary: Resolves a registered book by its identifying key, so an update names the book independently of the attributes it changes
+    source_finding: S4 gap_register GAP-08
+  - subdomain: catalog
+    provisional_code: EV_BOOK_REGISTERED_V0
+    family: EV
+    summary: The moment a book enters the catalog
+    source_finding: S4 gap_register GAP-16
+  - subdomain: catalog
+    provisional_code: EV_PHYSICAL_COPY_REGISTERED_V0
+    family: EV
+    summary: The moment the library records another copy it owns
+    source_finding: S4 gap_register GAP-16
+  - subdomain: catalog
+    provisional_code: EV_BIBLIOGRAPHIC_INFORMATION_UPDATED_V0
+    family: EV
+    summary: The moment a book's authoritative description changes
+    source_finding: S4 gap_register GAP-16
+  - subdomain: catalog
+    provisional_code: EV_BOOK_RETIRED_V0
+    family: EV
+    summary: The moment a book record is judged obsolete
+    source_finding: S4 gap_register GAP-16
+  - subdomain: catalog
+    provisional_code: EV_PHYSICAL_COPY_RETIRED_V0
+    family: EV
+    summary: The moment the library no longer holds a copy
+    source_finding: S4 gap_register GAP-16
+  - subdomain: catalog
+    provisional_code: RB_CATALOG_BINDINGS_V0
+    family: RB
+    summary: Binds the catalog's operations to the stores and mechanisms they use
+    source_finding: S4 gap_register GAP-03
+  - subdomain: catalog
+    provisional_code: STRUCTURE_CATALOG_STORAGE_V0
+    family: STRUCTURE
+    summary: Declares the stores the catalog owns and the paths they occupy
+    source_finding: S4 gap_register GAP-02
+  cross_subdomain_refs: null
 ```
 
 ---

@@ -34,14 +34,14 @@ CASES = [  # transform, case, outcome
     (WRITE, "refuses_without_positions", "VIOLATION"),
 ]
 VALUES = [  # transform, case, role, field, value
-    (OFFER, "offers_candidates", "INPUT", "position", "1"),
-    (OFFER, "offers_candidates", "ASSERT", "candidates", "{mode: property, type: non_zero}"),
-    (WRITE, "writes_three_words", "INPUT", "positions", "[1, 2, 3]"),
-    (WRITE, "writes_three_words", "RECORDED", "written[0]/offered", "{candidates: [the]}"),
-    (WRITE, "writes_three_words", "RECORDED", "written[1]/offered", "{candidates: [balance]}"),
-    (WRITE, "writes_three_words", "RECORDED", "written[2]/offered", "{candidates: [holds]}"),
-    (WRITE, "writes_three_words", "EXPECTED", "result", "{text: the balance holds, done: false}"),
-    (WRITE, "refuses_without_positions", "INPUT", "positions", '""'),
+    (OFFER, "offers_candidates", "INPUT", "position", 1),
+    (OFFER, "offers_candidates", "ASSERT", "candidates", {"mode": "property", "type": "non_zero"}),
+    (WRITE, "writes_three_words", "INPUT", "positions", [1, 2, 3]),
+    (WRITE, "writes_three_words", "RECORDED", "written[0]/offered", {"candidates": ["the"]}),
+    (WRITE, "writes_three_words", "RECORDED", "written[1]/offered", {"candidates": ["balance"]}),
+    (WRITE, "writes_three_words", "RECORDED", "written[2]/offered", {"candidates": ["holds"]}),
+    (WRITE, "writes_three_words", "EXPECTED", "result", {"text": "the balance holds", "done": False}),
+    (WRITE, "refuses_without_positions", "INPUT", "positions", ""),
 ]
 AMENDED = f"{D}::CT_PURE_CHOOSE_WORD_V0"
 
@@ -56,12 +56,12 @@ def design(cases=CASES, values=VALUES, amended=()) -> str:
         _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
                                    "Source Finding"],
                  [(c, "CT", code, c, "words", "NEW", "human decision") for c, code in NEW]),
-        _table("existing_inventory", ["FQDN", "Action (REPLACE, REUSE, EXTEND, REVIEW)", "Summary",
+        _table("existing_inventory", ["FQDN", "Action", "Summary",
                                         "Reason", "Source Finding"],
                  [(a, "EXTEND", "Chooses a word", "Amended", "human decision") for a in amended]),
-        _table("test_cases", ["CT Code", "Case", "Expected Outcome (SUCCESS, VIOLATION)", "Source Finding"],
+        _table("test_cases", ["CT Code", "Case", "Expected Outcome", "Source Finding"],
                  [(*c, "human decision") for c in cases]),
-        _table("test_case_values", ["CT Code", "Case", "Role (INPUT, EXPECTED, ASSERT, RECORDED)", "Field",
+        _table("test_case_values", ["CT Code", "Case", "Role", "Field",
                                       "Value", "Source Finding"],
                  [(*v, "human decision") for v in values])
     )
@@ -78,12 +78,12 @@ def registers(text: str) -> dict[str, list[dict]]:
             if doc.register(e["id"]) and doc.register(e["id"]).table}
 
 
-MANDATE = {"build_order": [{"Code": code} for _, code in NEW],
-           "field_declarations": [{"Code": code, "Subdomain Field": "words"} for _, code in NEW]}
+MANDATE = {"build_order": [{"code": code} for _, code in NEW],
+           "field_declarations": [{"code": code, "subdomain_field": "words"} for _, code in NEW]}
 # The vector rules: every finding a transform's test cases and their values can raise.
 HELD = {"AMENDED_TRANSFORM_WITHOUT_VECTOR", "TEST_CASE_NAME_MALFORMED",
         "TEST_CASE_TRANSFORM_UNDECLARED", "TEST_CASE_UNNAMED", "TEST_VALUE_CASE_UNDECLARED",
-        "TEST_VALUE_EMPTY", "TEST_VALUE_UNPARSEABLE", "TEST_VALUE_WITHOUT_FIELD",
+        "TEST_VALUE_EMPTY", "TEST_VALUE_WITHOUT_FIELD",
         "TRANSFORM_WITHOUT_VECTOR"}
 # The declaration the compiler validates a vector against, read as a file: this repo never imports the
 # compiler, and the schema is the platform's declaration rather than the compiler's code.
@@ -156,8 +156,7 @@ def test_each_rule_fires_on_the_defect_it_names():
         "TEST_CASE_NAME_MALFORMED": design(cases=[*CASES, (WRITE, "Writes-Words", "SUCCESS")]),
         "TEST_VALUE_CASE_UNDECLARED": design(values=[*VALUES, (WRITE, "nowhere", "INPUT", "x", "1")]),
         "TEST_VALUE_WITHOUT_FIELD": design(values=[*VALUES, (WRITE, "writes_three_words", "INPUT", "", "1")]),
-        "TEST_VALUE_EMPTY": design(values=[*VALUES, (WRITE, "writes_three_words", "INPUT", "seed", "")]),
-        "TEST_VALUE_UNPARSEABLE": design(values=[*VALUES, (WRITE, "writes_three_words", "INPUT", "seed", "[1, 2")]),
+        "TEST_VALUE_EMPTY": design(values=[*VALUES, (WRITE, "writes_three_words", "INPUT", "seed", machine.ABSENT)]),
         "CELL_NOT_IN_VOCABULARY": design(values=[*VALUES, (WRITE, "writes_three_words", "OUTPUT", "x", "1")]),
     }
     for rule, text in cases.items():
@@ -173,7 +172,7 @@ def test_a_manifest_is_generated_for_an_amendment_and_declares_its_root():
     # A change that schedules nothing but states cases for transforms it redeclares still needs its
     # domain to compile them; and every manifest declares where it writes (A10).
     amending = registers(design())
-    amending["existing_inventory"] = [{"FQDN": "probe::CT_PURE_PROBE_V0", "Action": "EXTEND"}]
+    amending["existing_inventory"] = [{"fqdn": "probe::CT_PURE_PROBE_V0", "action": "EXTEND"}]
     manifest = build_manifest(amending, {"build_order": [], "field_declarations": MANDATE["field_declarations"]})
     assert manifest is not None and "TEST_DATA" in manifest["artifact_discovery"]["artifact_types"], manifest
     assert manifest["output_configuration"]["root"] == "snapshot", manifest["output_configuration"]

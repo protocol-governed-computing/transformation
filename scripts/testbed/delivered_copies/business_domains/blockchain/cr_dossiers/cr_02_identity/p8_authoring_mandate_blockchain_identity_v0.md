@@ -10,112 +10,78 @@ header:
   Feeds: Artifact Authoring
 registers:
   build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: '1'
-      Step: '1'
-      Code: blockchain::TI_REGISTER_ACTOR_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: —
-    - Wave: '1'
-      Step: '2'
-      Code: blockchain::TI_ACCEPT_ACTOR_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: —
-    - Wave: '1'
-      Step: '3'
-      Code: blockchain::TI_REJECT_ACTOR_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: —
-    - Wave: '2'
-      Step: '4'
-      Code: blockchain::TE_REGISTER_ACTOR_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: blockchain::TI_REGISTER_ACTOR_V0
-    - Wave: '2'
-      Step: '5'
-      Code: blockchain::TE_ACCEPT_ACTOR_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: blockchain::TI_ACCEPT_ACTOR_V0
-    - Wave: '2'
-      Step: '6'
-      Code: blockchain::TE_REJECT_ACTOR_V0
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: blockchain::TI_REJECT_ACTOR_V0
+  - wave: '1'
+    step: '1'
+    code: blockchain::TI_REGISTER_ACTOR_V0
+    action: NEW
+    subdomain: identity
+    depends_on: null
+  - wave: '1'
+    step: '2'
+    code: blockchain::TI_ACCEPT_ACTOR_V0
+    action: NEW
+    subdomain: identity
+    depends_on: null
+  - wave: '1'
+    step: '3'
+    code: blockchain::TI_REJECT_ACTOR_V0
+    action: NEW
+    subdomain: identity
+    depends_on: null
+  - wave: '2'
+    step: '4'
+    code: blockchain::TE_REGISTER_ACTOR_V0
+    action: NEW
+    subdomain: identity
+    depends_on:
+    - blockchain::TI_REGISTER_ACTOR_V0
+  - wave: '2'
+    step: '5'
+    code: blockchain::TE_ACCEPT_ACTOR_V0
+    action: NEW
+    subdomain: identity
+    depends_on:
+    - blockchain::TI_ACCEPT_ACTOR_V0
+  - wave: '2'
+    step: '6'
+    code: blockchain::TE_REJECT_ACTOR_V0
+    action: NEW
+    subdomain: identity
+    depends_on:
+    - blockchain::TI_REJECT_ACTOR_V0
   critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: '1'
-      Code: blockchain::TI_REGISTER_ACTOR_V0
-    - Position: '2'
-      Code: blockchain::TE_REGISTER_ACTOR_V0
+  - position: '1'
+    code: blockchain::TI_REGISTER_ACTOR_V0
+  - position: '2'
+    code: blockchain::TE_REGISTER_ACTOR_V0
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '6'
-      Description: Three ingress declarations, each naming an act the business offers and holding what the act requires and a caller must not send; and three egress declarations, each stating which kind of answer an ending takes and what of the result the caller is told.
+  - action: NEW
+    count: '6'
+    description: Three ingress declarations, each naming an act the business offers and holding what the act requires and a caller must not send; and three egress declarations, each stating which kind of answer an ending takes and what of the result the caller is told.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: blockchain::TI_REGISTER_ACTOR_V0
-      Subdomain Field: identity
-    - Code: blockchain::TI_ACCEPT_ACTOR_V0
-      Subdomain Field: identity
-    - Code: blockchain::TI_REJECT_ACTOR_V0
-      Subdomain Field: identity
-    - Code: blockchain::TE_REGISTER_ACTOR_V0
-      Subdomain Field: identity
-    - Code: blockchain::TE_ACCEPT_ACTOR_V0
-      Subdomain Field: identity
-    - Code: blockchain::TE_REJECT_ACTOR_V0
-      Subdomain Field: identity
-  new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows: []
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows: []
+  - code: blockchain::TI_REGISTER_ACTOR_V0
+    subdomain_field: identity
+  - code: blockchain::TI_ACCEPT_ACTOR_V0
+    subdomain_field: identity
+  - code: blockchain::TI_REJECT_ACTOR_V0
+    subdomain_field: identity
+  - code: blockchain::TE_REGISTER_ACTOR_V0
+    subdomain_field: identity
+  - code: blockchain::TE_ACCEPT_ACTOR_V0
+    subdomain_field: identity
+  - code: blockchain::TE_REJECT_ACTOR_V0
+    subdomain_field: identity
+  new_capabilities: null
+  new_intents: null
   cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: blockchain::STRUCTURE_BUILD_BLOCKCHAIN_CONFIG_V0
-      Note: Amended, not authored, and therefore not scheduled as a build step. It already admits both boundary kinds among its artifact types; what is added is the source layer they are found in and the identity rule that puts them in this namespace. The amendment must be in place before any of the six is compiled, because a declaration in a layer the manifest does not search is a declaration the compiler never sees.
-    - Code: blockchain::WF_REGISTER_ACTOR_V0
-      Note: Reached unchanged. The ingress declaration names it as the act it dispatches to; nothing about the act, its topology or its bindings is amended.
-    - Code: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
-      Note: Reached unchanged by two declarations, one holding the constants of an acceptance and one those of a rejection. That one act serves two offered names is invisible to a caller, and is what allows the business's public names to follow what it records rather than what it executes.
-    - Code: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Note: Reached unchanged, but the declaration it validates against now arrives from a sealed artifact rather than from whoever calls. What the ingress declares a caller may send and what this contract is given to validate against must name the same fields; a change to either without the other is a change to the readability test the business refused to have stated twice.
+  - code: blockchain::STRUCTURE_BUILD_BLOCKCHAIN_CONFIG_V0
+    note: Amended, not authored, and therefore not scheduled as a build step. It already admits both boundary kinds among its artifact types; what is added is the source layer they are found in and the identity rule that puts them in this namespace. The amendment must be in place before any of the six is compiled, because a declaration in a layer the manifest does not search is a declaration the compiler never sees.
+  - code: blockchain::WF_REGISTER_ACTOR_V0
+    note: Reached unchanged. The ingress declaration names it as the act it dispatches to; nothing about the act, its topology or its bindings is amended.
+  - code: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
+    note: Reached unchanged by two declarations, one holding the constants of an acceptance and one those of a rejection. That one act serves two offered names is invisible to a caller, and is what allows the business's public names to follow what it records rather than what it executes.
+  - code: blockchain::CC_VALIDATE_REGISTRATION_V0
+    note: Reached unchanged, but the declaration it validates against now arrives from a sealed artifact rather than from whoever calls. What the ingress declares a caller may send and what this contract is given to validate against must name the same fields; a change to either without the other is a change to the readability test the business refused to have stated twice.
 ```
 
 Mechanically derived from the design. Every artifact the design declares appears here exactly once,

@@ -42,26 +42,53 @@
             "type": "object",
             "properties": {
               "wave": {
-                "title": "Wave"
+                "title": "Wave",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step": {
-                "title": "Step"
+                "title": "Step",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "code": {
-                "title": "Code"
+                "title": "Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "action": {
                 "title": "Action",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "gap_resolution"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "subdomain": {
-                "title": "Subdomain"
+                "title": "Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "depends_on": {
-                "title": "Depends On"
+                "title": "Depends On",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [
@@ -84,10 +111,18 @@
             "type": "object",
             "properties": {
               "position": {
-                "title": "Position"
+                "title": "Position",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "code": {
-                "title": "Code"
+                "title": "Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -110,13 +145,25 @@
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "gap_resolution"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "count": {
-                "title": "Count"
+                "title": "Count",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "description": {
-                "title": "Description"
+                "title": "Description",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -137,10 +184,18 @@
             "type": "object",
             "properties": {
               "code": {
-                "title": "Code"
+                "title": "Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "subdomain_field": {
-                "title": "Subdomain Field"
+                "title": "Subdomain Field",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -160,16 +215,32 @@
             "type": "object",
             "properties": {
               "code": {
-                "title": "Code"
+                "title": "Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "purpose": {
-                "title": "Purpose"
+                "title": "Purpose",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "inputs": {
-                "title": "Inputs"
+                "title": "Inputs",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "outputs": {
-                "title": "Outputs"
+                "title": "Outputs",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -190,16 +261,32 @@
             "type": "object",
             "properties": {
               "code": {
-                "title": "Code"
+                "title": "Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "purpose": {
-                "title": "Purpose"
+                "title": "Purpose",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "workflow": {
-                "title": "Workflow"
+                "title": "Workflow",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "inputs": {
-                "title": "Inputs"
+                "title": "Inputs",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -220,10 +307,18 @@
             "type": "object",
             "properties": {
               "code": {
-                "title": "Code"
+                "title": "Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "note": {
-                "title": "Note"
+                "title": "Note",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [

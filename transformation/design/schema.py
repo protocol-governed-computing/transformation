@@ -34,6 +34,12 @@ MACHINE_BLOCK = re.compile(r"## Machine\s*\n+```yaml\n(.*?)\n```", re.S)
 _PROVENANCE_COLUMNS = ("Source Finding", "Evidence")
 
 
+def column_key(title: str) -> str:
+    """The key a column's value is written under: its title in `snake_case`. `#`, an ordinal with no
+    name, is keyed `number`. A rule names a column by title, and reads it through this."""
+    return re.sub(r"[^a-z0-9]+", "_", title.strip().lower()).strip("_") or "number"
+
+
 def _is_provenance_column(column: str) -> bool:
     return any(column.startswith(p) for p in _PROVENANCE_COLUMNS)
 
@@ -51,6 +57,8 @@ class Register:
     required_columns: tuple[str, ...] = ()
     optional: bool = False
     business_language_scope: tuple[str, ...] | bool = ()
+    # Column title → the type its value must take, for every column that carries structure.
+    types: dict[str, dict] = field(default_factory=dict)
 
     @property
     def business_language(self) -> bool:
@@ -152,6 +160,11 @@ def read_schema(path: Path, phase: str) -> PhaseShape:
             for k in keys if "x-vocab" in items["properties"][k]
         }
         required = set(items.get("required") or ())
+        text = {"type": ["string", "null"]}
+        types = {items["properties"][k]["title"]: {t: v for t, v in items["properties"][k].items()
+                                                   if t not in ("title", "x-vocab")}
+                 for k in keys
+                 if {t: v for t, v in items["properties"][k].items() if t not in ("title", "x-vocab")} != text}
         scope = body.get("x-business-language", ())
         registers.append(Register(
             id=register_id,
@@ -163,6 +176,7 @@ def read_schema(path: Path, phase: str) -> PhaseShape:
             required_columns=tuple(c for k, c in zip(keys, columns) if k in required),
             optional=body.get("minItems", 0) == 0,
             business_language_scope=scope if scope is True else tuple(scope),
+            types=types,
         ))
     return PhaseShape(
         phase=phase,

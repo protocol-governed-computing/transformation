@@ -10,2268 +10,2505 @@ header:
   Feeds: Stage 8 — Authoring Mandate
 registers:
   design_resolution:
-    columns:
-    - Decision
-    - Business Fact
-    - Resolution
-    - Source Finding
-    rows:
-    - Decision: The record the previous change calls a book is an edition; the work is added above it
-      Business Fact: Editions of one work share a title and an author and differ by publication year
-      Resolution: No existing identity changes. A work store and a work identity registry are added, and the edition record gains the key of the work it belongs to
-      Source Finding: 'S4 design_decisions #1'
-    - Decision: The work's identity is formed by a new transform
-      Business Fact: The edition key transform is reached by every catalog operation and 23 artifacts depend on it
-      Resolution: A second transform forms the work key from title and author; the two are independent and neither can alter the other
-      Source Finding: 'S4 design_decisions #2'
-    - Decision: The work is claimed through the same registry mechanism the edition is claimed through
-      Business Fact: Register-if-absent gives the atomic uniqueness a work identity needs
-      Resolution: A registry store claims the work key; a claim that finds the key already held yields ALREADY_EXISTS, which the registration treats as the work having been found rather than as a refusal
-      Source Finding: 'S4 design_decisions #3'
-    - Decision: The work store and the work identity registry are declared in the catalog's own storage declaration
-      Business Fact: A subdomain declares its stores once and binds them once
-      Resolution: Both stores are added to the existing storage declaration and reached through the existing runtime binding
-      Source Finding: 'S4 design_decisions #4'
-    - Decision: Registering an edition of a new work extends the existing registration; registering an additional edition is a new operation
-      Business Fact: The existing registration creates the work and requires a first copy; an additional edition does neither
-      Resolution: The existing workflow gains a work claim before its claims; a second workflow resolves an existing work and claims only the edition
-      Source Finding: 'S4 design_decisions #5'
-    - Decision: The work claim is placed among the existing claims, before any write
-      Business Fact: A refused registration must leave nothing behind
-      Resolution: The work claim runs after validation and before the edition and barcode claims, so every claim still precedes every write
-      Source Finding: 'S4 design_decisions #6'
-    - Decision: Search is extended rather than duplicated, and answers at the level of the work
-      Business Fact: Two searches would leave staff choosing which one answers their question
-      Resolution: The existing search gains a grouping step after its selection step; the search terms and the records it selects are unchanged
-      Source Finding: 'S4 design_decisions #7'
-    - Decision: Retrieval stays edition retrieval and carries a summary of the work
-      Business Fact: The business asked for one retrieval carrying a summary, not a second operation
-      Resolution: The existing retrieval gains a read of the work record; the edition and its copies are assembled as before
-      Source Finding: 'S4 design_decisions #8'
-    - Decision: A work is never retired
-      Business Fact: A work whose editions are all retired is simply that
-      Resolution: No retirement operation names the work, and no routing reaches the work store from a retirement
-      Source Finding: 'S4 design_decisions #9'
+  - decision: The record the previous change calls a book is an edition; the work is added above it
+    business_fact: Editions of one work share a title and an author and differ by publication year
+    resolution: No existing identity changes. A work store and a work identity registry are added, and the edition record gains the key of the work it belongs to
+    source_finding: 'S4 design_decisions #1'
+  - decision: The work's identity is formed by a new transform
+    business_fact: The edition key transform is reached by every catalog operation and 23 artifacts depend on it
+    resolution: A second transform forms the work key from title and author; the two are independent and neither can alter the other
+    source_finding: 'S4 design_decisions #2'
+  - decision: The work is claimed through the same registry mechanism the edition is claimed through
+    business_fact: Register-if-absent gives the atomic uniqueness a work identity needs
+    resolution: A registry store claims the work key; a claim that finds the key already held yields ALREADY_EXISTS, which the registration treats as the work having been found rather than as a refusal
+    source_finding: 'S4 design_decisions #3'
+  - decision: The work store and the work identity registry are declared in the catalog's own storage declaration
+    business_fact: A subdomain declares its stores once and binds them once
+    resolution: Both stores are added to the existing storage declaration and reached through the existing runtime binding
+    source_finding: 'S4 design_decisions #4'
+  - decision: Registering an edition of a new work extends the existing registration; registering an additional edition is a new operation
+    business_fact: The existing registration creates the work and requires a first copy; an additional edition does neither
+    resolution: The existing workflow gains a work claim before its claims; a second workflow resolves an existing work and claims only the edition
+    source_finding: 'S4 design_decisions #5'
+  - decision: The work claim is placed among the existing claims, before any write
+    business_fact: A refused registration must leave nothing behind
+    resolution: The work claim runs after validation and before the edition and barcode claims, so every claim still precedes every write
+    source_finding: 'S4 design_decisions #6'
+  - decision: Search is extended rather than duplicated, and answers at the level of the work
+    business_fact: Two searches would leave staff choosing which one answers their question
+    resolution: The existing search gains a grouping step after its selection step; the search terms and the records it selects are unchanged
+    source_finding: 'S4 design_decisions #7'
+  - decision: Retrieval stays edition retrieval and carries a summary of the work
+    business_fact: The business asked for one retrieval carrying a summary, not a second operation
+    resolution: The existing retrieval gains a read of the work record; the edition and its copies are assembled as before
+    source_finding: 'S4 design_decisions #8'
+  - decision: A work is never retired
+    business_fact: A work whose editions are all retired is simply that
+    resolution: No retirement operation names the work, and no routing reaches the work store from a retirement
+    source_finding: 'S4 design_decisions #9'
   existing_inventory:
-    columns:
-    - FQDN
-    - Action (REPLACE, REUSE, EXTEND, REVIEW)
-    - Summary
-    - Reason
-    - Source Finding
-    rows:
-    - FQDN: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Declares the stores the catalog owns and the paths they occupy
-      Reason: Gains the work record store and the work identity registry alongside the five stores the catalog already owns
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-    - FQDN: book_library_mgmt::RB_CATALOG_BINDINGS_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Binds the catalog's workflows to the stores and mechanisms they use
-      Reason: Binds the new workflow to the same substrates and the same storage declaration the catalog already uses
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::RB_CATALOG_BINDINGS_V0
-    - FQDN: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Registers a work with its first edition and that edition's first physical copy
-      Reason: 'Gains one node: the work claim, placed after validation and before every other claim'
-      Source Finding: S6 ownership Register an edition of a work the catalog does not yet hold
-    - FQDN: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Validates, assembles and writes an edition record against the work it belongs to
-      Reason: The edition record it assembles now carries the key of the work the edition belongs to
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_REGISTER_BOOK_V0
-    - FQDN: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Confirms a registration carries what a work and an edition require, before any identity is claimed
-      Reason: Confirms the submission carries what a work requires as well as what an edition requires
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-    - FQDN: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Selects the registered editions matching a subject or title and groups them under their work
-      Reason: Groups the matching editions under the work they belong to, so the answer is one result per work
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_SEARCH_CATALOG_V0
-    - FQDN: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Assembles an edition, the physical copies of it, and the record of the work it belongs to
-      Reason: Reads the work record so the retrieval carries a summary of the work the edition belongs to
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-    - FQDN: book_library_mgmt::AC_LIBRARY_STAFF_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: The actor every catalog workflow runs as, including the one this change adds — authorization is read from what the caller supplies and granted nowhere
-      Source Finding: S6 ownership Confirm the staff member performing an operation is authorized
-    - FQDN: book_library_mgmt::IN_REGISTER_BOOK_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: The registration's entry point is unchanged — what a caller supplies is what it supplied before, and only the sequence it starts gains a node
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_REGISTER_BOOK_V0
-    - FQDN: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REVIEW
-      Summary: ''
-      Reason: Examined and deliberately not widened; it continues to form the edition key from three attributes
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
-    - FQDN: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Claims the edition's identity unchanged, and is the precedent the work claim follows
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-    - FQDN: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Every operation this change adds reaches it first, as every existing operation does
-      Source Finding: S6 ownership Confirm the staff member performing an operation is authorized
-    - FQDN: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Records the operations this change adds into the trail it already appends to
-      Source Finding: S6 ownership Record every performed operation in the catalog's audit trail
-    - FQDN: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: A copy already belongs to exactly one record, and that record is an edition
-      Source Finding: S6 ownership Register a physical copy against exactly one edition
-    - FQDN: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Barcode uniqueness is unaffected by the work abstraction
-      Source Finding: S6 ownership Register a physical copy against exactly one edition
-    - FQDN: capability_side_effects::CS_MUTABLE_JSON_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Holds the work record as it holds the edition and copy records
-      Source Finding: S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0
-    - FQDN: capability_side_effects::CS_REGISTRY_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Claims the work key as it claims the edition key and the barcode
-      Source Finding: S6 pps_artifacts_requiring_action capability_side_effects::CS_REGISTRY_V0
-    - FQDN: capability_side_effects::CS_APPENDONLY_JSONL_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Appends the operations this change adds to the catalog's trail
-      Source Finding: S6 storage_governance An unamendable trail of every operation performed
-    - FQDN: capability_transforms::CT_PURE_FILTER_RECORDS_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REVIEW
-      Summary: ''
-      Reason: Examined and not extended; it selects records and the grouping is a separate transform
-      Source Finding: S6 pps_artifacts_requiring_action capability_transforms::CT_PURE_FILTER_RECORDS_V0
-    - FQDN: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Assembles the work record as it assembles the edition and copy records
-      Source Finding: S6 storage_governance A durable record of every work the library has catalogued
-    - FQDN: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Confirms a submission carries the fields its schema declares, for the work as for the edition
-      Source Finding: S6 ownership Validate that a registration carries what a work and an edition require
-    - FQDN: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Compares two values for equality, unchanged — the update uses it to confirm an edition's identity did not change
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-    - FQDN: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Turns a validation result into a refusal, unchanged
-      Source Finding: S6 ownership Validate that a registration carries what a work and an edition require
-    - FQDN: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Changes a registered edition's descriptive content and refuses a change that would duplicate another edition
-      Reason: The record it writes back now carries the work the edition belongs to, which it previously dropped
-      Source Finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+  - fqdn: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+    action: EXTEND
+    summary: Declares the stores the catalog owns and the paths they occupy
+    reason: Gains the work record store and the work identity registry alongside the five stores the catalog already owns
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+  - fqdn: book_library_mgmt::RB_CATALOG_BINDINGS_V0
+    action: EXTEND
+    summary: Binds the catalog's workflows to the stores and mechanisms they use
+    reason: Binds the new workflow to the same substrates and the same storage declaration the catalog already uses
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::RB_CATALOG_BINDINGS_V0
+  - fqdn: book_library_mgmt::WF_REGISTER_BOOK_V0
+    action: EXTEND
+    summary: Registers a work with its first edition and that edition's first physical copy
+    reason: 'Gains one node: the work claim, placed after validation and before every other claim'
+    source_finding: S6 ownership Register an edition of a work the catalog does not yet hold
+  - fqdn: book_library_mgmt::CC_REGISTER_BOOK_V0
+    action: EXTEND
+    summary: Validates, assembles and writes an edition record against the work it belongs to
+    reason: The edition record it assembles now carries the key of the work the edition belongs to
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_REGISTER_BOOK_V0
+  - fqdn: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    action: EXTEND
+    summary: Confirms a registration carries what a work and an edition require, before any identity is claimed
+    reason: Confirms the submission carries what a work requires as well as what an edition requires
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+  - fqdn: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    action: EXTEND
+    summary: Selects the registered editions matching a subject or title and groups them under their work
+    reason: Groups the matching editions under the work they belong to, so the answer is one result per work
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_SEARCH_CATALOG_V0
+  - fqdn: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    action: EXTEND
+    summary: Assembles an edition, the physical copies of it, and the record of the work it belongs to
+    reason: Reads the work record so the retrieval carries a summary of the work the edition belongs to
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+  - fqdn: book_library_mgmt::AC_LIBRARY_STAFF_V0
+    action: REUSE
+    summary: ''
+    reason: The actor every catalog workflow runs as, including the one this change adds — authorization is read from what the caller supplies and granted nowhere
+    source_finding: S6 ownership Confirm the staff member performing an operation is authorized
+  - fqdn: book_library_mgmt::IN_REGISTER_BOOK_V0
+    action: REUSE
+    summary: ''
+    reason: The registration's entry point is unchanged — what a caller supplies is what it supplied before, and only the sequence it starts gains a node
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_REGISTER_BOOK_V0
+  - fqdn: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
+    action: REVIEW
+    summary: ''
+    reason: Examined and deliberately not widened; it continues to form the edition key from three attributes
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
+  - fqdn: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    action: REUSE
+    summary: ''
+    reason: Claims the edition's identity unchanged, and is the precedent the work claim follows
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+  - fqdn: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    action: REUSE
+    summary: ''
+    reason: Every operation this change adds reaches it first, as every existing operation does
+    source_finding: S6 ownership Confirm the staff member performing an operation is authorized
+  - fqdn: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    action: REUSE
+    summary: ''
+    reason: Records the operations this change adds into the trail it already appends to
+    source_finding: S6 ownership Record every performed operation in the catalog's audit trail
+  - fqdn: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    action: REUSE
+    summary: ''
+    reason: A copy already belongs to exactly one record, and that record is an edition
+    source_finding: S6 ownership Register a physical copy against exactly one edition
+  - fqdn: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
+    action: REUSE
+    summary: ''
+    reason: Barcode uniqueness is unaffected by the work abstraction
+    source_finding: S6 ownership Register a physical copy against exactly one edition
+  - fqdn: capability_side_effects::CS_MUTABLE_JSON_V0
+    action: REUSE
+    summary: ''
+    reason: Holds the work record as it holds the edition and copy records
+    source_finding: S6 pps_artifacts_requiring_action capability_side_effects::CS_MUTABLE_JSON_V0
+  - fqdn: capability_side_effects::CS_REGISTRY_V0
+    action: REUSE
+    summary: ''
+    reason: Claims the work key as it claims the edition key and the barcode
+    source_finding: S6 pps_artifacts_requiring_action capability_side_effects::CS_REGISTRY_V0
+  - fqdn: capability_side_effects::CS_APPENDONLY_JSONL_V0
+    action: REUSE
+    summary: ''
+    reason: Appends the operations this change adds to the catalog's trail
+    source_finding: S6 storage_governance An unamendable trail of every operation performed
+  - fqdn: capability_transforms::CT_PURE_FILTER_RECORDS_V0
+    action: REVIEW
+    summary: ''
+    reason: Examined and not extended; it selects records and the grouping is a separate transform
+    source_finding: S6 pps_artifacts_requiring_action capability_transforms::CT_PURE_FILTER_RECORDS_V0
+  - fqdn: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    action: REUSE
+    summary: ''
+    reason: Assembles the work record as it assembles the edition and copy records
+    source_finding: S6 storage_governance A durable record of every work the library has catalogued
+  - fqdn: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    action: REUSE
+    summary: ''
+    reason: Confirms a submission carries the fields its schema declares, for the work as for the edition
+    source_finding: S6 ownership Validate that a registration carries what a work and an edition require
+  - fqdn: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
+    action: REUSE
+    summary: ''
+    reason: Compares two values for equality, unchanged — the update uses it to confirm an edition's identity did not change
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+  - fqdn: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    action: REUSE
+    summary: ''
+    reason: Turns a validation result into a refusal, unchanged
+    source_finding: S6 ownership Validate that a registration carries what a work and an edition require
+  - fqdn: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    action: EXTEND
+    summary: Changes a registered edition's descriptive content and refuses a change that would duplicate another edition
+    reason: The record it writes back now carries the work the edition belongs to, which it previously dropped
+    source_finding: S6 pps_artifacts_requiring_action book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
   new_artifacts:
-    columns:
-    - Capability
-    - Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE)
-    - Code
-    - Summary
-    - Owner Subdomain
-    - Status
-    - Source Finding
-    rows:
-    - Capability: Form the identifying key of a work from its title and author
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): CT
-      Code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Summary: Forms the single key claimed for a work from its title and author
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-    - Capability: Select records matching criteria, answering none when none match
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): CT
-      Code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Summary: Selects the records matching stated criteria and returns none when none match
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes CT_PURE_SELECT_RECORDS_V0
-    - Capability: Group selected records by an attribute they share
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): CT
-      Code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Summary: Groups records by the value of a named attribute, returning one group per distinct value
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes CT_PURE_GROUP_RECORDS_V0
-    - Capability: Claim a work's identity so that two registrations of one work do not produce two works
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): CC
-      Code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Summary: Forms the work key, claims it, and writes the work record when the claim is new
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes CC_CLAIM_WORK_IDENTITY_V0
-    - Capability: Resolve the work an edition belongs to
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): CC
-      Code: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Summary: Forms the work key, resolves it against the registry, and reads the work record it names
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes CC_RESOLVE_WORK_V0
-    - Capability: Register an additional edition of an existing work
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): CC
-      Code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Summary: Assembles the edition record against a resolved work and writes it
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes CC_REGISTER_ADDITIONAL_EDITION_V0
-    - Capability: Admit a request to register an additional edition of an existing work
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): IN
-      Code: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Summary: A request to register a further edition of a work the catalog already holds
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes IN_REGISTER_ADDITIONAL_EDITION_V0
-    - Capability: Register an additional edition of an existing work
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): WF
-      Code: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Summary: The governed sequence that registers a further edition of an existing work
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes WF_REGISTER_ADDITIONAL_EDITION_V0
-    - Capability: Recognise the moment a work enters the catalog
-      Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE): EV
-      Code: book_library_mgmt::EV_WORK_REGISTERED_V0
-      Summary: The moment a work enters the catalog, created by the edition that evidences it
-      Owner Subdomain: catalog
-      Status: NEW
-      Source Finding: S5 provisional_codes EV_WORK_REGISTERED_V0
+  - capability: Form the identifying key of a work from its title and author
+    family: CT
+    code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    summary: Forms the single key claimed for a work from its title and author
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+  - capability: Select records matching criteria, answering none when none match
+    family: CT
+    code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    summary: Selects the records matching stated criteria and returns none when none match
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes CT_PURE_SELECT_RECORDS_V0
+  - capability: Group selected records by an attribute they share
+    family: CT
+    code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    summary: Groups records by the value of a named attribute, returning one group per distinct value
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes CT_PURE_GROUP_RECORDS_V0
+  - capability: Claim a work's identity so that two registrations of one work do not produce two works
+    family: CC
+    code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    summary: Forms the work key, claims it, and writes the work record when the claim is new
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes CC_CLAIM_WORK_IDENTITY_V0
+  - capability: Resolve the work an edition belongs to
+    family: CC
+    code: book_library_mgmt::CC_RESOLVE_WORK_V0
+    summary: Forms the work key, resolves it against the registry, and reads the work record it names
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes CC_RESOLVE_WORK_V0
+  - capability: Register an additional edition of an existing work
+    family: CC
+    code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    summary: Assembles the edition record against a resolved work and writes it
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes CC_REGISTER_ADDITIONAL_EDITION_V0
+  - capability: Admit a request to register an additional edition of an existing work
+    family: IN
+    code: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    summary: A request to register a further edition of a work the catalog already holds
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes IN_REGISTER_ADDITIONAL_EDITION_V0
+  - capability: Register an additional edition of an existing work
+    family: WF
+    code: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    summary: The governed sequence that registers a further edition of an existing work
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes WF_REGISTER_ADDITIONAL_EDITION_V0
+  - capability: Recognise the moment a work enters the catalog
+    family: EV
+    code: book_library_mgmt::EV_WORK_REGISTERED_V0
+    summary: The moment a work enters the catalog, created by the edition that evidences it
+    owner_subdomain: catalog
+    status: NEW
+    source_finding: S5 provisional_codes EV_WORK_REGISTERED_V0
   rb_declarations:
-    columns:
-    - RB Code
-    - Binds WF
-    - CS Bindings
-    - Storage Structure
-    - Source Finding
-    rows:
-    - RB Code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
-      Binds WF: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      CS Bindings: capability_side_effects::CS_MUTABLE_JSON_V0, capability_side_effects::CS_REGISTRY_V0, capability_side_effects::CS_APPENDONLY_JSONL_V0
-      Storage Structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-      Source Finding: S6 storage_governance A durable record of every work the library has catalogued
-    - RB Code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
-      Binds WF: book_library_mgmt::WF_REGISTER_BOOK_V0
-      CS Bindings: capability_side_effects::CS_MUTABLE_JSON_V0, capability_side_effects::CS_REGISTRY_V0, capability_side_effects::CS_APPENDONLY_JSONL_V0
-      Storage Structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-      Source Finding: S6 storage_governance An atomic claim on each work's identity
+  - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
+    binds_wf: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    cs_bindings:
+    - capability_side_effects::CS_MUTABLE_JSON_V0
+    - capability_side_effects::CS_REGISTRY_V0
+    - capability_side_effects::CS_APPENDONLY_JSONL_V0
+    storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+    source_finding: S6 storage_governance A durable record of every work the library has catalogued
+  - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
+    binds_wf: book_library_mgmt::WF_REGISTER_BOOK_V0
+    cs_bindings:
+    - capability_side_effects::CS_MUTABLE_JSON_V0
+    - capability_side_effects::CS_REGISTRY_V0
+    - capability_side_effects::CS_APPENDONLY_JSONL_V0
+    storage_structure: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+    source_finding: S6 storage_governance An atomic claim on each work's identity
   execution_topology:
-    columns:
-    - Workflow
-    - Node
-    - Node Type (IN, CC, EXIT, EXIT_SUCCESS)
-    - Routing
-    - Source Finding
-    rows:
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): IN
-      Routing: ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED
-      Source Finding: S7 new_artifacts IN_REGISTER_ADDITIONAL_EDITION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_CONFIRM_STAFF_AUTHORIZED_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_RESOLVE_WORK_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 new_artifacts CC_RESOLVE_WORK_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0; ALREADY_EXISTS -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_CLAIM_BOOK_IDENTITY_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 new_artifacts CC_REGISTER_ADDITIONAL_EDITION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_APPEND_CATALOG_OPERATION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: EXIT_COMPLETED
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT_SUCCESS
-      Routing: —
-      Source Finding: S7 execution_topology WF_REGISTER_ADDITIONAL_EDITION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Node: EXIT_REJECTED
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT
-      Routing: —
-      Source Finding: S7 execution_topology WF_REGISTER_ADDITIONAL_EDITION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::IN_REGISTER_BOOK_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): IN
-      Routing: ACK -> book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0; NACK -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory WF_REGISTER_BOOK_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_CONFIRM_STAFF_AUTHORIZED_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0; ALREADY_EXISTS -> book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 new_artifacts CC_CLAIM_WORK_IDENTITY_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0; ALREADY_EXISTS -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_CLAIM_BOOK_IDENTITY_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_REGISTER_BOOK_V0; ALREADY_EXISTS -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_CLAIM_COPY_BARCODE_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_REGISTER_BOOK_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_REGISTER_PHYSICAL_COPY_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> EXIT_COMPLETED; VIOLATION -> EXIT_REJECTED; BACKEND_ERROR -> EXIT_REJECTED
-      Source Finding: S7 existing_inventory CC_APPEND_CATALOG_OPERATION_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: EXIT_COMPLETED
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT_SUCCESS
-      Routing: —
-      Source Finding: S7 execution_topology WF_REGISTER_BOOK_V0
-    - Workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Node: EXIT_REJECTED
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT
-      Routing: —
-      Source Finding: S7 execution_topology WF_REGISTER_BOOK_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    node_type: IN
+    routing:
+      ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+      NACK: EXIT_REJECTED
+    source_finding: S7 new_artifacts IN_REGISTER_ADDITIONAL_EDITION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_CONFIRM_STAFF_AUTHORIZED_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_RESOLVE_WORK_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_VALIDATE_BOOK_SUBMISSION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: book_library_mgmt::CC_RESOLVE_WORK_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+      NOT_FOUND: EXIT_REJECTED
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 new_artifacts CC_RESOLVE_WORK_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+      ALREADY_EXISTS: EXIT_REJECTED
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_CLAIM_BOOK_IDENTITY_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 new_artifacts CC_REGISTER_ADDITIONAL_EDITION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    node_type: CC
+    routing:
+      SUCCESS: EXIT_COMPLETED
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_APPEND_CATALOG_OPERATION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: EXIT_COMPLETED
+    node_type: EXIT_SUCCESS
+    routing: null
+    source_finding: S7 execution_topology WF_REGISTER_ADDITIONAL_EDITION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    node: EXIT_REJECTED
+    node_type: EXIT
+    routing: null
+    source_finding: S7 execution_topology WF_REGISTER_ADDITIONAL_EDITION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::IN_REGISTER_BOOK_V0
+    node_type: IN
+    routing:
+      ACK: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+      NACK: EXIT_REJECTED
+    source_finding: S7 existing_inventory WF_REGISTER_BOOK_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_CONFIRM_STAFF_AUTHORIZED_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_VALIDATE_BOOK_SUBMISSION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+      ALREADY_EXISTS: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 new_artifacts CC_CLAIM_WORK_IDENTITY_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
+      ALREADY_EXISTS: EXIT_REJECTED
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_CLAIM_BOOK_IDENTITY_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_REGISTER_BOOK_V0
+      ALREADY_EXISTS: EXIT_REJECTED
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_CLAIM_COPY_BARCODE_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_REGISTER_BOOK_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_REGISTER_BOOK_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    node_type: CC
+    routing:
+      SUCCESS: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+      NOT_FOUND: EXIT_REJECTED
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_REGISTER_PHYSICAL_COPY_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    node_type: CC
+    routing:
+      SUCCESS: EXIT_COMPLETED
+      VIOLATION: EXIT_REJECTED
+      BACKEND_ERROR: EXIT_REJECTED
+    source_finding: S7 existing_inventory CC_APPEND_CATALOG_OPERATION_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: EXIT_COMPLETED
+    node_type: EXIT_SUCCESS
+    routing: null
+    source_finding: S7 execution_topology WF_REGISTER_BOOK_V0
+  - workflow: book_library_mgmt::WF_REGISTER_BOOK_V0
+    node: EXIT_REJECTED
+    node_type: EXIT
+    routing: null
+    source_finding: S7 execution_topology WF_REGISTER_BOOK_V0
   cc_composition:
-    columns:
-    - CC Code
-    - Step
-    - Step Name
-    - Capability
-    - Kind (CT, CS)
-    - Operation
-    - Store
-    - Consumes
-    - Produces
-    - Routing
-    - Interpreted By
-    - Semantic Status
-    - Interface
-    rows:
-    - CC Code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: '1'
-      Step Name: form_work_key
-      Capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Kind (CT, CS): CT
-      Operation: FORM_WORK_IDENTITY_KEY
-      Store: —
-      Consumes: title, author
-      Produces: work_key
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: title=title, author=author; out: work_key=work_key'
-    - CC Code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: '2'
-      Step Name: claim_work
-      Capability: capability_side_effects::CS_REGISTRY_V0
-      Kind (CT, CS): CS
-      Operation: REGISTER
-      Store: WORK_IDENTITY_REGISTRY
-      Consumes: key, target_cs, target_ref
-      Produces: address
-      Routing: SUCCESS -> continue; ALREADY_EXISTS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: ALREADY_EXISTS
-      Interface: —
-    - CC Code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: '3'
-      Step Name: assemble_work_record
-      Capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      Kind (CT, CS): CT
-      Operation: ASSEMBLE_RECORD
-      Store: —
-      Consumes: work_fields
-      Produces: work_record
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: fields=work_fields; out: record=work_record'
-    - CC Code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: '4'
-      Step Name: write_work_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: WRITE
-      Store: WORKS
-      Consumes: key, value
-      Produces: result_status
-      Routing: SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: —
-    - CC Code: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: '1'
-      Step Name: form_work_key
-      Capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Kind (CT, CS): CT
-      Operation: FORM_WORK_IDENTITY_KEY
-      Store: —
-      Consumes: title, author
-      Produces: work_key
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: title=title, author=author; out: work_key=work_key'
-    - CC Code: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: '2'
-      Step Name: resolve_work_claim
-      Capability: capability_side_effects::CS_REGISTRY_V0
-      Kind (CT, CS): CS
-      Operation: RESOLVE
-      Store: WORK_IDENTITY_REGISTRY
-      Consumes: key_or_address
-      Produces: target_ref
-      Routing: SUCCESS -> continue; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: NOT_FOUND
-      Interface: —
-    - CC Code: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: '3'
-      Step Name: read_work_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: READ
-      Store: WORKS
-      Consumes: key
-      Produces: value
-      Routing: SUCCESS -> exit; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: NOT_FOUND
-      Interface: —
-    - CC Code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: '1'
-      Step Name: validate_edition_fields
-      Capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_RECORD_STRUCTURE
-      Store: —
-      Consumes: edition_fields, edition_schema
-      Produces: violations
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: record=edition_fields, schema=edition_schema; out: violations=violations'
-    - CC Code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: '2'
-      Step Name: assemble_edition_record
-      Capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      Kind (CT, CS): CT
-      Operation: ASSEMBLE_RECORD
-      Store: —
-      Consumes: edition_fields
-      Produces: edition_record
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: fields=edition_fields; out: record=edition_record'
-    - CC Code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: '3'
-      Step Name: write_edition_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: WRITE
-      Store: BOOKS
-      Consumes: key, value
-      Produces: result_status
-      Routing: SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: —
-    - CC Code: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: '1'
-      Step Name: form_work_key
-      Capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Kind (CT, CS): CT
-      Operation: FORM_WORK_IDENTITY_KEY
-      Store: —
-      Consumes: title, author
-      Produces: work_key
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: title=title, author=author; out: work_key=work_key'
-    - CC Code: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: '2'
-      Step Name: validate_book_fields
-      Capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_RECORD_STRUCTURE
-      Store: —
-      Consumes: book_fields, book_schema
-      Produces: violations
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: record=book_fields, schema=book_schema; out: violations=violations'
-    - CC Code: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: '3'
-      Step Name: assemble_book_record
-      Capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      Kind (CT, CS): CT
-      Operation: ASSEMBLE_RECORD
-      Store: —
-      Consumes: book_fields
-      Produces: book_record
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: fields=book_fields; out: record=book_record'
-    - CC Code: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: '4'
-      Step Name: write_book_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: WRITE
-      Store: BOOKS
-      Consumes: key, value
-      Produces: result_status
-      Routing: SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: —
-    - CC Code: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: '1'
-      Step Name: validate_book_fields
-      Capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_RECORD_STRUCTURE
-      Store: —
-      Consumes: book_fields, book_schema
-      Produces: violations
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: record=book_fields, schema=book_schema; out: violations=violations'
-    - CC Code: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: '2'
-      Step Name: validate_work_fields
-      Capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_RECORD_STRUCTURE
-      Store: —
-      Consumes: work_fields, work_schema
-      Produces: violations
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: record=work_fields, schema=work_schema; out: violations=violations'
-    - CC Code: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: '3'
-      Step Name: require_submission_complete
-      Capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_PARAMETER_RULES
-      Store: —
-      Consumes: barcode, book_fields
-      Produces: valid
-      Routing: SUCCESS -> exit; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: parameters=barcode, rules=rules; out: valid=valid'
-    - CC Code: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: '1'
-      Step Name: select_book_records
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: SELECT
-      Store: BOOKS
-      Consumes: —
-      Produces: records
-      Routing: SUCCESS -> continue; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: —
-    - CC Code: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: '2'
-      Step Name: select_matching_books
-      Capability: capability_transforms::CT_PURE_FILTER_RECORDS_V0
-      Kind (CT, CS): CT
-      Operation: FILTER_RECORDS
-      Store: —
-      Consumes: records, search_criteria
-      Produces: matching_books
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: source=records, filter=search_criteria; out: extracted=matching_books'
-    - CC Code: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: '3'
-      Step Name: group_editions_by_work
-      Capability: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Kind (CT, CS): CT
-      Operation: GROUP_RECORDS
-      Store: —
-      Consumes: matching_books, group_by
-      Produces: matching_works
-      Routing: SUCCESS -> exit; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: source=matching_books, attribute=group_by; out: grouped=matching_works'
-    - CC Code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: '1'
-      Step Name: read_book_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: READ
-      Store: BOOKS
-      Consumes: key
-      Produces: value
-      Routing: SUCCESS -> continue; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: NOT_FOUND
-      Interface: —
-    - CC Code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: '2'
-      Step Name: form_work_key
-      Capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Kind (CT, CS): CT
-      Operation: FORM_WORK_IDENTITY_KEY
-      Store: —
-      Consumes: title, author
-      Produces: work_key
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: title=title, author=author; out: work_key=work_key'
-    - CC Code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: '3'
-      Step Name: read_work_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: READ
-      Store: WORKS
-      Consumes: key
-      Produces: value
-      Routing: SUCCESS -> continue; NOT_FOUND -> continue; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: NOT_FOUND
-      Interface: —
-    - CC Code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: '4'
-      Step Name: select_copy_records
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: SELECT
-      Store: PHYSICAL_COPIES
-      Consumes: —
-      Produces: records
-      Routing: SUCCESS -> continue; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: —
-    - CC Code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: '5'
-      Step Name: select_copies_of_book
-      Capability: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Kind (CT, CS): CT
-      Operation: SELECT_RECORDS
-      Store: —
-      Consumes: records, copy_criteria
-      Produces: copies_held
-      Routing: SUCCESS -> exit; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: source=records, filter=copy_criteria; out: extracted=copies_held'
-    - CC Code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: '1'
-      Step Name: read_book_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: READ
-      Store: BOOKS
-      Consumes: key
-      Produces: book_record
-      Routing: SUCCESS -> continue; NOT_FOUND -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: NOT_FOUND
-      Interface: —
-    - CC Code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: '2'
-      Step Name: form_updated_identity_key
-      Capability: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
-      Kind (CT, CS): CT
-      Operation: FORM_BOOK_IDENTITY_KEY
-      Store: —
-      Consumes: updated_fields
-      Produces: updated_identity_key
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: title=title, author=author, publication_year=publication_year; out: identity_key=updated_identity_key'
-    - CC Code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: '3'
-      Step Name: compare_identity
-      Capability: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
-      Kind (CT, CS): CT
-      Operation: COMPARE_EQUAL
-      Store: —
-      Consumes: identity_key, updated_identity_key
-      Produces: identity_unchanged
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: left=identity_key, right=updated_identity_key; out: is_equal=identity_unchanged'
-    - CC Code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: '4'
-      Step Name: require_identity_unchanged
-      Capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_PARAMETER_RULES
-      Store: —
-      Consumes: identity_unchanged
-      Produces: valid
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: parameters=identity_unchanged, rules=rules; out: valid=valid'
-    - CC Code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: '5'
-      Step Name: assemble_updated_record
-      Capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      Kind (CT, CS): CT
-      Operation: ASSEMBLE_RECORD
-      Store: —
-      Consumes: updated_fields
-      Produces: updated_record
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: fields=updated_fields; out: record=updated_record'
-    - CC Code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: '6'
-      Step Name: write_updated_record
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: WRITE
-      Store: BOOKS
-      Consumes: key, value
-      Produces: result_status
-      Routing: SUCCESS -> exit; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: —
+  - cc_code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: '1'
+    step_name: form_work_key
+    capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    kind: CT
+    operation: FORM_WORK_IDENTITY_KEY
+    store: null
+    consumes:
+    - title
+    - author
+    produces:
+    - work_key
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        title: title
+        author: author
+      out:
+        work_key: work_key
+  - cc_code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: '2'
+    step_name: claim_work
+    capability: capability_side_effects::CS_REGISTRY_V0
+    kind: CS
+    operation: REGISTER
+    store: WORK_IDENTITY_REGISTRY
+    consumes:
+    - key
+    - target_cs
+    - target_ref
+    produces:
+    - address
+    routing:
+      SUCCESS: continue
+      ALREADY_EXISTS: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: ALREADY_EXISTS
+    interface: null
+  - cc_code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: '3'
+    step_name: assemble_work_record
+    capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    kind: CT
+    operation: ASSEMBLE_RECORD
+    store: null
+    consumes:
+    - work_fields
+    produces:
+    - work_record
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        fields: work_fields
+      out:
+        record: work_record
+  - cc_code: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: '4'
+    step_name: write_work_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: WRITE
+    store: WORKS
+    consumes:
+    - key
+    - value
+    produces:
+    - result_status
+    routing:
+      SUCCESS: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface: null
+  - cc_code: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: '1'
+    step_name: form_work_key
+    capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    kind: CT
+    operation: FORM_WORK_IDENTITY_KEY
+    store: null
+    consumes:
+    - title
+    - author
+    produces:
+    - work_key
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        title: title
+        author: author
+      out:
+        work_key: work_key
+  - cc_code: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: '2'
+    step_name: resolve_work_claim
+    capability: capability_side_effects::CS_REGISTRY_V0
+    kind: CS
+    operation: RESOLVE
+    store: WORK_IDENTITY_REGISTRY
+    consumes:
+    - key_or_address
+    produces:
+    - target_ref
+    routing:
+      SUCCESS: continue
+      NOT_FOUND: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: NOT_FOUND
+    interface: null
+  - cc_code: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: '3'
+    step_name: read_work_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: READ
+    store: WORKS
+    consumes:
+    - key
+    produces:
+    - value
+    routing:
+      SUCCESS: exit
+      NOT_FOUND: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: NOT_FOUND
+    interface: null
+  - cc_code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: '1'
+    step_name: validate_edition_fields
+    capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    kind: CT
+    operation: VALIDATE_RECORD_STRUCTURE
+    store: null
+    consumes:
+    - edition_fields
+    - edition_schema
+    produces:
+    - violations
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        record: edition_fields
+        schema: edition_schema
+      out:
+        violations: violations
+  - cc_code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: '2'
+    step_name: assemble_edition_record
+    capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    kind: CT
+    operation: ASSEMBLE_RECORD
+    store: null
+    consumes:
+    - edition_fields
+    produces:
+    - edition_record
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        fields: edition_fields
+      out:
+        record: edition_record
+  - cc_code: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: '3'
+    step_name: write_edition_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: WRITE
+    store: BOOKS
+    consumes:
+    - key
+    - value
+    produces:
+    - result_status
+    routing:
+      SUCCESS: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface: null
+  - cc_code: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: '1'
+    step_name: form_work_key
+    capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    kind: CT
+    operation: FORM_WORK_IDENTITY_KEY
+    store: null
+    consumes:
+    - title
+    - author
+    produces:
+    - work_key
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        title: title
+        author: author
+      out:
+        work_key: work_key
+  - cc_code: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: '2'
+    step_name: validate_book_fields
+    capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    kind: CT
+    operation: VALIDATE_RECORD_STRUCTURE
+    store: null
+    consumes:
+    - book_fields
+    - book_schema
+    produces:
+    - violations
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        record: book_fields
+        schema: book_schema
+      out:
+        violations: violations
+  - cc_code: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: '3'
+    step_name: assemble_book_record
+    capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    kind: CT
+    operation: ASSEMBLE_RECORD
+    store: null
+    consumes:
+    - book_fields
+    produces:
+    - book_record
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        fields: book_fields
+      out:
+        record: book_record
+  - cc_code: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: '4'
+    step_name: write_book_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: WRITE
+    store: BOOKS
+    consumes:
+    - key
+    - value
+    produces:
+    - result_status
+    routing:
+      SUCCESS: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface: null
+  - cc_code: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: '1'
+    step_name: validate_book_fields
+    capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    kind: CT
+    operation: VALIDATE_RECORD_STRUCTURE
+    store: null
+    consumes:
+    - book_fields
+    - book_schema
+    produces:
+    - violations
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        record: book_fields
+        schema: book_schema
+      out:
+        violations: violations
+  - cc_code: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: '2'
+    step_name: validate_work_fields
+    capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    kind: CT
+    operation: VALIDATE_RECORD_STRUCTURE
+    store: null
+    consumes:
+    - work_fields
+    - work_schema
+    produces:
+    - violations
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        record: work_fields
+        schema: work_schema
+      out:
+        violations: violations
+  - cc_code: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: '3'
+    step_name: require_submission_complete
+    capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    kind: CT
+    operation: VALIDATE_PARAMETER_RULES
+    store: null
+    consumes:
+    - barcode
+    - book_fields
+    produces:
+    - valid
+    routing:
+      SUCCESS: exit
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        parameters: barcode
+        rules: rules
+      out:
+        valid: valid
+  - cc_code: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: '1'
+    step_name: select_book_records
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: SELECT
+    store: BOOKS
+    consumes: null
+    produces:
+    - records
+    routing:
+      SUCCESS: continue
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface: null
+  - cc_code: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: '2'
+    step_name: select_matching_books
+    capability: capability_transforms::CT_PURE_FILTER_RECORDS_V0
+    kind: CT
+    operation: FILTER_RECORDS
+    store: null
+    consumes:
+    - records
+    - search_criteria
+    produces:
+    - matching_books
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        source: records
+        filter: search_criteria
+      out:
+        extracted: matching_books
+  - cc_code: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: '3'
+    step_name: group_editions_by_work
+    capability: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    kind: CT
+    operation: GROUP_RECORDS
+    store: null
+    consumes:
+    - matching_books
+    - group_by
+    produces:
+    - matching_works
+    routing:
+      SUCCESS: exit
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        source: matching_books
+        attribute: group_by
+      out:
+        grouped: matching_works
+  - cc_code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: '1'
+    step_name: read_book_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: READ
+    store: BOOKS
+    consumes:
+    - key
+    produces:
+    - value
+    routing:
+      SUCCESS: continue
+      NOT_FOUND: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: NOT_FOUND
+    interface: null
+  - cc_code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: '2'
+    step_name: form_work_key
+    capability: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    kind: CT
+    operation: FORM_WORK_IDENTITY_KEY
+    store: null
+    consumes:
+    - title
+    - author
+    produces:
+    - work_key
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        title: title
+        author: author
+      out:
+        work_key: work_key
+  - cc_code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: '3'
+    step_name: read_work_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: READ
+    store: WORKS
+    consumes:
+    - key
+    produces:
+    - value
+    routing:
+      SUCCESS: continue
+      NOT_FOUND: continue
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: NOT_FOUND
+    interface: null
+  - cc_code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: '4'
+    step_name: select_copy_records
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: SELECT
+    store: PHYSICAL_COPIES
+    consumes: null
+    produces:
+    - records
+    routing:
+      SUCCESS: continue
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface: null
+  - cc_code: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: '5'
+    step_name: select_copies_of_book
+    capability: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    kind: CT
+    operation: SELECT_RECORDS
+    store: null
+    consumes:
+    - records
+    - copy_criteria
+    produces:
+    - copies_held
+    routing:
+      SUCCESS: exit
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        source: records
+        filter: copy_criteria
+      out:
+        extracted: copies_held
+  - cc_code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: '1'
+    step_name: read_book_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: READ
+    store: BOOKS
+    consumes:
+    - key
+    produces:
+    - book_record
+    routing:
+      SUCCESS: continue
+      NOT_FOUND: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: NOT_FOUND
+    interface: null
+  - cc_code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: '2'
+    step_name: form_updated_identity_key
+    capability: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
+    kind: CT
+    operation: FORM_BOOK_IDENTITY_KEY
+    store: null
+    consumes:
+    - updated_fields
+    produces:
+    - updated_identity_key
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        title: title
+        author: author
+        publication_year: publication_year
+      out:
+        identity_key: updated_identity_key
+  - cc_code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: '3'
+    step_name: compare_identity
+    capability: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
+    kind: CT
+    operation: COMPARE_EQUAL
+    store: null
+    consumes:
+    - identity_key
+    - updated_identity_key
+    produces:
+    - identity_unchanged
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        left: identity_key
+        right: updated_identity_key
+      out:
+        is_equal: identity_unchanged
+  - cc_code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: '4'
+    step_name: require_identity_unchanged
+    capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    kind: CT
+    operation: VALIDATE_PARAMETER_RULES
+    store: null
+    consumes:
+    - identity_unchanged
+    produces:
+    - valid
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        parameters: identity_unchanged
+        rules: rules
+      out:
+        valid: valid
+  - cc_code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: '5'
+    step_name: assemble_updated_record
+    capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    kind: CT
+    operation: ASSEMBLE_RECORD
+    store: null
+    consumes:
+    - updated_fields
+    produces:
+    - updated_record
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        fields: updated_fields
+      out:
+        record: updated_record
+  - cc_code: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: '6'
+    step_name: write_updated_record
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: WRITE
+    store: BOOKS
+    consumes:
+    - key
+    - value
+    produces:
+    - result_status
+    routing:
+      SUCCESS: exit
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface: null
   step_bindings:
-    columns:
-    - Owner
-    - Step
-    - Direction (INPUT, OUTPUT)
-    - Field
-    - Bound To
-    - Source Finding
-    rows:
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: inputs.title
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: inputs.author
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: work_key
-      Bound To: capability_result.work_key
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: claim_work
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: results.form_work_key.work_key
-      Source Finding: S7 cc_composition claim_work
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: claim_work
-      Direction (INPUT, OUTPUT): INPUT
-      Field: target_cs
-      Bound To: CS_MUTABLE_JSON_V0
-      Source Finding: S7 cc_composition claim_work
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: claim_work
-      Direction (INPUT, OUTPUT): INPUT
-      Field: target_ref
-      Bound To: WORKS
-      Source Finding: S7 cc_composition claim_work
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: claim_work
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: address
-      Bound To: capability_result.address
-      Source Finding: S7 cc_composition claim_work
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: claim_work
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition claim_work
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: assemble_work_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: fields
-      Bound To: inputs.work_fields
-      Source Finding: S7 cc_composition assemble_work_record
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: assemble_work_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: work_record
-      Bound To: capability_result.record
-      Source Finding: S7 cc_composition assemble_work_record
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: write_work_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: results.form_work_key.work_key
-      Source Finding: S7 cc_composition write_work_record
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: write_work_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: value
-      Bound To: results.assemble_work_record.work_record
-      Source Finding: S7 cc_composition write_work_record
-    - Owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Step: write_work_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition write_work_record
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: inputs.title
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: inputs.author
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: work_key
-      Bound To: capability_result.work_key
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: resolve_work_claim
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key_or_address
-      Bound To: results.form_work_key.work_key
-      Source Finding: S7 cc_composition resolve_work_claim
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: resolve_work_claim
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: target_ref
-      Bound To: capability_result.target_ref
-      Source Finding: S7 cc_composition resolve_work_claim
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: resolve_work_claim
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition resolve_work_claim
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: read_work_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: results.form_work_key.work_key
-      Source Finding: S7 cc_composition read_work_record
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: read_work_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: work_record
-      Bound To: capability_result.value
-      Source Finding: S7 cc_composition read_work_record
-    - Owner: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Step: read_work_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition read_work_record
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: validate_edition_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: record
-      Bound To: inputs.edition_fields
-      Source Finding: S7 cc_composition validate_edition_fields
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: validate_edition_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: schema
-      Bound To: inputs.edition_schema
-      Source Finding: S7 cc_composition validate_edition_fields
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: validate_edition_fields
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: violations
-      Bound To: capability_result.violations
-      Source Finding: S7 cc_composition validate_edition_fields
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: assemble_edition_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: fields
-      Bound To: inputs.edition_fields
-      Source Finding: S7 cc_composition assemble_edition_record
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: assemble_edition_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: edition_record
-      Bound To: capability_result.record
-      Source Finding: S7 cc_composition assemble_edition_record
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: write_edition_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: inputs.identity_key
-      Source Finding: S7 cc_composition write_edition_record
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: write_edition_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: value
-      Bound To: results.assemble_edition_record.edition_record
-      Source Finding: S7 cc_composition write_edition_record
-    - Owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Step: write_edition_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition write_edition_record
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: select_book_records
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: records
-      Bound To: capability_result.records
-      Source Finding: S7 cc_composition select_book_records
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: select_book_records
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition select_book_records
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: select_matching_books
-      Direction (INPUT, OUTPUT): INPUT
-      Field: source
-      Bound To: results.select_book_records.records
-      Source Finding: S7 cc_composition select_matching_books
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: select_matching_books
-      Direction (INPUT, OUTPUT): INPUT
-      Field: filter
-      Bound To: inputs.search_criteria
-      Source Finding: S7 cc_composition select_matching_books
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: select_matching_books
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: matching_books
-      Bound To: capability_result.extracted
-      Source Finding: S7 cc_composition select_matching_books
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: group_editions_by_work
-      Direction (INPUT, OUTPUT): INPUT
-      Field: source
-      Bound To: results.select_matching_books.matching_books
-      Source Finding: S7 cc_composition group_editions_by_work
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: group_editions_by_work
-      Direction (INPUT, OUTPUT): INPUT
-      Field: attribute
-      Bound To: work_key
-      Source Finding: S7 cc_composition group_editions_by_work
-    - Owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Step: group_editions_by_work
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: matching_works
-      Bound To: capability_result.grouped
-      Source Finding: S7 cc_composition group_editions_by_work
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: read_book_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: inputs.identity_key
-      Source Finding: S7 cc_composition read_book_record
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: read_book_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: value
-      Bound To: capability_result.value
-      Source Finding: S7 cc_composition read_book_record
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: read_book_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition read_book_record
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: results.read_book_record.value.title
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: results.read_book_record.value.author
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: work_key
-      Bound To: capability_result.work_key
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: read_work_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: results.form_work_key.work_key
-      Source Finding: S7 cc_composition read_work_record
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: read_work_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: work_record
-      Bound To: capability_result.value
-      Source Finding: S7 cc_composition read_work_record
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copy_records
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: records
-      Bound To: capability_result.records
-      Source Finding: S7 cc_composition select_copy_records
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copies_of_book
-      Direction (INPUT, OUTPUT): INPUT
-      Field: source
-      Bound To: results.select_copy_records.records
-      Source Finding: S7 cc_composition select_copies_of_book
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copies_of_book
-      Direction (INPUT, OUTPUT): INPUT
-      Field: filter
-      Bound To: inputs.copy_criteria
-      Source Finding: S7 cc_composition select_copies_of_book
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copies_of_book
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: copies_held
-      Bound To: capability_result.extracted
-      Source Finding: S7 cc_composition select_copies_of_book
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: validate_work_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: record
-      Bound To: inputs.work_fields
-      Source Finding: S7 cc_composition validate_work_fields
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: validate_work_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: schema
-      Bound To: inputs.work_schema
-      Source Finding: S7 cc_composition validate_work_fields
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: validate_work_fields
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: violations
-      Bound To: capability_result.violations
-      Source Finding: S7 cc_composition validate_work_fields
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: inputs.book_fields.title
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: inputs.book_fields.author
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: form_work_key
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: work_key
-      Bound To: capability_result.work_key
-      Source Finding: S7 cc_composition form_work_key
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: assemble_book_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: fields
-      Bound To: '{''identity_key'': ''$.inputs.identity_key'', ''title'': ''$.inputs.book_fields.title'', ''author'': ''$.inputs.book_fields.author'', ''publication_year'': ''$.inputs.book_fields.publication_year'', ''subject'': ''$.inputs.book_fields.subject'', ''state'': ''$.inputs.book_fields.state'', ''work_key'': ''$.results.form_work_key.work_key''}'
-      Source Finding: S7 cc_composition assemble_book_record
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: assemble_book_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: book_record
-      Bound To: capability_result.record
-      Source Finding: S7 cc_composition assemble_book_record
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: staff_credentials
-      Bound To: payload.staff_credentials
-      Source Finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: authorization_rules
-      Bound To: payload.authorization_rules
-      Source Finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: book_fields
-      Bound To: payload.edition_fields
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: book_schema
-      Bound To: payload.edition_schema
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: work_fields
-      Bound To: payload.work_fields
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: work_schema
-      Bound To: payload.work_schema
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: payload.title
-      Source Finding: S7 execution_topology CC_RESOLVE_WORK_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: payload.author
-      Source Finding: S7 execution_topology CC_RESOLVE_WORK_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: payload.title
-      Source Finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: payload.author
-      Source Finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: publication_year
-      Bound To: payload.publication_year
-      Source Finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: identity_key
-      Bound To: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
-      Source Finding: S7 execution_topology CC_REGISTER_ADDITIONAL_EDITION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: edition_schema
-      Bound To: payload.edition_schema
-      Source Finding: S7 execution_topology CC_REGISTER_ADDITIONAL_EDITION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: edition_fields
-      Bound To: '{''identity_key'': ''$.results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key'', ''title'': ''$.payload.title'', ''author'': ''$.payload.author'', ''publication_year'': ''$.payload.publication_year'', ''subject'': ''$.payload.subject'', ''state'': ''REGISTERED'', ''work_key'': ''$.results.CC_RESOLVE_WORK_V0.work_key''}'
-      Source Finding: S7 execution_topology CC_REGISTER_ADDITIONAL_EDITION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: staff_id
-      Bound To: payload.staff_id
-      Source Finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: operation
-      Bound To: REGISTER_ADDITIONAL_EDITION
-      Source Finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: record
-      Bound To: '{''operation'': ''REGISTER_ADDITIONAL_EDITION'', ''staff_id'': ''$.payload.staff_id'', ''subject'': ''$.results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key''}'
-      Source Finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: payload.title
-      Source Finding: S7 execution_topology CC_CLAIM_WORK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: payload.author
-      Source Finding: S7 execution_topology CC_CLAIM_WORK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: work_fields
-      Bound To: '{''title'': ''$.payload.title'', ''author'': ''$.payload.author''}'
-      Source Finding: S7 execution_topology CC_CLAIM_WORK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: work_fields
-      Bound To: '{''title'': ''$.payload.title'', ''author'': ''$.payload.author''}'
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: work_schema
-      Bound To: '{''required'': [''title'', ''author'']}'
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: book_fields
-      Bound To: '{''title'': ''$.payload.title'', ''author'': ''$.payload.author'', ''publication_year'': ''$.payload.publication_year'', ''subject'': ''$.payload.subject'', ''state'': ''REGISTERED''}'
-      Source Finding: S7 execution_topology CC_REGISTER_BOOK_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: staff_credentials
-      Bound To: payload.staff_credentials
-      Source Finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: authorization_rules
-      Bound To: payload.authorization_rules
-      Source Finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: book_fields
-      Bound To: payload.book_fields
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: book_schema
-      Bound To: payload.book_schema
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: barcode
-      Bound To: payload.barcode
-      Source Finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: payload.title
-      Source Finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: payload.author
-      Source Finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: publication_year
-      Bound To: payload.publication_year
-      Source Finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: identity_key
-      Bound To: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
-      Source Finding: S7 execution_topology CC_REGISTER_BOOK_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: book_schema
-      Bound To: payload.book_schema
-      Source Finding: S7 execution_topology CC_REGISTER_BOOK_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: barcode
-      Bound To: payload.barcode
-      Source Finding: S7 execution_topology CC_CLAIM_COPY_BARCODE_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: identity_key
-      Bound To: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
-      Source Finding: S7 execution_topology CC_REGISTER_PHYSICAL_COPY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: barcode
-      Bound To: payload.barcode
-      Source Finding: S7 execution_topology CC_REGISTER_PHYSICAL_COPY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: copy_fields
-      Bound To: payload.copy_fields
-      Source Finding: S7 execution_topology CC_REGISTER_PHYSICAL_COPY_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: staff_id
-      Bound To: payload.staff_id
-      Source Finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: operation
-      Bound To: REGISTER_BOOK
-      Source Finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
-    - Owner: book_library_mgmt::WF_REGISTER_BOOK_V0
-      Step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: record
-      Bound To: '{''operation'': ''REGISTER_BOOK'', ''staff_id'': ''$.payload.staff_id'', ''subject'': ''$.payload.title''}'
-      Source Finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: validate_book_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: record
-      Bound To: inputs.book_fields
-      Source Finding: S7 cc_composition validate_book_fields
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: validate_book_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: schema
-      Bound To: inputs.book_schema
-      Source Finding: S7 cc_composition validate_book_fields
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: validate_book_fields
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: violations
-      Bound To: capability_result.violations
-      Source Finding: S7 cc_composition validate_book_fields
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: require_submission_complete
-      Direction (INPUT, OUTPUT): INPUT
-      Field: parameters
-      Bound To: '{''barcode'': ''$.inputs.barcode'', ''subject'': ''$.inputs.book_fields.subject''}'
-      Source Finding: S7 cc_composition require_submission_complete
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: require_submission_complete
-      Direction (INPUT, OUTPUT): INPUT
-      Field: rules
-      Bound To: '[{''field'': ''barcode'', ''op'': ''neq'', ''value'': ''''}, {''field'': ''subject'', ''op'': ''neq'', ''value'': []}]'
-      Source Finding: S7 cc_composition require_submission_complete
-    - Owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Step: require_submission_complete
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: valid
-      Bound To: capability_result.valid
-      Source Finding: S7 cc_composition require_submission_complete
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: validate_book_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: record
-      Bound To: inputs.book_fields
-      Source Finding: S7 cc_composition validate_book_fields
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: validate_book_fields
-      Direction (INPUT, OUTPUT): INPUT
-      Field: schema
-      Bound To: inputs.book_schema
-      Source Finding: S7 cc_composition validate_book_fields
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: validate_book_fields
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: violations
-      Bound To: capability_result.violations
-      Source Finding: S7 cc_composition validate_book_fields
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: write_book_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: inputs.identity_key
-      Source Finding: S7 cc_composition write_book_record
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: write_book_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: value
-      Bound To: results.assemble_book_record.book_record
-      Source Finding: S7 cc_composition write_book_record
-    - Owner: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Step: write_book_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition write_book_record
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: read_book_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: book_record
-      Bound To: capability_result.value
-      Source Finding: S7 cc_composition read_book_record
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copy_records
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition select_copy_records
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copies_of_book
-      Direction (INPUT, OUTPUT): INPUT
-      Field: source
-      Bound To: results.select_copy_records.records
-      Source Finding: S7 cc_composition select_copies_of_book
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copies_of_book
-      Direction (INPUT, OUTPUT): INPUT
-      Field: filter
-      Bound To: inputs.copy_criteria
-      Source Finding: S7 cc_composition select_copies_of_book
-    - Owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Step: select_copies_of_book
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: copies_held
-      Bound To: capability_result.extracted
-      Source Finding: S7 cc_composition select_copies_of_book
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: read_book_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: inputs.identity_key
-      Source Finding: S7 cc_composition read_book_record
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: read_book_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: book_record
-      Bound To: capability_result.value
-      Source Finding: S7 cc_composition read_book_record
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: read_book_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition read_book_record
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: form_updated_identity_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: title
-      Bound To: inputs.updated_fields.title
-      Source Finding: S7 cc_composition form_updated_identity_key
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: form_updated_identity_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: author
-      Bound To: inputs.updated_fields.author
-      Source Finding: S7 cc_composition form_updated_identity_key
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: form_updated_identity_key
-      Direction (INPUT, OUTPUT): INPUT
-      Field: publication_year
-      Bound To: inputs.updated_fields.publication_year
-      Source Finding: S7 cc_composition form_updated_identity_key
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: form_updated_identity_key
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: updated_identity_key
-      Bound To: capability_result.identity_key
-      Source Finding: S7 cc_composition form_updated_identity_key
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: compare_identity
-      Direction (INPUT, OUTPUT): INPUT
-      Field: left
-      Bound To: inputs.identity_key
-      Source Finding: S7 cc_composition compare_identity
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: compare_identity
-      Direction (INPUT, OUTPUT): INPUT
-      Field: right
-      Bound To: results.form_updated_identity_key.updated_identity_key
-      Source Finding: S7 cc_composition compare_identity
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: compare_identity
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: identity_unchanged
-      Bound To: capability_result.is_equal
-      Source Finding: S7 cc_composition compare_identity
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: require_identity_unchanged
-      Direction (INPUT, OUTPUT): INPUT
-      Field: parameters
-      Bound To: '{''identity_unchanged'': ''$.results.compare_identity.identity_unchanged''}'
-      Source Finding: S7 cc_composition require_identity_unchanged
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: require_identity_unchanged
-      Direction (INPUT, OUTPUT): INPUT
-      Field: rules
-      Bound To: '[{''field'': ''identity_unchanged'', ''op'': ''eq'', ''value'': True}]'
-      Source Finding: S7 cc_composition require_identity_unchanged
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: require_identity_unchanged
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: valid
-      Bound To: capability_result.valid
-      Source Finding: S7 cc_composition require_identity_unchanged
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: assemble_updated_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: fields
-      Bound To: '{''identity_key'': ''$.inputs.identity_key'', ''title'': ''$.inputs.updated_fields.title'', ''author'': ''$.inputs.updated_fields.author'', ''publication_year'': ''$.inputs.updated_fields.publication_year'', ''subject'': ''$.inputs.updated_fields.subject'', ''state'': ''$.inputs.updated_fields.state'', ''work_key'': ''$.results.read_book_record.book_record.work_key''}'
-      Source Finding: S7 cc_composition assemble_updated_record
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: assemble_updated_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: updated_record
-      Bound To: capability_result.record
-      Source Finding: S7 cc_composition assemble_updated_record
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: write_updated_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: inputs.identity_key
-      Source Finding: S7 cc_composition write_updated_record
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: write_updated_record
-      Direction (INPUT, OUTPUT): INPUT
-      Field: value
-      Bound To: results.assemble_updated_record.updated_record
-      Source Finding: S7 cc_composition write_updated_record
-    - Owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Step: write_updated_record
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition write_updated_record
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: form_work_key
+    direction: INPUT
+    field: title
+    bound_to: inputs.title
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: form_work_key
+    direction: INPUT
+    field: author
+    bound_to: inputs.author
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: form_work_key
+    direction: OUTPUT
+    field: work_key
+    bound_to: capability_result.work_key
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: claim_work
+    direction: INPUT
+    field: key
+    bound_to: results.form_work_key.work_key
+    source_finding: S7 cc_composition claim_work
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: claim_work
+    direction: INPUT
+    field: target_cs
+    bound_to:
+      literal: CS_MUTABLE_JSON_V0
+    source_finding: S7 cc_composition claim_work
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: claim_work
+    direction: INPUT
+    field: target_ref
+    bound_to:
+      literal: WORKS
+    source_finding: S7 cc_composition claim_work
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: claim_work
+    direction: OUTPUT
+    field: address
+    bound_to: capability_result.address
+    source_finding: S7 cc_composition claim_work
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: claim_work
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition claim_work
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: assemble_work_record
+    direction: INPUT
+    field: fields
+    bound_to: inputs.work_fields
+    source_finding: S7 cc_composition assemble_work_record
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: assemble_work_record
+    direction: OUTPUT
+    field: work_record
+    bound_to: capability_result.record
+    source_finding: S7 cc_composition assemble_work_record
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: write_work_record
+    direction: INPUT
+    field: key
+    bound_to: results.form_work_key.work_key
+    source_finding: S7 cc_composition write_work_record
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: write_work_record
+    direction: INPUT
+    field: value
+    bound_to: results.assemble_work_record.work_record
+    source_finding: S7 cc_composition write_work_record
+  - owner: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    step: write_work_record
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition write_work_record
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: form_work_key
+    direction: INPUT
+    field: title
+    bound_to: inputs.title
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: form_work_key
+    direction: INPUT
+    field: author
+    bound_to: inputs.author
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: form_work_key
+    direction: OUTPUT
+    field: work_key
+    bound_to: capability_result.work_key
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: resolve_work_claim
+    direction: INPUT
+    field: key_or_address
+    bound_to: results.form_work_key.work_key
+    source_finding: S7 cc_composition resolve_work_claim
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: resolve_work_claim
+    direction: OUTPUT
+    field: target_ref
+    bound_to: capability_result.target_ref
+    source_finding: S7 cc_composition resolve_work_claim
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: resolve_work_claim
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition resolve_work_claim
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: read_work_record
+    direction: INPUT
+    field: key
+    bound_to: results.form_work_key.work_key
+    source_finding: S7 cc_composition read_work_record
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: read_work_record
+    direction: OUTPUT
+    field: work_record
+    bound_to: capability_result.value
+    source_finding: S7 cc_composition read_work_record
+  - owner: book_library_mgmt::CC_RESOLVE_WORK_V0
+    step: read_work_record
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition read_work_record
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: validate_edition_fields
+    direction: INPUT
+    field: record
+    bound_to: inputs.edition_fields
+    source_finding: S7 cc_composition validate_edition_fields
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: validate_edition_fields
+    direction: INPUT
+    field: schema
+    bound_to: inputs.edition_schema
+    source_finding: S7 cc_composition validate_edition_fields
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: validate_edition_fields
+    direction: OUTPUT
+    field: violations
+    bound_to: capability_result.violations
+    source_finding: S7 cc_composition validate_edition_fields
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: assemble_edition_record
+    direction: INPUT
+    field: fields
+    bound_to: inputs.edition_fields
+    source_finding: S7 cc_composition assemble_edition_record
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: assemble_edition_record
+    direction: OUTPUT
+    field: edition_record
+    bound_to: capability_result.record
+    source_finding: S7 cc_composition assemble_edition_record
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: write_edition_record
+    direction: INPUT
+    field: key
+    bound_to: inputs.identity_key
+    source_finding: S7 cc_composition write_edition_record
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: write_edition_record
+    direction: INPUT
+    field: value
+    bound_to: results.assemble_edition_record.edition_record
+    source_finding: S7 cc_composition write_edition_record
+  - owner: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    step: write_edition_record
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition write_edition_record
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: select_book_records
+    direction: OUTPUT
+    field: records
+    bound_to: capability_result.records
+    source_finding: S7 cc_composition select_book_records
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: select_book_records
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition select_book_records
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: select_matching_books
+    direction: INPUT
+    field: source
+    bound_to: results.select_book_records.records
+    source_finding: S7 cc_composition select_matching_books
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: select_matching_books
+    direction: INPUT
+    field: filter
+    bound_to: inputs.search_criteria
+    source_finding: S7 cc_composition select_matching_books
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: select_matching_books
+    direction: OUTPUT
+    field: matching_books
+    bound_to: capability_result.extracted
+    source_finding: S7 cc_composition select_matching_books
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: group_editions_by_work
+    direction: INPUT
+    field: source
+    bound_to: results.select_matching_books.matching_books
+    source_finding: S7 cc_composition group_editions_by_work
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: group_editions_by_work
+    direction: INPUT
+    field: attribute
+    bound_to:
+      literal: work_key
+    source_finding: S7 cc_composition group_editions_by_work
+  - owner: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    step: group_editions_by_work
+    direction: OUTPUT
+    field: matching_works
+    bound_to: capability_result.grouped
+    source_finding: S7 cc_composition group_editions_by_work
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: read_book_record
+    direction: INPUT
+    field: key
+    bound_to: inputs.identity_key
+    source_finding: S7 cc_composition read_book_record
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: read_book_record
+    direction: OUTPUT
+    field: value
+    bound_to: capability_result.value
+    source_finding: S7 cc_composition read_book_record
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: read_book_record
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition read_book_record
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: form_work_key
+    direction: INPUT
+    field: title
+    bound_to: results.read_book_record.value.title
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: form_work_key
+    direction: INPUT
+    field: author
+    bound_to: results.read_book_record.value.author
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: form_work_key
+    direction: OUTPUT
+    field: work_key
+    bound_to: capability_result.work_key
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: read_work_record
+    direction: INPUT
+    field: key
+    bound_to: results.form_work_key.work_key
+    source_finding: S7 cc_composition read_work_record
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: read_work_record
+    direction: OUTPUT
+    field: work_record
+    bound_to: capability_result.value
+    source_finding: S7 cc_composition read_work_record
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copy_records
+    direction: OUTPUT
+    field: records
+    bound_to: capability_result.records
+    source_finding: S7 cc_composition select_copy_records
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copies_of_book
+    direction: INPUT
+    field: source
+    bound_to: results.select_copy_records.records
+    source_finding: S7 cc_composition select_copies_of_book
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copies_of_book
+    direction: INPUT
+    field: filter
+    bound_to: inputs.copy_criteria
+    source_finding: S7 cc_composition select_copies_of_book
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copies_of_book
+    direction: OUTPUT
+    field: copies_held
+    bound_to: capability_result.extracted
+    source_finding: S7 cc_composition select_copies_of_book
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: validate_work_fields
+    direction: INPUT
+    field: record
+    bound_to: inputs.work_fields
+    source_finding: S7 cc_composition validate_work_fields
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: validate_work_fields
+    direction: INPUT
+    field: schema
+    bound_to: inputs.work_schema
+    source_finding: S7 cc_composition validate_work_fields
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: validate_work_fields
+    direction: OUTPUT
+    field: violations
+    bound_to: capability_result.violations
+    source_finding: S7 cc_composition validate_work_fields
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: form_work_key
+    direction: INPUT
+    field: title
+    bound_to: inputs.book_fields.title
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: form_work_key
+    direction: INPUT
+    field: author
+    bound_to: inputs.book_fields.author
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: form_work_key
+    direction: OUTPUT
+    field: work_key
+    bound_to: capability_result.work_key
+    source_finding: S7 cc_composition form_work_key
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: assemble_book_record
+    direction: INPUT
+    field: fields
+    bound_to:
+      literal:
+        identity_key: $.inputs.identity_key
+        title: $.inputs.book_fields.title
+        author: $.inputs.book_fields.author
+        publication_year: $.inputs.book_fields.publication_year
+        subject: $.inputs.book_fields.subject
+        state: $.inputs.book_fields.state
+        work_key: $.results.form_work_key.work_key
+    source_finding: S7 cc_composition assemble_book_record
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: assemble_book_record
+    direction: OUTPUT
+    field: book_record
+    bound_to: capability_result.record
+    source_finding: S7 cc_composition assemble_book_record
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    direction: INPUT
+    field: staff_credentials
+    bound_to: payload.staff_credentials
+    source_finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    direction: INPUT
+    field: authorization_rules
+    bound_to: payload.authorization_rules
+    source_finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: book_fields
+    bound_to: payload.edition_fields
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: book_schema
+    bound_to: payload.edition_schema
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: work_fields
+    bound_to: payload.work_fields
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: work_schema
+    bound_to: payload.work_schema
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_RESOLVE_WORK_V0
+    direction: INPUT
+    field: title
+    bound_to: payload.title
+    source_finding: S7 execution_topology CC_RESOLVE_WORK_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_RESOLVE_WORK_V0
+    direction: INPUT
+    field: author
+    bound_to: payload.author
+    source_finding: S7 execution_topology CC_RESOLVE_WORK_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    direction: INPUT
+    field: title
+    bound_to: payload.title
+    source_finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    direction: INPUT
+    field: author
+    bound_to: payload.author
+    source_finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    direction: INPUT
+    field: publication_year
+    bound_to: payload.publication_year
+    source_finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: identity_key
+    bound_to: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
+    source_finding: S7 execution_topology CC_REGISTER_ADDITIONAL_EDITION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: edition_schema
+    bound_to: payload.edition_schema
+    source_finding: S7 execution_topology CC_REGISTER_ADDITIONAL_EDITION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: edition_fields
+    bound_to:
+      literal:
+        identity_key: $.results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
+        title: $.payload.title
+        author: $.payload.author
+        publication_year: $.payload.publication_year
+        subject: $.payload.subject
+        state: REGISTERED
+        work_key: $.results.CC_RESOLVE_WORK_V0.work_key
+    source_finding: S7 execution_topology CC_REGISTER_ADDITIONAL_EDITION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    direction: INPUT
+    field: staff_id
+    bound_to: payload.staff_id
+    source_finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    direction: INPUT
+    field: operation
+    bound_to:
+      literal: REGISTER_ADDITIONAL_EDITION
+    source_finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
+  - owner: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    direction: INPUT
+    field: record
+    bound_to:
+      literal:
+        operation: REGISTER_ADDITIONAL_EDITION
+        staff_id: $.payload.staff_id
+        subject: $.results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
+    source_finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    direction: INPUT
+    field: title
+    bound_to: payload.title
+    source_finding: S7 execution_topology CC_CLAIM_WORK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    direction: INPUT
+    field: author
+    bound_to: payload.author
+    source_finding: S7 execution_topology CC_CLAIM_WORK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    direction: INPUT
+    field: work_fields
+    bound_to:
+      literal:
+        title: $.payload.title
+        author: $.payload.author
+    source_finding: S7 execution_topology CC_CLAIM_WORK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: work_fields
+    bound_to:
+      literal:
+        title: $.payload.title
+        author: $.payload.author
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: work_schema
+    bound_to:
+      literal:
+        required:
+        - title
+        - author
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_REGISTER_BOOK_V0
+    direction: INPUT
+    field: book_fields
+    bound_to:
+      literal:
+        title: $.payload.title
+        author: $.payload.author
+        publication_year: $.payload.publication_year
+        subject: $.payload.subject
+        state: REGISTERED
+    source_finding: S7 execution_topology CC_REGISTER_BOOK_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    direction: INPUT
+    field: staff_credentials
+    bound_to: payload.staff_credentials
+    source_finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    direction: INPUT
+    field: authorization_rules
+    bound_to: payload.authorization_rules
+    source_finding: S7 execution_topology CC_CONFIRM_STAFF_AUTHORIZED_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: book_fields
+    bound_to: payload.book_fields
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: book_schema
+    bound_to: payload.book_schema
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: barcode
+    bound_to: payload.barcode
+    source_finding: S7 execution_topology CC_VALIDATE_BOOK_SUBMISSION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    direction: INPUT
+    field: title
+    bound_to: payload.title
+    source_finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    direction: INPUT
+    field: author
+    bound_to: payload.author
+    source_finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    direction: INPUT
+    field: publication_year
+    bound_to: payload.publication_year
+    source_finding: S7 execution_topology CC_CLAIM_BOOK_IDENTITY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_REGISTER_BOOK_V0
+    direction: INPUT
+    field: identity_key
+    bound_to: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
+    source_finding: S7 execution_topology CC_REGISTER_BOOK_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_REGISTER_BOOK_V0
+    direction: INPUT
+    field: book_schema
+    bound_to: payload.book_schema
+    source_finding: S7 execution_topology CC_REGISTER_BOOK_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
+    direction: INPUT
+    field: barcode
+    bound_to: payload.barcode
+    source_finding: S7 execution_topology CC_CLAIM_COPY_BARCODE_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    direction: INPUT
+    field: identity_key
+    bound_to: results.CC_CLAIM_BOOK_IDENTITY_V0.identity_key
+    source_finding: S7 execution_topology CC_REGISTER_PHYSICAL_COPY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    direction: INPUT
+    field: barcode
+    bound_to: payload.barcode
+    source_finding: S7 execution_topology CC_REGISTER_PHYSICAL_COPY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    direction: INPUT
+    field: copy_fields
+    bound_to: payload.copy_fields
+    source_finding: S7 execution_topology CC_REGISTER_PHYSICAL_COPY_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    direction: INPUT
+    field: staff_id
+    bound_to: payload.staff_id
+    source_finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    direction: INPUT
+    field: operation
+    bound_to:
+      literal: REGISTER_BOOK
+    source_finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
+  - owner: book_library_mgmt::WF_REGISTER_BOOK_V0
+    step: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    direction: INPUT
+    field: record
+    bound_to:
+      literal:
+        operation: REGISTER_BOOK
+        staff_id: $.payload.staff_id
+        subject: $.payload.title
+    source_finding: S7 execution_topology CC_APPEND_CATALOG_OPERATION_V0
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: validate_book_fields
+    direction: INPUT
+    field: record
+    bound_to: inputs.book_fields
+    source_finding: S7 cc_composition validate_book_fields
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: validate_book_fields
+    direction: INPUT
+    field: schema
+    bound_to: inputs.book_schema
+    source_finding: S7 cc_composition validate_book_fields
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: validate_book_fields
+    direction: OUTPUT
+    field: violations
+    bound_to: capability_result.violations
+    source_finding: S7 cc_composition validate_book_fields
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: require_submission_complete
+    direction: INPUT
+    field: parameters
+    bound_to:
+      literal:
+        barcode: $.inputs.barcode
+        subject: $.inputs.book_fields.subject
+    source_finding: S7 cc_composition require_submission_complete
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: require_submission_complete
+    direction: INPUT
+    field: rules
+    bound_to:
+      literal:
+      - field: barcode
+        op: neq
+        value: ''
+      - field: subject
+        op: neq
+        value: []
+    source_finding: S7 cc_composition require_submission_complete
+  - owner: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    step: require_submission_complete
+    direction: OUTPUT
+    field: valid
+    bound_to: capability_result.valid
+    source_finding: S7 cc_composition require_submission_complete
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: validate_book_fields
+    direction: INPUT
+    field: record
+    bound_to: inputs.book_fields
+    source_finding: S7 cc_composition validate_book_fields
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: validate_book_fields
+    direction: INPUT
+    field: schema
+    bound_to: inputs.book_schema
+    source_finding: S7 cc_composition validate_book_fields
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: validate_book_fields
+    direction: OUTPUT
+    field: violations
+    bound_to: capability_result.violations
+    source_finding: S7 cc_composition validate_book_fields
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: write_book_record
+    direction: INPUT
+    field: key
+    bound_to: inputs.identity_key
+    source_finding: S7 cc_composition write_book_record
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: write_book_record
+    direction: INPUT
+    field: value
+    bound_to: results.assemble_book_record.book_record
+    source_finding: S7 cc_composition write_book_record
+  - owner: book_library_mgmt::CC_REGISTER_BOOK_V0
+    step: write_book_record
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition write_book_record
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: read_book_record
+    direction: OUTPUT
+    field: book_record
+    bound_to: capability_result.value
+    source_finding: S7 cc_composition read_book_record
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copy_records
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition select_copy_records
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copies_of_book
+    direction: INPUT
+    field: source
+    bound_to: results.select_copy_records.records
+    source_finding: S7 cc_composition select_copies_of_book
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copies_of_book
+    direction: INPUT
+    field: filter
+    bound_to: inputs.copy_criteria
+    source_finding: S7 cc_composition select_copies_of_book
+  - owner: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    step: select_copies_of_book
+    direction: OUTPUT
+    field: copies_held
+    bound_to: capability_result.extracted
+    source_finding: S7 cc_composition select_copies_of_book
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: read_book_record
+    direction: INPUT
+    field: key
+    bound_to: inputs.identity_key
+    source_finding: S7 cc_composition read_book_record
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: read_book_record
+    direction: OUTPUT
+    field: book_record
+    bound_to: capability_result.value
+    source_finding: S7 cc_composition read_book_record
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: read_book_record
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition read_book_record
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: form_updated_identity_key
+    direction: INPUT
+    field: title
+    bound_to: inputs.updated_fields.title
+    source_finding: S7 cc_composition form_updated_identity_key
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: form_updated_identity_key
+    direction: INPUT
+    field: author
+    bound_to: inputs.updated_fields.author
+    source_finding: S7 cc_composition form_updated_identity_key
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: form_updated_identity_key
+    direction: INPUT
+    field: publication_year
+    bound_to: inputs.updated_fields.publication_year
+    source_finding: S7 cc_composition form_updated_identity_key
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: form_updated_identity_key
+    direction: OUTPUT
+    field: updated_identity_key
+    bound_to: capability_result.identity_key
+    source_finding: S7 cc_composition form_updated_identity_key
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: compare_identity
+    direction: INPUT
+    field: left
+    bound_to: inputs.identity_key
+    source_finding: S7 cc_composition compare_identity
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: compare_identity
+    direction: INPUT
+    field: right
+    bound_to: results.form_updated_identity_key.updated_identity_key
+    source_finding: S7 cc_composition compare_identity
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: compare_identity
+    direction: OUTPUT
+    field: identity_unchanged
+    bound_to: capability_result.is_equal
+    source_finding: S7 cc_composition compare_identity
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: require_identity_unchanged
+    direction: INPUT
+    field: parameters
+    bound_to:
+      literal:
+        identity_unchanged: $.results.compare_identity.identity_unchanged
+    source_finding: S7 cc_composition require_identity_unchanged
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: require_identity_unchanged
+    direction: INPUT
+    field: rules
+    bound_to:
+      literal:
+      - field: identity_unchanged
+        op: eq
+        value: true
+    source_finding: S7 cc_composition require_identity_unchanged
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: require_identity_unchanged
+    direction: OUTPUT
+    field: valid
+    bound_to: capability_result.valid
+    source_finding: S7 cc_composition require_identity_unchanged
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: assemble_updated_record
+    direction: INPUT
+    field: fields
+    bound_to:
+      literal:
+        identity_key: $.inputs.identity_key
+        title: $.inputs.updated_fields.title
+        author: $.inputs.updated_fields.author
+        publication_year: $.inputs.updated_fields.publication_year
+        subject: $.inputs.updated_fields.subject
+        state: $.inputs.updated_fields.state
+        work_key: $.results.read_book_record.book_record.work_key
+    source_finding: S7 cc_composition assemble_updated_record
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: assemble_updated_record
+    direction: OUTPUT
+    field: updated_record
+    bound_to: capability_result.record
+    source_finding: S7 cc_composition assemble_updated_record
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: write_updated_record
+    direction: INPUT
+    field: key
+    bound_to: inputs.identity_key
+    source_finding: S7 cc_composition write_updated_record
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: write_updated_record
+    direction: INPUT
+    field: value
+    bound_to: results.assemble_updated_record.updated_record
+    source_finding: S7 cc_composition write_updated_record
+  - owner: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    step: write_updated_record
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition write_updated_record
   interface_fields:
-    columns:
-    - Artifact
-    - Direction (INPUT, OUTPUT, ATTRIBUTE)
-    - Field
-    - Type
-    - Required (YES, NO)
-    - Default
-    - Meaning
-    rows:
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: staff_credentials
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Who is performing the operation, as the catalog receives it
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: authorization_rules
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The rules the staff member's credentials are checked against
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: staff_id
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The staff member recorded against the operation in the audit trail
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: title
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The title of the work the edition belongs to, and of the edition itself
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: author
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The author of the work the edition belongs to
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: publication_year
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The year that distinguishes this edition from the work's other editions
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: subject
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: What kind of material the edition is, as free text
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: edition_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The edition's descriptive content as submitted
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: edition_schema
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The fields an edition record is required to carry
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: work_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's identifying attributes as submitted
-    - Artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: work_schema
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The fields a work record is required to carry
-    - Artifact: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: title
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's title, compared without regard to letter case or repeated spacing
-    - Artifact: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: author
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's author, compared the same way
-    - Artifact: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: work_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The single key claimed for the work
-    - Artifact: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: source
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The records to select from
-    - Artifact: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: filter
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The criteria a record must match on every key
-    - Artifact: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: extracted
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The records that matched, possibly none
-    - Artifact: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: source
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The records to group
-    - Artifact: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: attribute
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The attribute whose value decides which group a record belongs to
-    - Artifact: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: grouped
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: One group per distinct value, each carrying the records that share it
-    - Artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: title
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's title
-    - Artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: author
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's author
-    - Artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: work_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work record's content, written when the claim is new
-    - Artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: work_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The key claimed for the work, whether the claim was new or already held
-    - Artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: title
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The title of the work to resolve
-    - Artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: author
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The author of the work to resolve
-    - Artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: work_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The key of the work that was resolved
-    - Artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: work_record
-      Type: object
-      Required (YES, NO): 'NO'
-      Default: ''
-      Meaning: The work record the key names, when the work exists
-    - Artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: identity_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The edition's claimed identity, which is the key its record occupies
-    - Artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: edition_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The edition record's content, including the key of the work it belongs to
-    - Artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: edition_schema
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The fields an edition record is required to carry
-    - Artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: edition_record
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The edition record as written
-    - Artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: work_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's identifying attributes, validated alongside the edition's
-    - Artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: work_schema
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The fields a work record is required to carry
-    - Artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: valid
-      Type: boolean
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Whether the submission may proceed to be claimed and written
-    - Artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: book_record
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The edition's authoritative record, carrying the key of the work it belongs to
-    - Artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: book_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The edition record's content, now including the key of the work it belongs to
-    - Artifact: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: matching_works
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: One entry per matching work, each carrying the editions of it that matched
-    - Artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: work_record
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The record of the work the edition belongs to — its title and author — so the work need not be looked up separately
-    - Artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): ATTRIBUTE
-      Field: work_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work that entered the catalog
-    - Artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): ATTRIBUTE
-      Field: title
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's title
-    - Artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): ATTRIBUTE
-      Field: author
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The work's author
-    - Artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: book_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The book's bibliographic information
-    - Artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: book_schema
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The fields a book record must carry, as the rules its structure is validated against
-    - Artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: barcode
-      Type: string
-      Required (YES, NO): 'NO'
-      Default: ''
-      Meaning: The barcode the library assigned to the copy, when the registration carries one — an additional edition of an existing work does not
-    - Artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: identity_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The key formed from a book's title, author and publication year
-    - Artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: book_schema
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The fields a book record must carry, as the rules its structure is validated against
-    - Artifact: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: search_criteria
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: What staff are searching by, and the states to include
-    - Artifact: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: matching_books
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The registered books matching what was searched for
-    - Artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: identity_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The key formed from a book's title, author and publication year
-    - Artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: copy_criteria
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Which copies belong to the book being retrieved
-    - Artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: book_record
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The book's authoritative record
-    - Artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: copies_held
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The copies the library holds of the book
-    - Artifact: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: identity_key
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The key formed from a book's title, author and publication year
-    - Artifact: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: updated_fields
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The changed bibliographic information
-    - Artifact: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: book_record
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The book's authoritative record
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: staff_credentials
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: Who is performing the operation, as the catalog receives it
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: authorization_rules
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: The rules the staff member's credentials are checked against
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: staff_id
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The staff member recorded against the operation in the audit trail
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: title
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The title of the work the edition belongs to, and of the edition itself
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: author
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The author of the work the edition belongs to
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: publication_year
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The year that distinguishes this edition from the work's other editions
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: subject
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: What kind of material the edition is, as free text
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: edition_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The edition's descriptive content as submitted
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: edition_schema
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The fields an edition record is required to carry
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: work_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The work's identifying attributes as submitted
+  - artifact: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: work_schema
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The fields a work record is required to carry
+  - artifact: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    direction: INPUT
+    field: title
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The work's title, compared without regard to letter case or repeated spacing
+  - artifact: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    direction: INPUT
+    field: author
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The work's author, compared the same way
+  - artifact: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    direction: OUTPUT
+    field: work_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The single key claimed for the work
+  - artifact: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    direction: INPUT
+    field: source
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: The records to select from
+  - artifact: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    direction: INPUT
+    field: filter
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The criteria a record must match on every key
+  - artifact: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    direction: OUTPUT
+    field: extracted
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: The records that matched, possibly none
+  - artifact: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    direction: INPUT
+    field: source
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: The records to group
+  - artifact: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    direction: INPUT
+    field: attribute
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The attribute whose value decides which group a record belongs to
+  - artifact: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    direction: OUTPUT
+    field: grouped
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: One group per distinct value, each carrying the records that share it
+  - artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    direction: INPUT
+    field: title
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The work's title
+  - artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    direction: INPUT
+    field: author
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The work's author
+  - artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    direction: INPUT
+    field: work_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The work record's content, written when the claim is new
+  - artifact: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    direction: OUTPUT
+    field: work_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The key claimed for the work, whether the claim was new or already held
+  - artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
+    direction: INPUT
+    field: title
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The title of the work to resolve
+  - artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
+    direction: INPUT
+    field: author
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The author of the work to resolve
+  - artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
+    direction: OUTPUT
+    field: work_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The key of the work that was resolved
+  - artifact: book_library_mgmt::CC_RESOLVE_WORK_V0
+    direction: OUTPUT
+    field: work_record
+    type: object
+    required: 'NO'
+    default: ''
+    meaning: The work record the key names, when the work exists
+  - artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: identity_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The edition's claimed identity, which is the key its record occupies
+  - artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: edition_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The edition record's content, including the key of the work it belongs to
+  - artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    direction: INPUT
+    field: edition_schema
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The fields an edition record is required to carry
+  - artifact: book_library_mgmt::CC_REGISTER_ADDITIONAL_EDITION_V0
+    direction: OUTPUT
+    field: edition_record
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The edition record as written
+  - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: work_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The work's identifying attributes, validated alongside the edition's
+  - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: work_schema
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The fields a work record is required to carry
+  - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: OUTPUT
+    field: valid
+    type: boolean
+    required: 'YES'
+    default: ''
+    meaning: Whether the submission may proceed to be claimed and written
+  - artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
+    direction: OUTPUT
+    field: book_record
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The edition's authoritative record, carrying the key of the work it belongs to
+  - artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
+    direction: INPUT
+    field: book_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The edition record's content, now including the key of the work it belongs to
+  - artifact: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    direction: OUTPUT
+    field: matching_works
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: One entry per matching work, each carrying the editions of it that matched
+  - artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    direction: OUTPUT
+    field: work_record
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The record of the work the edition belongs to — its title and author — so the work need not be looked up separately
+  - artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
+    direction: ATTRIBUTE
+    field: work_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The work that entered the catalog
+  - artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
+    direction: ATTRIBUTE
+    field: title
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The work's title
+  - artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
+    direction: ATTRIBUTE
+    field: author
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The work's author
+  - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: book_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The book's bibliographic information
+  - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: book_schema
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The fields a book record must carry, as the rules its structure is validated against
+  - artifact: book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0
+    direction: INPUT
+    field: barcode
+    type: string
+    required: 'NO'
+    default: ''
+    meaning: The barcode the library assigned to the copy, when the registration carries one — an additional edition of an existing work does not
+  - artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
+    direction: INPUT
+    field: identity_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The key formed from a book's title, author and publication year
+  - artifact: book_library_mgmt::CC_REGISTER_BOOK_V0
+    direction: INPUT
+    field: book_schema
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The fields a book record must carry, as the rules its structure is validated against
+  - artifact: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    direction: INPUT
+    field: search_criteria
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: What staff are searching by, and the states to include
+  - artifact: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    direction: OUTPUT
+    field: matching_books
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: The registered books matching what was searched for
+  - artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    direction: INPUT
+    field: identity_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The key formed from a book's title, author and publication year
+  - artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    direction: INPUT
+    field: copy_criteria
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: Which copies belong to the book being retrieved
+  - artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    direction: OUTPUT
+    field: book_record
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The book's authoritative record
+  - artifact: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    direction: OUTPUT
+    field: copies_held
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: The copies the library holds of the book
+  - artifact: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    direction: INPUT
+    field: identity_key
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The key formed from a book's title, author and publication year
+  - artifact: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    direction: INPUT
+    field: updated_fields
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The changed bibliographic information
+  - artifact: book_library_mgmt::CC_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+    direction: OUTPUT
+    field: book_record
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The book's authoritative record
   implementation_bindings:
-    columns:
-    - CT Code
-    - Module
-    - Callable
-    - Operation
-    - Kind (atom, molecule)
-    - Purity (ct_pure, ct_impure)
-    - Refusal (raises, returns, never)
-    - Source Finding
-    rows:
-    - CT Code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_form_work_identity_key_v0
-      Callable: execute
-      Operation: PURE_FORM_WORK_IDENTITY_KEY
-      Kind (atom, molecule): atom
-      Purity (ct_pure, ct_impure): ct_pure
-      Refusal (raises, returns, never): never
-      Source Finding: S7 new_artifacts CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-    - CT Code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_select_records_v0
-      Callable: execute
-      Operation: PURE_SELECT_RECORDS
-      Kind (atom, molecule): atom
-      Purity (ct_pure, ct_impure): ct_pure
-      Refusal (raises, returns, never): never
-      Source Finding: S7 new_artifacts CT_PURE_SELECT_RECORDS_V0
-    - CT Code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_group_records_v0
-      Callable: execute
-      Operation: PURE_GROUP_RECORDS
-      Kind (atom, molecule): atom
-      Purity (ct_pure, ct_impure): ct_pure
-      Refusal (raises, returns, never): never
-      Source Finding: S7 new_artifacts CT_PURE_GROUP_RECORDS_V0
-  vocabulary_extensions:
-    columns:
-    - Vocabulary Code
-    - Extends
-    - Group
-    - Casing
-    - Value
-    - Meaning
-    - Source Finding
-    rows: []
+  - ct_code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_form_work_identity_key_v0
+    callable: execute
+    operation: PURE_FORM_WORK_IDENTITY_KEY
+    kind: atom
+    purity: ct_pure
+    refusal: never
+    source_finding: S7 new_artifacts CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+  - ct_code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_select_records_v0
+    callable: execute
+    operation: PURE_SELECT_RECORDS
+    kind: atom
+    purity: ct_pure
+    refusal: never
+    source_finding: S7 new_artifacts CT_PURE_SELECT_RECORDS_V0
+  - ct_code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_group_records_v0
+    callable: execute
+    operation: PURE_GROUP_RECORDS
+    kind: atom
+    purity: ct_pure
+    refusal: never
+    source_finding: S7 new_artifacts CT_PURE_GROUP_RECORDS_V0
+  vocabulary_extensions: null
   runtime_policies:
-    columns:
-    - RB Code
-    - Capability
-    - Key
-    - Value
-    - Source Finding
-    rows:
-    - RB Code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Key: structure
-      Value: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-      Source Finding: S7 rb_declarations RB_CATALOG_BINDINGS_V0
-    - RB Code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
-      Capability: capability_side_effects::CS_REGISTRY_V0
-      Key: structure
-      Value: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-      Source Finding: S7 rb_declarations RB_CATALOG_BINDINGS_V0
-    - RB Code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
-      Capability: capability_side_effects::CS_APPENDONLY_JSONL_V0
-      Key: structure
-      Value: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-      Source Finding: S7 rb_declarations RB_CATALOG_BINDINGS_V0
+  - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    key: structure
+    value: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+    source_finding: S7 rb_declarations RB_CATALOG_BINDINGS_V0
+  - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
+    capability: capability_side_effects::CS_REGISTRY_V0
+    key: structure
+    value: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+    source_finding: S7 rb_declarations RB_CATALOG_BINDINGS_V0
+  - rb_code: book_library_mgmt::RB_CATALOG_BINDINGS_V0
+    capability: capability_side_effects::CS_APPENDONLY_JSONL_V0
+    key: structure
+    value: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+    source_finding: S7 rb_declarations RB_CATALOG_BINDINGS_V0
   artifact_properties:
-    columns:
-    - Artifact
-    - Property
-    - Value
-    - Source Finding
-    rows:
-    - Artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
-      Property: type
-      Value: BUSINESS_MOMENT
-      Source Finding: S5 provisional_codes EV_WORK_REGISTERED_V0
+  - artifact: book_library_mgmt::EV_WORK_REGISTERED_V0
+    property: type
+    value: BUSINESS_MOMENT
+    source_finding: S5 provisional_codes EV_WORK_REGISTERED_V0
   structure_stores:
-    columns:
-    - Store Name
-    - Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0)
-    - Proposed Path
-    - Used By
-    - Source Finding
-    rows:
-    - Store Name: WORKS
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): CS_MUTABLE_JSON_V0
-      Proposed Path: book_library_mgmt/catalog/works.json
-      Used By: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Source Finding: S6 storage_governance A durable record of every work the library has catalogued
-    - Store Name: WORK_IDENTITY_REGISTRY
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): CS_REGISTRY_V0
-      Proposed Path: book_library_mgmt/catalog/work_identity_registry.jsonl
-      Used By: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
-      Source Finding: S6 storage_governance An atomic claim on each work's identity
-    - Store Name: BOOKS
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): CS_MUTABLE_JSON_V0
-      Proposed Path: book_library_mgmt/catalog/books.json
-      Used By: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Source Finding: S6 storage_governance A durable record of every book the library catalogs
-    - Store Name: PHYSICAL_COPIES
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): CS_MUTABLE_JSON_V0
-      Proposed Path: book_library_mgmt/catalog/physical_copies.json
-      Used By: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
-      Source Finding: S6 storage_governance A durable record of every physical copy the library owns
-    - Store Name: CATALOG_OPERATIONS
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): CS_APPENDONLY_JSONL_V0
-      Proposed Path: book_library_mgmt/catalog/catalog_operations.jsonl
-      Used By: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Source Finding: S6 storage_governance A trail of performed operations that cannot be amended
-    - Store Name: BOOK_IDENTITY_REGISTRY
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): CS_REGISTRY_V0
-      Proposed Path: book_library_mgmt/catalog/book_identity_registry.jsonl
-      Used By: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
-      Source Finding: S6 storage_governance A claim on each book's identity, held once
-    - Store Name: COPY_BARCODE_REGISTRY
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): CS_REGISTRY_V0
-      Proposed Path: book_library_mgmt/catalog/copy_barcode_registry.jsonl
-      Used By: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
-      Source Finding: S6 storage_governance A claim on each copy's barcode, held once
-  transport_bindings:
-    columns:
-    - Artifact
-    - Direction (INGRESS, EGRESS)
-    - Operation
-    - Handler Kind (WF_INVOCATION, SNAPSHOT_READ)
-    - Handler Target
-    - Field
-    - Bound To
-    - Source Finding
-    rows:
-    - Artifact: NONE IDENTIFIED
-      Direction (INGRESS, EGRESS): ''
-      Operation: ''
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): ''
-      Handler Target: ''
-      Field: ''
-      Bound To: ''
-      Source Finding: ''
+  - store_name: WORKS
+    storage_type: CS_MUTABLE_JSON_V0
+    proposed_path: book_library_mgmt/catalog/works.json
+    used_by: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    source_finding: S6 storage_governance A durable record of every work the library has catalogued
+  - store_name: WORK_IDENTITY_REGISTRY
+    storage_type: CS_REGISTRY_V0
+    proposed_path: book_library_mgmt/catalog/work_identity_registry.jsonl
+    used_by: book_library_mgmt::CC_CLAIM_WORK_IDENTITY_V0
+    source_finding: S6 storage_governance An atomic claim on each work's identity
+  - store_name: BOOKS
+    storage_type: CS_MUTABLE_JSON_V0
+    proposed_path: book_library_mgmt/catalog/books.json
+    used_by: book_library_mgmt::CC_REGISTER_BOOK_V0
+    source_finding: S6 storage_governance A durable record of every book the library catalogs
+  - store_name: PHYSICAL_COPIES
+    storage_type: CS_MUTABLE_JSON_V0
+    proposed_path: book_library_mgmt/catalog/physical_copies.json
+    used_by: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    source_finding: S6 storage_governance A durable record of every physical copy the library owns
+  - store_name: CATALOG_OPERATIONS
+    storage_type: CS_APPENDONLY_JSONL_V0
+    proposed_path: book_library_mgmt/catalog/catalog_operations.jsonl
+    used_by: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    source_finding: S6 storage_governance A trail of performed operations that cannot be amended
+  - store_name: BOOK_IDENTITY_REGISTRY
+    storage_type: CS_REGISTRY_V0
+    proposed_path: book_library_mgmt/catalog/book_identity_registry.jsonl
+    used_by: book_library_mgmt::CC_CLAIM_BOOK_IDENTITY_V0
+    source_finding: S6 storage_governance A claim on each book's identity, held once
+  - store_name: COPY_BARCODE_REGISTRY
+    storage_type: CS_REGISTRY_V0
+    proposed_path: book_library_mgmt/catalog/copy_barcode_registry.jsonl
+    used_by: book_library_mgmt::CC_CLAIM_COPY_BARCODE_V0
+    source_finding: S6 storage_governance A claim on each copy's barcode, held once
+  transport_bindings: []
   artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Count
-    - Artifacts
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: catalog
-      Count: '8'
-      Artifacts: 1 IN, 1 WF, 3 CC, 2 CT, 1 EV
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Subdomain: catalog
-      Count: '7'
-      Artifacts: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0, book_library_mgmt::RB_CATALOG_BINDINGS_V0, book_library_mgmt::WF_REGISTER_BOOK_V0, book_library_mgmt::CC_REGISTER_BOOK_V0, book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0, book_library_mgmt::CC_SEARCH_CATALOG_V0, book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-  generation_provenance:
-    columns:
-    - Artifact
-    - Generator
-    - Generator Sources
-    - Source Finding
-    rows:
-    - Artifact: NONE IDENTIFIED
-      Generator: ''
-      Generator Sources: ''
-      Source Finding: ''
-  declared_reach:
-    columns:
-    - Act
-    - Consults
-    - Source Finding
-    rows:
-    - Act: NONE IDENTIFIED
-      Consults: ''
-      Source Finding: ''
+  - action: NEW
+    subdomain: catalog
+    count: '8'
+    artifacts: 1 IN, 1 WF, 3 CC, 2 CT, 1 EV
+  - action: EXTEND
+    subdomain: catalog
+    count: '7'
+    artifacts: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0, book_library_mgmt::RB_CATALOG_BINDINGS_V0, book_library_mgmt::WF_REGISTER_BOOK_V0, book_library_mgmt::CC_REGISTER_BOOK_V0, book_library_mgmt::CC_VALIDATE_BOOK_SUBMISSION_V0, book_library_mgmt::CC_SEARCH_CATALOG_V0, book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+  generation_provenance: []
+  declared_reach: []
   test_cases:
-    columns:
-    - CT Code
-    - Case
-    - Expected Outcome (SUCCESS, VIOLATION)
-    - Source Finding
-    rows:
-    - CT Code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Case: forms_normalized_key
-      Expected Outcome (SUCCESS, VIOLATION): SUCCESS
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Case: selects_matching_records
-      Expected Outcome (SUCCESS, VIOLATION): SUCCESS
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Case: groups_by_attribute
-      Expected Outcome (SUCCESS, VIOLATION): SUCCESS
-      Source Finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    case: forms_normalized_key
+    expected_outcome: SUCCESS
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    case: selects_matching_records
+    expected_outcome: SUCCESS
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    case: groups_by_attribute
+    expected_outcome: SUCCESS
+    source_finding: human decision
   test_case_values:
-    columns:
-    - CT Code
-    - Case
-    - Role (INPUT, EXPECTED, ASSERT, RECORDED)
-    - Field
-    - Value
-    - Source Finding
-    rows:
-    - CT Code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Case: forms_normalized_key
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): INPUT
-      Field: title
-      Value: The Odyssey
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Case: forms_normalized_key
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): INPUT
-      Field: author
-      Value: Homer
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-      Case: forms_normalized_key
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): EXPECTED
-      Field: work_key
-      Value: the odyssey|homer
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Case: selects_matching_records
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): INPUT
-      Field: source
-      Value: '[{author: Homer, title: Iliad}, {author: Virgil, title: Aeneid}]'
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Case: selects_matching_records
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): INPUT
-      Field: filter
-      Value: '{author: Homer}'
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-      Case: selects_matching_records
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): EXPECTED
-      Field: extracted
-      Value: '[{author: Homer, title: Iliad}]'
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Case: groups_by_attribute
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): INPUT
-      Field: source
-      Value: '[{work: w1, edition: 1}, {work: w2, edition: 1}, {work: w1, edition: 2}]'
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Case: groups_by_attribute
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): INPUT
-      Field: attribute
-      Value: work
-      Source Finding: human decision
-    - CT Code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-      Case: groups_by_attribute
-      Role (INPUT, EXPECTED, ASSERT, RECORDED): EXPECTED
-      Field: grouped
-      Value: '[{key: w1, records: [{work: w1, edition: 1}, {work: w1, edition: 2}]}, {key: w2, records: [{work: w2, edition: 1}]}]'
-      Source Finding: human decision
-  withdrawn_facts:
-    columns:
-    - Artifact
-    - Fact
-    - Reason
-    - Source Finding
-    rows: []
+  - ct_code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    case: forms_normalized_key
+    role: INPUT
+    field: title
+    value: The Odyssey
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    case: forms_normalized_key
+    role: INPUT
+    field: author
+    value: Homer
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
+    case: forms_normalized_key
+    role: EXPECTED
+    field: work_key
+    value: the odyssey|homer
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    case: selects_matching_records
+    role: INPUT
+    field: source
+    value:
+    - author: Homer
+      title: Iliad
+    - author: Virgil
+      title: Aeneid
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    case: selects_matching_records
+    role: INPUT
+    field: filter
+    value:
+      author: Homer
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
+    case: selects_matching_records
+    role: EXPECTED
+    field: extracted
+    value:
+    - author: Homer
+      title: Iliad
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    case: groups_by_attribute
+    role: INPUT
+    field: source
+    value:
+    - work: w1
+      edition: 1
+    - work: w2
+      edition: 1
+    - work: w1
+      edition: 2
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    case: groups_by_attribute
+    role: INPUT
+    field: attribute
+    value: work
+    source_finding: human decision
+  - ct_code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
+    case: groups_by_attribute
+    role: EXPECTED
+    field: grouped
+    value:
+    - key: w1
+      records:
+      - work: w1
+        edition: 1
+      - work: w1
+        edition: 2
+    - key: w2
+      records:
+      - work: w2
+        edition: 1
+    source_finding: human decision
+  withdrawn_facts: null
 ```
 
 Eight artifacts are authored and six existing ones are extended. The extended six carry identities

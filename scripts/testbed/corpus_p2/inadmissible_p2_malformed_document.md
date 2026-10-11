@@ -12,515 +12,455 @@ registers:
 
     ### Entity Attributes
   entity_attributes:
-    columns:
-    - Entity
-    - Attribute
-    - Meaning
-    - Evidence Status
-    - Source Finding
-    rows:
-    - Entity: Book
-      Attribute: Title
-      Meaning: The title the book is published under; part of what identifies it.
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — a book's bibliographic information is title, author, publication year and subject
-    - Entity: Book
-      Attribute: Author
-      Meaning: The author the book is published under; part of what identifies it.
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — bibliographic information
-    - Entity: Book
-      Attribute: Publication Year
-      Meaning: The year this edition was published; part of what identifies it, and what distinguishes one edition from another.
-      Evidence Status: INFERRED
-      Source Finding: 'S1 identity_and_sameness #1'
-    - Entity: Book
-      Attribute: Subject
-      Meaning: What kind of book it is. A book carries at least one and may carry several.
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — a book carries at least one subject and may carry several
-    - Entity: Book
-      Attribute: State
-      Meaning: Whether the book is registered or retired.
-      Evidence Status: INFERRED
-      Source Finding: S1 lifecycle_states Book
-    - Entity: Physical Copy
-      Attribute: Barcode
-      Meaning: The identifier the library assigns to this copy; what identifies it among all copies the library owns.
-      Evidence Status: INFERRED
-      Source Finding: 'S1 identity_and_sameness #2'
-    - Entity: Physical Copy
-      Attribute: Book
-      Meaning: The single book this copy belongs to.
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — each physical copy belongs to exactly one book
-    - Entity: Physical Copy
-      Attribute: State
-      Meaning: Whether the copy is registered or retired.
-      Evidence Status: INFERRED
-      Source Finding: S1 lifecycle_states Physical Copy
+  - entity: Book
+    attribute: Title
+    meaning: The title the book is published under; part of what identifies it.
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — a book's bibliographic information is title, author, publication year and subject
+  - entity: Book
+    attribute: Author
+    meaning: The author the book is published under; part of what identifies it.
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — bibliographic information
+  - entity: Book
+    attribute: Publication Year
+    meaning: The year this edition was published; part of what identifies it, and what distinguishes one edition from another.
+    evidence_status: INFERRED
+    source_finding: 'S1 identity_and_sameness #1'
+  - entity: Book
+    attribute: Subject
+    meaning: What kind of book it is. A book carries at least one and may carry several.
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — a book carries at least one subject and may carry several
+  - entity: Book
+    attribute: State
+    meaning: Whether the book is registered or retired.
+    evidence_status: INFERRED
+    source_finding: S1 lifecycle_states Book
+  - entity: Physical Copy
+    attribute: Barcode
+    meaning: The identifier the library assigns to this copy; what identifies it among all copies the library owns.
+    evidence_status: INFERRED
+    source_finding: 'S1 identity_and_sameness #2'
+  - entity: Physical Copy
+    attribute: Book
+    meaning: The single book this copy belongs to.
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — each physical copy belongs to exactly one book
+  - entity: Physical Copy
+    attribute: State
+    meaning: Whether the copy is registered or retired.
+    evidence_status: INFERRED
+    source_finding: S1 lifecycle_states Physical Copy
   business_processes:
-    columns:
-    - Process
-    - Initiator
-    - Outcome
-    - Evidence Status
-    - Source Finding
-    rows:
-    - Process: Register a book
-      Initiator: Authorized staff
-      Outcome: The catalog holds one authoritative record for the book, and one for the physical copy registered with it.
-      Evidence Status: INFERRED
-      Source Finding: S1 business_events Book Registered
-    - Process: Register a physical copy
-      Initiator: Authorized staff
-      Outcome: The catalog holds one authoritative record for a further copy of a registered book.
-      Evidence Status: INFERRED
-      Source Finding: S1 business_events Physical Copy Registered
-    - Process: Update bibliographic information
-      Initiator: Authorized staff
-      Outcome: The book's authoritative description reflects the change, or the update is refused for making the book a duplicate of another.
-      Evidence Status: INFERRED
-      Source Finding: S1 business_events Bibliographic Information Updated
-    - Process: Retire a book record
-      Initiator: Authorized staff
-      Outcome: The book record is retired, excluded from search, still retrievable, and its copies unaffected.
-      Evidence Status: INFERRED
-      Source Finding: S1 business_events Book Retired
-    - Process: Retire a physical copy
-      Initiator: Authorized staff
-      Outcome: The copy record is retired and the book record is unaffected, including when it was the last copy.
-      Evidence Status: INFERRED
-      Source Finding: S1 business_events Physical Copy Retired
-    - Process: Reinstate a book record
-      Initiator: Authorized staff
-      Outcome: The retired book record is registered again and appears in search.
-      Evidence Status: INFERRED
-      Source Finding: 'S1 lifecycle_transitions #3'
-    - Process: Reinstate a physical copy
-      Initiator: Authorized staff
-      Outcome: The retired copy record is registered again.
-      Evidence Status: INFERRED
-      Source Finding: 'S1 lifecycle_transitions #6'
-    - Process: Search the catalog
-      Initiator: Authorized staff
-      Outcome: The bibliographic information of each registered book matching the subject or title searched for.
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — staff search the catalog by subject or by title
-    - Process: Retrieve complete book details
-      Initiator: Authorized staff
-      Outcome: The book's bibliographic information and the physical copies the library holds of it.
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — retrieving complete book details returns the bibliographic information and the copies
+  - process: Register a book
+    initiator: Authorized staff
+    outcome: The catalog holds one authoritative record for the book, and one for the physical copy registered with it.
+    evidence_status: INFERRED
+    source_finding: S1 business_events Book Registered
+  - process: Register a physical copy
+    initiator: Authorized staff
+    outcome: The catalog holds one authoritative record for a further copy of a registered book.
+    evidence_status: INFERRED
+    source_finding: S1 business_events Physical Copy Registered
+  - process: Update bibliographic information
+    initiator: Authorized staff
+    outcome: The book's authoritative description reflects the change, or the update is refused for making the book a duplicate of another.
+    evidence_status: INFERRED
+    source_finding: S1 business_events Bibliographic Information Updated
+  - process: Retire a book record
+    initiator: Authorized staff
+    outcome: The book record is retired, excluded from search, still retrievable, and its copies unaffected.
+    evidence_status: INFERRED
+    source_finding: S1 business_events Book Retired
+  - process: Retire a physical copy
+    initiator: Authorized staff
+    outcome: The copy record is retired and the book record is unaffected, including when it was the last copy.
+    evidence_status: INFERRED
+    source_finding: S1 business_events Physical Copy Retired
+  - process: Reinstate a book record
+    initiator: Authorized staff
+    outcome: The retired book record is registered again and appears in search.
+    evidence_status: INFERRED
+    source_finding: 'S1 lifecycle_transitions #3'
+  - process: Reinstate a physical copy
+    initiator: Authorized staff
+    outcome: The retired copy record is registered again.
+    evidence_status: INFERRED
+    source_finding: 'S1 lifecycle_transitions #6'
+  - process: Search the catalog
+    initiator: Authorized staff
+    outcome: The bibliographic information of each registered book matching the subject or title searched for.
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — staff search the catalog by subject or by title
+  - process: Retrieve complete book details
+    initiator: Authorized staff
+    outcome: The book's bibliographic information and the physical copies the library holds of it.
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — retrieving complete book details returns the bibliographic information and the copies
   process_steps:
-    columns:
-    - Process
-    - 'Step #'
-    - Action
-    - Record Produced
-    - Evidence Status
-    - Source Finding
-    rows:
-    - Process: Register a book
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Register a book
-      'Step #': '2'
-      Action: Confirm at least one physical copy is offered with the book
-      Record Produced: A completeness decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #2'
-    - Process: Register a book
-      'Step #': '3'
-      Action: Confirm the book carries at least one subject
-      Record Produced: A completeness decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #3'
-    - Process: Register a book
-      'Step #': '4'
-      Action: Confirm no registered book already carries this title, author and publication year
-      Record Produced: A sameness decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #1'
-    - Process: Register a book
-      'Step #': '5'
-      Action: Record the book's bibliographic information as its authoritative record, registered
-      Record Produced: The book record
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — each book has exactly one authoritative record
-    - Process: Register a book
-      'Step #': '6'
-      Action: Record the offered copy against the book, registered
-      Record Produced: The physical copy record
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — registering a book requires at least one physical copy
-    - Process: Register a book
-      'Step #': '7'
-      Action: Record that the book was registered
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — every business operation is traceable and auditable
-    - Process: Register a physical copy
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Register a physical copy
-      'Step #': '2'
-      Action: Confirm the book the copy names is registered in the catalog
-      Record Produced: An existence decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #4'
-    - Process: Register a physical copy
-      'Step #': '3'
-      Action: Confirm no copy the library owns already carries this barcode
-      Record Produced: A sameness decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #5'
-    - Process: Register a physical copy
-      'Step #': '4'
-      Action: Record the copy against that book, registered
-      Record Produced: The physical copy record
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — each copy has exactly one authoritative record
-    - Process: Register a physical copy
-      'Step #': '5'
-      Action: Record that the copy was registered
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Process: Update bibliographic information
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Update bibliographic information
-      'Step #': '2'
-      Action: Confirm the changed title, author and publication year would not match another registered book
-      Record Produced: A sameness decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #6'
-    - Process: Update bibliographic information
-      'Step #': '3'
-      Action: Record the changed bibliographic information as the book's authoritative description
-      Record Produced: The updated book record
-      Evidence Status: INFERRED
-      Source Finding: S1 business_events Bibliographic Information Updated
-    - Process: Update bibliographic information
-      'Step #': '4'
-      Action: Record that the book's information was updated
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Process: Retire a book record
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Retire a book record
-      'Step #': '2'
-      Action: Record the book record as retired, leaving its copies as they are
-      Record Produced: The retired book record
-      Evidence Status: INFERRED
-      Source Finding: 'S1 lifecycle_transitions #2'
-    - Process: Retire a book record
-      'Step #': '3'
-      Action: Record that the book was retired
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Process: Retire a physical copy
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Retire a physical copy
-      'Step #': '2'
-      Action: Record the copy as retired, leaving the book record as it is
-      Record Produced: The retired copy record
-      Evidence Status: INFERRED
-      Source Finding: 'S1 lifecycle_transitions #5'
-    - Process: Retire a physical copy
-      'Step #': '3'
-      Action: Record that the copy was retired
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Process: Reinstate a book record
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Reinstate a book record
-      'Step #': '2'
-      Action: Record the retired book record as registered again
-      Record Produced: The registered book record
-      Evidence Status: INFERRED
-      Source Finding: 'S1 lifecycle_transitions #3'
-    - Process: Reinstate a book record
-      'Step #': '3'
-      Action: Record that the book was returned to the registered state
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Process: Reinstate a physical copy
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Reinstate a physical copy
-      'Step #': '2'
-      Action: Record the retired copy as registered again
-      Record Produced: The registered copy record
-      Evidence Status: INFERRED
-      Source Finding: 'S1 lifecycle_transitions #6'
-    - Process: Reinstate a physical copy
-      'Step #': '3'
-      Action: Record that the copy was returned to the registered state
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Process: Search the catalog
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Search the catalog
-      'Step #': '2'
-      Action: Select the registered books whose subject or title matches what was searched for, excluding retired books
-      Record Produced: The matching set
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — a retired book is excluded from search results
-    - Process: Search the catalog
-      'Step #': '3'
-      Action: Return the bibliographic information of each matching book, and nothing about its copies
-      Record Produced: The search result
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — a search returns the bibliographic information of each matching book
-    - Process: Search the catalog
-      'Step #': '4'
-      Action: Record that the catalog was searched
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Process: Retrieve complete book details
-      'Step #': '1'
-      Action: Confirm the staff member is authorized to perform catalog operations
-      Record Produced: An authorization decision
-      Evidence Status: INFERRED
-      Source Finding: 'S1 operation_refusals #7'
-    - Process: Retrieve complete book details
-      'Step #': '2'
-      Action: Read the book's authoritative record, whether registered or retired
-      Record Produced: The book record
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — a retired book's details remain retrievable
-    - Process: Retrieve complete book details
-      'Step #': '3'
-      Action: Read the physical copies recorded against that book
-      Record Produced: The copies held
-      Evidence Status: INFERRED
-      Source Finding: S1 known_facts — complete details return the copies the library holds
-    - Process: Retrieve complete book details
-      'Step #': '4'
-      Action: Record that the book's details were retrieved
-      Record Produced: A durable, auditable record of the operation
-      Evidence Status: INFERRED
-      Source Finding: S1 business_invariants — traceable and auditable
+  - process: Register a book
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Register a book
+    step: '2'
+    action: Confirm at least one physical copy is offered with the book
+    record_produced: A completeness decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #2'
+  - process: Register a book
+    step: '3'
+    action: Confirm the book carries at least one subject
+    record_produced: A completeness decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #3'
+  - process: Register a book
+    step: '4'
+    action: Confirm no registered book already carries this title, author and publication year
+    record_produced: A sameness decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #1'
+  - process: Register a book
+    step: '5'
+    action: Record the book's bibliographic information as its authoritative record, registered
+    record_produced: The book record
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — each book has exactly one authoritative record
+  - process: Register a book
+    step: '6'
+    action: Record the offered copy against the book, registered
+    record_produced: The physical copy record
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — registering a book requires at least one physical copy
+  - process: Register a book
+    step: '7'
+    action: Record that the book was registered
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — every business operation is traceable and auditable
+  - process: Register a physical copy
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Register a physical copy
+    step: '2'
+    action: Confirm the book the copy names is registered in the catalog
+    record_produced: An existence decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #4'
+  - process: Register a physical copy
+    step: '3'
+    action: Confirm no copy the library owns already carries this barcode
+    record_produced: A sameness decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #5'
+  - process: Register a physical copy
+    step: '4'
+    action: Record the copy against that book, registered
+    record_produced: The physical copy record
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — each copy has exactly one authoritative record
+  - process: Register a physical copy
+    step: '5'
+    action: Record that the copy was registered
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
+  - process: Update bibliographic information
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Update bibliographic information
+    step: '2'
+    action: Confirm the changed title, author and publication year would not match another registered book
+    record_produced: A sameness decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #6'
+  - process: Update bibliographic information
+    step: '3'
+    action: Record the changed bibliographic information as the book's authoritative description
+    record_produced: The updated book record
+    evidence_status: INFERRED
+    source_finding: S1 business_events Bibliographic Information Updated
+  - process: Update bibliographic information
+    step: '4'
+    action: Record that the book's information was updated
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
+  - process: Retire a book record
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Retire a book record
+    step: '2'
+    action: Record the book record as retired, leaving its copies as they are
+    record_produced: The retired book record
+    evidence_status: INFERRED
+    source_finding: 'S1 lifecycle_transitions #2'
+  - process: Retire a book record
+    step: '3'
+    action: Record that the book was retired
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
+  - process: Retire a physical copy
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Retire a physical copy
+    step: '2'
+    action: Record the copy as retired, leaving the book record as it is
+    record_produced: The retired copy record
+    evidence_status: INFERRED
+    source_finding: 'S1 lifecycle_transitions #5'
+  - process: Retire a physical copy
+    step: '3'
+    action: Record that the copy was retired
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
+  - process: Reinstate a book record
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Reinstate a book record
+    step: '2'
+    action: Record the retired book record as registered again
+    record_produced: The registered book record
+    evidence_status: INFERRED
+    source_finding: 'S1 lifecycle_transitions #3'
+  - process: Reinstate a book record
+    step: '3'
+    action: Record that the book was returned to the registered state
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
+  - process: Reinstate a physical copy
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Reinstate a physical copy
+    step: '2'
+    action: Record the retired copy as registered again
+    record_produced: The registered copy record
+    evidence_status: INFERRED
+    source_finding: 'S1 lifecycle_transitions #6'
+  - process: Reinstate a physical copy
+    step: '3'
+    action: Record that the copy was returned to the registered state
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
+  - process: Search the catalog
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Search the catalog
+    step: '2'
+    action: Select the registered books whose subject or title matches what was searched for, excluding retired books
+    record_produced: The matching set
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — a retired book is excluded from search results
+  - process: Search the catalog
+    step: '3'
+    action: Return the bibliographic information of each matching book, and nothing about its copies
+    record_produced: The search result
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — a search returns the bibliographic information of each matching book
+  - process: Search the catalog
+    step: '4'
+    action: Record that the catalog was searched
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
+  - process: Retrieve complete book details
+    step: '1'
+    action: Confirm the staff member is authorized to perform catalog operations
+    record_produced: An authorization decision
+    evidence_status: INFERRED
+    source_finding: 'S1 operation_refusals #7'
+  - process: Retrieve complete book details
+    step: '2'
+    action: Read the book's authoritative record, whether registered or retired
+    record_produced: The book record
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — a retired book's details remain retrievable
+  - process: Retrieve complete book details
+    step: '3'
+    action: Read the physical copies recorded against that book
+    record_produced: The copies held
+    evidence_status: INFERRED
+    source_finding: S1 known_facts — complete details return the copies the library holds
+  - process: Retrieve complete book details
+    step: '4'
+    action: Record that the book's details were retrieved
+    record_produced: A durable, auditable record of the operation
+    evidence_status: INFERRED
+    source_finding: S1 business_invariants — traceable and auditable
   belief_verification:
-    columns:
-    - Belief
-    - Result (VERIFIED, NOT_FOUND, INSUFFICIENT_EVIDENCE)
-    - Source Finding
-    rows:
-    - Belief: book_library_mgmt does not appear to be part of the current software baseline.
-      Result (VERIFIED, NOT_FOUND, INSUFFICIENT_EVIDENCE): ABSENT
-      Source Finding: 'S1 system_beliefs #1'
-    - Belief: No capability in the current composition manages a library catalog.
-      Result (VERIFIED, NOT_FOUND, INSUFFICIENT_EVIDENCE): NOT_FOUND
-      Source Finding: 'S1 system_beliefs #2'
+  - belief: book_library_mgmt does not appear to be part of the current software baseline.
+    result: ABSENT
+    source_finding: 'S1 system_beliefs #1'
+  - belief: No capability in the current composition manages a library catalog.
+    result: NOT_FOUND
+    source_finding: 'S1 system_beliefs #2'
   pps_baseline_fqdns:
-    columns:
-    - Capability
-    - FQDN
-    - What It Does
-    - Fit (EXACT, PARTIAL, MISMATCH)
-    - Cannot Do
-    rows:
-    - Capability: Uniqueness registry
-      FQDN: capability_side_effects::CS_REGISTRY_V0
-      What It Does: Registers a key, resolves it, reports whether it exists, counts and deregisters.
-      Fit (EXACT, PARTIAL, MISMATCH): PARTIAL
-      Cannot Do: It enforces uniqueness on one key; a book is identified by title, author and publication year together, and the composite is not a key it forms.
-    - Capability: Durable record store
-      FQDN: capability_side_effects::CS_MUTABLE_JSON_V0
-      What It Does: Writes, reads, lists, updates in place and deletes durable records.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It holds whatever it is given; it enforces no identity, no state and no authorization.
-    - Capability: Append-only trail
-      FQDN: capability_side_effects::CS_APPENDONLY_JSONL_V0
-      What It Does: Appends an entry and returns the whole trail.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It appends what it is handed; it does not decide which operations must be recorded.
-    - Capability: Audit composition
-      FQDN: ai_governance::CC_APPEND_AUDIT_EVENT_V0
-      What It Does: Composes the recording of a performed action into an append-only store.
-      Fit (EXACT, PARTIAL, MISMATCH): PARTIAL
-      Cannot Do: It carries agent-governance semantics and appends to another subdomain's store; a subdomain owns its stores exclusively.
-    - Capability: Record shape validation
-      FQDN: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      What It Does: Confirms a record carries the fields its contract declares.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It does not know which fields a book or a copy requires.
-    - Capability: Record assembly
-      FQDN: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      What It Does: Assembles a durable record from supplied values.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It applies no identity rule and decides no sameness.
-    - Capability: Record selection
-      FQDN: capability_transforms::CT_PURE_FILTER_RECORDS_V0
-      What It Does: Selects the records matching stated criteria.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It knows nothing of registered and retired, so exclusion of retired books must be stated as criteria.
-    - Capability: Parameter rule validation
-      FQDN: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      What It Does: Confirms supplied parameters satisfy declared rules.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It carries no catalog rule of its own.
-    - Capability: Business actor
-      FQDN: ai_governance::AC_EMPLOYEE_V0
-      What It Does: Declares a business actor whose identity an operation binds.
-      Fit (EXACT, PARTIAL, MISMATCH): PARTIAL
-      Cannot Do: It names an employee of another subdomain and asserts no authorization to perform catalog operations.
-    - Capability: Business entry point
-      FQDN: ai_governance::IN_PROVISION_AI_LICENSE_V0
-      What It Does: Declares the governed entry point through which a business operation is requested.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It admits a licensing request, not a catalog operation.
-    - Capability: Governed operation pipeline
-      FQDN: ai_governance::CC_PROVISION_LICENSE_V0
-      What It Does: Composes one business operation as an ordered pipeline of governed steps.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It carries licensing semantics; the catalog's operations must be authored.
-    - Capability: Subdomain storage declaration
-      FQDN: ai_governance::STRUCTURE_AI_LICENSING_STORAGE_V0
-      What It Does: Declares the stores a business subdomain owns and the paths they occupy.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It declares another subdomain's stores.
-    - Capability: Runtime binding declaration
-      FQDN: ai_governance::RB_LICENSE_BINDINGS_V0
-      What It Does: Binds a subdomain's workflows to the stores and policies they use.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It binds another subdomain's surface.
-    - Capability: Business moment
-      FQDN: ai_governance::EV_LICENSE_PROVISIONED_V0
-      What It Does: Declares a business moment the domain recognises when an operation completes.
-      Fit (EXACT, PARTIAL, MISMATCH): EXACT
-      Cannot Do: It names a licensing moment, not a catalog one.
+  - capability: Uniqueness registry
+    fqdn: capability_side_effects::CS_REGISTRY_V0
+    what_it_does: Registers a key, resolves it, reports whether it exists, counts and deregisters.
+    fit: PARTIAL
+    cannot_do: It enforces uniqueness on one key; a book is identified by title, author and publication year together, and the composite is not a key it forms.
+  - capability: Durable record store
+    fqdn: capability_side_effects::CS_MUTABLE_JSON_V0
+    what_it_does: Writes, reads, lists, updates in place and deletes durable records.
+    fit: EXACT
+    cannot_do: It holds whatever it is given; it enforces no identity, no state and no authorization.
+  - capability: Append-only trail
+    fqdn: capability_side_effects::CS_APPENDONLY_JSONL_V0
+    what_it_does: Appends an entry and returns the whole trail.
+    fit: EXACT
+    cannot_do: It appends what it is handed; it does not decide which operations must be recorded.
+  - capability: Audit composition
+    fqdn: ai_governance::CC_APPEND_AUDIT_EVENT_V0
+    what_it_does: Composes the recording of a performed action into an append-only store.
+    fit: PARTIAL
+    cannot_do: It carries agent-governance semantics and appends to another subdomain's store; a subdomain owns its stores exclusively.
+  - capability: Record shape validation
+    fqdn: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    what_it_does: Confirms a record carries the fields its contract declares.
+    fit: EXACT
+    cannot_do: It does not know which fields a book or a copy requires.
+  - capability: Record assembly
+    fqdn: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    what_it_does: Assembles a durable record from supplied values.
+    fit: EXACT
+    cannot_do: It applies no identity rule and decides no sameness.
+  - capability: Record selection
+    fqdn: capability_transforms::CT_PURE_FILTER_RECORDS_V0
+    what_it_does: Selects the records matching stated criteria.
+    fit: EXACT
+    cannot_do: It knows nothing of registered and retired, so exclusion of retired books must be stated as criteria.
+  - capability: Parameter rule validation
+    fqdn: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    what_it_does: Confirms supplied parameters satisfy declared rules.
+    fit: EXACT
+    cannot_do: It carries no catalog rule of its own.
+  - capability: Business actor
+    fqdn: ai_governance::AC_EMPLOYEE_V0
+    what_it_does: Declares a business actor whose identity an operation binds.
+    fit: PARTIAL
+    cannot_do: It names an employee of another subdomain and asserts no authorization to perform catalog operations.
+  - capability: Business entry point
+    fqdn: ai_governance::IN_PROVISION_AI_LICENSE_V0
+    what_it_does: Declares the governed entry point through which a business operation is requested.
+    fit: EXACT
+    cannot_do: It admits a licensing request, not a catalog operation.
+  - capability: Governed operation pipeline
+    fqdn: ai_governance::CC_PROVISION_LICENSE_V0
+    what_it_does: Composes one business operation as an ordered pipeline of governed steps.
+    fit: EXACT
+    cannot_do: It carries licensing semantics; the catalog's operations must be authored.
+  - capability: Subdomain storage declaration
+    fqdn: ai_governance::STRUCTURE_AI_LICENSING_STORAGE_V0
+    what_it_does: Declares the stores a business subdomain owns and the paths they occupy.
+    fit: EXACT
+    cannot_do: It declares another subdomain's stores.
+  - capability: Runtime binding declaration
+    fqdn: ai_governance::RB_LICENSE_BINDINGS_V0
+    what_it_does: Binds a subdomain's workflows to the stores and policies they use.
+    fit: EXACT
+    cannot_do: It binds another subdomain's surface.
+  - capability: Business moment
+    fqdn: ai_governance::EV_LICENSE_PROVISIONED_V0
+    what_it_does: Declares a business moment the domain recognises when an operation completes.
+    fit: EXACT
+    cannot_do: It names a licensing moment, not a catalog one.
   gaps:
-    columns:
-    - Gap
-    - Severity
-    - Impact
-    - Evidence Status
-    - Source Finding
-    rows:
-    - Gap: Nothing in the composition holds a book record or a copy record.
-      Severity: CRITICAL
-      Impact: Every requested outcome depends on a durable authoritative record per book and per copy; the store mechanisms exist, the catalog's own stores do not.
-      Evidence Status: OBSERVED
-      Source Finding: 'S2 belief_verification #2'
-    - Gap: No capability registers a book, registers a copy, updates bibliographic information, retires a record, reinstates a record, searches, or retrieves book details.
-      Severity: CRITICAL
-      Impact: The nine business processes have no counterpart in the composition and must all be authored.
-      Evidence Status: OBSERVED
-      Source Finding: 'S2 belief_verification #2'
-    - Gap: No actor exists for library staff, and none asserts authorization to perform catalog operations.
-      Severity: CRITICAL
-      Impact: Every operation is refused unless the staff member is authorized, and there is nothing to bind that decision to.
-      Evidence Status: OBSERVED
-      Source Finding: 'S1 operation_refusals #7'
-    - Gap: No business moment exists for a book or copy being registered, updated, retired or reinstated.
-      Severity: CRITICAL
-      Impact: Five business events are declared and none is recognised anywhere in the composition.
-      Evidence Status: OBSERVED
-      Source Finding: S1 business_events Book Registered
-    - Gap: Uniqueness on a composite of title, author and publication year has no counterpart in the composition.
-      Severity: CRITICAL
-      Impact: Duplicate prevention is the business problem this change exists to solve, and the registry available enforces uniqueness on a single key.
-      Evidence Status: OBSERVED
-      Source Finding: 'S1 identity_and_sameness #1'
-    - Gap: No audit trail belongs to the catalog; the only audit composition belongs to another subdomain.
-      Severity: CRITICAL
-      Impact: Every operation must be traceable, and a subdomain owns its stores exclusively.
-      Evidence Status: OBSERVED
-      Source Finding: S1 business_invariants — every business operation is traceable and auditable
-    - Gap: Subject is free text, so searching by kind of book is only as consistent as what staff type into it.
-      Severity: MINOR
-      Impact: 'Noted, not modelled: the business has chosen free text, and no value-set validation applies.'
-      Evidence Status: OBSERVED
-      Source Finding: S1 known_facts — a book's subject is free text
-    - Gap: Deciding which staff are authorized is deferred to the staff function, which does not exist.
-      Severity: MINOR
-      Impact: 'Noted, not modelled: the catalog reads authorization and never grants it.'
-      Evidence Status: OBSERVED
-      Source Finding: 'S1 authority_deferrals #1'
+  - gap: Nothing in the composition holds a book record or a copy record.
+    severity: CRITICAL
+    impact: Every requested outcome depends on a durable authoritative record per book and per copy; the store mechanisms exist, the catalog's own stores do not.
+    evidence_status: OBSERVED
+    source_finding: 'S2 belief_verification #2'
+  - gap: No capability registers a book, registers a copy, updates bibliographic information, retires a record, reinstates a record, searches, or retrieves book details.
+    severity: CRITICAL
+    impact: The nine business processes have no counterpart in the composition and must all be authored.
+    evidence_status: OBSERVED
+    source_finding: 'S2 belief_verification #2'
+  - gap: No actor exists for library staff, and none asserts authorization to perform catalog operations.
+    severity: CRITICAL
+    impact: Every operation is refused unless the staff member is authorized, and there is nothing to bind that decision to.
+    evidence_status: OBSERVED
+    source_finding: 'S1 operation_refusals #7'
+  - gap: No business moment exists for a book or copy being registered, updated, retired or reinstated.
+    severity: CRITICAL
+    impact: Five business events are declared and none is recognised anywhere in the composition.
+    evidence_status: OBSERVED
+    source_finding: S1 business_events Book Registered
+  - gap: Uniqueness on a composite of title, author and publication year has no counterpart in the composition.
+    severity: CRITICAL
+    impact: Duplicate prevention is the business problem this change exists to solve, and the registry available enforces uniqueness on a single key.
+    evidence_status: OBSERVED
+    source_finding: 'S1 identity_and_sameness #1'
+  - gap: No audit trail belongs to the catalog; the only audit composition belongs to another subdomain.
+    severity: CRITICAL
+    impact: Every operation must be traceable, and a subdomain owns its stores exclusively.
+    evidence_status: OBSERVED
+    source_finding: S1 business_invariants — every business operation is traceable and auditable
+  - gap: Subject is free text, so searching by kind of book is only as consistent as what staff type into it.
+    severity: MINOR
+    impact: 'Noted, not modelled: the business has chosen free text, and no value-set validation applies.'
+    evidence_status: OBSERVED
+    source_finding: S1 known_facts — a book's subject is free text
+  - gap: Deciding which staff are authorized is deferred to the staff function, which does not exist.
+    severity: MINOR
+    impact: 'Noted, not modelled: the catalog reads authorization and never grants it.'
+    evidence_status: OBSERVED
+    source_finding: 'S1 authority_deferrals #1'
   architectural_observations:
-    columns:
-    - Observation
-    - Evidence
-    - Evidence Status
-    - Source Finding
-    rows:
-    - Observation: A business subdomain in this composition declares its own stores and binds its own workflows to them, so a new subdomain has a worked precedent for owning its records.
-      Evidence: ai_governance::STRUCTURE_AI_LICENSING_STORAGE_V0 · ai_governance::RB_LICENSE_BINDINGS_V0
-      Evidence Status: OBSERVED
-      Source Finding: 'S2 belief_verification #1'
-    - Observation: Durable records that are written, read, listed and updated in place are available as a declared side effect, as is an append-only trail.
-      Evidence: capability_side_effects::CS_MUTABLE_JSON_V0 · capability_side_effects::CS_APPENDONLY_JSONL_V0
-      Evidence Status: OBSERVED
-      Source Finding: 'S2 belief_verification #2'
-    - Observation: Uniqueness is available as a declared side effect, keyed on a single value.
-      Evidence: UNRESOLVED
-      Evidence Status: OBSERVED
-      Source Finding: 'S1 identity_and_sameness #1'
-    - Observation: Pure transforms already exist for assembling a record, validating its shape, and selecting records by criteria.
-      Evidence: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 · capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0 · capability_transforms::CT_PURE_FILTER_RECORDS_V0
-      Evidence Status: OBSERVED
-      Source Finding: 'S2 belief_verification #2'
-    - Observation: Recording a performed action into an append-only trail is already composed as a governed step, within another subdomain.
-      Evidence: ai_governance::CC_APPEND_AUDIT_EVENT_V0
-      Evidence Status: OBSERVED
-      Source Finding: S1 business_invariants — traceable and auditable
-    - Observation: 'The composition carries no business vocabulary for a library: no identity claims book, library, copy, subject, title or barcode.'
-      Evidence: inspection::TI_SI_CATALOG_V0
-      Evidence Status: OBSERVED
-      Source Finding: 'S2 belief_verification #2'
-  discovery_concerns:
-    columns:
-    - Concern
-    - Evidence
-    - Severity
-    - Evidence Status
-    - Source Finding
-    rows: []
-  open_questions:
-    columns:
-    - Question
-    - Category
-    - Why It Matters
-    - Source Finding
-    rows: []
+  - observation: A business subdomain in this composition declares its own stores and binds its own workflows to them, so a new subdomain has a worked precedent for owning its records.
+    evidence: ai_governance::STRUCTURE_AI_LICENSING_STORAGE_V0 · ai_governance::RB_LICENSE_BINDINGS_V0
+    evidence_status: OBSERVED
+    source_finding: 'S2 belief_verification #1'
+  - observation: Durable records that are written, read, listed and updated in place are available as a declared side effect, as is an append-only trail.
+    evidence: capability_side_effects::CS_MUTABLE_JSON_V0 · capability_side_effects::CS_APPENDONLY_JSONL_V0
+    evidence_status: OBSERVED
+    source_finding: 'S2 belief_verification #2'
+  - observation: Uniqueness is available as a declared side effect, keyed on a single value.
+    evidence: UNRESOLVED
+    evidence_status: OBSERVED
+    source_finding: 'S1 identity_and_sameness #1'
+  - observation: Pure transforms already exist for assembling a record, validating its shape, and selecting records by criteria.
+    evidence: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0 · capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0 · capability_transforms::CT_PURE_FILTER_RECORDS_V0
+    evidence_status: OBSERVED
+    source_finding: 'S2 belief_verification #2'
+  - observation: Recording a performed action into an append-only trail is already composed as a governed step, within another subdomain.
+    evidence: ai_governance::CC_APPEND_AUDIT_EVENT_V0
+    evidence_status: OBSERVED
+    source_finding: S1 business_invariants — traceable and auditable
+  - observation: 'The composition carries no business vocabulary for a library: no identity claims book, library, copy, subject, title or barcode.'
+    evidence: inspection::TI_SI_CATALOG_V0
+    evidence_status: OBSERVED
+    source_finding: 'S2 belief_verification #2'
+  discovery_concerns: null
+  open_questions: null
 ```
 
 Every claim about what exists is grounded in the pinned baseline

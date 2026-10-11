@@ -1,8 +1,11 @@
 """Write a phase document for a probe: a title, and its registers in a Machine block.
 
-The design tests build small documents to trip one rule and leave the rest silent. They state
-registers as columns and rows, and this writes them in the form the reader reads. An empty register
-carries the emptiness sentinel as its one row, as an authored document does.
+The design tests build small documents to trip one rule and leave the rest silent. They state a
+register as its column titles and its rows, and this writes it in the form the reader reads: a list
+of rows, each a mapping from column key to value. A value is written as given, so a probe states a
+list, a routing or a binding as the structure it is. An empty register is declared empty, `[]`,
+unless `declared_empty` is false, which leaves it stating nothing, `null`. A cell given as `ABSENT`
+is left out of its row.
 """
 from __future__ import annotations
 
@@ -10,37 +13,41 @@ from typing import Iterable
 
 import yaml
 
-SENTINEL = "NONE IDENTIFIED"
+from transformation.design.schema import column_key
 
 
 class _Dumper(yaml.SafeDumper):
     pass
 
 
+ABSENT = object()
+
 _Dumper.add_representer(
     str, lambda d, v: d.represent_scalar("tag:yaml.org,2002:str", v, style="|" if "\n" in v else None))
 
 
 def register(register_id: str, columns: list[str], rows: Iterable[tuple],
-             sentinel: bool = True) -> tuple[str, dict]:
-    """One register: its columns, and each row as a mapping from column to text. An empty register
-    carries the sentinel row unless `sentinel` is false, which leaves a register with columns and no
-    rows."""
-    body = []
-    for row in rows:
-        cells = [str(c) for c in row] + [""] * (len(columns) - len(row))
-        body.append(dict(zip(columns, cells[: len(columns)])))
-    if not body and sentinel:
-        body = [dict(zip(columns, [SENTINEL] + [""] * (len(columns) - 1)))]
-    return register_id, {"columns": list(columns), "rows": body}
+             declared_empty: bool = True) -> tuple[str, list | None]:
+    """One register: each row as a mapping from column key to value. A row shorter than the columns
+    leaves the rest empty."""
+    keys = [column_key(c) for c in columns]
+    body = [{k: v for k, v in zip(keys, [*row, *[""] * (len(keys) - len(row))][: len(keys)])
+             if v is not ABSENT} for row in rows]
+    if not body:
+        return register_id, [] if declared_empty else None
+    return register_id, body
 
 
-def document(title: str, *registers: tuple[str, dict], header: dict[str, str] | None = None,
+def dump(block: dict) -> str:
+    """A Machine block's YAML, in the form a converted document carries it."""
+    return yaml.dump(block, Dumper=_Dumper, sort_keys=False, allow_unicode=True, width=100000)
+
+
+def document(title: str, *registers: tuple[str, list | None], header: dict[str, str] | None = None,
              prose: str = "") -> str:
     """The document text: title, Machine block, then any prose."""
     block: dict = {}
     if header:
         block["header"] = dict(header)
     block["registers"] = dict(registers)
-    machine = yaml.dump(block, Dumper=_Dumper, sort_keys=False, allow_unicode=True, width=100000)
-    return f"# {title}\n\n## Machine\n\n```yaml\n{machine}```\n" + (f"\n{prose}\n" if prose else "")
+    return f"# {title}\n\n## Machine\n\n```yaml\n{dump(block)}```\n" + (f"\n{prose}\n" if prose else "")

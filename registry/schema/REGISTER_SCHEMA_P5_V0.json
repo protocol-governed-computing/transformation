@@ -54,17 +54,29 @@
             "type": "object",
             "properties": {
               "source": {
-                "title": "Source"
+                "title": "Source",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "disposition": {
                 "title": "Disposition",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "purpose_disposition"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "refinement": {
-                "title": "Refinement"
+                "title": "Refinement",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -88,13 +100,25 @@
             "type": "object",
             "properties": {
               "subdomain": {
-                "title": "Subdomain"
+                "title": "Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "purpose": {
-                "title": "Purpose"
+                "title": "Purpose",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -118,20 +142,36 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "status": {
                 "title": "Status",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "scope_status"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "notes": {
-                "title": "Notes"
+                "title": "Notes",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -157,20 +197,36 @@
             "type": "object",
             "properties": {
               "store_name": {
-                "title": "Store Name"
+                "title": "Store Name",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "record_model": {
                 "title": "Record Model",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "record_model"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "business_rationale": {
-                "title": "Business Rationale"
+                "title": "Business Rationale",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -195,22 +251,46 @@
             "type": "object",
             "properties": {
               "store_name": {
-                "title": "Store Name"
+                "title": "Store Name",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "identity_field": {
-                "title": "Identity Field"
+                "title": "Identity Field",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source": {
-                "title": "Source"
+                "title": "Source",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "uniqueness_rule": {
-                "title": "Uniqueness Rule"
+                "title": "Uniqueness Rule",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "cross_subdomain_relationship": {
-                "title": "Cross-Subdomain Relationship"
+                "title": "Cross-Subdomain Relationship",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -240,13 +320,25 @@
             "type": "object",
             "properties": {
               "invariant": {
-                "title": "Invariant"
+                "title": "Invariant",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "business_reason": {
-                "title": "Business Reason"
+                "title": "Business Reason",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -271,23 +363,43 @@
             "type": "object",
             "properties": {
               "action": {
-                "title": "Action"
+                "title": "Action",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "object": {
-                "title": "Object"
+                "title": "Object",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "trigger": {
-                "title": "Trigger"
+                "title": "Trigger",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "status": {
                 "title": "Status",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "scope_status"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -314,23 +426,43 @@
             "type": "object",
             "properties": {
               "subdomain": {
-                "title": "Subdomain"
+                "title": "Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "provisional_code": {
-                "title": "Provisional Code"
+                "title": "Provisional Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "family": {
                 "title": "Family",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "artifact_family"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "summary": {
-                "title": "Summary"
+                "title": "Summary",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -355,16 +487,32 @@
             "type": "object",
             "properties": {
               "cc_code": {
-                "title": "CC Code"
+                "title": "CC Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "defined_in": {
-                "title": "Defined In"
+                "title": "Defined In",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "role": {
-                "title": "Role"
+                "title": "Role",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [

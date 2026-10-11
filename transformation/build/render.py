@@ -26,11 +26,11 @@ artifact is still scheduled and still measured — what the design owes for it i
 
 from __future__ import annotations
 
-import ast
 import re
 from typing import Any
 
 from transformation.design.families import BY_CODE, FAMILIES
+from transformation.design.schema import column_key
 
 # Where a `Machine` block begins and ends. One spelling, because there were three and two of them
 # disagreed: a pattern missing the trailing newline captures a block ending one character later, and
@@ -70,12 +70,29 @@ def norm(value: Any) -> str:
     return " ".join(str(value or "").split())
 
 
-def cell(row: dict, prefix: str) -> str:
-    """A cell addressed by column prefix — a header may carry its vocabulary in parentheses."""
-    for key, value in row.items():
-        if key.startswith(prefix):
-            return norm(value)
-    return ""
+def value(row: dict, column: str) -> Any:
+    """A cell as the row holds it, addressed by its column's title through the schema's key."""
+    return row.get(column_key(column))
+
+
+def cell(row: dict, column: str) -> str:
+    """A text cell, whitespace-normalised. A cell stating nothing, or absent, reads as empty."""
+    held = value(row, column)
+    if isinstance(held, (list, dict)):
+        raise TypeError(f"column {column!r} holds structure; read it with value() or items()")
+    if isinstance(held, bool):
+        return "true" if held else "false"
+    return norm(held)
+
+
+def items(row: dict, column: str) -> list[str]:
+    """A cell as the names it states: a list's entries, a text's one value, or none."""
+    held = value(row, column)
+    if held is None or isinstance(held, dict):
+        return []
+    if isinstance(held, list):
+        return [norm(v) for v in held if norm(v)]
+    return [norm(held)] if norm(held) else []
 
 
 def bare(value: str) -> str:
@@ -83,7 +100,9 @@ def bare(value: str) -> str:
 
 
 def rows(registers: dict, name: str) -> list[dict]:
-    return [r for r in registers.get(name, []) if norm(next(iter(r.values()), "")).upper() != "NONE IDENTIFIED"]
+    """A register's rows. One declared empty, or stating nothing, has none."""
+    held = registers.get(name)
+    return [r for r in held if isinstance(r, dict)] if isinstance(held, list) else []
 
 
 def typed_fields(design: dict, code: str, direction: str) -> dict:
@@ -100,7 +119,7 @@ def typed_fields(design: dict, code: str, direction: str) -> dict:
         if cell(row, "Required") == "YES":
             spec["required"] = True
         default = cell(row, "Default")
-        if default and default not in ("—", "-"):
+        if default:
             spec["default"] = _literal(default)
         # `Meaning` is documentation. The built corpus carries a description on some fields and not
         # others, which is a sign it is prose rather than governed content — rendering it would make
@@ -274,7 +293,7 @@ def generated(p7: dict) -> dict[str, tuple[str, list[str]]]:
         code = bare(cell(row, "Artifact"))
         if not code:
             continue
-        srcs = [s.strip() for s in cell(row, "Generator Sources").split(",") if s.strip()]
+        srcs = items(row, "Generator Sources")
         out[code] = (cell(row, "Generator"), srcs)
     return out
 
@@ -301,7 +320,7 @@ def supersessions(p7: dict) -> dict[str, tuple[str, list[str]]]:
         # artifact. The *value* stays the identity as authored: closure is asserted over an exact
         # FQDN, and baring it here would emit a short name into the one place short names are refused.
         successor = norm(cell(row, "Artifact"))
-        for retired in (norm(v) for v in cell(row, "Value").split(",") if v.strip()):
+        for retired in items(row, "Value"):
             out.setdefault(bare(retired), (retired, []))
             if successor not in out[bare(retired)][1]:
                 out[bare(retired)][1].append(successor)
@@ -446,7 +465,7 @@ def _vector(code: str, short: str, sub: str, p7: dict) -> dict | None:
         by_role: dict[str, dict] = {"INPUT": {}, "EXPECTED": {}, "ASSERT": {}, "RECORDED": {}}
         for v in values:
             if cell(v, "Case") == case_id and cell(v, "Role") in by_role:
-                by_role[cell(v, "Role")][cell(v, "Field")] = _vector_value(cell(v, "Value"))
+                by_role[cell(v, "Role")][cell(v, "Field")] = value(v, "Value")
         case: dict[str, Any] = {"case_id": case_id, "expected_outcome": cell(row, "Expected Outcome"),
                                 "bindings": by_role["INPUT"]}
         for key, role in (("expected", "EXPECTED"), ("assertions", "ASSERT"), ("recorded", "RECORDED")):
@@ -475,16 +494,6 @@ def _vector(code: str, short: str, sub: str, p7: dict) -> dict | None:
         "declared_empty": declared_empty,
         "supplied": {},
     }
-
-
-def _vector_value(value: str) -> Any:
-    """A case value as the design wrote it: a YAML literal, so a list is a list and a number a number."""
-    import yaml
-
-    try:
-        return yaml.safe_load(value)
-    except yaml.YAMLError:
-        return value
 
 
 def _declared_version(code: str) -> str:
@@ -585,8 +594,7 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
             announced = [m for r in rows(p7, "artifact_properties")
                          if bare(cell(r, "Artifact")) == short
                          and cell(r, "Property") == f"emit.{node}"
-                         for m in (p.strip() for p in cell(r, "Value").split(","))
-                         if m and m not in ("—", "-")]
+                         for m in items(r, "Value")]
             if len(announced) == 1:
                 spec_exit["emit"] = announced[0]
             elif announced:
@@ -604,7 +612,7 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
         bindings = _bindings(p7, short, node, "INPUT")
         if bindings:
             spec["inputs"] = bindings
-        spec["next"] = _edges(cell(r, "Routing"))
+        spec["next"] = _edges(value(r, "Routing"))
         nodes[node] = spec
 
     m["runtime_binding"] = binding
@@ -615,10 +623,8 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
     # This is the half without which the register is decoration: a reach a reviewer approved and
     # construction dropped would leave the act to be finished by hand, and a reach added by hand
     # works, passes every check, and is one no reviewer saw.
-    consults = [cell(r, "Consults") for r in rows(p7, "declared_reach")
-                if bare(cell(r, "Act")) == short]
-    named = sorted({n for value in consults for n in
-                    (p.strip() for p in value.split(",")) if n and n not in ("—", "-")})
+    named = sorted({n for r in rows(p7, "declared_reach") if bare(cell(r, "Act")) == short
+                    for n in items(r, "Consults")})
     if named:
         m["consults"] = named
     m["subdomain"] = sub
@@ -628,47 +634,44 @@ def _workflow(m, code, short, summary, sub, p7, p8, declared_empty=None):
 
 def _bindings(p7: dict, owner: str, step: str, direction: str) -> dict:
     """What one node or step is handed, or where its results go."""
-    return {cell(b, "Field"): _binding(cell(b, "Bound To"))
+    return {cell(b, "Field"): _binding(value(b, "Bound To"))
             for b in rows(p7, "step_bindings")
             if bare(cell(b, "Owner")) == owner and bare(cell(b, "Step")) == step
             and cell(b, "Direction") == direction}
 
 
-def _binding(bound_to: str) -> str:
+def _literal_or(bound: Any) -> tuple[bool, Any]:
+    """Whether a binding states its value outright, and the value: a literal is the value it states,
+    and the generated marker reads as the word that declared it."""
+    if isinstance(bound, dict) and "literal" in bound:
+        return True, bound["literal"]
+    if isinstance(bound, dict) and bound.get("generated") is True:
+        return True, "generated"
+    return False, bound
+
+
+def _binding(bound: Any) -> Any:
     """A declared source rendered as the runtime's binding expression.
 
     The design states where a value comes from; the `$.`-prefixed form is a rendering convention of
-    the execution surface, which is construction's business and not the designer's.
+    the execution surface, which is construction's business and not the designer's. A literal is
+    the value it states. Any other text is a source the design rules refuse, and is handed on as
+    written.
     """
-    if bound_to.startswith(("{", "[")):
-        # A value written as an object or a list that does not parse is not a string: keeping it as
-        # one handed the runtime a literal the design never meant (`3c` RT-6).
-        try:
-            return ast.literal_eval(bound_to)
-        except (ValueError, SyntaxError) as exc:
-            raise ValueError(f"binding {bound_to!r} is written as an object or a list and does not "
-                             f"parse: {exc}") from exc
+    stated, bound_to = _literal_or(bound)
+    if stated:
+        return bound_to
+    bound_to = norm(bound_to)
     if bound_to.startswith(("payload.", "results.", "inputs.", "capability_result.", "result_status")):
         return f"$.{bound_to}"
-    # A quoted literal states the value between its quotes — the only spelling a value with a dot
-    # in it has, since unquoted it reads as a reference. Handing the runtime the quote marks gave it
-    # a value no design stated, and the measure called it determined.
-    if len(bound_to) >= 2 and bound_to[0] == bound_to[-1] and bound_to[0] in ("'", '"'):
-        return bound_to[1:-1]
-    if re.fullmatch(r"-?[0-9]+\.[0-9]+", bound_to):
-        return float(bound_to)
-    return _literal(bound_to)
+    return bound_to
 
 
-def _edges(routing: str) -> dict:
-    """`SUCCESS -> TARGET; VIOLATION -> EXIT_REJECTED` as an outcome→target mapping."""
-    out = {}
-    for part in routing.split(";"):
-        if "->" not in part:
-            continue
-        outcome, target = part.split("->", 1)
-        out[norm(outcome)] = bare(target)
-    return out
+def _edges(routing: Any) -> dict:
+    """A routing, outcome → target, with each target bare. One that states nothing routes nowhere."""
+    if not isinstance(routing, dict):
+        return {}
+    return {norm(outcome): bare(target) for outcome, target in routing.items()}
 
 
 def _declared_empty_leaves(value, path: str) -> list[str]:
@@ -702,14 +705,14 @@ def _contract(m, code, short, summary, sub, p7, p8, declared_empty=None):
         # none marker in `Consumes`. `SELECT` reads a whole store and declares no parameters, so the
         # empty `inputs` the schema requires has to be a declaration rather than a silence, or the
         # completeness measure counts a stated fact as a gap and the build gate refuses its own design.
-        if cell(r, "Consumes") in ("", "—", "-", "NONE") and declared_empty is not None:
+        if not items(r, "Consumes") and declared_empty is not None:
             declared_empty.append(f"core.pipeline[{len(pipeline)}].inputs")
         index = len(pipeline)
         pipeline.append(_step(p7, short, r))
         if declared_empty is not None:
             declared_empty.extend(_declared_empty_leaves(pipeline[index], f"core.pipeline[{index}]"))
         interpreter = cell(r, "Interpreted By")
-        if interpreter not in ("", "—", "-"):
+        if interpreter:
             # The interpretation is a step of its own; the register folds it into the row it
             # interprets because it is always positionally bound to that observation.
             name = _interpret_step(p7, short, r)
@@ -738,7 +741,7 @@ def _step(p7: dict, owner: str, r: dict, interpreter: str = "", name: str = "",
         if kind == "CS":
             out["op"] = cell(r, "Operation")
         store = cell(r, "Store")
-        if store and store not in ("—", "-"):
+        if store:
             out["store"] = store
     inputs = _bindings(p7, owner, step_name, "INPUT")
     outputs = _bindings(p7, owner, step_name, "OUTPUT")
@@ -753,11 +756,11 @@ def _step(p7: dict, owner: str, r: dict, interpreter: str = "", name: str = "",
     if interpreter:
         semantic = cell(r, "Semantic Status")
         routing = {"SUCCESS": "exit" if last else "continue"}
-        if semantic and semantic not in ("—", "-", "SUCCESS"):
+        if semantic and semantic != "SUCCESS":
             routing[semantic] = "exit"
         routing["VIOLATION"] = "exit"
     else:
-        routing = _edges(cell(r, "Routing"))
+        routing = _edges(value(r, "Routing"))
     if routing:
         out["result_surface"] = list(routing)
         out["on_result"] = routing
@@ -846,7 +849,7 @@ def _transform(m, code, short, summary, sub, p7, p8, supplied=None, declared_emp
         m["machine"]["implementation"] = {"module": cell(row, "Module"), "callable": cell(row, "Callable")}
 
 
-def _molecule_source(bound_to: str) -> Any:
+def _molecule_source(bound: Any) -> Any:
     """A molecule binding's declared source as the executor's binding expression.
 
     Separate from `_binding` because a molecule has two roots a contract step does not — the member a
@@ -854,6 +857,10 @@ def _molecule_source(bound_to: str) -> Any:
     literal word. Anything that names no root is a literal, read as YAML so that `""` is the empty
     string, `false` a flag and `[]` a list rather than the characters that spell them.
     """
+    stated, bound_to = _literal_or(bound)
+    if stated:
+        return bound_to
+    bound_to = norm(bound_to)
     if bound_to == "iterator":
         return "$.iterator"
     if bound_to.startswith(("inputs.", "results.", "accumulator.")):
@@ -874,7 +881,7 @@ def _molecule(p7: dict, owner: str, declared_empty=None) -> tuple[list[dict], di
     bindings = [r for r in rows(p7, "molecule_step_bindings") if bare(cell(r, "CT Code")) == owner]
 
     def bound(step: str, role: str) -> dict:
-        return {cell(b, "Field"): _molecule_source(cell(b, "Bound To"))
+        return {cell(b, "Field"): _molecule_source(value(b, "Bound To"))
                 for b in bindings if cell(b, "Step") == step and cell(b, "Role") == role}
 
     stream: list[dict] = []
@@ -900,7 +907,7 @@ def _molecule(p7: dict, owner: str, declared_empty=None) -> tuple[list[dict], di
             declared_empty.extend(_declared_empty_leaves(entry, f"machine.atom_stream[{len(stream)}]"))
         stream.append(entry)
         emits = cell(r, "Emits")
-        if emits and emits not in ("—", "-"):
+        if emits:
             emit[emits] = step
     return stream, emit
 
@@ -912,8 +919,14 @@ def _molecule(p7: dict, owner: str, declared_empty=None) -> tuple[list[dict], di
 HEADER_ONLY_PROPERTIES = {"supersedes"}
 
 
+def _property_value(r: dict) -> Any:
+    """A property's value: the names it lists, or its one value read as a literal."""
+    held = value(r, "Value")
+    return list(items(r, "Value")) if isinstance(held, list) else _literal(cell(r, "Value"))
+
+
 def _properties(p7: dict, code: str) -> dict:
-    return {cell(r, "Property"): _literal(cell(r, "Value"))
+    return {cell(r, "Property"): _property_value(r)
             for r in rows(p7, "artifact_properties")
             if bare(cell(r, "Artifact")) == bare(code)
             and cell(r, "Property") not in HEADER_ONLY_PROPERTIES}
@@ -933,10 +946,10 @@ def _vocabulary(m, code, short, summary, sub, p7, p8, declared_empty=None, suppl
     look identical, and only one of them is designed.
     """
     own = [r for r in rows(p7, "vocabulary_extensions") if bare(cell(r, "Vocabulary Code")) == short]
-    extends = next((cell(r, "Extends") for r in rows(p7, "vocabulary_extensions")
-                    if bare(cell(r, "Vocabulary Code")) == short), "")
-    if extends in ("—", "-", "NONE"):
-        extends = ""
+    stated = next((value(r, "Extends") for r in rows(p7, "vocabulary_extensions")
+                   if bare(cell(r, "Vocabulary Code")) == short), "")
+    extends = norm(stated)
+    if stated is None:
         if declared_empty is not None:
             declared_empty.append("extends")
     m.pop("core", None)
@@ -991,21 +1004,21 @@ def _binding_artifact(m, code, short, summary, sub, p7, p8, declared_empty=None)
         # A row whose key is the none-marker declares that this capability needs no configuration,
         # which is a different statement from having no row at all.
         policies.setdefault(capability, {})
-        if key not in ("—", "-", ""):
+        if key:
             policies[capability][key] = cell(r, "Value")
         elif declared_empty is not None:
             declared_empty.append(f"core.bindings.{capability}.policy")
 
     bindings = {}
     for r in decls:
-        for capability in (s.strip() for s in cell(r, "CS Bindings").split(",")):
+        for capability in items(r, "CS Bindings"):
             if capability:
                 bindings[capability] = {"policy": policies.get(capability, {})}
 
     props = _properties(p7, code)
     parameters = props.pop("parameters", "")
     if parameters:
-        m["parameters"] = [p.strip() for p in str(parameters).split(",") if p.strip()]
+        m["parameters"] = list(parameters) if isinstance(parameters, list) else [str(parameters)]
     m["core"] = {"summary": summary, "storage_structure": structure, "bindings": bindings}
 
 
@@ -1080,7 +1093,7 @@ def _nest(target: dict, path: str, value: Any) -> None:
     target[leaf] = value
 
 
-def _bound_value(bound: str) -> Any:
+def _bound_value(bound: Any) -> Any:
     """What a `Bound To` cell means: a substitution token, or the value itself.
 
     `${input.KEY}` is the boundary's own substitution syntax and passes through untouched. Anything
@@ -1090,6 +1103,10 @@ def _bound_value(bound: str) -> Any:
     """
     import yaml
 
+    stated, bound = _literal_or(bound)
+    if stated:
+        return bound
+    bound = norm(bound)
     if _INPUT_TOKEN.match(bound):
         return bound
     try:
@@ -1124,7 +1141,7 @@ def _transport_ingress(m, code, short, summary, sub, p7, p8, declared_empty=None
     for row in _transport_rows(p7, code, "INGRESS"):
         field = cell(row, "Field")
         if field:
-            _nest(template, field, _bound_value(cell(row, "Bound To")))
+            _nest(template, field, _bound_value(value(row, "Bound To")))
     if template:
         handler["payload_template"] = template
         if declared_empty is not None:

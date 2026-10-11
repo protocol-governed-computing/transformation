@@ -10,94 +10,54 @@ header:
   Feeds: Artifact Authoring
 registers:
   build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: '1'
-      Step: '1'
-      Code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: catalog
-      Depends On: —
-    - Wave: '2'
-      Step: '2'
-      Code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: catalog
-      Depends On: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+  - wave: '1'
+    step: '1'
+    code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+    action: NEW
+    subdomain: catalog
+    depends_on: null
+  - wave: '2'
+    step: '2'
+    code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+    action: NEW
+    subdomain: catalog
+    depends_on:
+    - book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
   critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: '1'
-      Code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
-    - Position: '2'
-      Code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+  - position: '1'
+    code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+  - position: '2'
+    code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '2'
-      Description: The successor boundary for a correction, requiring the record named and the details being changed and nothing else, and the successor act it admits. A boundary and an act are each rendered whole, so a requirement is withdrawn by authoring a successor that does not carry it, and an act names its successor boundary by being authored anew.
-    - Action (REPLACE, EXTEND, NEW): REPLACE
-      Count: '2'
-      Description: The boundary that required three things its operation never read, and the act that named it as its entry. Both stood down and superseded; construction marks them rather than deleting them. Nothing consumes the act, so the substitution reaches nothing further.
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Count: '1'
-      Description: 'One boundary re-rendered whole: the publication year is stated as a number. No step of any act changes anywhere in this mandate.'
+  - action: NEW
+    count: '2'
+    description: The successor boundary for a correction, requiring the record named and the details being changed and nothing else, and the successor act it admits. A boundary and an act are each rendered whole, so a requirement is withdrawn by authoring a successor that does not carry it, and an act names its successor boundary by being authored anew.
+  - action: REPLACE
+    count: '2'
+    description: The boundary that required three things its operation never read, and the act that named it as its entry. Both stood down and superseded; construction marks them rather than deleting them. Nothing consumes the act, so the substitution reaches nothing further.
+  - action: EXTEND
+    count: '1'
+    description: 'One boundary re-rendered whole: the publication year is stated as a number. No step of any act changes anywhere in this mandate.'
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Subdomain Field: catalog
-    - Code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
-      Subdomain Field: catalog
-    - Code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
-      Subdomain Field: catalog
-  new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: NONE IDENTIFIED
-      Purpose: ''
-      Inputs: ''
-      Outputs: ''
+  - code: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    subdomain_field: catalog
+  - code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+    subdomain_field: catalog
+  - code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+    subdomain_field: catalog
+  new_capabilities: []
   new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows:
-    - Code: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
-      Purpose: A request to register a further edition of a work the catalog already holds
-      Workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
-      Inputs: staff_credentials, authorization_rules, staff_id, title, author, publication_year, subject, edition_fields, edition_schema, work_fields, work_schema
-    - Code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
-      Purpose: A request to change a registered book's description
-      Workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
-      Inputs: staff_credentials, authorization_rules, staff_id, identity_key, updated_fields
+  - code: book_library_mgmt::IN_REGISTER_ADDITIONAL_EDITION_V0
+    purpose: A request to register a further edition of a work the catalog already holds
+    workflow: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+    inputs: staff_credentials, authorization_rules, staff_id, title, author, publication_year, subject, edition_fields, edition_schema, work_fields, work_schema
+  - code: book_library_mgmt::IN_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+    purpose: A request to change a registered book's description
+    workflow: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V1
+    inputs: staff_credentials, authorization_rules, staff_id, identity_key, updated_fields
   cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: book_library_mgmt::IN_REGISTER_BOOK_V0
-      Note: Requires ten things where its act reads eleven, and is not corrected here. The act reads the subject at the top of the request; every present caller sends it nested inside the details of the book. Correcting the boundary moves every caller with it, which this change's seed forbids. Deferred with its ground recorded, to a change where both move together.
+  - code: book_library_mgmt::IN_REGISTER_BOOK_V0
+    note: Requires ten things where its act reads eleven, and is not corrected here. The act reads the subject at the top of the request; every present caller sends it nested inside the details of the book. Correcting the boundary moves every caller with it, which this change's seed forbids. Deferred with its ground recorded, to a change where both move together.
 ```
 
 Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing added, nothing dropped.

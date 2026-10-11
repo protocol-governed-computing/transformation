@@ -152,12 +152,12 @@ def _doc(action: str, withdrawal: bool) -> ParsedDocument:
     text = machine.document(
         "Design Intent: probe / semantic change",
         machine.register("existing_inventory",
-                         ["FQDN", "Action (REPLACE, REUSE, EXTEND, REPOINT, REVIEW)", "Summary", "Reason",
+                         ["FQDN", "Action", "Summary", "Reason",
                           "Source Finding"],
                          [("probe::CC_DECIDE_V0", action, "Decides", "Amended", "human decision")]),
         machine.register("withdrawn_facts", ["Artifact", "Fact", "Reason", "Source Finding"],
                          [("probe::CC_DECIDE_V0", ".core.inputs.allowed_set", "Gone", "human decision")]
-                         if withdrawal else [], sentinel=False),
+                         if withdrawal else [], declared_empty=False),
     )
     header, sections, registers = parse_text(text)
     return ParsedDocument(header=header, sections=sections, registers=registers, raw=text,
@@ -181,7 +181,7 @@ def test_a_withdrawal_is_refused():
 # --- construction ------------------------------------------------------------------------------
 
 def _p7(*rows: tuple[str, str]) -> dict:
-    return {"existing_inventory": [{"FQDN": f, "Action": a} for f, a in rows]}
+    return {"existing_inventory": [{"fqdn": f, "action": a} for f, a in rows]}
 
 
 def test_an_amendment_without_the_composition_is_refused():

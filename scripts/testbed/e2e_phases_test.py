@@ -138,11 +138,10 @@ CASES = [
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
          "REGISTER_CELL_UNRESOLVED",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
          "ROW_NOT_IN_SEED",
-     ] + ["SEED_ROW_NOT_CARRIED"] * 6, RULES["P1"], 3),
+     ] + ["SEED_ROW_NOT_CARRIED"] * 6 + ["REGISTER_COLUMN_MISSING"] * 12, RULES["P1"], 3),
     ("P2", WF["P2"],
      "08_p2_admissible_register.json", "ADMISSIBLE", [], RULES["P2"], 4),
     # Grounding: a misspelled identity and a right-code/wrong-namespace one are defects; an
@@ -193,10 +192,9 @@ CASES = [
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
          "REGISTER_CELL_UNRESOLVED",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
-     ], RULES["P2"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 2, RULES["P2"], 3),
     # P3 decides, so it observes twice: the artifact list resolves identities, the composition
     # summary carries what each domain declares about being reused. The inadmissible case offers a
     # business CR a pipeline capability and a conformance workload — a confusion that is invisible
@@ -239,11 +237,10 @@ CASES = [
          "BELIEF_RESULT_NOT_REVERIFIED",
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
          "SATURATION_CRITERIA_INCOMPLETE",
-     ], RULES["P3"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 9, RULES["P3"], 3),
     # P4 consolidates: its defects live between registers, where every register is individually
     # well formed and the document as a whole asserts something untrue. The admissible case is the
     # corpus's only 5/5 — a consolidation carries no open questions of its own, because P3
@@ -284,9 +281,8 @@ CASES = [
      "67_p4_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_MISSING",
-     ], RULES["P4"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 13, RULES["P4"], 3),
     # P5 is the first rung up the purity ladder, and its two rules pull opposite ways: a
     # provisional code must NOT be namespaced, while a borrowed capability MUST be — one names
     # what this change creates, the other what it leans on.
@@ -339,9 +335,8 @@ CASES = [
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
          "PURPOSE_PROVENANCE_NOT_SINGULAR",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_MISSING",
-     ], RULES["P5"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 10, RULES["P5"], 3),
     ("P5", WF["P5"],
      "57_p5_inadmissible_untouched_subdomain.json", "INADMISSIBLE", [
          "EVENT_CODE_NOT_PAST_PARTICIPLE",
@@ -397,10 +392,9 @@ CASES = [
      "60_p6_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_MISSING",
          "STORAGE_CODE_IN_PLACEMENT",
-     ], RULES["P6"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 11, RULES["P6"], 3),
     ("P6", WF["P6"],
      "61_p6_inadmissible_unowned_subdomain.json", "INADMISSIBLE", [
          "TOUCHED_SUBDOMAIN_UNOWNED",
@@ -451,7 +445,6 @@ CASES = [
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
          "REGISTER_CELL_UNRESOLVED",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
      ], RULES["P7"], 3),
@@ -581,9 +574,8 @@ CASES = [
      "75_p8_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
          "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_MISSING",
-     ], RULES["P8"], 3, "design"),
+     ] + ["REGISTER_COLUMN_MISSING"] * 4, RULES["P8"], 3, "design"),
     # Cut from cr_02 rather than cr_01, because cr_01's P7 declares no EXTEND row and the rule is
     # gated on one — the artifact this mandate forgets to place has to be an artifact the design
     # actually amends. It is also the only P8 case that is not book_library_mgmt cr_01.

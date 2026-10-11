@@ -10,229 +10,161 @@ header:
   Feeds: Stage 5 — Business Intent
 registers:
   actors:
-    columns:
-    - Actor
-    - Role
-    - Authority Class
-    - Source Finding
-    rows:
-    - Actor: Catalog
-      Role: Performs the acts, and states what each of them completed.
-      Authority Class: Declaring — an announcement is the act's own account of what it did.
-      Source Finding: 'S1 cr_type #1'
-    - Actor: Library staff
-      Role: Perform the acts the catalog admits.
-      Authority Class: Acting — unchanged by this change.
-      Source Finding: 'S2 actors #1'
-    - Actor: The platform
-      Role: Seals the moments an act announces, in order, and announces each when the act reaches its ending.
-      Authority Class: Enabling — the capability this change waited for.
-      Source Finding: S3 analysis_findings Q3
+  - actor: Catalog
+    role: Performs the acts, and states what each of them completed.
+    authority_class: Declaring — an announcement is the act's own account of what it did.
+    source_finding: 'S1 cr_type #1'
+  - actor: Library staff
+    role: Perform the acts the catalog admits.
+    authority_class: Acting — unchanged by this change.
+    source_finding: 'S2 actors #1'
+  - actor: The platform
+    role: Seals the moments an act announces, in order, and announces each when the act reaches its ending.
+    authority_class: Enabling — the capability this change waited for.
+    source_finding: S3 analysis_findings Q3
   bm_entities:
-    columns:
-    - Entity
-    - Description
-    - Store Model
-    - Source Finding
-    rows:
-    - Entity: Moment
-      Description: Something the business declares occurred, stated by the act that completed it.
-      Store Model: Six are declared; none is announced.
-      Source Finding: 'S2 entities #1'
-    - Entity: Act
-      Description: Something the catalog does as one unit, which completes or is refused.
-      Store Model: Nine, each admitted by its own intent.
-      Source Finding: 'S2 entities #2'
-    - Entity: Announcement
-      Description: What an act states at its ending about the moments it completed.
-      Store Model: None exists anywhere in this subdomain.
-      Source Finding: S3 analysis_findings Q2
+  - entity: Moment
+    description: Something the business declares occurred, stated by the act that completed it.
+    store_model: Six are declared; none is announced.
+    source_finding: 'S2 entities #1'
+  - entity: Act
+    description: Something the catalog does as one unit, which completes or is refused.
+    store_model: Nine, each admitted by its own intent.
+    source_finding: 'S2 entities #2'
+  - entity: Announcement
+    description: What an act states at its ending about the moments it completed.
+    store_model: None exists anywhere in this subdomain.
+    source_finding: S3 analysis_findings Q2
   resources:
-    columns:
-    - Resource
-    - Description
-    - Source Finding
-    rows:
-    - Resource: The six declared moments
-      Description: Registered work, registered book, registered physical copy, updated bibliographic information, retired book, retired physical copy. Referenced by nothing.
-      Source Finding: 'S2 belief_verification #1'
-    - Resource: The act that completes three
-      Description: Registering a book admits a work, its first edition and that edition's first physical copy.
-      Source Finding: S3 analysis_findings Q2
-    - Resource: The capability the platform now holds
-      Description: An ordered sequence announced at one ending, a repeat refused, an announcement that cannot be made reported.
-      Source Finding: S3 analysis_findings Q3
+  - resource: The six declared moments
+    description: Registered work, registered book, registered physical copy, updated bibliographic information, retired book, retired physical copy. Referenced by nothing.
+    source_finding: 'S2 belief_verification #1'
+  - resource: The act that completes three
+    description: Registering a book admits a work, its first edition and that edition's first physical copy.
+    source_finding: S3 analysis_findings Q2
+  - resource: The capability the platform now holds
+    description: An ordered sequence announced at one ending, a repeat refused, an announcement that cannot be made reported.
+    source_finding: S3 analysis_findings Q3
   events:
-    columns:
-    - Event
-    - Trigger
-    - Lifecycle Meaning
-    - Source Finding
-    rows:
-    - Event: An act announced what it completed
-      Trigger: An act reaching an ending it declares announcements for
-      Lifecycle Meaning: The business has an account of what happened, which it has never had.
-      Source Finding: 'S1 business_events #1'
-    - Event: A declared moment stayed silent
-      Trigger: An act completing a moment and stating nothing
-      Lifecycle Meaning: The state this change ends; it is the present state of every act.
-      Source Finding: 'S2 belief_verification #1'
+  - event: An act announced what it completed
+    trigger: An act reaching an ending it declares announcements for
+    lifecycle_meaning: The business has an account of what happened, which it has never had.
+    source_finding: 'S1 business_events #1'
+  - event: A declared moment stayed silent
+    trigger: An act completing a moment and stating nothing
+    lifecycle_meaning: The state this change ends; it is the present state of every act.
+    source_finding: 'S2 belief_verification #1'
   relationships:
-    columns:
-    - Subject
-    - Verb
-    - Object
-    - Capability Need
-    - Source Finding
-    rows:
-    - Subject: Act
-      Verb: announces
-      Object: Moment
-      Capability Need: Announcing the three moments registering a book completes.
-      Source Finding: 'S3 authoring_decisions #1'
-    - Subject: Act
-      Verb: announces
-      Object: Moment
-      Capability Need: Announcing the moment each remaining act completes.
-      Source Finding: 'S3 authoring_decisions #2'
-    - Subject: Catalog
-      Verb: attaches
-      Object: Moment
-      Capability Need: Attaching the moment naming a registered work to the act that claims its identity.
-      Source Finding: 'S3 authoring_decisions #3'
+  - subject: Act
+    verb: announces
+    object: Moment
+    capability_need: Announcing the three moments registering a book completes.
+    source_finding: 'S3 authoring_decisions #1'
+  - subject: Act
+    verb: announces
+    object: Moment
+    capability_need: Announcing the moment each remaining act completes.
+    source_finding: 'S3 authoring_decisions #2'
+  - subject: Catalog
+    verb: attaches
+    object: Moment
+    capability_need: Attaching the moment naming a registered work to the act that claims its identity.
+    source_finding: 'S3 authoring_decisions #3'
   capability_graph:
-    columns:
-    - Capability
-    - Source Finding
-    - Status
-    - Gap Register Entry
-    - Notes
-    rows:
-    - Capability: Announcing the three moments registering a book completes
-      Source Finding: 'S3 authoring_decisions #1'
-      Status: CRITICAL
-      Gap Register Entry: GAP-1
-      Notes: The act this dossier halted for; three moments at one ending.
-    - Capability: Announcing the moment each remaining act completes
-      Source Finding: 'S3 authoring_decisions #2'
-      Status: CRITICAL
-      Gap Register Entry: GAP-2
-      Notes: Five acts, one moment each — a sequence of one.
-    - Capability: Attaching the moment naming a registered work to the act that claims its identity
-      Source Finding: 'S3 authoring_decisions #3'
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: 'The composition decides it: one act claims the work, the other resolves it.'
-    - Capability: Announcing an ordered sequence at one ending
-      Source Finding: 'S3 dependency_discoveries #1'
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: The platform states the model, holds it, seals the order and keeps it.
+  - capability: Announcing the three moments registering a book completes
+    source_finding: 'S3 authoring_decisions #1'
+    status: CRITICAL
+    gap_register_entry: GAP-1
+    notes: The act this dossier halted for; three moments at one ending.
+  - capability: Announcing the moment each remaining act completes
+    source_finding: 'S3 authoring_decisions #2'
+    status: CRITICAL
+    gap_register_entry: GAP-2
+    notes: Five acts, one moment each — a sequence of one.
+  - capability: Attaching the moment naming a registered work to the act that claims its identity
+    source_finding: 'S3 authoring_decisions #3'
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: 'The composition decides it: one act claims the work, the other resolves it.'
+  - capability: Announcing an ordered sequence at one ending
+    source_finding: 'S3 dependency_discoveries #1'
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: The platform states the model, holds it, seals the order and keeps it.
   dependency_graph:
-    columns:
-    - From
-    - To
-    - Dependency Type
-    - PPS Status
-    - Source Finding
-    rows:
-    - From: catalog
-      To: workflow
-      Dependency Type: data read
-      PPS Status: SATISFIED
-      Source Finding: 'S3 dependency_discoveries #1 — the platform admits and seals what an act announces.'
-    - From: catalog
-      To: event
-      Dependency Type: data read
-      PPS Status: SATISFIED
-      Source Finding: 'S3 dependency_discoveries #2 — all six moments are declared artifacts already.'
-    - From: catalog
-      To: catalog
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: 'S3 dependency_discoveries #3 — every act exists and runs; what it lacks is the statement.'
+  - from: catalog
+    to: workflow
+    dependency_type: data read
+    pps_status: SATISFIED
+    source_finding: 'S3 dependency_discoveries #1 — the platform admits and seals what an act announces.'
+  - from: catalog
+    to: event
+    dependency_type: data read
+    pps_status: SATISFIED
+    source_finding: 'S3 dependency_discoveries #2 — all six moments are declared artifacts already.'
+  - from: catalog
+    to: catalog
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: 'S3 dependency_discoveries #3 — every act exists and runs; what it lacks is the statement.'
   constraint_register:
-    columns:
-    - '#'
-    - Constraint
-    - Source Finding
-    - Source
-    rows:
-    - '#': '1'
-      Constraint: An act announces every moment it completed, or the business has no account of what happened.
-      Source Finding: 'S1 constraints #1'
-      Source: governance rule
-    - '#': '2'
-      Constraint: A moment is attached to the act that completes it, never to one that merely touches the same records.
-      Source Finding: S3 analysis_findings Q1
-      Source: governance rule
-    - '#': '3'
-      Constraint: The business is not reshaped to suit what the platform could express.
-      Source Finding: 'S1 constraints #2'
-      Source: governance rule
-    - '#': '4'
-      Constraint: Only moments the business already declared are announced.
-      Source Finding: 'S3 verification_results #4'
-      Source: governance rule
-    - '#': '5'
-      Constraint: A limitation paid in silence produces no account at all, and no check anywhere notices.
-      Source Finding: 'S2 belief_verification #3'
-      Source: domain knowledge
+  - number: '1'
+    constraint: An act announces every moment it completed, or the business has no account of what happened.
+    source_finding: 'S1 constraints #1'
+    source: governance rule
+  - number: '2'
+    constraint: A moment is attached to the act that completes it, never to one that merely touches the same records.
+    source_finding: S3 analysis_findings Q1
+    source: governance rule
+  - number: '3'
+    constraint: The business is not reshaped to suit what the platform could express.
+    source_finding: 'S1 constraints #2'
+    source: governance rule
+  - number: '4'
+    constraint: Only moments the business already declared are announced.
+    source_finding: 'S3 verification_results #4'
+    source: governance rule
+  - number: '5'
+    constraint: A limitation paid in silence produces no account at all, and no check anywhere notices.
+    source_finding: 'S2 belief_verification #3'
+    source: domain knowledge
   gap_register:
-    columns:
-    - Gap Code
-    - Source Finding
-    - Capability
-    - Owner Subdomain
-    - Resolution
-    rows:
-    - Gap Code: GAP-1
-      Source Finding: 'S3 authoring_decisions #1'
-      Capability: Announcing the three moments registering a book completes
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-2
-      Source Finding: 'S3 authoring_decisions #2'
-      Capability: Announcing the moment each remaining act completes
-      Owner Subdomain: catalog
-      Resolution: EXTEND
+  - gap_code: GAP-1
+    source_finding: 'S3 authoring_decisions #1'
+    capability: Announcing the three moments registering a book completes
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-2
+    source_finding: 'S3 authoring_decisions #2'
+    capability: Announcing the moment each remaining act completes
+    owner_subdomain: catalog
+    resolution: EXTEND
   design_decisions:
-    columns:
-    - '#'
-    - Decision
-    - Source Finding
-    - Rationale
-    - Constraints Imposed
-    rows:
-    - '#': '1'
-      Decision: Registering a book announces three moments at one ending.
-      Source Finding: 'S3 authoring_decisions #1'
-      Rationale: The act completes all three and is the only act that does.
-      Constraints Imposed: Rules out announcing one and leaving two silent, and rules out splitting the act.
-    - '#': '2'
-      Decision: 'The order announced is the order the business completes them: the work, then the book, then the physical copy.'
-      Source Finding: S3 analysis_findings Q3
-      Rationale: The order is normative and a reader of the account sees it; the business's own order is the one that reads correctly.
-      Constraints Imposed: Fixes the order in the design rather than leaving it to how the composition was sealed.
-    - '#': '3'
-      Decision: Each remaining act announces the one moment it completes.
-      Source Finding: 'S3 authoring_decisions #2'
-      Rationale: Five acts complete one moment each and can say so; a sequence of one is what the platform already ran.
-      Constraints Imposed: Rules out leaving any declared moment silent.
-    - '#': '4'
-      Decision: Reinstatement announces nothing.
-      Source Finding: 'S3 verification_results #4'
-      Rationale: The business declared no moment for it, and this change announces only moments the business already declared.
-      Constraints Imposed: Rules out authoring a moment to fill a gap the business has not stated.
+  - number: '1'
+    decision: Registering a book announces three moments at one ending.
+    source_finding: 'S3 authoring_decisions #1'
+    rationale: The act completes all three and is the only act that does.
+    constraints_imposed: Rules out announcing one and leaving two silent, and rules out splitting the act.
+  - number: '2'
+    decision: 'The order announced is the order the business completes them: the work, then the book, then the physical copy.'
+    source_finding: S3 analysis_findings Q3
+    rationale: The order is normative and a reader of the account sees it; the business's own order is the one that reads correctly.
+    constraints_imposed: Fixes the order in the design rather than leaving it to how the composition was sealed.
+  - number: '3'
+    decision: Each remaining act announces the one moment it completes.
+    source_finding: 'S3 authoring_decisions #2'
+    rationale: Five acts complete one moment each and can say so; a sequence of one is what the platform already ran.
+    constraints_imposed: Rules out leaving any declared moment silent.
+  - number: '4'
+    decision: Reinstatement announces nothing.
+    source_finding: 'S3 verification_results #4'
+    rationale: The business declared no moment for it, and this change announces only moments the business already declared.
+    constraints_imposed: Rules out authoring a moment to fill a gap the business has not stated.
   authoring_scope:
-    columns:
-    - Capability
-    - Gap Register Ref
-    rows:
-    - Capability: Announcing the three moments registering a book completes
-      Gap Register Ref: GAP-1
-    - Capability: Announcing the moment each remaining act completes
-      Gap Register Ref: GAP-2
+  - capability: Announcing the three moments registering a book completes
+    gap_register_ref: GAP-1
+  - capability: Announcing the moment each remaining act completes
+    gap_register_ref: GAP-2
 ```
 
 Consolidation of Stages 1–3, not re-litigation. Every row projects from a finding already made.

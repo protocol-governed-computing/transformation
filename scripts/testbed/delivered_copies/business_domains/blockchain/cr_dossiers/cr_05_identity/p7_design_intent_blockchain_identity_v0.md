@@ -10,1554 +10,1550 @@ header:
   Feeds: Stage 8 — Authoring Mandate
 registers:
   design_resolution:
-    columns:
-    - Decision
-    - Business Fact
-    - Resolution
-    - Source Finding
-    rows:
-    - Decision: Each rule is held by the step that applies it
-      Business Fact: A rule the caller supplies is a rule the caller can widen
-      Resolution: The registration schema, the states admitting a decision, the admitted outcomes and the grounds rules are literal inputs of the step that applies each; the contracts no longer declare them as inputs
-      Source Finding: 'S4 design_decisions #1'
-    - Decision: The registration check is followed by a rule refusing when it found anything
-      Business Fact: An incomplete registration is refused
-      Resolution: '`CC_VALIDATE_REGISTRATION_V0` gains `refuse_incomplete_registration`, a rule step over the check''s violations requiring none'
-      Source Finding: 'S4 design_decisions #2'
-    - Decision: The self-decision rule is a comparison followed by a fixed rule
-      Business Fact: No authority decides about themselves
-      Resolution: '`compare_authority_to_person` compares the authority with the person; `refuse_self_decision` requires the comparison to be false'
-      Source Finding: 'S4 design_decisions #3'
-    - Decision: The decided record is built from the decision the step checked
-      Business Fact: The state recorded is the decision admitted
-      Resolution: The decided record is assembled inside the contract from the checked decision, the authority and the grounds; no request hands it a record
-      Source Finding: 'S4 design_decisions #4'
-    - Decision: Each act fixes its decision
-      Business Fact: An acceptance act accepts and a rejection act rejects
-      Resolution: The acceptance act hands the contract ACCEPTED and the rejection act REJECTED, as literals
-      Source Finding: 'S4 design_decisions #4'
-    - Decision: Registration writes the state unverified as its own
-      Business Fact: The lifecycle has one way in
-      Resolution: The registration act builds the record it registers with the state UNVERIFIED as a literal
-      Source Finding: 'S4 design_decisions #5'
-    - Decision: The entrances stop supplying what identity holds
-      Business Fact: Nothing a caller sends or is told changes
-      Resolution: The three entrances drop the schema, the sets, the rules, the decision and the decided record from their payloads; their input contracts are unchanged, and the registration gate stops requiring the schema they no longer send
-      Source Finding: 'S4 design_decisions #6'
-    - Decision: Records made before this change are left as they are
-      Business Fact: The record is added to and never rewritten
-      Resolution: No migration, backfill or repair step is designed
-      Source Finding: 'S4 design_decisions #7'
+  - decision: Each rule is held by the step that applies it
+    business_fact: A rule the caller supplies is a rule the caller can widen
+    resolution: The registration schema, the states admitting a decision, the admitted outcomes and the grounds rules are literal inputs of the step that applies each; the contracts no longer declare them as inputs
+    source_finding: 'S4 design_decisions #1'
+  - decision: The registration check is followed by a rule refusing when it found anything
+    business_fact: An incomplete registration is refused
+    resolution: '`CC_VALIDATE_REGISTRATION_V0` gains `refuse_incomplete_registration`, a rule step over the check''s violations requiring none'
+    source_finding: 'S4 design_decisions #2'
+  - decision: The self-decision rule is a comparison followed by a fixed rule
+    business_fact: No authority decides about themselves
+    resolution: '`compare_authority_to_person` compares the authority with the person; `refuse_self_decision` requires the comparison to be false'
+    source_finding: 'S4 design_decisions #3'
+  - decision: The decided record is built from the decision the step checked
+    business_fact: The state recorded is the decision admitted
+    resolution: The decided record is assembled inside the contract from the checked decision, the authority and the grounds; no request hands it a record
+    source_finding: 'S4 design_decisions #4'
+  - decision: Each act fixes its decision
+    business_fact: An acceptance act accepts and a rejection act rejects
+    resolution: The acceptance act hands the contract ACCEPTED and the rejection act REJECTED, as literals
+    source_finding: 'S4 design_decisions #4'
+  - decision: Registration writes the state unverified as its own
+    business_fact: The lifecycle has one way in
+    resolution: The registration act builds the record it registers with the state UNVERIFIED as a literal
+    source_finding: 'S4 design_decisions #5'
+  - decision: The entrances stop supplying what identity holds
+    business_fact: Nothing a caller sends or is told changes
+    resolution: The three entrances drop the schema, the sets, the rules, the decision and the decided record from their payloads; their input contracts are unchanged, and the registration gate stops requiring the schema they no longer send
+    source_finding: 'S4 design_decisions #6'
+  - decision: Records made before this change are left as they are
+    business_fact: The record is added to and never rewritten
+    resolution: No migration, backfill or repair step is designed
+    source_finding: 'S4 design_decisions #7'
   existing_inventory:
-    columns:
-    - FQDN
-    - Action (REPLACE, REUSE, EXTEND, REVIEW)
-    - Summary
-    - Reason
-    - Source Finding
-    rows:
-    - FQDN: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Refuses a registration lacking the person's name or their address
-      Reason: It takes its schema from the request and refuses nothing it finds.
-      Source Finding: 'S6 pps_artifacts_requiring_action #1'
-    - FQDN: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Refuses a decision about a person not unverified, a decision other than an acceptance or a rejection, or an authority deciding about themselves, and records the decision it checked
-      Reason: It takes its sets and its self-decision rule from the request, and records a state the request supplies.
-      Source Finding: 'S6 pps_artifacts_requiring_action #2'
-    - FQDN: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Refuses a rejection stating no grounds, before anything is recorded
-      Reason: It takes its rules from the request.
-      Source Finding: 'S6 pps_artifacts_requiring_action #3'
-    - FQDN: blockchain::WF_REGISTER_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: The governed sequence that admits a person as an unverified actor, and announces that it did
-      Reason: It binds the schema from the request and writes the state it is handed.
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - FQDN: blockchain::WF_ACCEPT_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: The governed sequence that records an acceptance and announces it
-      Reason: It binds the rules and the decision from the request.
-      Source Finding: 'S6 pps_artifacts_requiring_action #5'
-    - FQDN: blockchain::WF_REJECT_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: The governed sequence that records a rejection, with grounds required, and announces it
-      Reason: It binds the rules and the decision from the request.
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-    - FQDN: blockchain::TI_REGISTER_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Admits a request to register an actor, declaring the name and contact address a caller sends and holding the address path, stream, preferences and occurrence label the act requires
-      Reason: It supplies the schema and the state identity now holds.
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - FQDN: blockchain::TI_ACCEPT_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Admits a request to accept a registered actor, declaring the contact address, authority and optional grounds a caller sends and holding the stream and the acceptance occurrence label
-      Reason: It supplies the rules and the decided record identity now holds.
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - FQDN: blockchain::TI_REJECT_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Admits a request to reject a registered actor, declaring the contact address, authority and required grounds a caller sends and holding the stream and the rejection occurrence label
-      Reason: It supplies the rules and the decided record identity now holds.
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - FQDN: blockchain::IN_ACTOR_ACCEPTANCE_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: Admits a request to accept a person, with the grounds the authority chooses to state, and refuses one that names nobody
-      Reason: It does not declare the grounds an acceptance may carry.
-      Source Finding: 'S6 pps_artifacts_requiring_action #10'
-    - FQDN: blockchain::CC_RESOLVE_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Resolves a person and carries their state, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #11'
-    - FQDN: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Claims a contact address, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #12'
-    - FQDN: blockchain::CC_REGISTER_ACTOR_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Records the person it is handed, unchanged; the act now hands it the state.
-      Source Finding: 'S6 pps_artifacts_requiring_action #13'
-    - FQDN: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Records a moment on a person's trail, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #14'
-    - FQDN: blockchain::IN_ACTOR_REGISTERED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): EXTEND
-      Summary: A request to admit a person as an actor
-      Reason: It requires the schema identity now holds and the entrance no longer supplies.
-      Source Finding: 'S6 pps_artifacts_requiring_action #15'
-    - FQDN: blockchain::IN_ACTOR_REJECTION_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Admits a rejection and its grounds, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-    - FQDN: blockchain::EV_ACTOR_REGISTERED_UNVERIFIED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Announced by the registration act, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - FQDN: blockchain::EV_ACTOR_ACCEPTED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Announced by the acceptance act, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #5'
-    - FQDN: blockchain::EV_ACTOR_REJECTED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Announced by the rejection act, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-    - FQDN: blockchain::AC_PARTICIPANT_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: The authority context the three acts run under, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - FQDN: blockchain::RB_IDENTITY_BINDINGS_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: The bindings the three acts resolve their capabilities and stores through, unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - FQDN: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Reports what a registration lacks.
-      Source Finding: 'S6 cross_subdomain_deps #1'
-    - FQDN: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Refuses on a fixed list of rules.
-      Source Finding: 'S6 cross_subdomain_deps #2'
-    - FQDN: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Refuses a value outside a fixed set.
-      Source Finding: 'S6 cross_subdomain_deps #3'
-    - FQDN: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Compares the authority with the person decided about.
-      Source Finding: 'S6 cross_subdomain_deps #4'
-    - FQDN: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Assembles the decided record from the checked decision.
-      Source Finding: 'S6 cross_subdomain_deps #5'
-    - FQDN: capability_side_effects::CS_MUTABLE_JSON_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: ''
-      Reason: Holds the actor record the decision updates.
-      Source Finding: 'S6 storage_governance #1'
-  new_artifacts:
-    columns:
-    - Capability
-    - Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE, TI, TE)
-    - Code
-    - Summary
-    - Owner Subdomain
-    - Status
-    - Source Finding
-    rows: []
+  - fqdn: blockchain::CC_VALIDATE_REGISTRATION_V0
+    action: EXTEND
+    summary: Refuses a registration lacking the person's name or their address
+    reason: It takes its schema from the request and refuses nothing it finds.
+    source_finding: 'S6 pps_artifacts_requiring_action #1'
+  - fqdn: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    action: EXTEND
+    summary: Refuses a decision about a person not unverified, a decision other than an acceptance or a rejection, or an authority deciding about themselves, and records the decision it checked
+    reason: It takes its sets and its self-decision rule from the request, and records a state the request supplies.
+    source_finding: 'S6 pps_artifacts_requiring_action #2'
+  - fqdn: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    action: EXTEND
+    summary: Refuses a rejection stating no grounds, before anything is recorded
+    reason: It takes its rules from the request.
+    source_finding: 'S6 pps_artifacts_requiring_action #3'
+  - fqdn: blockchain::WF_REGISTER_ACTOR_V0
+    action: EXTEND
+    summary: The governed sequence that admits a person as an unverified actor, and announces that it did
+    reason: It binds the schema from the request and writes the state it is handed.
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - fqdn: blockchain::WF_ACCEPT_ACTOR_V0
+    action: EXTEND
+    summary: The governed sequence that records an acceptance and announces it
+    reason: It binds the rules and the decision from the request.
+    source_finding: 'S6 pps_artifacts_requiring_action #5'
+  - fqdn: blockchain::WF_REJECT_ACTOR_V0
+    action: EXTEND
+    summary: The governed sequence that records a rejection, with grounds required, and announces it
+    reason: It binds the rules and the decision from the request.
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  - fqdn: blockchain::TI_REGISTER_ACTOR_V0
+    action: EXTEND
+    summary: Admits a request to register an actor, declaring the name and contact address a caller sends and holding the address path, stream, preferences and occurrence label the act requires
+    reason: It supplies the schema and the state identity now holds.
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - fqdn: blockchain::TI_ACCEPT_ACTOR_V0
+    action: EXTEND
+    summary: Admits a request to accept a registered actor, declaring the contact address, authority and optional grounds a caller sends and holding the stream and the acceptance occurrence label
+    reason: It supplies the rules and the decided record identity now holds.
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - fqdn: blockchain::TI_REJECT_ACTOR_V0
+    action: EXTEND
+    summary: Admits a request to reject a registered actor, declaring the contact address, authority and required grounds a caller sends and holding the stream and the rejection occurrence label
+    reason: It supplies the rules and the decided record identity now holds.
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - fqdn: blockchain::IN_ACTOR_ACCEPTANCE_V0
+    action: EXTEND
+    summary: Admits a request to accept a person, with the grounds the authority chooses to state, and refuses one that names nobody
+    reason: It does not declare the grounds an acceptance may carry.
+    source_finding: 'S6 pps_artifacts_requiring_action #10'
+  - fqdn: blockchain::CC_RESOLVE_ACTOR_V0
+    action: REUSE
+    summary: ''
+    reason: Resolves a person and carries their state, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #11'
+  - fqdn: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+    action: REUSE
+    summary: ''
+    reason: Claims a contact address, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #12'
+  - fqdn: blockchain::CC_REGISTER_ACTOR_V0
+    action: REUSE
+    summary: ''
+    reason: Records the person it is handed, unchanged; the act now hands it the state.
+    source_finding: 'S6 pps_artifacts_requiring_action #13'
+  - fqdn: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    action: REUSE
+    summary: ''
+    reason: Records a moment on a person's trail, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #14'
+  - fqdn: blockchain::IN_ACTOR_REGISTERED_V0
+    action: EXTEND
+    summary: A request to admit a person as an actor
+    reason: It requires the schema identity now holds and the entrance no longer supplies.
+    source_finding: 'S6 pps_artifacts_requiring_action #15'
+  - fqdn: blockchain::IN_ACTOR_REJECTION_V0
+    action: REUSE
+    summary: ''
+    reason: Admits a rejection and its grounds, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  - fqdn: blockchain::EV_ACTOR_REGISTERED_UNVERIFIED_V0
+    action: REUSE
+    summary: ''
+    reason: Announced by the registration act, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - fqdn: blockchain::EV_ACTOR_ACCEPTED_V0
+    action: REUSE
+    summary: ''
+    reason: Announced by the acceptance act, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #5'
+  - fqdn: blockchain::EV_ACTOR_REJECTED_V0
+    action: REUSE
+    summary: ''
+    reason: Announced by the rejection act, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  - fqdn: blockchain::AC_PARTICIPANT_V0
+    action: REUSE
+    summary: ''
+    reason: The authority context the three acts run under, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - fqdn: blockchain::RB_IDENTITY_BINDINGS_V0
+    action: REUSE
+    summary: ''
+    reason: The bindings the three acts resolve their capabilities and stores through, unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - fqdn: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    action: REUSE
+    summary: ''
+    reason: Reports what a registration lacks.
+    source_finding: 'S6 cross_subdomain_deps #1'
+  - fqdn: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    action: REUSE
+    summary: ''
+    reason: Refuses on a fixed list of rules.
+    source_finding: 'S6 cross_subdomain_deps #2'
+  - fqdn: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
+    action: REUSE
+    summary: ''
+    reason: Refuses a value outside a fixed set.
+    source_finding: 'S6 cross_subdomain_deps #3'
+  - fqdn: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
+    action: REUSE
+    summary: ''
+    reason: Compares the authority with the person decided about.
+    source_finding: 'S6 cross_subdomain_deps #4'
+  - fqdn: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    action: REUSE
+    summary: ''
+    reason: Assembles the decided record from the checked decision.
+    source_finding: 'S6 cross_subdomain_deps #5'
+  - fqdn: capability_side_effects::CS_MUTABLE_JSON_V0
+    action: REUSE
+    summary: ''
+    reason: Holds the actor record the decision updates.
+    source_finding: 'S6 storage_governance #1'
+  new_artifacts: null
   rb_declarations:
-    columns:
-    - RB Code
-    - Binds WF
-    - CS Bindings
-    - Storage Structure
-    - Source Finding
-    rows:
-    - RB Code: blockchain::RB_IDENTITY_BINDINGS_V0
-      Binds WF: blockchain::WF_REGISTER_ACTOR_V0
-      CS Bindings: capability_side_effects::CS_MUTABLE_JSON_V0, capability_side_effects::CS_APPENDONLY_JSONL_V0, capability_side_effects::CS_REGISTRY_V0, capability_side_effects::CS_CLOCK_V0
-      Storage Structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - RB Code: blockchain::RB_IDENTITY_BINDINGS_V0
-      Binds WF: blockchain::WF_ACCEPT_ACTOR_V0
-      CS Bindings: capability_side_effects::CS_MUTABLE_JSON_V0, capability_side_effects::CS_APPENDONLY_JSONL_V0, capability_side_effects::CS_REGISTRY_V0, capability_side_effects::CS_CLOCK_V0
-      Storage Structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #5'
-    - RB Code: blockchain::RB_IDENTITY_BINDINGS_V0
-      Binds WF: blockchain::WF_REJECT_ACTOR_V0
-      CS Bindings: capability_side_effects::CS_MUTABLE_JSON_V0, capability_side_effects::CS_APPENDONLY_JSONL_V0, capability_side_effects::CS_REGISTRY_V0, capability_side_effects::CS_CLOCK_V0
-      Storage Structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
+  - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
+    binds_wf: blockchain::WF_REGISTER_ACTOR_V0
+    cs_bindings:
+    - capability_side_effects::CS_MUTABLE_JSON_V0
+    - capability_side_effects::CS_APPENDONLY_JSONL_V0
+    - capability_side_effects::CS_REGISTRY_V0
+    - capability_side_effects::CS_CLOCK_V0
+    storage_structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
+    binds_wf: blockchain::WF_ACCEPT_ACTOR_V0
+    cs_bindings:
+    - capability_side_effects::CS_MUTABLE_JSON_V0
+    - capability_side_effects::CS_APPENDONLY_JSONL_V0
+    - capability_side_effects::CS_REGISTRY_V0
+    - capability_side_effects::CS_CLOCK_V0
+    storage_structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #5'
+  - rb_code: blockchain::RB_IDENTITY_BINDINGS_V0
+    binds_wf: blockchain::WF_REJECT_ACTOR_V0
+    cs_bindings:
+    - capability_side_effects::CS_MUTABLE_JSON_V0
+    - capability_side_effects::CS_APPENDONLY_JSONL_V0
+    - capability_side_effects::CS_REGISTRY_V0
+    - capability_side_effects::CS_CLOCK_V0
+    storage_structure: blockchain::STRUCTURE_IDENTITY_STORAGE_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
   execution_topology:
-    columns:
-    - Workflow
-    - Node
-    - Runs
-    - Node Type (IN, CC, EXIT, EXIT_SUCCESS)
-    - Routing
-    - Source Finding
-    rows:
-    - Workflow: blockchain::WF_REGISTER_ACTOR_V0
-      Node: blockchain::IN_ACTOR_REGISTERED_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): IN
-      Routing: ACK -> blockchain::CC_VALIDATE_REGISTRATION_V0; NACK -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - Workflow: blockchain::WF_REGISTER_ACTOR_V0
-      Node: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_CLAIM_CONTACT_ADDRESS_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #1'
-    - Workflow: blockchain::WF_REGISTER_ACTOR_V0
-      Node: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_REGISTER_ACTOR_V0; ALREADY_EXISTS -> blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #12'
-    - Workflow: blockchain::WF_REGISTER_ACTOR_V0
-      Node: blockchain::CC_REGISTER_ACTOR_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #13'
-    - Workflow: blockchain::WF_REGISTER_ACTOR_V0
-      Node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> EXIT_SUCCESS; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #14'
-    - Workflow: blockchain::WF_REGISTER_ACTOR_V0
-      Node: EXIT_SUCCESS
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT_SUCCESS
-      Routing: emit blockchain::EV_ACTOR_REGISTERED_UNVERIFIED_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - Workflow: blockchain::WF_REGISTER_ACTOR_V0
-      Node: EXIT_REJECTED
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT
-      Routing: —
-      Source Finding: 'S5 invariants #7'
-    - Workflow: blockchain::WF_ACCEPT_ACTOR_V0
-      Node: blockchain::IN_ACTOR_ACCEPTANCE_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): IN
-      Routing: ACK -> blockchain::CC_RESOLVE_ACTOR_V0; NACK -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #10'
-    - Workflow: blockchain::WF_ACCEPT_ACTOR_V0
-      Node: blockchain::CC_RESOLVE_ACTOR_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_RECORD_VERIFICATION_DECISION_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #11'
-    - Workflow: blockchain::WF_ACCEPT_ACTOR_V0
-      Node: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #2'
-    - Workflow: blockchain::WF_ACCEPT_ACTOR_V0
-      Node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> EXIT_SUCCESS; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #14'
-    - Workflow: blockchain::WF_ACCEPT_ACTOR_V0
-      Node: EXIT_SUCCESS
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT_SUCCESS
-      Routing: emit blockchain::EV_ACTOR_ACCEPTED_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #5'
-    - Workflow: blockchain::WF_ACCEPT_ACTOR_V0
-      Node: EXIT_REJECTED
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT
-      Routing: —
-      Source Finding: 'S5 invariants #7'
-    - Workflow: blockchain::WF_REJECT_ACTOR_V0
-      Node: blockchain::IN_ACTOR_REJECTION_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): IN
-      Routing: ACK -> blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0; NACK -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-    - Workflow: blockchain::WF_REJECT_ACTOR_V0
-      Node: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_RESOLVE_ACTOR_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #3'
-    - Workflow: blockchain::WF_REJECT_ACTOR_V0
-      Node: blockchain::CC_RESOLVE_ACTOR_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_RECORD_VERIFICATION_DECISION_V0; NOT_FOUND -> EXIT_REJECTED; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #11'
-    - Workflow: blockchain::WF_REJECT_ACTOR_V0
-      Node: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #2'
-    - Workflow: blockchain::WF_REJECT_ACTOR_V0
-      Node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): CC
-      Routing: SUCCESS -> EXIT_SUCCESS; VIOLATION -> EXIT_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #14'
-    - Workflow: blockchain::WF_REJECT_ACTOR_V0
-      Node: EXIT_SUCCESS
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT_SUCCESS
-      Routing: emit blockchain::EV_ACTOR_REJECTED_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-    - Workflow: blockchain::WF_REJECT_ACTOR_V0
-      Node: EXIT_REJECTED
-      Runs: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): EXIT
-      Routing: —
-      Source Finding: 'S5 invariants #7'
+  - workflow: blockchain::WF_REGISTER_ACTOR_V0
+    node: blockchain::IN_ACTOR_REGISTERED_V0
+    runs: ''
+    node_type: IN
+    routing:
+      ACK: blockchain::CC_VALIDATE_REGISTRATION_V0
+      NACK: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - workflow: blockchain::WF_REGISTER_ACTOR_V0
+    node: blockchain::CC_VALIDATE_REGISTRATION_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #1'
+  - workflow: blockchain::WF_REGISTER_ACTOR_V0
+    node: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_REGISTER_ACTOR_V0
+      ALREADY_EXISTS: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #12'
+  - workflow: blockchain::WF_REGISTER_ACTOR_V0
+    node: blockchain::CC_REGISTER_ACTOR_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #13'
+  - workflow: blockchain::WF_REGISTER_ACTOR_V0
+    node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: EXIT_SUCCESS
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #14'
+  - workflow: blockchain::WF_REGISTER_ACTOR_V0
+    node: EXIT_SUCCESS
+    runs: ''
+    node_type: EXIT_SUCCESS
+    routing: null
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - workflow: blockchain::WF_REGISTER_ACTOR_V0
+    node: EXIT_REJECTED
+    runs: ''
+    node_type: EXIT
+    routing: null
+    source_finding: 'S5 invariants #7'
+  - workflow: blockchain::WF_ACCEPT_ACTOR_V0
+    node: blockchain::IN_ACTOR_ACCEPTANCE_V0
+    runs: ''
+    node_type: IN
+    routing:
+      ACK: blockchain::CC_RESOLVE_ACTOR_V0
+      NACK: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #10'
+  - workflow: blockchain::WF_ACCEPT_ACTOR_V0
+    node: blockchain::CC_RESOLVE_ACTOR_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+      NOT_FOUND: EXIT_REJECTED
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #11'
+  - workflow: blockchain::WF_ACCEPT_ACTOR_V0
+    node: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #2'
+  - workflow: blockchain::WF_ACCEPT_ACTOR_V0
+    node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: EXIT_SUCCESS
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #14'
+  - workflow: blockchain::WF_ACCEPT_ACTOR_V0
+    node: EXIT_SUCCESS
+    runs: ''
+    node_type: EXIT_SUCCESS
+    routing: null
+    source_finding: 'S6 pps_artifacts_requiring_action #5'
+  - workflow: blockchain::WF_ACCEPT_ACTOR_V0
+    node: EXIT_REJECTED
+    runs: ''
+    node_type: EXIT
+    routing: null
+    source_finding: 'S5 invariants #7'
+  - workflow: blockchain::WF_REJECT_ACTOR_V0
+    node: blockchain::IN_ACTOR_REJECTION_V0
+    runs: ''
+    node_type: IN
+    routing:
+      ACK: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+      NACK: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  - workflow: blockchain::WF_REJECT_ACTOR_V0
+    node: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_RESOLVE_ACTOR_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #3'
+  - workflow: blockchain::WF_REJECT_ACTOR_V0
+    node: blockchain::CC_RESOLVE_ACTOR_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+      NOT_FOUND: EXIT_REJECTED
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #11'
+  - workflow: blockchain::WF_REJECT_ACTOR_V0
+    node: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #2'
+  - workflow: blockchain::WF_REJECT_ACTOR_V0
+    node: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    runs: ''
+    node_type: CC
+    routing:
+      SUCCESS: EXIT_SUCCESS
+      VIOLATION: EXIT_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #14'
+  - workflow: blockchain::WF_REJECT_ACTOR_V0
+    node: EXIT_SUCCESS
+    runs: ''
+    node_type: EXIT_SUCCESS
+    routing: null
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  - workflow: blockchain::WF_REJECT_ACTOR_V0
+    node: EXIT_REJECTED
+    runs: ''
+    node_type: EXIT
+    routing: null
+    source_finding: 'S5 invariants #7'
   cc_composition:
-    columns:
-    - CC Code
-    - Step
-    - Step Name
-    - Capability
-    - Kind (CT, CS)
-    - Operation
-    - Store
-    - Consumes
-    - Produces
-    - Routing
-    - Interpreted By
-    - Semantic Status
-    - Interface
-    rows:
-    - CC Code: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: '1'
-      Step Name: read_registration
-      Capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_RECORD_STRUCTURE
-      Store: —
-      Consumes: actor_record
-      Produces: violations
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: record=actor_record, schema=registration_schema; out: violations=violations'
-    - CC Code: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: '2'
-      Step Name: refuse_incomplete_registration
-      Capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_PARAMETER_RULES
-      Store: —
-      Consumes: violations
-      Produces: valid
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: parameters=registration_findings, rules=completeness_rules; out: valid=valid'
-    - CC Code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: '1'
-      Step Name: read_state_admits_decision
-      Capability: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_SET_MEMBERSHIP
-      Store: —
-      Consumes: current_state
-      Produces: is_member
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: value=current_state, allowed_set=states_admitting_a_decision; out: is_member=is_member'
-    - CC Code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: '2'
-      Step Name: read_outcome_admitted
-      Capability: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_SET_MEMBERSHIP
-      Store: —
-      Consumes: decision
-      Produces: is_member
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: value=decision, allowed_set=admitted_outcomes; out: is_member=is_member'
-    - CC Code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: '3'
-      Step Name: compare_authority_to_person
-      Capability: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
-      Kind (CT, CS): CT
-      Operation: COMPARE_EQUAL
-      Store: —
-      Consumes: verifying_authority, contact_address
-      Produces: is_self
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: left=verifying_authority, right=contact_address; out: is_equal=is_self'
-    - CC Code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: '4'
-      Step Name: refuse_self_decision
-      Capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_PARAMETER_RULES
-      Store: —
-      Consumes: is_self
-      Produces: valid
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: parameters=self_findings, rules=self_rules; out: valid=valid'
-    - CC Code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: '5'
-      Step Name: assemble_decided_actor
-      Capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
-      Kind (CT, CS): CT
-      Operation: ASSEMBLE_RECORD
-      Store: —
-      Consumes: contact_address, decision, verifying_authority, grounds
-      Produces: record
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: fields=decided_fields; out: record=record'
-    - CC Code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: '6'
-      Step Name: write_decided_actor
-      Capability: capability_side_effects::CS_MUTABLE_JSON_V0
-      Kind (CT, CS): CS
-      Operation: UPDATE
-      Store: ACTORS
-      Consumes: key, updates
-      Produces: result_status
-      Routing: SUCCESS -> continue; VIOLATION -> exit; BACKEND_ERROR -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: key=contact_address, updates=record; out: result_status=result_status'
-    - CC Code: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Step: '1'
-      Step Name: require_grounds_stated
-      Capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
-      Kind (CT, CS): CT
-      Operation: VALIDATE_PARAMETER_RULES
-      Store: —
-      Consumes: grounds
-      Produces: valid
-      Routing: SUCCESS -> continue; VIOLATION -> exit
-      Interpreted By: —
-      Semantic Status: SUCCESS
-      Interface: 'in: parameters=grounds_findings, rules=grounds_rules; out: valid=valid'
+  - cc_code: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: '1'
+    step_name: read_registration
+    capability: capability_transforms::CT_PURE_VALIDATE_RECORD_STRUCTURE_V0
+    kind: CT
+    operation: VALIDATE_RECORD_STRUCTURE
+    store: null
+    consumes:
+    - actor_record
+    produces:
+    - violations
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        record: actor_record
+        schema: registration_schema
+      out:
+        violations: violations
+  - cc_code: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: '2'
+    step_name: refuse_incomplete_registration
+    capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    kind: CT
+    operation: VALIDATE_PARAMETER_RULES
+    store: null
+    consumes:
+    - violations
+    produces:
+    - valid
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        parameters: registration_findings
+        rules: completeness_rules
+      out:
+        valid: valid
+  - cc_code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: '1'
+    step_name: read_state_admits_decision
+    capability: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
+    kind: CT
+    operation: VALIDATE_SET_MEMBERSHIP
+    store: null
+    consumes:
+    - current_state
+    produces:
+    - is_member
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        value: current_state
+        allowed_set: states_admitting_a_decision
+      out:
+        is_member: is_member
+  - cc_code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: '2'
+    step_name: read_outcome_admitted
+    capability: capability_transforms::CT_PURE_VALIDATE_SET_MEMBERSHIP_V0
+    kind: CT
+    operation: VALIDATE_SET_MEMBERSHIP
+    store: null
+    consumes:
+    - decision
+    produces:
+    - is_member
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        value: decision
+        allowed_set: admitted_outcomes
+      out:
+        is_member: is_member
+  - cc_code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: '3'
+    step_name: compare_authority_to_person
+    capability: capability_transforms::CT_PURE_COMPARE_EQUAL_V0
+    kind: CT
+    operation: COMPARE_EQUAL
+    store: null
+    consumes:
+    - verifying_authority
+    - contact_address
+    produces:
+    - is_self
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        left: verifying_authority
+        right: contact_address
+      out:
+        is_equal: is_self
+  - cc_code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: '4'
+    step_name: refuse_self_decision
+    capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    kind: CT
+    operation: VALIDATE_PARAMETER_RULES
+    store: null
+    consumes:
+    - is_self
+    produces:
+    - valid
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        parameters: self_findings
+        rules: self_rules
+      out:
+        valid: valid
+  - cc_code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: '5'
+    step_name: assemble_decided_actor
+    capability: capability_transforms::CT_PURE_ASSEMBLE_RECORD_V0
+    kind: CT
+    operation: ASSEMBLE_RECORD
+    store: null
+    consumes:
+    - contact_address
+    - decision
+    - verifying_authority
+    - grounds
+    produces:
+    - record
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        fields: decided_fields
+      out:
+        record: record
+  - cc_code: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: '6'
+    step_name: write_decided_actor
+    capability: capability_side_effects::CS_MUTABLE_JSON_V0
+    kind: CS
+    operation: UPDATE
+    store: ACTORS
+    consumes:
+    - key
+    - updates
+    produces:
+    - result_status
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+      BACKEND_ERROR: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        key: contact_address
+        updates: record
+      out:
+        result_status: result_status
+  - cc_code: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    step: '1'
+    step_name: require_grounds_stated
+    capability: capability_transforms::CT_PURE_VALIDATE_PARAMETER_RULES_V0
+    kind: CT
+    operation: VALIDATE_PARAMETER_RULES
+    store: null
+    consumes:
+    - grounds
+    produces:
+    - valid
+    routing:
+      SUCCESS: continue
+      VIOLATION: exit
+    interpreted_by: null
+    semantic_status: SUCCESS
+    interface:
+      in:
+        parameters: grounds_findings
+        rules: grounds_rules
+      out:
+        valid: valid
   step_bindings:
-    columns:
-    - Owner
-    - Step
-    - Direction (INPUT, OUTPUT)
-    - Field
-    - Bound To
-    - Source Finding
-    rows:
-    - Owner: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: read_registration
-      Direction (INPUT, OUTPUT): INPUT
-      Field: record
-      Bound To: inputs.actor_record
-      Source Finding: S7 cc_composition read_registration
-    - Owner: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: read_registration
-      Direction (INPUT, OUTPUT): INPUT
-      Field: schema
-      Bound To: '{''name'': {''type'': ''string'', ''required'': True}, ''contact_address'': {''type'': ''string'', ''required'': True}}'
-      Source Finding: S7 cc_composition read_registration
-    - Owner: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: read_registration
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: violations
-      Bound To: capability_result.violations
-      Source Finding: S7 cc_composition read_registration
-    - Owner: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: refuse_incomplete_registration
-      Direction (INPUT, OUTPUT): INPUT
-      Field: parameters
-      Bound To: '{''violations'': ''$.results.read_registration.violations''}'
-      Source Finding: S7 cc_composition refuse_incomplete_registration
-    - Owner: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: refuse_incomplete_registration
-      Direction (INPUT, OUTPUT): INPUT
-      Field: rules
-      Bound To: '[{''field'': ''violations'', ''op'': ''eq'', ''value'': []}]'
-      Source Finding: S7 cc_composition refuse_incomplete_registration
-    - Owner: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Step: refuse_incomplete_registration
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: valid
-      Bound To: capability_result.valid
-      Source Finding: S7 cc_composition refuse_incomplete_registration
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: read_state_admits_decision
-      Direction (INPUT, OUTPUT): INPUT
-      Field: value
-      Bound To: inputs.current_state
-      Source Finding: S7 cc_composition read_state_admits_decision
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: read_state_admits_decision
-      Direction (INPUT, OUTPUT): INPUT
-      Field: allowed_set
-      Bound To: '[''UNVERIFIED'']'
-      Source Finding: S7 cc_composition read_state_admits_decision
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: read_state_admits_decision
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: is_member
-      Bound To: capability_result.is_member
-      Source Finding: S7 cc_composition read_state_admits_decision
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: read_outcome_admitted
-      Direction (INPUT, OUTPUT): INPUT
-      Field: value
-      Bound To: inputs.decision
-      Source Finding: S7 cc_composition read_outcome_admitted
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: read_outcome_admitted
-      Direction (INPUT, OUTPUT): INPUT
-      Field: allowed_set
-      Bound To: '[''ACCEPTED'', ''REJECTED'']'
-      Source Finding: S7 cc_composition read_outcome_admitted
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: read_outcome_admitted
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: is_member
-      Bound To: capability_result.is_member
-      Source Finding: S7 cc_composition read_outcome_admitted
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: compare_authority_to_person
-      Direction (INPUT, OUTPUT): INPUT
-      Field: left
-      Bound To: inputs.verifying_authority
-      Source Finding: S7 cc_composition compare_authority_to_person
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: compare_authority_to_person
-      Direction (INPUT, OUTPUT): INPUT
-      Field: right
-      Bound To: inputs.contact_address
-      Source Finding: S7 cc_composition compare_authority_to_person
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: compare_authority_to_person
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: is_self
-      Bound To: capability_result.is_equal
-      Source Finding: S7 cc_composition compare_authority_to_person
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: refuse_self_decision
-      Direction (INPUT, OUTPUT): INPUT
-      Field: parameters
-      Bound To: '{''is_self'': ''$.results.compare_authority_to_person.is_self''}'
-      Source Finding: S7 cc_composition refuse_self_decision
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: refuse_self_decision
-      Direction (INPUT, OUTPUT): INPUT
-      Field: rules
-      Bound To: '[{''field'': ''is_self'', ''op'': ''eq'', ''value'': False}]'
-      Source Finding: S7 cc_composition refuse_self_decision
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: refuse_self_decision
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: valid
-      Bound To: capability_result.valid
-      Source Finding: S7 cc_composition refuse_self_decision
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: assemble_decided_actor
-      Direction (INPUT, OUTPUT): INPUT
-      Field: fields
-      Bound To: '{''contact_address'': ''$.inputs.contact_address'', ''state'': ''$.inputs.decision'', ''verifying_authority'': ''$.inputs.verifying_authority'', ''grounds'': ''$.inputs.grounds''}'
-      Source Finding: S7 cc_composition assemble_decided_actor
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: assemble_decided_actor
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: record
-      Bound To: capability_result.record
-      Source Finding: S7 cc_composition assemble_decided_actor
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: write_decided_actor
-      Direction (INPUT, OUTPUT): INPUT
-      Field: key
-      Bound To: inputs.contact_address
-      Source Finding: S7 cc_composition write_decided_actor
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: write_decided_actor
-      Direction (INPUT, OUTPUT): INPUT
-      Field: updates
-      Bound To: results.assemble_decided_actor.record
-      Source Finding: S7 cc_composition write_decided_actor
-    - Owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Step: write_decided_actor
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: result_status
-      Bound To: result_status
-      Source Finding: S7 cc_composition write_decided_actor
-    - Owner: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Step: require_grounds_stated
-      Direction (INPUT, OUTPUT): INPUT
-      Field: parameters
-      Bound To: '{''grounds'': ''$.inputs.grounds''}'
-      Source Finding: S7 cc_composition require_grounds_stated
-    - Owner: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Step: require_grounds_stated
-      Direction (INPUT, OUTPUT): INPUT
-      Field: rules
-      Bound To: '[{''field'': ''grounds'', ''op'': ''not_null''}, {''field'': ''grounds'', ''op'': ''neq'', ''value'': ''''}]'
-      Source Finding: S7 cc_composition require_grounds_stated
-    - Owner: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Step: require_grounds_stated
-      Direction (INPUT, OUTPUT): OUTPUT
-      Field: valid
-      Bound To: capability_result.valid
-      Source Finding: S7 cc_composition require_grounds_stated
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: actor_record
-      Bound To: payload.actor_record
-      Source Finding: S7 execution_topology blockchain::CC_VALIDATE_REGISTRATION_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: actor_record
-      Bound To: payload.actor_record
-      Source Finding: S7 execution_topology blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: address_path
-      Bound To: payload.address_path
-      Source Finding: S7 execution_topology blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: address_type
-      Bound To: payload.address_type
-      Source Finding: S7 execution_topology blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_REGISTER_ACTOR_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: actor_fields
-      Bound To: '{''name'': ''$.payload.actor_record.name'', ''contact_address'': ''$.payload.actor_record.contact_address'', ''state'': ''UNVERIFIED'', ''currency_preference'': ''$.payload.actor_record.currency_preference'', ''language'': ''$.payload.actor_record.language''}'
-      Source Finding: S7 execution_topology blockchain::CC_REGISTER_ACTOR_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_REGISTER_ACTOR_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: results.CC_CLAIM_CONTACT_ADDRESS_V0.result
-      Source Finding: S7 execution_topology blockchain::CC_REGISTER_ACTOR_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: occurrence_fields
-      Bound To: payload.occurrence_fields
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: stream_id
-      Bound To: payload.stream_id
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: results.CC_CLAIM_CONTACT_ADDRESS_V0.result
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RESOLVE_ACTOR_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: payload.contact_address
-      Source Finding: S7 execution_topology blockchain::CC_RESOLVE_ACTOR_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: current_state
-      Bound To: results.CC_RESOLVE_ACTOR_V0.value.state
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: decision
-      Bound To: ACCEPTED
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: verifying_authority
-      Bound To: payload.verifying_authority
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: payload.contact_address
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: grounds
-      Bound To: payload.grounds
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: occurrence_fields
-      Bound To: payload.occurrence_fields
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: stream_id
-      Bound To: payload.stream_id
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: payload.contact_address
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: grounds
-      Bound To: payload.grounds
-      Source Finding: S7 execution_topology blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RESOLVE_ACTOR_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: payload.contact_address
-      Source Finding: S7 execution_topology blockchain::CC_RESOLVE_ACTOR_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: current_state
-      Bound To: results.CC_RESOLVE_ACTOR_V0.value.state
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: decision
-      Bound To: REJECTED
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: verifying_authority
-      Bound To: payload.verifying_authority
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: payload.contact_address
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: grounds
-      Bound To: payload.grounds
-      Source Finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: occurrence_fields
-      Bound To: payload.occurrence_fields
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: stream_id
-      Bound To: payload.stream_id
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-    - Owner: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
-      Direction (INPUT, OUTPUT): INPUT
-      Field: contact_address
-      Bound To: payload.contact_address
-      Source Finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: read_registration
+    direction: INPUT
+    field: record
+    bound_to: inputs.actor_record
+    source_finding: S7 cc_composition read_registration
+  - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: read_registration
+    direction: INPUT
+    field: schema
+    bound_to:
+      literal:
+        name:
+          type: string
+          required: true
+        contact_address:
+          type: string
+          required: true
+    source_finding: S7 cc_composition read_registration
+  - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: read_registration
+    direction: OUTPUT
+    field: violations
+    bound_to: capability_result.violations
+    source_finding: S7 cc_composition read_registration
+  - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: refuse_incomplete_registration
+    direction: INPUT
+    field: parameters
+    bound_to:
+      literal:
+        violations: $.results.read_registration.violations
+    source_finding: S7 cc_composition refuse_incomplete_registration
+  - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: refuse_incomplete_registration
+    direction: INPUT
+    field: rules
+    bound_to:
+      literal:
+      - field: violations
+        op: eq
+        value: []
+    source_finding: S7 cc_composition refuse_incomplete_registration
+  - owner: blockchain::CC_VALIDATE_REGISTRATION_V0
+    step: refuse_incomplete_registration
+    direction: OUTPUT
+    field: valid
+    bound_to: capability_result.valid
+    source_finding: S7 cc_composition refuse_incomplete_registration
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: read_state_admits_decision
+    direction: INPUT
+    field: value
+    bound_to: inputs.current_state
+    source_finding: S7 cc_composition read_state_admits_decision
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: read_state_admits_decision
+    direction: INPUT
+    field: allowed_set
+    bound_to:
+      literal:
+      - UNVERIFIED
+    source_finding: S7 cc_composition read_state_admits_decision
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: read_state_admits_decision
+    direction: OUTPUT
+    field: is_member
+    bound_to: capability_result.is_member
+    source_finding: S7 cc_composition read_state_admits_decision
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: read_outcome_admitted
+    direction: INPUT
+    field: value
+    bound_to: inputs.decision
+    source_finding: S7 cc_composition read_outcome_admitted
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: read_outcome_admitted
+    direction: INPUT
+    field: allowed_set
+    bound_to:
+      literal:
+      - ACCEPTED
+      - REJECTED
+    source_finding: S7 cc_composition read_outcome_admitted
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: read_outcome_admitted
+    direction: OUTPUT
+    field: is_member
+    bound_to: capability_result.is_member
+    source_finding: S7 cc_composition read_outcome_admitted
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: compare_authority_to_person
+    direction: INPUT
+    field: left
+    bound_to: inputs.verifying_authority
+    source_finding: S7 cc_composition compare_authority_to_person
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: compare_authority_to_person
+    direction: INPUT
+    field: right
+    bound_to: inputs.contact_address
+    source_finding: S7 cc_composition compare_authority_to_person
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: compare_authority_to_person
+    direction: OUTPUT
+    field: is_self
+    bound_to: capability_result.is_equal
+    source_finding: S7 cc_composition compare_authority_to_person
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: refuse_self_decision
+    direction: INPUT
+    field: parameters
+    bound_to:
+      literal:
+        is_self: $.results.compare_authority_to_person.is_self
+    source_finding: S7 cc_composition refuse_self_decision
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: refuse_self_decision
+    direction: INPUT
+    field: rules
+    bound_to:
+      literal:
+      - field: is_self
+        op: eq
+        value: false
+    source_finding: S7 cc_composition refuse_self_decision
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: refuse_self_decision
+    direction: OUTPUT
+    field: valid
+    bound_to: capability_result.valid
+    source_finding: S7 cc_composition refuse_self_decision
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: assemble_decided_actor
+    direction: INPUT
+    field: fields
+    bound_to:
+      literal:
+        contact_address: $.inputs.contact_address
+        state: $.inputs.decision
+        verifying_authority: $.inputs.verifying_authority
+        grounds: $.inputs.grounds
+    source_finding: S7 cc_composition assemble_decided_actor
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: assemble_decided_actor
+    direction: OUTPUT
+    field: record
+    bound_to: capability_result.record
+    source_finding: S7 cc_composition assemble_decided_actor
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: write_decided_actor
+    direction: INPUT
+    field: key
+    bound_to: inputs.contact_address
+    source_finding: S7 cc_composition write_decided_actor
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: write_decided_actor
+    direction: INPUT
+    field: updates
+    bound_to: results.assemble_decided_actor.record
+    source_finding: S7 cc_composition write_decided_actor
+  - owner: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    step: write_decided_actor
+    direction: OUTPUT
+    field: result_status
+    bound_to:
+      literal: $.result_status
+    source_finding: S7 cc_composition write_decided_actor
+  - owner: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    step: require_grounds_stated
+    direction: INPUT
+    field: parameters
+    bound_to:
+      literal:
+        grounds: $.inputs.grounds
+    source_finding: S7 cc_composition require_grounds_stated
+  - owner: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    step: require_grounds_stated
+    direction: INPUT
+    field: rules
+    bound_to:
+      literal:
+      - field: grounds
+        op: not_null
+      - field: grounds
+        op: neq
+        value: ''
+    source_finding: S7 cc_composition require_grounds_stated
+  - owner: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    step: require_grounds_stated
+    direction: OUTPUT
+    field: valid
+    bound_to: capability_result.valid
+    source_finding: S7 cc_composition require_grounds_stated
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_VALIDATE_REGISTRATION_V0
+    direction: INPUT
+    field: actor_record
+    bound_to: payload.actor_record
+    source_finding: S7 execution_topology blockchain::CC_VALIDATE_REGISTRATION_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+    direction: INPUT
+    field: actor_record
+    bound_to: payload.actor_record
+    source_finding: S7 execution_topology blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+    direction: INPUT
+    field: address_path
+    bound_to: payload.address_path
+    source_finding: S7 execution_topology blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+    direction: INPUT
+    field: address_type
+    bound_to: payload.address_type
+    source_finding: S7 execution_topology blockchain::CC_CLAIM_CONTACT_ADDRESS_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_REGISTER_ACTOR_V0
+    direction: INPUT
+    field: actor_fields
+    bound_to:
+      literal:
+        name: $.payload.actor_record.name
+        contact_address: $.payload.actor_record.contact_address
+        state: UNVERIFIED
+        currency_preference: $.payload.actor_record.currency_preference
+        language: $.payload.actor_record.language
+    source_finding: S7 execution_topology blockchain::CC_REGISTER_ACTOR_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_REGISTER_ACTOR_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: results.CC_CLAIM_CONTACT_ADDRESS_V0.result
+    source_finding: S7 execution_topology blockchain::CC_REGISTER_ACTOR_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: occurrence_fields
+    bound_to: payload.occurrence_fields
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: stream_id
+    bound_to: payload.stream_id
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: results.CC_CLAIM_CONTACT_ADDRESS_V0.result
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RESOLVE_ACTOR_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: payload.contact_address
+    source_finding: S7 execution_topology blockchain::CC_RESOLVE_ACTOR_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: current_state
+    bound_to: results.CC_RESOLVE_ACTOR_V0.value.state
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: decision
+    bound_to:
+      literal: ACCEPTED
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: verifying_authority
+    bound_to: payload.verifying_authority
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: payload.contact_address
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: grounds
+    bound_to: payload.grounds
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: occurrence_fields
+    bound_to: payload.occurrence_fields
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: stream_id
+    bound_to: payload.stream_id
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: payload.contact_address
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    direction: INPUT
+    field: grounds
+    bound_to: payload.grounds
+    source_finding: S7 execution_topology blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RESOLVE_ACTOR_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: payload.contact_address
+    source_finding: S7 execution_topology blockchain::CC_RESOLVE_ACTOR_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: current_state
+    bound_to: results.CC_RESOLVE_ACTOR_V0.value.state
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: decision
+    bound_to:
+      literal: REJECTED
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: verifying_authority
+    bound_to: payload.verifying_authority
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: payload.contact_address
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: grounds
+    bound_to: payload.grounds
+    source_finding: S7 execution_topology blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: occurrence_fields
+    bound_to: payload.occurrence_fields
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: stream_id
+    bound_to: payload.stream_id
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+  - owner: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
+    direction: INPUT
+    field: contact_address
+    bound_to: payload.contact_address
+    source_finding: S7 execution_topology blockchain::CC_APPEND_ACTOR_OCCURRENCE_V0
   interface_fields:
-    columns:
-    - Artifact
-    - Direction (INPUT, OUTPUT, ATTRIBUTE)
-    - Field
-    - Type
-    - Required (YES, NO)
-    - Default
-    - Meaning
-    rows:
-    - Artifact: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: actor_record
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The registration as the person supplied it.
-    - Artifact: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: violations
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: What the registration lacks; a registration lacking anything is refused.
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: current_state
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The state the person is in when the decision is made.
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: decision
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The decision the act records.
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: verifying_authority
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Who is making the decision.
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: contact_address
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The person the decision is about.
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: grounds
-      Type: string
-      Required (YES, NO): 'NO'
-      Default: ''
-      Meaning: Why, where the authority states it.
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: result_status
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Whether the decision was recorded.
-    - Artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: grounds
-      Type: string
-      Required (YES, NO): 'NO'
-      Default: ''
-      Meaning: Why the person is refused. A rejection stating none is refused by the rule, not by admission.
-    - Artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): OUTPUT
-      Field: valid
-      Type: boolean
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Whether grounds were stated.
-    - Artifact: blockchain::IN_ACTOR_REGISTERED_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: actor_record
-      Type: object
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The registration as the person supplied it.
-    - Artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: contact_address
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The person being accepted.
-    - Artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: verifying_authority
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The authority recording the acceptance.
-    - Artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: grounds
-      Type: string
-      Required (YES, NO): 'NO'
-      Default: ''
-      Meaning: Why, where the authority chooses to say.
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: name
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The person's name.
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: contact_address
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The address the person is reached at.
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: contact_address
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The person the decision is about.
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: verifying_authority
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Who is making the decision.
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: grounds
-      Type: string
-      Required (YES, NO): 'NO'
-      Default: ''
-      Meaning: Why, where the decider chooses to say.
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: contact_address
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: The person the decision is about.
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: verifying_authority
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Who is making the decision.
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): INPUT
-      Field: grounds
-      Type: string
-      Required (YES, NO): 'YES'
-      Default: ''
-      Meaning: Why the person is refused. A rejection stating none is refused.
-  implementation_bindings:
-    columns:
-    - CT Code
-    - Module
-    - Callable
-    - Operation
-    - Kind (atom, molecule)
-    - Purity (ct_pure, ct_impure)
-    - Refusal (raises, returns, never)
-    - Source Finding
-    rows: []
-  vocabulary_extensions:
-    columns:
-    - Vocabulary Code
-    - Extends
-    - Group
-    - Casing
-    - Value
-    - Meaning
-    - Source Finding
-    rows: []
-  runtime_policies:
-    columns:
-    - RB Code
-    - Capability
-    - Key
-    - Value
-    - Source Finding
-    rows: []
+  - artifact: blockchain::CC_VALIDATE_REGISTRATION_V0
+    direction: INPUT
+    field: actor_record
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The registration as the person supplied it.
+  - artifact: blockchain::CC_VALIDATE_REGISTRATION_V0
+    direction: OUTPUT
+    field: violations
+    type: array
+    required: 'YES'
+    default: ''
+    meaning: What the registration lacks; a registration lacking anything is refused.
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: current_state
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The state the person is in when the decision is made.
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: decision
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The decision the act records.
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: verifying_authority
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: Who is making the decision.
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: contact_address
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The person the decision is about.
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: INPUT
+    field: grounds
+    type: string
+    required: 'NO'
+    default: ''
+    meaning: Why, where the authority states it.
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    direction: OUTPUT
+    field: result_status
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: Whether the decision was recorded.
+  - artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    direction: INPUT
+    field: grounds
+    type: string
+    required: 'NO'
+    default: ''
+    meaning: Why the person is refused. A rejection stating none is refused by the rule, not by admission.
+  - artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    direction: OUTPUT
+    field: valid
+    type: boolean
+    required: 'YES'
+    default: ''
+    meaning: Whether grounds were stated.
+  - artifact: blockchain::IN_ACTOR_REGISTERED_V0
+    direction: INPUT
+    field: actor_record
+    type: object
+    required: 'YES'
+    default: ''
+    meaning: The registration as the person supplied it.
+  - artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
+    direction: INPUT
+    field: contact_address
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The person being accepted.
+  - artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
+    direction: INPUT
+    field: verifying_authority
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The authority recording the acceptance.
+  - artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
+    direction: INPUT
+    field: grounds
+    type: string
+    required: 'NO'
+    default: ''
+    meaning: Why, where the authority chooses to say.
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INPUT
+    field: name
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The person's name.
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INPUT
+    field: contact_address
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The address the person is reached at.
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INPUT
+    field: contact_address
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The person the decision is about.
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INPUT
+    field: verifying_authority
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: Who is making the decision.
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INPUT
+    field: grounds
+    type: string
+    required: 'NO'
+    default: ''
+    meaning: Why, where the decider chooses to say.
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INPUT
+    field: contact_address
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: The person the decision is about.
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INPUT
+    field: verifying_authority
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: Who is making the decision.
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INPUT
+    field: grounds
+    type: string
+    required: 'YES'
+    default: ''
+    meaning: Why the person is refused. A rejection stating none is refused.
+  implementation_bindings: null
+  vocabulary_extensions: null
+  runtime_policies: null
   artifact_properties:
-    columns:
-    - Artifact
-    - Property
-    - Value
-    - Source Finding
-    rows:
-    - Artifact: blockchain::WF_REGISTER_ACTOR_V0
-      Property: emit.EXIT_SUCCESS
-      Value: blockchain::EV_ACTOR_REGISTERED_UNVERIFIED_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - Artifact: blockchain::WF_ACCEPT_ACTOR_V0
-      Property: emit.EXIT_SUCCESS
-      Value: blockchain::EV_ACTOR_ACCEPTED_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #5'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Property: emit.EXIT_SUCCESS
-      Value: blockchain::EV_ACTOR_REJECTED_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-    - Artifact: blockchain::WF_ACCEPT_ACTOR_V0
-      Property: supersedes
-      Value: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #5'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Property: supersedes
-      Value: blockchain::WF_RECORD_VERIFICATION_DECISION_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-    - Artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
-      Property: supersedes
-      Value: blockchain::IN_ACTOR_VERIFIED_V0
-      Source Finding: 'S6 pps_artifacts_requiring_action #10'
-  structure_stores:
-    columns:
-    - Store Name
-    - Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0)
-    - Proposed Path
-    - Used By
-    - Source Finding
-    rows: []
+  - artifact: blockchain::WF_REGISTER_ACTOR_V0
+    property: emit.EXIT_SUCCESS
+    value:
+    - blockchain::EV_ACTOR_REGISTERED_UNVERIFIED_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - artifact: blockchain::WF_ACCEPT_ACTOR_V0
+    property: emit.EXIT_SUCCESS
+    value:
+    - blockchain::EV_ACTOR_ACCEPTED_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #5'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    property: emit.EXIT_SUCCESS
+    value:
+    - blockchain::EV_ACTOR_REJECTED_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  - artifact: blockchain::WF_ACCEPT_ACTOR_V0
+    property: supersedes
+    value:
+    - blockchain::WF_RECORD_VERIFICATION_DECISION_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #5'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    property: supersedes
+    value:
+    - blockchain::WF_RECORD_VERIFICATION_DECISION_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  - artifact: blockchain::IN_ACTOR_ACCEPTANCE_V0
+    property: supersedes
+    value:
+    - blockchain::IN_ACTOR_VERIFIED_V0
+    source_finding: 'S6 pps_artifacts_requiring_action #10'
+  structure_stores: null
   transport_bindings:
-    columns:
-    - Artifact
-    - Direction (INGRESS, EGRESS)
-    - Operation
-    - Handler Kind (WF_INVOCATION, SNAPSHOT_READ)
-    - Handler Target
-    - Field
-    - Bound To
-    - Source Finding
-    rows:
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: actor_record.name
-      Bound To: ${input.name}
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: actor_record.contact_address
-      Bound To: ${input.contact_address}
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: actor_record.currency_preference
-      Bound To: BACHI
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: actor_record.language
-      Bound To: en
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: address_path
-      Bound To: contact_address
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: address_type
-      Bound To: string
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: stream_id
-      Bound To: ACTOR_OCCURRENCES
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: occurrence_fields.occurrence
-      Bound To: ACTOR_REGISTERED_UNVERIFIED
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.register_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REGISTER_ACTOR_V0
-      Field: occurrence_fields.contact_address
-      Bound To: ${input.contact_address}
-      Source Finding: 'S6 pps_artifacts_requiring_action #7'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: contact_address
-      Bound To: ${input.contact_address}
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: verifying_authority
-      Bound To: ${input.verifying_authority}
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: grounds
-      Bound To: ${input.grounds}
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: stream_id
-      Bound To: ACTOR_OCCURRENCES
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: occurrence_fields.occurrence
-      Bound To: ACTOR_ACCEPTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: occurrence_fields.contact_address
-      Bound To: ${input.contact_address}
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: occurrence_fields.verifying_authority
-      Bound To: ${input.verifying_authority}
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.accept_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_ACCEPT_ACTOR_V0
-      Field: occurrence_fields.grounds
-      Bound To: ${input.grounds}
-      Source Finding: 'S6 pps_artifacts_requiring_action #8'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: contact_address
-      Bound To: ${input.contact_address}
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: verifying_authority
-      Bound To: ${input.verifying_authority}
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: grounds
-      Bound To: ${input.grounds}
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: stream_id
-      Bound To: ACTOR_OCCURRENCES
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: occurrence_fields.occurrence
-      Bound To: ACTOR_REJECTED
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: occurrence_fields.contact_address
-      Bound To: ${input.contact_address}
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: occurrence_fields.verifying_authority
-      Bound To: ${input.verifying_authority}
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Direction (INGRESS, EGRESS): INGRESS
-      Operation: blockchain.reject_actor
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): WF_INVOCATION
-      Handler Target: blockchain::WF_REJECT_ACTOR_V0
-      Field: occurrence_fields.grounds
-      Bound To: ${input.grounds}
-      Source Finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: actor_record.name
+    bound_to: ${input.name}
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: actor_record.contact_address
+    bound_to: ${input.contact_address}
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: actor_record.currency_preference
+    bound_to:
+      literal: BACHI
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: actor_record.language
+    bound_to:
+      literal: en
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: address_path
+    bound_to:
+      literal: contact_address
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: address_type
+    bound_to:
+      literal: string
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: stream_id
+    bound_to:
+      literal: ACTOR_OCCURRENCES
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: occurrence_fields.occurrence
+    bound_to:
+      literal: ACTOR_REGISTERED_UNVERIFIED
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.register_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REGISTER_ACTOR_V0
+    field: occurrence_fields.contact_address
+    bound_to: ${input.contact_address}
+    source_finding: 'S6 pps_artifacts_requiring_action #7'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: contact_address
+    bound_to: ${input.contact_address}
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: verifying_authority
+    bound_to: ${input.verifying_authority}
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: grounds
+    bound_to: ${input.grounds}
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: stream_id
+    bound_to:
+      literal: ACTOR_OCCURRENCES
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: occurrence_fields.occurrence
+    bound_to:
+      literal: ACTOR_ACCEPTED
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: occurrence_fields.contact_address
+    bound_to: ${input.contact_address}
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: occurrence_fields.verifying_authority
+    bound_to: ${input.verifying_authority}
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.accept_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_ACCEPT_ACTOR_V0
+    field: occurrence_fields.grounds
+    bound_to: ${input.grounds}
+    source_finding: 'S6 pps_artifacts_requiring_action #8'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: contact_address
+    bound_to: ${input.contact_address}
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: verifying_authority
+    bound_to: ${input.verifying_authority}
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: grounds
+    bound_to: ${input.grounds}
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: stream_id
+    bound_to:
+      literal: ACTOR_OCCURRENCES
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: occurrence_fields.occurrence
+    bound_to:
+      literal: ACTOR_REJECTED
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: occurrence_fields.contact_address
+    bound_to: ${input.contact_address}
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: occurrence_fields.verifying_authority
+    bound_to: ${input.verifying_authority}
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    direction: INGRESS
+    operation: blockchain.reject_actor
+    handler_kind: WF_INVOCATION
+    handler_target: blockchain::WF_REJECT_ACTOR_V0
+    field: occurrence_fields.grounds
+    bound_to: ${input.grounds}
+    source_finding: 'S6 pps_artifacts_requiring_action #9'
   artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Count
-    - Artifacts
-    rows:
-    - Action (REPLACE, EXTEND, NEW): EXTEND
-      Subdomain: identity
-      Count: '11'
-      Artifacts: blockchain::CC_VALIDATE_REGISTRATION_V0, blockchain::CC_RECORD_VERIFICATION_DECISION_V0, blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0, blockchain::WF_REGISTER_ACTOR_V0, blockchain::WF_ACCEPT_ACTOR_V0, blockchain::WF_REJECT_ACTOR_V0, blockchain::TI_REGISTER_ACTOR_V0, blockchain::TI_ACCEPT_ACTOR_V0, blockchain::TI_REJECT_ACTOR_V0, blockchain::IN_ACTOR_ACCEPTANCE_V0, blockchain::IN_ACTOR_REGISTERED_V0
-  generation_provenance:
-    columns:
-    - Artifact
-    - Generator
-    - Generator Sources
-    - Source Finding
-    rows: []
-  declared_reach:
-    columns:
-    - Act
-    - Consults
-    - Source Finding
-    rows: []
+  - action: EXTEND
+    subdomain: identity
+    count: '11'
+    artifacts: blockchain::CC_VALIDATE_REGISTRATION_V0, blockchain::CC_RECORD_VERIFICATION_DECISION_V0, blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0, blockchain::WF_REGISTER_ACTOR_V0, blockchain::WF_ACCEPT_ACTOR_V0, blockchain::WF_REJECT_ACTOR_V0, blockchain::TI_REGISTER_ACTOR_V0, blockchain::TI_ACCEPT_ACTOR_V0, blockchain::TI_REJECT_ACTOR_V0, blockchain::IN_ACTOR_ACCEPTANCE_V0, blockchain::IN_ACTOR_REGISTERED_V0
+  generation_provenance: null
+  declared_reach: null
   refusal_discharge:
-    columns:
-    - Operation
-    - Refused When
-    - Act
-    - Step
-    - Outcome
-    - Source Finding
-    rows:
-    - Operation: Registering a person
-      Refused When: The registration lacks the person's name or their address
-      Act: blockchain::WF_REGISTER_ACTOR_V0
-      Step: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #1'
-    - Operation: Recording a decision
-      Refused When: The person is not unverified
-      Act: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #2'
-    - Operation: Recording a decision
-      Refused When: The person is not unverified
-      Act: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #2'
-    - Operation: Recording a decision
-      Refused When: The decision is neither an acceptance nor a rejection
-      Act: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #3'
-    - Operation: Recording a decision
-      Refused When: The decision is neither an acceptance nor a rejection
-      Act: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #3'
-    - Operation: Recording a rejection
-      Refused When: No grounds are stated
-      Act: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #4'
-    - Operation: Recording a decision
-      Refused When: The authority is the person decided about
-      Act: blockchain::WF_ACCEPT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #5'
-    - Operation: Recording a decision
-      Refused When: The authority is the person decided about
-      Act: blockchain::WF_REJECT_ACTOR_V0
-      Step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Outcome: VIOLATION
-      Source Finding: 'S0 operation_refusals #5'
-  refusal_deferrals:
-    columns:
-    - Operation
-    - Refused When
-    - Deferred To
-    - Until
-    - Source Finding
-    rows: []
-  refusal_governance_discharge:
-    columns:
-    - Operation
-    - Refused When
-    - Phase
-    - Governing Rule
-    - Source Finding
-    rows: []
-  molecule_steps:
-    columns:
-    - CT Code
-    - Step
-    - Kind (atom, molecule, loop)
-    - Target
-    - Over
-    - Iterator
-    - Emits
-    - Source Finding
-    rows: []
-  molecule_step_bindings:
-    columns:
-    - CT Code
-    - Step
-    - Role (INPUT, CARRY, UPDATE)
-    - Field
-    - Bound To
-    - Source Finding
-    rows: []
-  test_cases:
-    columns:
-    - CT Code
-    - Case
-    - Expected Outcome (SUCCESS, VIOLATION)
-    - Source Finding
-    rows: []
-  test_case_values:
-    columns:
-    - CT Code
-    - Case
-    - Role (INPUT, EXPECTED, ASSERT, RECORDED)
-    - Field
-    - Value
-    - Source Finding
-    rows: []
+  - operation: Registering a person
+    refused_when: The registration lacks the person's name or their address
+    act: blockchain::WF_REGISTER_ACTOR_V0
+    step: blockchain::CC_VALIDATE_REGISTRATION_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #1'
+  - operation: Recording a decision
+    refused_when: The person is not unverified
+    act: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #2'
+  - operation: Recording a decision
+    refused_when: The person is not unverified
+    act: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #2'
+  - operation: Recording a decision
+    refused_when: The decision is neither an acceptance nor a rejection
+    act: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #3'
+  - operation: Recording a decision
+    refused_when: The decision is neither an acceptance nor a rejection
+    act: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #3'
+  - operation: Recording a rejection
+    refused_when: No grounds are stated
+    act: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #4'
+  - operation: Recording a decision
+    refused_when: The authority is the person decided about
+    act: blockchain::WF_ACCEPT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #5'
+  - operation: Recording a decision
+    refused_when: The authority is the person decided about
+    act: blockchain::WF_REJECT_ACTOR_V0
+    step: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    outcome: VIOLATION
+    source_finding: 'S0 operation_refusals #5'
+  refusal_deferrals: null
+  refusal_governance_discharge: null
+  molecule_steps: null
+  molecule_step_bindings: null
+  test_cases: null
+  test_case_values: null
   withdrawn_facts:
-    columns:
-    - Artifact
-    - Fact
-    - Reason
-    - Source Finding
-    rows:
-    - Artifact: blockchain::CC_VALIDATE_REGISTRATION_V0
-      Fact: .core.inputs.registration_schema
-      Reason: The contract holds what a registration must contain.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Fact: .core.inputs.states_admitting_a_decision
-      Reason: The contract holds the states a decision may be made from.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Fact: .core.inputs.admitted_outcomes
-      Reason: The contract holds the decisions it admits.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Fact: .core.inputs.self_check_parameters
-      Reason: The self-decision rule compares the authority with the person itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Fact: .core.inputs.self_check_rules
-      Reason: The contract holds the self-decision rule.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Fact: .core.inputs.decided_actor_fields
-      Reason: The decided record is built from the decision the contract checked.
-      Source Finding: 'S6 boundary_rules #3'
-    - Artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
-      Fact: .core.pipeline[refuse_self_verification]
-      Reason: Replaced by a comparison and a fixed rule on its result.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Fact: .core.inputs.grounds_parameters
-      Reason: The contract reads the grounds directly.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
-      Fact: .core.inputs.grounds_rules
-      Reason: The contract holds the grounds rules.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::IN_ACTOR_REGISTERED_V0
-      Fact: .core.inputs.registration_schema
-      Reason: The gate no longer requires what identity holds and the entrance no longer supplies.
-      Source Finding: 'S6 pps_artifacts_requiring_action #15'
-    - Artifact: blockchain::WF_REGISTER_ACTOR_V0
-      Fact: .core.nodes.CC_VALIDATE_REGISTRATION_V0.inputs.registration_schema
-      Reason: The contract no longer takes a schema.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_ACCEPT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.states_admitting_a_decision
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_ACCEPT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.admitted_outcomes
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_ACCEPT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_parameters
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_ACCEPT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_rules
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_ACCEPT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.decided_actor_fields
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.states_admitting_a_decision
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.admitted_outcomes
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_parameters
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_rules
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.decided_actor_fields
-      Reason: The contract no longer takes this; it holds the rule or builds the record itself.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Fact: .core.nodes.CC_REQUIRE_REJECTION_GROUNDS_V0.inputs.grounds_parameters
-      Reason: The contract no longer takes this; it holds its rules and reads the grounds.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::WF_REJECT_ACTOR_V0
-      Fact: .core.nodes.CC_REQUIRE_REJECTION_GROUNDS_V0.inputs.grounds_rules
-      Reason: The contract no longer takes this; it holds its rules and reads the grounds.
-      Source Finding: 'S6 boundary_rules #1'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Fact: .handler.payload_template.registration_schema
-      Reason: Identity holds what a registration must contain.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REGISTER_ACTOR_V0
-      Fact: .handler.payload_template.actor_record.state
-      Reason: Registration writes the state unverified itself.
-      Source Finding: 'S6 boundary_rules #4'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Fact: .handler.payload_template.decision
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Fact: .handler.payload_template.states_admitting_a_decision
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Fact: .handler.payload_template.admitted_outcomes
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Fact: .handler.payload_template.decided_actor_fields
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Fact: .handler.payload_template.self_check_parameters
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_ACCEPT_ACTOR_V0
-      Fact: .handler.payload_template.self_check_rules
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.decision
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.states_admitting_a_decision
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.admitted_outcomes
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.decided_actor_fields
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.self_check_parameters
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.self_check_rules
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.grounds_parameters
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
-    - Artifact: blockchain::TI_REJECT_ACTOR_V0
-      Fact: .handler.payload_template.grounds_rules
-      Reason: Identity holds this; the entrance stops supplying it.
-      Source Finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::CC_VALIDATE_REGISTRATION_V0
+    fact: .core.inputs.registration_schema
+    reason: The contract holds what a registration must contain.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    fact: .core.inputs.states_admitting_a_decision
+    reason: The contract holds the states a decision may be made from.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    fact: .core.inputs.admitted_outcomes
+    reason: The contract holds the decisions it admits.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    fact: .core.inputs.self_check_parameters
+    reason: The self-decision rule compares the authority with the person itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    fact: .core.inputs.self_check_rules
+    reason: The contract holds the self-decision rule.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    fact: .core.inputs.decided_actor_fields
+    reason: The decided record is built from the decision the contract checked.
+    source_finding: 'S6 boundary_rules #3'
+  - artifact: blockchain::CC_RECORD_VERIFICATION_DECISION_V0
+    fact: .core.pipeline[refuse_self_verification]
+    reason: Replaced by a comparison and a fixed rule on its result.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    fact: .core.inputs.grounds_parameters
+    reason: The contract reads the grounds directly.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::CC_REQUIRE_REJECTION_GROUNDS_V0
+    fact: .core.inputs.grounds_rules
+    reason: The contract holds the grounds rules.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::IN_ACTOR_REGISTERED_V0
+    fact: .core.inputs.registration_schema
+    reason: The gate no longer requires what identity holds and the entrance no longer supplies.
+    source_finding: 'S6 pps_artifacts_requiring_action #15'
+  - artifact: blockchain::WF_REGISTER_ACTOR_V0
+    fact: .core.nodes.CC_VALIDATE_REGISTRATION_V0.inputs.registration_schema
+    reason: The contract no longer takes a schema.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_ACCEPT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.states_admitting_a_decision
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_ACCEPT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.admitted_outcomes
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_ACCEPT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_parameters
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_ACCEPT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_rules
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_ACCEPT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.decided_actor_fields
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.states_admitting_a_decision
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.admitted_outcomes
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_parameters
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.self_check_rules
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    fact: .core.nodes.CC_RECORD_VERIFICATION_DECISION_V0.inputs.decided_actor_fields
+    reason: The contract no longer takes this; it holds the rule or builds the record itself.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    fact: .core.nodes.CC_REQUIRE_REJECTION_GROUNDS_V0.inputs.grounds_parameters
+    reason: The contract no longer takes this; it holds its rules and reads the grounds.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::WF_REJECT_ACTOR_V0
+    fact: .core.nodes.CC_REQUIRE_REJECTION_GROUNDS_V0.inputs.grounds_rules
+    reason: The contract no longer takes this; it holds its rules and reads the grounds.
+    source_finding: 'S6 boundary_rules #1'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    fact: .handler.payload_template.registration_schema
+    reason: Identity holds what a registration must contain.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REGISTER_ACTOR_V0
+    fact: .handler.payload_template.actor_record.state
+    reason: Registration writes the state unverified itself.
+    source_finding: 'S6 boundary_rules #4'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    fact: .handler.payload_template.decision
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    fact: .handler.payload_template.states_admitting_a_decision
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    fact: .handler.payload_template.admitted_outcomes
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    fact: .handler.payload_template.decided_actor_fields
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    fact: .handler.payload_template.self_check_parameters
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_ACCEPT_ACTOR_V0
+    fact: .handler.payload_template.self_check_rules
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.decision
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.states_admitting_a_decision
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.admitted_outcomes
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.decided_actor_fields
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.self_check_parameters
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.self_check_rules
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.grounds_parameters
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
+  - artifact: blockchain::TI_REJECT_ACTOR_V0
+    fact: .handler.payload_template.grounds_rules
+    reason: Identity holds this; the entrance stops supplying it.
+    source_finding: 'S6 boundary_rules #5'
 ```
 
 Every binding names a field the capability declares, read from the pinned baseline

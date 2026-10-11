@@ -17,7 +17,10 @@ from __future__ import annotations
 import re
 from typing import Any, Callable
 
+import jsonschema
+
 from transformation.design.evaluate import Block, ParsedDocument
+from transformation.design.schema import column_key
 
 CheckFn = Callable[[ParsedDocument, "object"], list[tuple[str, str]]]
 
@@ -72,11 +75,33 @@ def _where(rule) -> str:
     return getattr(rule, "register", None) or rule.section_title or "document"
 
 
-def _cell(row: dict[str, str], prefix: str) -> str:
-    for key, value in row.items():
-        if key.startswith(prefix):
-            return value.strip()
-    return ""
+def _value(row: dict, column: str) -> Any:
+    """A cell as the row holds it, addressed by its column's title through the schema's key."""
+    return row.get(column_key(column))
+
+
+def _cell(row: dict, column: str) -> str:
+    """A text cell, stripped. A cell that says nothing (`null`) or is absent reads as empty."""
+    value = _value(row, column)
+    if value is None:
+        return ""
+    if isinstance(value, (list, dict)):
+        raise TypeError(f"column {column!r} holds structure; read it with _value")
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value).strip()
+
+
+def _items(row: dict, column: str) -> list[str]:
+    """A cell as the names it states: a list's entries, a text's one value, or none."""
+    value = _value(row, column)
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(v).strip() for v in value if str(v).strip()]
+    if isinstance(value, dict):
+        return []
+    return [str(value).strip()] if str(value).strip() else []
 
 
 def _runs(row: dict[str, str]) -> str:
@@ -90,31 +115,32 @@ def _runs(row: dict[str, str]) -> str:
     return _bare_identity(_cell(row, "Runs") or _cell(row, "Node"))
 
 
-# A register with nothing in it renders one `| NONE IDENTIFIED |` row rather than no rows at all.
-# Emptiness is declared, never inferred from absence — an empty table and a register nobody filled
-# in look identical, and only one of them is a considered answer.
-EMPTINESS_SENTINEL = "NONE IDENTIFIED"
-# Public because the P1 projection must emit the same marker it will later be judged against; a
-# second spelling of it in project.py is a second declaration that can drift from this one.
-
-
-def is_sentinel(row: dict[str, str]) -> bool:
-    """True when a row is the declared-empty marker rather than content."""
-    values = [str(v).strip() for v in row.values()]
-    if not values:
+def _stated(row: dict, column: str) -> bool:
+    """Whether a cell answers its column. `null` is an answer: the row says there is nothing to
+    state. A blank text, an empty list and an absent column are not."""
+    key = column_key(column)
+    if key not in row:
         return False
-    return values[0].upper() == EMPTINESS_SENTINEL and not any(values[1:])
+    value = row[key]
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (list, dict)):
+        return bool(value)
+    return True
 
 
-# The none marker a register writes to say a cell has nothing to state, as opposed to leaving it
-# unanswered. A gate asking whether a cell *says something* reads both as silence.
-NONE_MARKERS = ("—", "-", "NONE", "N/A")
+def _source(row: dict) -> str:
+    """A binding's source when it names a place: the path it reads. A literal, the generated marker
+    and a binding that states nothing name no place, and read as empty."""
+    value = _value(row, "Bound To")
+    return value.strip() if isinstance(value, str) else ""
 
 
-def _present(row: dict[str, str], column: str) -> bool:
-    """Whether a cell states a value — neither blank nor the none marker."""
-    value = _cell(row, column)
-    return bool(value) and value not in NONE_MARKERS
+def _present(row: dict, column: str) -> bool:
+    """Whether a cell states a value: neither blank nor `null`."""
+    return bool(_cell(row, column))
 
 
 def _gated_out(row: dict[str, str], rule) -> bool:
@@ -127,27 +153,18 @@ def _gated_out(row: dict[str, str], rule) -> bool:
     column = rule.params.get("only_when_column")
     if not column:
         return False
-    gate = _cell(row, column).strip().upper()
+    gate = _value(row, column)
     values = rule.params.get("only_when_values")
     if values is not None:
-        return gate not in {str(v).upper() for v in values}
-    return gate != str(rule.params.get("only_when_value")).upper()
+        return gate not in list(values)
+    return gate != rule.params.get("only_when_value")
 
 
 def _content_rows(block: Block | None):
-    """Numbered content rows of a register block, sentinel excluded.
-
-    The emptiness sentinel is not content: it is a statement that the register has no entries.
-    Checking its blank cells for vocabularies and citations would report findings against a
-    register whose author correctly said there was nothing to report.
-    """
+    """The numbered rows of a register block."""
     if block is None or block.table is None:
         return []
-    return [
-        (i, row)
-        for i, row in enumerate(block.table.rows, start=1)
-        if not is_sentinel(row)
-    ]
+    return list(enumerate(block.table.rows, start=1))
 
 
 def _rows(doc: ParsedDocument, rule):
@@ -210,29 +227,13 @@ def _table_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
 @check("TABLE_HAS_COLUMNS")
 def _table_has_columns(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    block = _block(doc, rule)
-    if block is None or block.table is None:
-        return []
+    """Every row carries every column the register requires. A column with nothing to state carries
+    `null`; a row that leaves the column out has not answered it."""
     out = []
-    remaining = list(block.table.columns)
-    for expected in rule.params["columns"]:
-        # Prefix, because a header carries its vocabulary — `Status (IN_SCOPE, DEFERRED)` is the
-        # `Status` column. **Consumed once**, because a prefix match is otherwise satisfied by a
-        # longer sibling: `Source Finding` startswith `Source`, so nine registers across six phases
-        # could lose their `Source`, `Evidence`, `Node`, `Step` or `Generator` column and report
-        # clean. Exact matches are taken first so a shorter name cannot claim a longer one's header
-        # while its own is present.
-        match = next((c for c in remaining if c == expected), None) \
-            or next((c for c in remaining if c.startswith(expected)), None)
-        if match is None:
-            out.append(
-                (
-                    _where(rule),
-                    f"required column {expected!r} absent; found {block.table.columns}",
-                )
-            )
-        else:
-            remaining.remove(match)
+    for i, row in _rows(doc, rule):
+        for expected in rule.params["columns"]:
+            if column_key(expected) not in row:
+                out.append((f"{_where(rule)} row {i}", f"required column {expected!r} absent"))
     return out
 
 
@@ -245,7 +246,9 @@ def _table_has_rows(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     # fixed checklist rather than free content declares the count it owes, so a claim resting on
     # fewer rows than the criteria it cites is reported rather than read as complete.
     minimum = int(rule.params.get("minimum", 1))
-    rows = len(block.table.rows)
+    # A register declared empty has answered: it counts as one considered row. One that states
+    # nothing has not, and counts as none.
+    rows = len(block.table.rows) or (1 if block.table.declared_empty else 0)
     if rows < minimum:
         detail = (
             "section requires at least one row"
@@ -297,10 +300,29 @@ def _column_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     block = _block(doc, rule)
     if block is None or block.table is None:
         return []
-    forbidden = rule.params["column"]
-    if any(col.startswith(forbidden) for col in block.table.columns):
+    forbidden = column_key(rule.params["column"])
+    if forbidden in block.table.keys:
         return [(_where(rule), rule.params["detail"])]
     return []
+
+
+@check("CELL_OF_TYPE")
+def _cell_of_type(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A column that carries structure holds a value of its declared type.
+
+    A routing is a mapping from outcome to target, an interface a mapping per side, a list a list,
+    a binding a path, a literal or the generated marker. A cell that is still the text it was
+    written as did not structure, and every rule reading the column would read it wrongly; so it is
+    refused here, once, with the value shown.
+    """
+    validator = jsonschema.Draft202012Validator(rule.params["type"])
+    out = []
+    key = column_key(rule.params["column"])
+    for i, row in _rows(doc, rule):
+        if key in row and not validator.is_valid(row[key]):
+            out.append((f"{_where(rule)} row {i}",
+                        f"{rule.params['column']!r} does not take its declared form: {row[key]!r}"))
+    return out
 
 
 @check("CELL_IN_VOCABULARY")
@@ -309,7 +331,7 @@ def _cell_in_vocabulary(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     column = rule.params["column"]
     vocabulary = rule.params["vocabulary"]
     for i, row in _rows(doc, rule):
-        value = _cell(row, column).upper()
+        value = _cell(row, column)
         if value not in vocabulary:
             out.append(
                 (
@@ -334,35 +356,18 @@ def _cell_not_empty(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     for i, row in _rows(doc, rule):
         if _gated_out(row, rule):
             continue
-        if not _cell(row, column):
+        if not _stated(row, column):
             out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
     return out
 
 
-@check("CELL_PARSES_AS_YAML")
-def _cell_parses_as_yaml(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    """A column whose value is a YAML literal parses as one.
-
-    Construction reads such a value with `yaml.safe_load` and, when it does not parse, keeps the raw
-    text. So a value the design meant as a structure — a list, a mapping, a number — is written as a
-    string, the case proves something nobody declared, and nothing says so until it fails at build
-    time as a conformance case, far from the cell that caused it.
-    """
-    import yaml
-
-    out = []
-    column = rule.params["column"]
-    for i, row in _rows(doc, rule):
-        value = _cell(row, column)
-        if not value:
-            continue
-        try:
-            yaml.safe_load(value)
-        except yaml.YAMLError as exc:
-            problem = str(exc).splitlines()[0]
-            out.append((f"{_where(rule)} row {i}",
-                        rule.params["detail"].format(value=value, problem=problem)))
-    return out
+@check("CELL_PRESENT")
+def _cell_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
+    """A column every row must carry. For a column whose value may be anything, an empty string and
+    `null` are values, so the only way a row leaves it unstated is to leave it out."""
+    key = column_key(rule.params["column"])
+    return [(f"{_where(rule)} row {i}", rule.params["detail"])
+            for i, row in _rows(doc, rule) if key not in row]
 
 
 @check("CELL_NOT_PREFIXED")
@@ -394,9 +399,9 @@ def _row_absent_when(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """
     out = []
     column = rule.params["column"]
-    value = str(rule.params["value"]).strip().upper()
+    value = rule.params["value"]
     for i, row in _rows(doc, rule):
-        if _cell(row, column).strip().upper() == value:
+        if _value(row, column) == value:
             out.append((f"{_where(rule)} row {i}", rule.params["detail"]))
     return out
 
@@ -438,14 +443,14 @@ def _unresolved_marker_absent(doc: ParsedDocument, rule) -> list[tuple[str, str]
     markers = tuple(m.upper() for m in rule.params.get("markers", GOVERNED_HOLE_MARKERS))
     for entry in doc.registers:
         register_id = str(entry.get("id") or "")
-        if register_id.lower() in exempt or not entry.get("columns"):
+        rows = entry.get("value")
+        if register_id.lower() in exempt or not isinstance(rows, list):
             continue
-        rows = [dict(r) for r in (entry.get("rows") or [])]
         for i, row in enumerate(rows, start=1):
-            if is_sentinel(row):
-                continue
-            for column, raw in row.items():
-                value = str(raw).strip().strip("*_`").upper()
+            for column, raw in (row.items() if isinstance(row, dict) else ()):
+                if not isinstance(raw, str):
+                    continue
+                value = raw.strip().strip("*_`").upper()
                 marker = next((m for m in markers if value.startswith(m)), None)
                 if marker:
                     out.append(
@@ -472,8 +477,11 @@ def _cell_matches(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     for i, row in _rows(doc, rule):
         if _gated_out(row, rule):
             continue
-        value = _cell(row, column)
-        if value and not pattern.match(value):
+        value = _value(row, column)
+        # A pattern constrains text. A typed value (a literal binding, a list) is not text, and a
+        # cell stating nothing has nothing to match.
+        if isinstance(value, str) and value.strip() and not pattern.match(value.strip()):
+            value = value.strip()
             out.append((f"{_where(rule)} row {i}", rule.params["detail"].format(value=value)))
     return out
 
@@ -766,7 +774,7 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
     # a molecule's steps belong to a transform declared a molecule, and an atom of the same register
     # answering for it would let an atom own a stream it can never run.
     target_gate_column = rule.params.get("target_only_when_column")
-    target_gate_value = str(rule.params.get("target_only_when_value", "")).upper()
+    target_gate_value = rule.params.get("target_only_when_value")
 
     known: set[str] = set()
     for register, column in zip(targets, target_columns):
@@ -774,13 +782,9 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
         if block is None or block.table is None:
             continue
         for row in block.table.rows:
-            if is_sentinel(row):
+            if target_gate_column and _value(row, target_gate_column) != target_gate_value:
                 continue
-            if target_gate_column and _cell(row, target_gate_column).strip().upper() != target_gate_value:
-                continue
-            value = _cell(row, column)
-            if value:
-                known.add(value.strip())
+            known.update(_items(row, column))
     target = " or ".join(targets)
     exempt = tuple(rule.params.get("exempt_prefixes") or ())
 
@@ -791,29 +795,24 @@ def _cell_resolves_in_register(doc: ParsedDocument, rule) -> list[tuple[str, str
     # ending, so there is no single value to match on and an equality gate cannot select them. The
     # prefix is what they have in common, and it is what the register names them by.
     only_when_prefix = rule.params.get("only_when_prefix")
-    # A declared "nothing here" is an answer, not a dangling reference — the same distinction
-    # `DEPENDENCY_PRECEDES` draws for a step that depends on nothing.
-    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", "N/A"])}
-
     out = []
     for i, row in _rows(doc, rule):
         if only_when_column:
-            gate = _cell(row, only_when_column)
+            gate = _value(row, only_when_column)
             if only_when_prefix:
-                if not gate.strip().startswith(only_when_prefix):
+                if not isinstance(gate, str) or not gate.strip().startswith(only_when_prefix):
                     continue
-            elif gate.strip().upper() != str(only_when_value).upper():
+            elif gate != only_when_value:
                 continue
         # A row may name what it resolves to in a second column that overrides the first when
-        # filled: a keyed topology node is a place, and the contract it runs is in `Runs`.
+        # filled: a keyed topology node is a place, and the contract it runs is in `Runs`. A cell
+        # stating nothing names nothing, and a list names each of its entries.
         prefer = rule.params.get("prefer_column")
-        value = (prefer and _cell(row, prefer)) or _cell(row, rule.params["column"])
-        if not value or value.strip() in none_markers:
-            continue
-        for part in (p.strip() for p in value.split(";")):
+        parts = (prefer and _items(row, prefer)) or _items(row, rule.params["column"])
+        for part in parts:
             if exempt and part.startswith(exempt):
                 continue
-            if part and part not in none_markers and part not in known:
+            if part not in known:
                 detail = rule.params.get(
                     "detail", "a document may only point at what it declared"
                 )
@@ -956,13 +955,11 @@ def _dependency_precedes(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             continue
         if code:
             position[code] = step_number
-        rows.append((i, code, step_number, _cell(row, depends_column)))
+        rows.append((i, code, step_number, _items(row, depends_column)))
 
     out = []
     for i, code, step_number, depends in rows:
-        for part in (p.strip() for p in depends.replace(",", ";").split(";")):
-            if not part or part in none_markers:
-                continue
+        for part in depends:
             prerequisite = position.get(part)
             if prerequisite is None:
                 continue          # built outside this mandate — legitimate
@@ -1169,7 +1166,7 @@ def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[str, str]
         owner = _bare_identity(_cell(row, "Owner"))
         if owner not in nodes:
             continue
-        for named in sorted(set(pattern.findall(_cell(row, "Bound To")))):
+        for named in sorted(set(pattern.findall(_source(row)))):
             if _bare_identity(named) not in nodes[owner]:
                 out.append((
                     f"{_where(rule)} row {i}",
@@ -1227,7 +1224,7 @@ def _topology_route_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]
     out = []
     for i, row in rows:
         workflow = _bare_identity(_cell(row, "Workflow"))
-        for outcome, target in _routing(_cell(row, "Routing")).items():
+        for outcome, target in _routing(_value(row, "Routing")).items():
             bare = _bare_identity(target)
             if not bare or bare.startswith(exempt) or bare in nodes[workflow]:
                 continue
@@ -1630,10 +1627,11 @@ def _register_covers_register(doc: ParsedDocument, rule) -> list[tuple[str, str]
     covered_present_column = rule.params.get("covered_present_column")
 
     covered = {
-        _bare_identity(_cell(row, rule.params["column"]))
+        _bare_identity(item)
         for _, row in _rows(doc, rule)
         if (not covered_gate_column or _cell(row, covered_gate_column) == covered_gate_value)
         and (not covered_present_column or _present(row, covered_present_column))
+        for item in _items(row, rule.params["column"])
     }
 
     # A gate on the source key's form, for a register holding several families in one column: the
@@ -1718,7 +1716,7 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
     for i, row in _rows(doc, rule):
         if _cell(row, "Direction") != "OUTPUT":
             continue
-        bound = _cell(row, "Bound To")
+        bound = _source(row)
         if not bound.startswith(prefix):
             continue
         step = steps.get((_bare_identity(_cell(row, "Owner")), _cell(row, "Step")))
@@ -1766,9 +1764,9 @@ def _binding_source_rooted(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
 
     out = []
     for i, row in _rows(doc, rule):
-        bound = _cell(row, "Bound To")
-        if not bound or bound in ("—", "-"):
-            continue                      # BINDING_WITHOUT_SOURCE owns the empty cell
+        bound = _source(row)
+        if not bound:
+            continue                      # a literal, or BINDING_WITHOUT_SOURCE's empty cell
         if bound in scopes:
             out.append((
                 f"{_where(rule)} row {i}",
@@ -1877,23 +1875,12 @@ def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     return out
 
 
-def _routing(cell: str) -> dict[str, str]:
-    """A topology node's routing, read as outcome → destination.
-
-    The cell is `SUCCESS -> …::CC_NEXT_V0; VIOLATION -> EXIT_REJECTED`, and a terminal node routes
-    nowhere and says so with a dash. Malformed segments are dropped rather than reported: the
-    routing grammar is `TOPOLOGY_ROUTING_WELL_FORMED`'s to enforce, and a second rule reporting the
-    same broken cell would make one defect look like two.
-    """
-    out: dict[str, str] = {}
-    for segment in cell.split(";"):
-        outcome, sep, destination = segment.partition("->")
-        if not sep:
-            continue
-        outcome = outcome.strip()
-        if outcome:
-            out[outcome] = destination.strip()
-    return out
+def _routing(value: Any) -> dict[str, str]:
+    """A node's routing, outcome → destination. A terminal node routes nowhere and states nothing.
+    A routing that did not structure is `CELL_NOT_OF_TYPE`'s finding, and reads here as no routes."""
+    if not isinstance(value, dict):
+        return {}
+    return {str(k).strip(): str(v).strip() for k, v in value.items()}
 
 
 def _topology(doc: ParsedDocument, rule):
@@ -1952,7 +1939,7 @@ def _discharge_grounded_in_topology(doc: ParsedDocument, rule) -> list[tuple[str
                 f"no such place, so nothing carries the refusal out",
             ))
             continue
-        reported = _routing(_cell(node, routing_column))
+        reported = _routing(_value(node, routing_column))
         if outcome not in reported:
             known = ", ".join(sorted(reported)) or "nothing"
             out.append((
@@ -1996,7 +1983,7 @@ def _discharge_outcome_refuses(doc: ParsedDocument, rule) -> list[tuple[str, str
         node = topology.get((act, step))
         if node is None:
             continue
-        destination = _routing(_cell(node, routing_column)).get(outcome)
+        destination = _routing(_value(node, routing_column)).get(outcome)
         if not destination:
             continue
         ending = topology.get((act, destination))
@@ -2086,7 +2073,7 @@ def _emission_grounded_in_ending(doc: ParsedDocument, rule) -> list[tuple[str, s
         # A refusal is itself something that happened. An act that refuses may announce the
         # refusal, and only that: every moment it announces must be one the design declares a
         # refusal, by property on the moment — never read from the moment's name.
-        announced = [m.strip() for m in _cell(row, "Value").split(",") if m.strip()]
+        announced = _items(row, "Value")
         if node_type == refusing and announced and all(
                 refusals.get(_bare_identity(m)) for m in announced):
             continue
@@ -2363,7 +2350,7 @@ def _step_consumes_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]
         declared = accepted.get(capability, {}).get(operation)
         if declared is None:
             continue                      # the operation itself is another rule's business
-        for field in (f.strip() for f in _cell(row, "Consumes").split(",")):
+        for field in _items(row, "Consumes"):
             if not field or field == "—":
                 continue
             if field not in declared:
@@ -2431,11 +2418,6 @@ def _composition_steps(doc: ParsedDocument, register: str):
             for _, r in _content_rows(block)}
 
 
-def _named(cell_value: str) -> set[str]:
-    """A comma-separated cell as a set of names, with the empty markers dropped."""
-    return {p.strip() for p in cell_value.split(",") if p.strip() and p.strip() not in ("—", "-")}
-
-
 @check("STEP_INPUTS_BOUND")
 def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """Every input a step consumes must be bound to something.
@@ -2473,7 +2455,7 @@ def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     # read into a select without a binding row for it.
     produced: dict[str, set[str]] = {}
     for (owner, _), row in _composition_steps(doc, composition).items():
-        produced.setdefault(owner, set()).update(_named(_cell(row, "Produces")))
+        produced.setdefault(owner, set()).update(_items(row, "Produces"))
 
     # Only side-effect steps are checked. `Consumes` on a CS step names the operation's own inputs
     # — `STEP_CONSUMES_UNDECLARED_INPUT` holds it to the published surface — so an unbound one
@@ -2487,7 +2469,7 @@ def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             continue
         satisfied = (bound.get((owner, step), set()) | passed_through.get(owner, set())
                      | produced.get(owner, set()))
-        for field in sorted(_named(_cell(row, "Consumes")) - satisfied):
+        for field in sorted(set(_items(row, "Consumes")) - satisfied):
             out.append((f"{composition} {owner}/{step}",
                         f"consumes {field!r} and binds it to nothing — the capability receives "
                         f"no value for it"))
@@ -2507,10 +2489,10 @@ def _binding_source_well_formed(doc: ParsedDocument, rule) -> list[tuple[str, st
     output_form = re.compile(rule.params["output_pattern"])
     input_form = re.compile(rule.params["input_pattern"])
     for i, row in _rows(doc, rule):
-        source = _cell(row, "Bound To")
+        source = _source(row)
         if not source:
-            continue
-        direction = _cell(row, "Direction").upper()
+            continue                      # a literal or the generated marker is not a reference
+        direction = _cell(row, "Direction")
         form = output_form if direction == "OUTPUT" else input_form
         if not form.match(source):
             out.append((f"{_where(rule)} row {i}",
@@ -2555,23 +2537,15 @@ def _contract_output_produced(doc: ParsedDocument, rule) -> list[tuple[str, str]
     return out
 
 
-def _interface_map(cell_value: str, side: str) -> dict[str, str]:
-    """The `in:`/`out:` half of a step's Interface, as capability name -> design name.
+def _interface_map(value: Any, side: str) -> dict[str, str]:
+    """One side of a step's Interface, `in` or `out`, as capability name → design name.
 
-    `in: source=matching_books, attribute=group_by; out: grouped=matching_works`. The left of each
-    pair is the capability's own name for the value, which is the only half a contract can be held
-    to; the right is what the design calls it, which is the design's business.
+    The left of each pair is the capability's own name for the value, which is the only half a
+    contract can be held to; the right is what the design calls it, which is the design's business.
     """
-    out: dict[str, str] = {}
-    for part in cell_value.split(";"):
-        head, _, body = part.partition(":")
-        if head.strip().lower() != side:
-            continue
-        for pair in body.split(","):
-            name, _, mapped = pair.partition("=")
-            if name.strip():
-                out[name.strip()] = mapped.strip()
-    return out
+    if not isinstance(value, dict) or not isinstance(value.get(side), dict):
+        return {}
+    return {str(k).strip(): str(v or "").strip() for k, v in value[side].items()}
 
 
 @check("STEP_INTERFACE_CONFORMS")
@@ -2613,7 +2587,7 @@ def _step_interface_conforms(doc: ParsedDocument, rule) -> list[tuple[str, str]]
         if contract is None:
             continue
         where = f"{_where(rule)} row {index}"
-        interface = _cell(row, "Interface")
+        interface = _value(row, "Interface")
         supplied = _interface_map(interface, "in")
         produced = _interface_map(interface, "out")
 
@@ -2649,8 +2623,8 @@ def _step_bindings_match_interface(doc: ParsedDocument, rule) -> list[tuple[str,
     """
     declared: dict[tuple[str, str], tuple[set[str], set[str]]] = {}
     for (owner, step), row in _composition_steps(doc, rule.params["composition_register"]).items():
-        interface = _cell(row, "Interface")
-        if not interface or interface in ("—", "-"):
+        interface = _value(row, "Interface")
+        if not isinstance(interface, dict) or not interface:
             continue
         # An input binds the capability's own name for the value — the left of `in: record=record`.
         # An output binds the *design's* name for it, the right of `out: record=book_record`, because
@@ -2785,10 +2759,9 @@ def _cross_subdomain_reach_read_only(doc: ParsedDocument, rule) -> list[tuple[st
     return out
 
 
-def _routing_outcomes(routing: str) -> set[str]:
-    """The outcomes a routing cell branches on — the left of each `OUTCOME -> target`."""
-    return {part.split("->", 1)[0].strip().upper()
-            for part in routing.split(";") if "->" in part}
+def _routing_outcomes(routing: Any) -> set[str]:
+    """The outcomes a routing branches on, compared as the surface publishes them: upper-cased."""
+    return {outcome.upper() for outcome in _routing(routing)}
 
 
 @check("OUTCOME_GROUNDED_IN_OPERATION")
@@ -2839,7 +2812,7 @@ def _outcome_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[str,
         declared = answers.get((_bare_identity(_cell(row, "Capability")), operation))
         if declared is None:
             continue
-        named = _routing_outcomes(_cell(row, rule.params["routing_column"]))
+        named = _routing_outcomes(_value(row, rule.params["routing_column"]))
         status = _cell(row, rule.params["status_column"])
         if status not in none_markers:
             named.add(status.upper())
@@ -2960,14 +2933,13 @@ def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[str, 
         elif entry.get("transform") is not None:
             known.add(_bare_identity(str(entry["transform"])))
 
-    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
     out = []
     for i, row in _rows(doc, rule):
         capability = _bare_identity(_cell(row, rule.params["capability_column"]))
         if capability not in known:
             continue
         keeps_records = capability in storage
-        if (_cell(row, rule.params["column"]) not in none_markers) == keeps_records:
+        if bool(_items(row, rule.params["column"])) == keeps_records:
             continue
         detail = rule.params["detail_missing"] if keeps_records else rule.params["detail_spurious"]
         out.append((f"{_where(rule)} row {i}", detail.format(capability=capability)))
@@ -3002,16 +2974,15 @@ def _consumption_grounded_in_operation(doc: ParsedDocument, rule) -> list[tuple[
               for c in observed if isinstance(c, dict)
               for op, spec in (c.get("operations") or {}).items()}
 
-    none_markers = {str(m).strip() for m in rule.params.get("none_markers", ["—", "-", "NONE", ""])}
     out = []
     for i, row in _rows(doc, rule):
-        if _cell(row, rule.params["kind_column"]).upper() != rule.params["kind_value"]:
+        if _cell(row, rule.params["kind_column"]) != rule.params["kind_value"]:
             continue
         operation = _cell(row, "Operation").upper()
         declared = inputs.get((_bare_identity(_cell(row, rule.params["capability_column"])), operation))
         if not declared:
             continue
-        if _cell(row, rule.params["column"]) not in none_markers:
+        if _items(row, rule.params["column"]):
             continue
         out.append((
             f"{_where(rule)} row {i}",
@@ -3089,7 +3060,7 @@ def _declared_reach(doc: ParsedDocument, rule) -> dict[str, set[str]]:
     block = doc.register(rule.params["register"])
     for _, row in _content_rows(block) if block is not None else []:
         act = _bare_identity(_cell(row, "Act"))
-        for binding in _named(_cell(row, "Consults")):
+        for binding in _items(row, "Consults"):
             out.setdefault(act, set()).add(_bare_identity(binding))
     return out
 

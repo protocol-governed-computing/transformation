@@ -10,359 +10,120 @@ header:
   Feeds: Stage 8 — Authoring Mandate
 registers:
   design_resolution:
-    columns:
-    - Decision
-    - Business Fact
-    - Resolution
-    - Source Finding
-    rows:
-    - Decision: What is excluded from a composition's identity
-      Business Fact: The attestation carries two fields the runtime enforces and one that records when the signing happened.
-      Resolution: The exclusion is stated as a field within a named file, not as a path. The enumeration that lists constituents excludes that field from the value it takes over the attestation's bytes, and takes the value over what remains.
-      Source Finding: S6 boundary_rules DETERMINATIVE_CONTENT_STAYS
-    - Decision: Where the exclusion is stated
-      Business Fact: Two exclusions already exist, each naming its ground where the exclusion is made.
-      Resolution: The new exclusion is added beside them, in the same list, carrying its own ground. Nothing is excluded by directory, by suffix or by convention.
-      Source Finding: S6 boundary_rules EXCLUSION_IS_DECLARED
-    - Decision: Who states which fields constitute
-      Business Fact: What an attestation carries is the cryptographic trust subdomain's to declare.
-      Resolution: '`cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0` states the division. This dossier consumes it and does not write it; the constitution is cited for its owner to author.'
-      Source Finding: S6 boundary_rules AN_ATTESTATION_IS_STATED_BY_ITS_OWNER
-    - Decision: How a rebuild is required to reproduce
-      Business Fact: Nothing requires it today, which is why twenty failing pins went unreported.
-      Resolution: An obligation of the snapshot subdomain requires that constituting the same source twice yields one identity, carried by the assembler over a composition it has just built.
-      Source Finding: S6 boundary_rules A_REBUILD_REPRODUCES
-    - Decision: What the change does not claim
-      Business Fact: Two builds on one machine minutes apart is what was measured.
-      Resolution: The obligation is stated over a rebuild of unchanged source, not over builds on different machines. A further instability is a further change.
-      Source Finding: S6 boundary_rules ONLY_WHAT_WAS_MEASURED_IS_CLAIMED
-    - Decision: Whether any artifact is authored
-      Business Fact: Every capability this change needs is a requirement added to something that exists.
-      Resolution: No artifact is authored. The governance surface is authored by hand rather than rendered, so every row of §2 is cited and none is scheduled.
-      Source Finding: 'S6 ownership #1'
+  - decision: What is excluded from a composition's identity
+    business_fact: The attestation carries two fields the runtime enforces and one that records when the signing happened.
+    resolution: The exclusion is stated as a field within a named file, not as a path. The enumeration that lists constituents excludes that field from the value it takes over the attestation's bytes, and takes the value over what remains.
+    source_finding: S6 boundary_rules DETERMINATIVE_CONTENT_STAYS
+  - decision: Where the exclusion is stated
+    business_fact: Two exclusions already exist, each naming its ground where the exclusion is made.
+    resolution: The new exclusion is added beside them, in the same list, carrying its own ground. Nothing is excluded by directory, by suffix or by convention.
+    source_finding: S6 boundary_rules EXCLUSION_IS_DECLARED
+  - decision: Who states which fields constitute
+    business_fact: What an attestation carries is the cryptographic trust subdomain's to declare.
+    resolution: '`cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0` states the division. This dossier consumes it and does not write it; the constitution is cited for its owner to author.'
+    source_finding: S6 boundary_rules AN_ATTESTATION_IS_STATED_BY_ITS_OWNER
+  - decision: How a rebuild is required to reproduce
+    business_fact: Nothing requires it today, which is why twenty failing pins went unreported.
+    resolution: An obligation of the snapshot subdomain requires that constituting the same source twice yields one identity, carried by the assembler over a composition it has just built.
+    source_finding: S6 boundary_rules A_REBUILD_REPRODUCES
+  - decision: What the change does not claim
+    business_fact: Two builds on one machine minutes apart is what was measured.
+    resolution: The obligation is stated over a rebuild of unchanged source, not over builds on different machines. A further instability is a further change.
+    source_finding: S6 boundary_rules ONLY_WHAT_WAS_MEASURED_IS_CLAIMED
+  - decision: Whether any artifact is authored
+    business_fact: Every capability this change needs is a requirement added to something that exists.
+    resolution: No artifact is authored. The governance surface is authored by hand rather than rendered, so every row of §2 is cited and none is scheduled.
+    source_finding: 'S6 ownership #1'
   existing_inventory:
-    columns:
-    - FQDN
-    - Action (REPLACE, REUSE, EXTEND, REVIEW)
-    - Summary
-    - Reason
-    - Source Finding
-    rows:
-    - FQDN: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REVIEW
-      Summary: Governs what may be trusted and how a build attests what it produced
-      Reason: Gains the statement of which of an attestation's fields constitute the composition it attests and which accompany it. Authored by hand by its owning subdomain, not rendered, and not written here.
-      Source Finding: 'S6 pps_artifacts_requiring_action #1'
-    - FQDN: cryptographic_trust::INVARIANT_CRYPTOGRAPHIC_TRUST_DECLARED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REVIEW
-      Summary: Requires a build to declare the trust arrangement it runs under
-      Reason: Requires the declaration and nothing about what the resulting attestation may contribute to an identity. Named as the obligation the new statement sits beside.
-      Source Finding: 'S6 pps_artifacts_requiring_action #2'
-    - FQDN: cryptographic_trust::STRUCTURE_CRYPTOGRAPHIC_TRUST_LOCAL_DEV_UNSIGNED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: 'Declares the arrangement in force: local, unsigned'
-      Reason: What makes a placeholder signature admissible. Unchanged, and named because the change holds whether the signature is a placeholder or real.
-      Source Finding: 'S6 pps_artifacts_requiring_action #3'
-    - FQDN: compiler::INVARIANT_ARTIFACT_CONTENT_HASH_DECLARED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: Requires an artifact to declare a value over its content
-      Reason: Covers an artifact. A composition's identity is taken over files rather than artifacts, and this is the nearest existing requirement.
-      Source Finding: 'S6 pps_artifacts_requiring_action #4'
-    - FQDN: artifact::INVARIANT_IDENTITY_FQDN_CONSISTENCY_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REVIEW
-      Summary: Requires one artifact to carry one identity everywhere it appears
-      Reason: The same requirement stated for an artifact. Nothing states it for a composition, which is the gap this change fills.
-      Source Finding: 'S6 pps_artifacts_requiring_action #5'
-    - FQDN: execution::INVARIANT_RUNTIME_INVARIANT_WIRED_V0
-      Action (REPLACE, REUSE, EXTEND, REVIEW): REUSE
-      Summary: Confirms an obligation delegated to a runtime outcome is bound to one
-      Reason: The runtime's refusal of a composition whose projection does not match its attestation is why the attestation stays a constituent. Unchanged.
-      Source Finding: 'S6 pps_artifacts_requiring_action #6'
-  new_artifacts:
-    columns:
-    - Capability
-    - Family
-    - Code
-    - Summary
-    - Owner Subdomain
-    - Status
-    - Source Finding
-    rows:
-    - Capability: NONE IDENTIFIED
-      Family: ''
-      Code: ''
-      Summary: ''
-      Owner Subdomain: ''
-      Status: ''
-      Source Finding: ''
-  rb_declarations:
-    columns:
-    - RB Code
-    - Binds WF
-    - CS Bindings
-    - Storage Structure
-    - Source Finding
-    rows:
-    - RB Code: NONE IDENTIFIED
-      Binds WF: ''
-      CS Bindings: ''
-      Storage Structure: ''
-      Source Finding: ''
-  execution_topology:
-    columns:
-    - Workflow
-    - Node
-    - Node Type (IN, CC, EXIT, EXIT_SUCCESS)
-    - Routing
-    - Source Finding
-    rows:
-    - Workflow: NONE IDENTIFIED
-      Node: ''
-      Node Type (IN, CC, EXIT, EXIT_SUCCESS): ''
-      Routing: ''
-      Source Finding: ''
-  cc_composition:
-    columns:
-    - CC Code
-    - Step
-    - Step Name
-    - Capability
-    - Kind (CT, CS)
-    - Operation
-    - Store
-    - Consumes
-    - Produces
-    - Routing
-    - Interpreted By
-    - Semantic Status
-    - Interface
-    rows:
-    - CC Code: NONE IDENTIFIED
-      Step: ''
-      Step Name: ''
-      Capability: ''
-      Kind (CT, CS): ''
-      Operation: ''
-      Store: ''
-      Consumes: ''
-      Produces: ''
-      Routing: ''
-      Interpreted By: ''
-      Semantic Status: ''
-      Interface: ''
-  step_bindings:
-    columns:
-    - Owner
-    - Step
-    - Direction (INPUT, OUTPUT)
-    - Field
-    - Bound To
-    - Source Finding
-    rows:
-    - Owner: NONE IDENTIFIED
-      Step: ''
-      Direction (INPUT, OUTPUT): ''
-      Field: ''
-      Bound To: ''
-      Source Finding: ''
+  - fqdn: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
+    action: REVIEW
+    summary: Governs what may be trusted and how a build attests what it produced
+    reason: Gains the statement of which of an attestation's fields constitute the composition it attests and which accompany it. Authored by hand by its owning subdomain, not rendered, and not written here.
+    source_finding: 'S6 pps_artifacts_requiring_action #1'
+  - fqdn: cryptographic_trust::INVARIANT_CRYPTOGRAPHIC_TRUST_DECLARED_V0
+    action: REVIEW
+    summary: Requires a build to declare the trust arrangement it runs under
+    reason: Requires the declaration and nothing about what the resulting attestation may contribute to an identity. Named as the obligation the new statement sits beside.
+    source_finding: 'S6 pps_artifacts_requiring_action #2'
+  - fqdn: cryptographic_trust::STRUCTURE_CRYPTOGRAPHIC_TRUST_LOCAL_DEV_UNSIGNED_V0
+    action: REUSE
+    summary: 'Declares the arrangement in force: local, unsigned'
+    reason: What makes a placeholder signature admissible. Unchanged, and named because the change holds whether the signature is a placeholder or real.
+    source_finding: 'S6 pps_artifacts_requiring_action #3'
+  - fqdn: compiler::INVARIANT_ARTIFACT_CONTENT_HASH_DECLARED_V0
+    action: REUSE
+    summary: Requires an artifact to declare a value over its content
+    reason: Covers an artifact. A composition's identity is taken over files rather than artifacts, and this is the nearest existing requirement.
+    source_finding: 'S6 pps_artifacts_requiring_action #4'
+  - fqdn: artifact::INVARIANT_IDENTITY_FQDN_CONSISTENCY_V0
+    action: REVIEW
+    summary: Requires one artifact to carry one identity everywhere it appears
+    reason: The same requirement stated for an artifact. Nothing states it for a composition, which is the gap this change fills.
+    source_finding: 'S6 pps_artifacts_requiring_action #5'
+  - fqdn: execution::INVARIANT_RUNTIME_INVARIANT_WIRED_V0
+    action: REUSE
+    summary: Confirms an obligation delegated to a runtime outcome is bound to one
+    reason: The runtime's refusal of a composition whose projection does not match its attestation is why the attestation stays a constituent. Unchanged.
+    source_finding: 'S6 pps_artifacts_requiring_action #6'
+  new_artifacts: []
+  rb_declarations: []
+  execution_topology: []
+  cc_composition: []
+  step_bindings: []
   interface_fields:
-    columns:
-    - Artifact
-    - Direction (INPUT, OUTPUT, ATTRIBUTE)
-    - Field
-    - Type
-    - Required (YES, NO)
-    - Default
-    - Meaning
-    rows:
-    - Artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): ATTRIBUTE
-      Field: attestation.constitutes
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: —
-      Meaning: The fields of an attestation that constitute the composition it attests. A composition's identity is taken over these.
-    - Artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
-      Direction (INPUT, OUTPUT, ATTRIBUTE): ATTRIBUTE
-      Field: attestation.accompanies
-      Type: array
-      Required (YES, NO): 'YES'
-      Default: —
-      Meaning: The fields of an attestation that record about the composition rather than constitute it. A composition's identity is taken over the attestation with these removed.
-  implementation_bindings:
-    columns:
-    - CT Code
-    - Module
-    - Callable
-    - Operation
-    - Kind (atom, molecule)
-    - Purity (ct_pure, ct_impure)
-    - Refusal (raises, returns, never)
-    - Source Finding
-    rows:
-    - CT Code: NONE IDENTIFIED
-      Module: ''
-      Callable: ''
-      Operation: ''
-      Kind (atom, molecule): ''
-      Purity (ct_pure, ct_impure): ''
-      Refusal (raises, returns, never): ''
-      Source Finding: ''
-  vocabulary_extensions:
-    columns:
-    - Vocabulary Code
-    - Extends
-    - Value
-    - Meaning
-    - Source Finding
-    rows:
-    - Vocabulary Code: NONE IDENTIFIED
-      Extends: ''
-      Value: ''
-      Meaning: ''
-      Source Finding: ''
-  runtime_policies:
-    columns:
-    - RB Code
-    - Capability
-    - Key
-    - Value
-    - Source Finding
-    rows:
-    - RB Code: NONE IDENTIFIED
-      Capability: ''
-      Key: ''
-      Value: ''
-      Source Finding: ''
+  - artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
+    direction: ATTRIBUTE
+    field: attestation.constitutes
+    type: array
+    required: 'YES'
+    default: null
+    meaning: The fields of an attestation that constitute the composition it attests. A composition's identity is taken over these.
+  - artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
+    direction: ATTRIBUTE
+    field: attestation.accompanies
+    type: array
+    required: 'YES'
+    default: null
+    meaning: The fields of an attestation that record about the composition rather than constitute it. A composition's identity is taken over the attestation with these removed.
+  implementation_bindings: []
+  vocabulary_extensions: []
+  runtime_policies: []
   artifact_properties:
-    columns:
-    - Artifact
-    - Property
-    - Value
-    - Source Finding
-    rows:
-    - Artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
-      Property: attestation.accompanies
-      Value: signed_at
-      Source Finding: 'S7 design_resolution #1'
-    - Artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
-      Property: attestation.constitutes
-      Value: tokenized_projection_hash, attestation_hash
-      Source Finding: 'S7 design_resolution #1'
-  structure_stores:
-    columns:
-    - Store Name
-    - Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0)
-    - Proposed Path
-    - Used By
-    - Source Finding
-    rows:
-    - Store Name: NONE IDENTIFIED
-      Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0): ''
-      Proposed Path: ''
-      Used By: ''
-      Source Finding: ''
-  transport_bindings:
-    columns:
-    - Artifact
-    - Direction (INGRESS, EGRESS)
-    - Operation
-    - Handler Kind (WF_INVOCATION, SNAPSHOT_READ)
-    - Handler Target
-    - Field
-    - Bound To
-    - Source Finding
-    rows:
-    - Artifact: NONE IDENTIFIED
-      Direction (INGRESS, EGRESS): ''
-      Operation: ''
-      Handler Kind (WF_INVOCATION, SNAPSHOT_READ): ''
-      Handler Target: ''
-      Field: ''
-      Bound To: ''
-      Source Finding: ''
+  - artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
+    property: attestation.accompanies
+    value: signed_at
+    source_finding: 'S7 design_resolution #1'
+  - artifact: cryptographic_trust::CONSTITUTION_CRYPTOGRAPHIC_TRUST_V0
+    property: attestation.constitutes
+    value: tokenized_projection_hash, attestation_hash
+    source_finding: 'S7 design_resolution #1'
+  structure_stores: []
+  transport_bindings: []
   artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Count
-    - Artifacts
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: snapshot
-      Count: '0'
-      Artifacts: ''
-  generation_provenance:
-    columns:
-    - Artifact
-    - Generator
-    - Generator Sources
-    - Source Finding
-    rows:
-    - Artifact: NONE IDENTIFIED
-      Generator: ''
-      Generator Sources: ''
-      Source Finding: ''
-  declared_reach:
-    columns:
-    - Act
-    - Consults
-    - Source Finding
-    rows:
-    - Act: NONE IDENTIFIED
-      Consults: ''
-      Source Finding: ''
-  refusal_discharge:
-    columns:
-    - Operation
-    - Refused When
-    - Act
-    - Step
-    - Outcome
-    - Source Finding
-    rows:
-    - Operation: NONE IDENTIFIED
-      Refused When: ''
-      Act: ''
-      Step: ''
-      Outcome: ''
-      Source Finding: ''
+  - action: NEW
+    subdomain: snapshot
+    count: '0'
+    artifacts: ''
+  generation_provenance: []
+  declared_reach: []
+  refusal_discharge: []
   refusal_deferrals:
-    columns:
-    - Operation
-    - Refused When
-    - Deferred To
-    - Until
-    - Source Finding
-    rows:
-    - Operation: Verifying a composition
-      Refused When: A file it carries as a constituent does not match the bytes its identity was taken over
-      Deferred To: snapshot
-      Until: Already carried today, and unchanged by this. It is recorded here rather than as a discharge because this change adds no act; what it changes is which bytes the identity is taken over.
-      Source Finding: 'S1 operation_refusals #1'
-    - Operation: Verifying a composition
-      Refused When: It is read somewhere other than where its identity says it was built for
-      Deferred To: snapshot
-      Until: Already carried today, and unchanged by this. Recorded for the same reason.
-      Source Finding: 'S1 operation_refusals #2'
-    - Operation: Verifying a composition against a pin
-      Refused When: The identity differs
-      Deferred To: snapshot
-      Until: Already carried today. What changes is that a difference will mean the compositions differ, which is the point of the change rather than a new refusal.
-      Source Finding: 'S1 operation_refusals #3'
-  refusal_governance_discharge:
-    columns:
-    - Operation
-    - Refused When
-    - Phase
-    - Governing Rule
-    - Source Finding
-    rows:
-    - Operation: NONE IDENTIFIED
-      Refused When: ''
-      Phase: ''
-      Governing Rule: ''
-      Source Finding: ''
+  - operation: Verifying a composition
+    refused_when: A file it carries as a constituent does not match the bytes its identity was taken over
+    deferred_to: snapshot
+    until: Already carried today, and unchanged by this. It is recorded here rather than as a discharge because this change adds no act; what it changes is which bytes the identity is taken over.
+    source_finding: 'S1 operation_refusals #1'
+  - operation: Verifying a composition
+    refused_when: It is read somewhere other than where its identity says it was built for
+    deferred_to: snapshot
+    until: Already carried today, and unchanged by this. Recorded for the same reason.
+    source_finding: 'S1 operation_refusals #2'
+  - operation: Verifying a composition against a pin
+    refused_when: The identity differs
+    deferred_to: snapshot
+    until: Already carried today. What changes is that a difference will mean the compositions differ, which is the point of the change rather than a new refusal.
+    source_finding: 'S1 operation_refusals #3'
+  refusal_governance_discharge: []
 ```
 
 HOW it is built. FQDNs, topology, schemas and bindings. The full dossier is reviewed as a body.

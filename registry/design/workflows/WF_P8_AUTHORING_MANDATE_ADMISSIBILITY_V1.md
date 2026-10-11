@@ -123,6 +123,18 @@ core:
             - EXTEND
             - NEW
           intent: Action is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: build_order
+          params:
+            column: Depends On
+            type:
+              type:
+              - array
+              - 'null'
+              items:
+                type: string
+          intent: Depends On carries structure, and its value must take the declared form
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: critical_path

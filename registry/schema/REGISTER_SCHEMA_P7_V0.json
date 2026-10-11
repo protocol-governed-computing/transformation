@@ -57,16 +57,32 @@
             "type": "object",
             "properties": {
               "decision": {
-                "title": "Decision"
+                "title": "Decision",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "business_fact": {
-                "title": "Business Fact"
+                "title": "Business Fact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "resolution": {
-                "title": "Resolution"
+                "title": "Resolution",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -87,23 +103,43 @@
             "type": "object",
             "properties": {
               "fqdn": {
-                "title": "FQDN"
+                "title": "FQDN",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "action": {
                 "title": "Action",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "inventory_action"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "summary": {
-                "title": "Summary"
+                "title": "Summary",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "reason": {
-                "title": "Reason"
+                "title": "Reason",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -126,29 +162,57 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "family": {
                 "title": "Family",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "artifact_family"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "code": {
-                "title": "Code"
+                "title": "Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "summary": {
-                "title": "Summary"
+                "title": "Summary",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "owner_subdomain": {
-                "title": "Owner Subdomain"
+                "title": "Owner Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "status": {
-                "title": "Status"
+                "title": "Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -175,19 +239,42 @@
             "type": "object",
             "properties": {
               "rb_code": {
-                "title": "RB Code"
+                "title": "RB Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "binds_wf": {
-                "title": "Binds WF"
+                "title": "Binds WF",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "cs_bindings": {
-                "title": "CS Bindings"
+                "title": "CS Bindings",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               },
               "storage_structure": {
-                "title": "Storage Structure"
+                "title": "Storage Structure",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -210,26 +297,53 @@
             "type": "object",
             "properties": {
               "workflow": {
-                "title": "Workflow"
+                "title": "Workflow",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "node": {
-                "title": "Node"
+                "title": "Node",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "runs": {
-                "title": "Runs"
+                "title": "Runs",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "node_type": {
                 "title": "Node Type",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "node_type"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "routing": {
-                "title": "Routing"
+                "title": "Routing",
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": {
+                  "type": "string"
+                }
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -252,47 +366,123 @@
             "type": "object",
             "properties": {
               "cc_code": {
-                "title": "CC Code"
+                "title": "CC Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step": {
-                "title": "Step"
+                "title": "Step",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step_name": {
-                "title": "Step Name"
+                "title": "Step Name",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "kind": {
                 "title": "Kind",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "composition_kind"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "operation": {
-                "title": "Operation"
+                "title": "Operation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "store": {
-                "title": "Store"
+                "title": "Store",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "consumes": {
-                "title": "Consumes"
+                "title": "Consumes",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               },
               "produces": {
-                "title": "Produces"
+                "title": "Produces",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               },
               "routing": {
-                "title": "Routing"
+                "title": "Routing",
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": {
+                  "type": "string"
+                }
               },
               "interpreted_by": {
-                "title": "Interpreted By"
+                "title": "Interpreted By",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "semantic_status": {
-                "title": "Semantic Status"
+                "title": "Semantic Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "interface": {
-                "title": "Interface"
+                "title": "Interface",
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "in": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "out": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                }
               }
             },
             "required": [
@@ -322,26 +512,76 @@
             "type": "object",
             "properties": {
               "owner": {
-                "title": "Owner"
+                "title": "Owner",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step": {
-                "title": "Step"
+                "title": "Step",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "direction": {
                 "title": "Direction",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "field_direction"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "field": {
-                "title": "Field"
+                "title": "Field",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "bound_to": {
-                "title": "Bound To"
+                "title": "Bound To",
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "literal"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "literal": {}
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "generated"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "generated": {
+                        "const": true
+                      }
+                    }
+                  }
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -364,33 +604,61 @@
             "type": "object",
             "properties": {
               "artifact": {
-                "title": "Artifact"
+                "title": "Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "direction": {
                 "title": "Direction",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "interface_direction"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "field": {
-                "title": "Field"
+                "title": "Field",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "type": {
-                "title": "Type"
+                "title": "Type",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "required": {
                 "title": "Required",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "yes_no"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "default": {
-                "title": "Default"
+                "title": "Default",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "meaning": {
-                "title": "Meaning"
+                "title": "Meaning",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -414,28 +682,60 @@
             "type": "object",
             "properties": {
               "ct_code": {
-                "title": "CT Code"
+                "title": "CT Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "module": {
-                "title": "Module"
+                "title": "Module",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "callable": {
-                "title": "Callable"
+                "title": "Callable",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "operation": {
-                "title": "Operation"
+                "title": "Operation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
-              "kind_atom_molecule": {
-                "title": "Kind (atom, molecule)"
+              "kind": {
+                "title": "Kind",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
-              "purity_ct_pure_ct_impure": {
-                "title": "Purity (ct_pure, ct_impure)"
+              "purity": {
+                "title": "Purity",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
-              "refusal_raises_returns_never": {
-                "title": "Refusal (raises, returns, never)"
+              "refusal": {
+                "title": "Refusal",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -443,9 +743,9 @@
               "module",
               "callable",
               "operation",
-              "kind_atom_molecule",
-              "purity_ct_pure_ct_impure",
-              "refusal_raises_returns_never",
+              "kind",
+              "purity",
+              "refusal",
               "source_finding"
             ]
           }
@@ -460,25 +760,53 @@
             "type": "object",
             "properties": {
               "vocabulary_code": {
-                "title": "Vocabulary Code"
+                "title": "Vocabulary Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "extends": {
-                "title": "Extends"
+                "title": "Extends",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "group": {
-                "title": "Group"
+                "title": "Group",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "casing": {
-                "title": "Casing"
+                "title": "Casing",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "value": {
-                "title": "Value"
+                "title": "Value",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "meaning": {
-                "title": "Meaning"
+                "title": "Meaning",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -502,19 +830,39 @@
             "type": "object",
             "properties": {
               "rb_code": {
-                "title": "RB Code"
+                "title": "RB Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "key": {
-                "title": "Key"
+                "title": "Key",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "value": {
-                "title": "Value"
+                "title": "Value",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -536,16 +884,36 @@
             "type": "object",
             "properties": {
               "artifact": {
-                "title": "Artifact"
+                "title": "Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "property": {
-                "title": "Property"
+                "title": "Property",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "value": {
-                "title": "Value"
+                "title": "Value",
+                "type": [
+                  "string",
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -566,23 +934,43 @@
             "type": "object",
             "properties": {
               "store_name": {
-                "title": "Store Name"
+                "title": "Store Name",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "storage_type": {
                 "title": "Storage Type",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "storage_type"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "proposed_path": {
-                "title": "Proposed Path"
+                "title": "Proposed Path",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "used_by": {
-                "title": "Used By"
+                "title": "Used By",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -604,36 +992,94 @@
             "type": "object",
             "properties": {
               "artifact": {
-                "title": "Artifact"
+                "title": "Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "direction": {
                 "title": "Direction",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "transport_direction"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "operation": {
-                "title": "Operation"
+                "title": "Operation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "handler_kind": {
                 "title": "Handler Kind",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "handler_kind"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "handler_target": {
-                "title": "Handler Target"
+                "title": "Handler Target",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "field": {
-                "title": "Field"
+                "title": "Field",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "bound_to": {
-                "title": "Bound To"
+                "title": "Bound To",
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "literal"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "literal": {}
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "generated"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "generated": {
+                        "const": true
+                      }
+                    }
+                  }
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -662,16 +1108,32 @@
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "gap_resolution"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "subdomain": {
-                "title": "Subdomain"
+                "title": "Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "count": {
-                "title": "Count"
+                "title": "Count",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "artifacts": {
-                "title": "Artifacts"
+                "title": "Artifacts",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -693,16 +1155,35 @@
             "type": "object",
             "properties": {
               "artifact": {
-                "title": "Artifact"
+                "title": "Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "generator": {
-                "title": "Generator"
+                "title": "Generator",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "generator_sources": {
-                "title": "Generator Sources"
+                "title": "Generator Sources",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -723,13 +1204,28 @@
             "type": "object",
             "properties": {
               "act": {
-                "title": "Act"
+                "title": "Act",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "consults": {
-                "title": "Consults"
+                "title": "Consults",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -749,22 +1245,46 @@
             "type": "object",
             "properties": {
               "operation": {
-                "title": "Operation"
+                "title": "Operation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "refused_when": {
-                "title": "Refused When"
+                "title": "Refused When",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "act": {
-                "title": "Act"
+                "title": "Act",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step": {
-                "title": "Step"
+                "title": "Step",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "outcome": {
-                "title": "Outcome"
+                "title": "Outcome",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -787,19 +1307,39 @@
             "type": "object",
             "properties": {
               "operation": {
-                "title": "Operation"
+                "title": "Operation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "refused_when": {
-                "title": "Refused When"
+                "title": "Refused When",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "deferred_to": {
-                "title": "Deferred To"
+                "title": "Deferred To",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "until": {
-                "title": "Until"
+                "title": "Until",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -821,19 +1361,39 @@
             "type": "object",
             "properties": {
               "operation": {
-                "title": "Operation"
+                "title": "Operation",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "refused_when": {
-                "title": "Refused When"
+                "title": "Refused When",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "phase": {
-                "title": "Phase"
+                "title": "Phase",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "governing_rule": {
-                "title": "Governing Rule"
+                "title": "Governing Rule",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -855,34 +1415,66 @@
             "type": "object",
             "properties": {
               "ct_code": {
-                "title": "CT Code"
+                "title": "CT Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step": {
-                "title": "Step"
+                "title": "Step",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
-              "kind_atom_molecule_loop": {
-                "title": "Kind (atom, molecule, loop)"
+              "kind": {
+                "title": "Kind",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "target": {
-                "title": "Target"
+                "title": "Target",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "over": {
-                "title": "Over"
+                "title": "Over",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "iterator": {
-                "title": "Iterator"
+                "title": "Iterator",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "emits": {
-                "title": "Emits"
+                "title": "Emits",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
               "ct_code",
               "step",
-              "kind_atom_molecule_loop",
+              "kind",
               "target",
               "over",
               "iterator",
@@ -901,26 +1493,76 @@
             "type": "object",
             "properties": {
               "ct_code": {
-                "title": "CT Code"
+                "title": "CT Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "step": {
-                "title": "Step"
+                "title": "Step",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "role": {
                 "title": "Role",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "molecule_binding_role"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "field": {
-                "title": "Field"
+                "title": "Field",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "bound_to": {
-                "title": "Bound To"
+                "title": "Bound To",
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "literal"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "literal": {}
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "generated"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "generated": {
+                        "const": true
+                      }
+                    }
+                  }
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -943,20 +1585,36 @@
             "type": "object",
             "properties": {
               "ct_code": {
-                "title": "CT Code"
+                "title": "CT Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "case": {
-                "title": "Case"
+                "title": "Case",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "expected_outcome": {
                 "title": "Expected Outcome",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "expected_outcome"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -977,26 +1635,46 @@
             "type": "object",
             "properties": {
               "ct_code": {
-                "title": "CT Code"
+                "title": "CT Code",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "case": {
-                "title": "Case"
+                "title": "Case",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "role": {
                 "title": "Role",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "test_value_role"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "field": {
-                "title": "Field"
+                "title": "Field",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "value": {
                 "title": "Value"
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -1019,16 +1697,32 @@
             "type": "object",
             "properties": {
               "artifact": {
-                "title": "Artifact"
+                "title": "Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "fact": {
-                "title": "Fact"
+                "title": "Fact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "reason": {
-                "title": "Reason"
+                "title": "Reason",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -1947,7 +2641,7 @@
       "x-procedure": {
         "name": "STORE_PATH_MATCHES_STORAGE",
         "params": {
-          "storage_column": "Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0)",
+          "storage_column": "Storage Type",
           "path_column": "Proposed Path",
           "formats": {
             "CS_MUTABLE_JSON_V0": ".json",
@@ -2144,7 +2838,9 @@
         "params": {
           "column": "Owner",
           "only_when_column": "Bound To",
-          "only_when_value": "generated",
+          "only_when_value": {
+            "generated": true
+          },
           "target_registers": [
             "generation_provenance"
           ],
@@ -2945,29 +3641,12 @@
       "x-finding": {
         "code": "TEST_VALUE_EMPTY",
         "intent": "every value is stated",
-        "detail": "value is empty — write the literal, and \"\" for the empty string"
+        "detail": "value is not stated — write the literal; \"\" is the empty string and null is null"
       },
       "items": {
-        "properties": {
-          "value": {
-            "minLength": 1
-          }
-        }
-      }
-    },
-    {
-      "x-register": "test_case_values",
-      "x-finding": {
-        "code": "TEST_VALUE_UNPARSEABLE",
-        "intent": "every value is read as the design wrote it",
-        "detail": "value {value!r} is not a YAML literal ({problem}) — construction would keep it as text; quote it if text is meant"
-      },
-      "x-procedure": {
-        "name": "CELL_PARSES_AS_YAML",
-        "params": {
-          "column": "Value",
-          "detail": "value {value!r} is not a YAML literal ({problem}) — construction would keep it as text; quote it if text is meant"
-        }
+        "required": [
+          "value"
+        ]
       }
     },
     {

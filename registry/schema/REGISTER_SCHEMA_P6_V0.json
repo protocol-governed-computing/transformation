@@ -39,23 +39,43 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "owner_subdomain": {
-                "title": "Owner Subdomain"
+                "title": "Owner Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "disposition": {
                 "title": "Disposition",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "ownership_disposition"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "existing_artifact": {
-                "title": "Existing Artifact"
+                "title": "Existing Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -81,16 +101,32 @@
             "type": "object",
             "properties": {
               "storage_need": {
-                "title": "Storage Need"
+                "title": "Storage Need",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "purpose": {
-                "title": "Purpose"
+                "title": "Purpose",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "subdomain": {
-                "title": "Subdomain"
+                "title": "Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -116,23 +152,43 @@
             "type": "object",
             "properties": {
               "dependency": {
-                "title": "Dependency"
+                "title": "Dependency",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "direction": {
-                "title": "Direction"
+                "title": "Direction",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "existing_artifact": {
-                "title": "Existing Artifact"
+                "title": "Existing Artifact",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "status": {
                 "title": "Status",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "dependency_status"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -157,20 +213,36 @@
             "type": "object",
             "properties": {
               "fqdn": {
-                "title": "FQDN"
+                "title": "FQDN",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "current_status": {
-                "title": "Current Status"
+                "title": "Current Status",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "action": {
                 "title": "Action",
                 "x-vocab": {
                   "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
                   "group": "pps_action"
-                }
+                },
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -191,13 +263,25 @@
             "type": "object",
             "properties": {
               "rule_name": {
-                "title": "Rule Name"
+                "title": "Rule Name",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "statement": {
-                "title": "Statement"
+                "title": "Statement",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -217,13 +301,25 @@
             "type": "object",
             "properties": {
               "capability": {
-                "title": "Capability"
+                "title": "Capability",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "owner_subdomain": {
-                "title": "Owner Subdomain"
+                "title": "Owner Subdomain",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "source_finding": {
-                "title": "Source Finding"
+                "title": "Source Finding",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [

@@ -18,139 +18,65 @@ registers:
     reinstated, and it announces the moments the business declared matter. It does not govern who borrows
     a book, what a borrower may do, or what the library charges.
   purpose_provenance:
-    columns:
-    - Source
-    - Disposition (INHERITED, REFINED)
-    - Refinement
-    rows:
-    - Source: CR seed §0 Subdomain Purpose
-      Disposition (INHERITED, REFINED): INHERITED
-      Refinement: The seed's paragraph, word for word. This phase adds nothing to it.
+  - source: CR seed §0 Subdomain Purpose
+    disposition: INHERITED
+    refinement: The seed's paragraph, word for word. This phase adds nothing to it.
   subdomain_purposes:
-    columns:
-    - Subdomain
-    - Purpose
-    - Source Finding
-    rows:
-    - Subdomain: catalog
-      Purpose: Governs what the library knows about its books — the works it carries, their editions, and the physical copies on its shelves.
-      Source Finding: 'S1 cr_type #1'
+  - subdomain: catalog
+    purpose: Governs what the library knows about its books — the works it carries, their editions, and the physical copies on its shelves.
+    source_finding: 'S1 cr_type #1'
   scope_boundary:
-    columns:
-    - Capability
-    - Status (IN_SCOPE, DEFERRED)
-    - Notes
-    - Source Finding
-    rows:
-    - Capability: Announcing the three moments registering a book completes
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: The act this change halted for.
-      Source Finding: 'S4 authoring_scope #1'
-    - Capability: Announcing the moment each remaining act completes
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Notes: Five acts, one moment each.
-      Source Finding: 'S4 authoring_scope #2'
-    - Capability: A moment naming a reinstatement
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Notes: The business has declared none; authoring one here would invent business content.
-      Source Finding: 'S4 authoring_scope deferred #1'
-    - Capability: Refusing a declared moment that nothing announces
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Notes: Its own question, and answering it here would refuse moments that are correct today.
-      Source Finding: 'S4 authoring_scope deferred #2'
-    - Capability: A moment announced per member of a collection
-      Status (IN_SCOPE, DEFERRED): DEFERRED
-      Notes: A different shape; this change announces a known few, named where the act is designed.
-      Source Finding: 'S4 authoring_scope deferred #3'
-  business_objects:
-    columns:
-    - Store Name
-    - Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID)
-    - Business Rationale
-    - Source Finding
-    rows:
-    - Store Name: NONE IDENTIFIED
-      Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID): ''
-      Business Rationale: ''
-      Source Finding: ''
-  identity_semantics:
-    columns:
-    - Store Name
-    - Identity Field
-    - Source
-    - Uniqueness Rule
-    - Cross-Subdomain Relationship
-    - Source Finding
-    rows:
-    - Store Name: NONE IDENTIFIED
-      Identity Field: ''
-      Source: ''
-      Uniqueness Rule: ''
-      Cross-Subdomain Relationship: ''
-      Source Finding: ''
+  - capability: Announcing the three moments registering a book completes
+    status: IN_SCOPE
+    notes: The act this change halted for.
+    source_finding: 'S4 authoring_scope #1'
+  - capability: Announcing the moment each remaining act completes
+    status: IN_SCOPE
+    notes: Five acts, one moment each.
+    source_finding: 'S4 authoring_scope #2'
+  - capability: A moment naming a reinstatement
+    status: DEFERRED
+    notes: The business has declared none; authoring one here would invent business content.
+    source_finding: 'S4 authoring_scope deferred #1'
+  - capability: Refusing a declared moment that nothing announces
+    status: DEFERRED
+    notes: Its own question, and answering it here would refuse moments that are correct today.
+    source_finding: 'S4 authoring_scope deferred #2'
+  - capability: A moment announced per member of a collection
+    status: DEFERRED
+    notes: A different shape; this change announces a known few, named where the act is designed.
+    source_finding: 'S4 authoring_scope deferred #3'
+  business_objects: []
+  identity_semantics: []
   invariants:
-    columns:
-    - Invariant
-    - Business Reason
-    - Source Finding
-    rows:
-    - Invariant: An act announces every moment it completed, or the business has no account of what happened.
-      Business Reason: An act that completes three moments and states one leaves two things that occurred with nothing saying so, and nobody reading the account afterwards can tell the difference between a moment that did not happen and one nobody announced.
-      Source Finding: 'S4 constraint_register #1'
-    - Invariant: A moment is attached to the act that completes it, never to one that merely touches the same records.
-      Business Reason: Registering an additional edition reads the work it attaches to; announcing a work registered there would state that something happened which happened earlier and elsewhere.
-      Source Finding: 'S4 constraint_register #2'
-    - Invariant: The business is not reshaped to suit what the platform could express.
-      Business Reason: The library registers a book once, as one act. Splitting it into three so that each could announce one moment would change what the business does in order to make it describable.
-      Source Finding: 'S4 constraint_register #3'
-    - Invariant: Only moments the business already declared are announced.
-      Business Reason: A moment authored to fill a gap in an account is business content invented by whoever noticed the gap, rather than something the business decided occurred.
-      Source Finding: 'S4 constraint_register #4'
-    - Invariant: A limitation paid in silence produces no account at all, and no check anywhere notices.
-      Business Reason: Faced with announcing one of three moments, this subdomain announced none — so the cost of the limitation was not a wrong account but the absence of one, and nothing anywhere reported a fault.
-      Source Finding: 'S4 constraint_register #5'
+  - invariant: An act announces every moment it completed, or the business has no account of what happened.
+    business_reason: An act that completes three moments and states one leaves two things that occurred with nothing saying so, and nobody reading the account afterwards can tell the difference between a moment that did not happen and one nobody announced.
+    source_finding: 'S4 constraint_register #1'
+  - invariant: A moment is attached to the act that completes it, never to one that merely touches the same records.
+    business_reason: Registering an additional edition reads the work it attaches to; announcing a work registered there would state that something happened which happened earlier and elsewhere.
+    source_finding: 'S4 constraint_register #2'
+  - invariant: The business is not reshaped to suit what the platform could express.
+    business_reason: The library registers a book once, as one act. Splitting it into three so that each could announce one moment would change what the business does in order to make it describable.
+    source_finding: 'S4 constraint_register #3'
+  - invariant: Only moments the business already declared are announced.
+    business_reason: A moment authored to fill a gap in an account is business content invented by whoever noticed the gap, rather than something the business decided occurred.
+    source_finding: 'S4 constraint_register #4'
+  - invariant: A limitation paid in silence produces no account at all, and no check anywhere notices.
+    business_reason: Faced with announcing one of three moments, this subdomain announced none — so the cost of the limitation was not a wrong account but the absence of one, and nothing anywhere reported a fault.
+    source_finding: 'S4 constraint_register #5'
   actions:
-    columns:
-    - Action
-    - Object
-    - Trigger
-    - Status (IN_SCOPE, DEFERRED)
-    - Source Finding
-    rows:
-    - Action: Announce the three moments registering a book completes
-      Object: Announcement
-      Trigger: A book being registered.
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: 'S4 capability_graph #1'
-    - Action: Announce the moment each remaining act completes
-      Object: Announcement
-      Trigger: Any of the five acts completing.
-      Status (IN_SCOPE, DEFERRED): IN_SCOPE
-      Source Finding: 'S4 capability_graph #2'
-  provisional_codes:
-    columns:
-    - Subdomain
-    - Provisional Code
-    - Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE)
-    - Summary
-    - Source Finding
-    rows:
-    - Subdomain: NONE IDENTIFIED
-      Provisional Code: ''
-      Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE): ''
-      Summary: ''
-      Source Finding: ''
-  cross_subdomain_refs:
-    columns:
-    - CC Code
-    - Defined In
-    - Role
-    - Source Finding
-    rows:
-    - CC Code: NONE IDENTIFIED
-      Defined In: ''
-      Role: ''
-      Source Finding: ''
+  - action: Announce the three moments registering a book completes
+    object: Announcement
+    trigger: A book being registered.
+    status: IN_SCOPE
+    source_finding: 'S4 capability_graph #1'
+  - action: Announce the moment each remaining act completes
+    object: Announcement
+    trigger: Any of the five acts completing.
+    status: IN_SCOPE
+    source_finding: 'S4 capability_graph #2'
+  provisional_codes: []
+  cross_subdomain_refs: []
 ```
 
 WHAT must be true. Provisional names are admissible here; no bindings, no paths.

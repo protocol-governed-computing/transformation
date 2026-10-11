@@ -342,16 +342,9 @@ def determines_artifacts(dossier: Path) -> bool:
         return False
     for p7 in dossier.glob("p7_*.md"):
         rows = registers(p7).get("new_artifacts") or []
-        if any(_cell_of(row, "Code") for row in rows):
+        if any(cell(row, "Code") for row in rows):
             return True
     return False
-
-
-def _cell_of(row: dict, prefix: str) -> str:
-    for key, value in row.items():
-        if key.startswith(prefix):
-            return str(value).strip()
-    return ""
 
 
 def uncovered() -> list[Path]:

@@ -9,7 +9,14 @@ reads tables:
 
 What moves into the Machine block:
 - the header fields the oracle reads from the preamble;
-- every register, a table as its columns and rows, a text-only register as its text.
+- every register: a text-only register as its text, and a table as a list of rows, each a mapping
+  from column key to value. A register whose only row is the emptiness sentinel is `[]`, declared
+  empty; a table with no rows at all is `null`, present and stating nothing.
+
+Each value takes the type its column declares in the rebuild's register schema. A none marker is
+`null`. A list, a routing, an interface, a binding and a test value are structured as the oracle's
+own reading reads them. A blank test value leaves its column out of the row. A cell that does not structure cleanly is kept as the text it was, and the
+rebuild refuses its type.
 
 What stays prose: headings, narrative, and any table no register marker opens. Each register's
 marker and table, and each header line, leave the prose.
@@ -19,6 +26,8 @@ Deleted at the swap, with the table reader it runs.
 
 from __future__ import annotations
 
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -26,6 +35,10 @@ import yaml
 
 import transformation
 from transformation.design import read as oracle_read
+from transformation.design.checks import is_sentinel
+from transformation.design.p7_design_intent.rules import LITERAL_FORMS
+from transformation.build.render import _binding as render_step, _bound_value as render_entrance
+from transformation.build.render import _molecule_source as render_molecule
 
 if "pgc-oracle" not in str(Path(transformation.__file__).resolve()):
     raise SystemExit(f"convert.py must run against the oracle; imported {transformation.__file__}")
@@ -41,6 +54,159 @@ def _str(dumper: yaml.SafeDumper, value: str) -> yaml.Node:
 
 
 _Dumper.add_representer(str, _str)
+
+
+REBUILD_SCHEMAS = Path(__file__).resolve().parents[2] / "registry" / "schema"
+NONE_MARKERS = ("—", "-", "NONE", "N/A")
+VOCAB_IN_COLUMN = re.compile(r"^(?P<name>[^(]+?)\s*\((?P<values>[A-Z][A-Z0-9_]*(?:\s*,\s*[A-Z][A-Z0-9_]*)+)\)\s*$")
+LITERAL = re.compile(rf"^(?:{LITERAL_FORMS})$")
+LIST_PROPERTIES = re.compile(r"^(?:emit\..+|supersedes|parameters)$")
+
+
+def _key(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", text.strip().lower()).strip("_") or "number"
+
+
+def _columns() -> dict[str, dict[str, dict]]:
+    """register id → column key → its column declaration, across every phase's schema."""
+    out: dict[str, dict[str, dict]] = {}
+    for path in sorted(REBUILD_SCHEMAS.glob("REGISTER_SCHEMA_P*.json")):
+        for rid, body in json.loads(path.read_text(encoding="utf-8"))["properties"]["registers"]["properties"].items():
+            out.setdefault(rid, {}).update((body.get("items") or {}).get("properties") or {})
+    return out
+
+
+COLUMNS = _columns()
+
+
+def _column_key(register_id: str, header: str) -> str:
+    """The key a document's column header reads as. The oracle addresses a column by the start of
+    its header, so a header is the declared column whose title it starts with, the longest first."""
+    declared = COLUMNS.get(register_id, {})
+    match = VOCAB_IN_COLUMN.match(header)
+    name = match.group("name").strip() if match else header.strip()
+    if _key(name) in declared:
+        return _key(name)
+    titled = sorted(((c["title"], k) for k, c in declared.items() if header.startswith(c["title"])),
+                    key=lambda tk: -len(tk[0]))
+    return titled[0][1] if titled else _key(name)
+
+
+def _names(cell: str, separators: str = ",") -> list[str]:
+    parts = re.split(f"[{re.escape(separators)}]", cell)
+    return [p.strip() for p in parts if p.strip() and p.strip() not in NONE_MARKERS]
+
+
+def _routing(cell: str):
+    # An ending written `emit <moment>` names what it announces, which the design declares as an
+    # `emit.<ending>` property. The oracle reads it as no routes, and so does this (charter M3.3-8).
+    if cell.startswith("emit ") and "->" not in cell:
+        return None
+    out = {}
+    for segment in (s.strip() for s in cell.split(";")):
+        if not segment:
+            continue
+        outcome, sep, target = segment.partition("->")
+        if not sep or not outcome.strip() or not target.strip():
+            return cell
+        out[outcome.strip()] = target.strip()
+    return out
+
+
+def _interface(cell: str):
+    out: dict[str, dict[str, str]] = {}
+    for part in (p.strip() for p in cell.split(";")):
+        if not part:
+            continue
+        head, sep, body = part.partition(":")
+        side = head.strip().lower()
+        if not sep or side not in ("in", "out") or side in out:
+            return cell
+        out[side] = {}
+        for pair in (x.strip() for x in body.split(",")):
+            if not pair:
+                continue
+            name, _, mapped = pair.partition("=")
+            if not name.strip():
+                return cell
+            out[side][name.strip()] = mapped.strip()
+    return out
+
+
+# How the oracle's construction renders a binding's value, per register. A literal is stored as the
+# value construction would have handed the runtime, so the rebuild renders it unchanged.
+RENDER = {"step_bindings": render_step, "transport_bindings": render_entrance,
+          "molecule_step_bindings": render_molecule}
+
+
+def _binding(register_id: str, cell: str):
+    if cell.lower() == "generated":
+        return {"generated": True}
+    if register_id == "molecule_step_bindings" and cell == "iterator":
+        return cell
+    if not LITERAL.match(cell):
+        return cell
+    try:
+        return {"literal": RENDER[register_id](cell)}
+    except ValueError:
+        return cell
+
+
+# A column whose value may be anything has no text that means "nothing stated": `""` and `null` are
+# values. A blank cell leaves the column out of its row.
+OMIT = object()
+
+
+def _test_value(cell: str):
+    if cell == "":
+        return OMIT
+    try:
+        return yaml.safe_load(cell)
+    except yaml.YAMLError:
+        return cell
+
+
+def _value(register_id: str, key: str, cell: str, row: dict[str, str]):
+    cell = cell.strip()
+    declared = COLUMNS.get(register_id, {}).get(key, {})
+    kind = declared.get("type")
+    if register_id == "artifact_properties" and key == "value":
+        prop = next((v for h, v in row.items() if _column_key(register_id, h) == "property"), "")
+        kind = ["array", "null"] if LIST_PROPERTIES.match(prop.strip()) else ["string", "null"]
+    if "oneOf" in declared:
+        return None if cell in NONE_MARKERS else ("" if cell == "" else _binding(register_id, cell))
+    if key in COLUMNS.get(register_id, {}) and "type" not in declared:
+        return _test_value(cell)
+    if cell in NONE_MARKERS:
+        return None
+    if kind == ["array", "null"]:
+        return _names(cell, ",;" if key == "depends_on" else ",")
+    if kind == ["object", "null"]:
+        if cell == "":
+            return {}
+        return _interface(cell) if key == "interface" else _routing(cell)
+    return cell
+
+
+def _register(entry: dict):
+    if not entry["columns"]:
+        return entry["text"]
+    content = [row for row in entry["rows"] if not is_sentinel(row)]
+    if not entry["rows"]:
+        return None
+    if not content:
+        return []
+    out = []
+    for row in content:
+        mapped: dict = {}
+        for header, cell in row.items():
+            key = _column_key(entry["id"], header)
+            if key not in mapped:
+                value = _value(entry["id"], key, cell, row)
+                if value is not OMIT:
+                    mapped[key] = value
+        out.append(mapped)
+    return out
 
 
 def _owned_lines(lines: list[str]) -> set[int]:
@@ -74,13 +240,8 @@ def convert(text: str) -> str:
     header, _, registers = oracle_read.parse_text(text)
     block: dict = {"header": dict(header), "registers": {}}
     for entry in registers:
-        if entry["columns"]:
-            block["registers"][entry["id"]] = {
-                "columns": list(entry["columns"]),
-                "rows": [dict(row) for row in entry["rows"]],
-            }
-        else:
-            block["registers"][entry["id"]] = entry["text"]
+        if entry["id"] not in block["registers"]:
+            block["registers"][entry["id"]] = _register(entry)
 
     lines = text.splitlines()
     owned = _owned_lines(lines)

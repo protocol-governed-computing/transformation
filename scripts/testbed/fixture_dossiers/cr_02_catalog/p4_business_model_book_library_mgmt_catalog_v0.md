@@ -10,520 +10,452 @@ header:
   Feeds: Stage 5 — Business Intent
 registers:
   actors:
-    columns:
-    - Actor
-    - Role
-    - Authority Class
-    - Source Finding
-    rows:
-    - Actor: Authorized staff
-      Role: Performs every catalog operation, including the ones this change adds.
-      Authority Class: Authorized business actor
-      Source Finding: S1 authority_boundaries The judgement that an edition is obsolete
-    - Actor: The catalog
-      Role: Holds the authoritative record of every work, edition and physical copy.
-      Authority Class: Owning subdomain
-      Source Finding: S1 authority_boundaries Work record
-    - Actor: The business author
-      Role: Settles what an edition is and what identifies a work.
-      Authority Class: Business authority, outside the system
-      Source Finding: S1 authority_boundaries Whether an edition is part of a Book or a catalog entity in its own right
+  - actor: Authorized staff
+    role: Performs every catalog operation, including the ones this change adds.
+    authority_class: Authorized business actor
+    source_finding: S1 authority_boundaries The judgement that an edition is obsolete
+  - actor: The catalog
+    role: Holds the authoritative record of every work, edition and physical copy.
+    authority_class: Owning subdomain
+    source_finding: S1 authority_boundaries Work record
+  - actor: The business author
+    role: Settles what an edition is and what identifies a work.
+    authority_class: Business authority, outside the system
+    source_finding: S1 authority_boundaries Whether an edition is part of a Book or a catalog entity in its own right
   bm_entities:
-    columns:
-    - Entity
-    - Description
-    - Store Model
-    - Source Finding
-    rows:
-    - Entity: Work
-      Description: A published work, recognizable as one thing across the editions in which it is published, identified by its title and author.
-      Store Model: A durable record store holding one record per work, and a registry claiming each work's identity.
-      Source Finding: S2 entities Work
-    - Entity: Edition
-      Description: A publication of a work, identified by title, author and publication year. The record the previous change calls a book is an edition.
-      Store Model: The existing durable record store, unchanged.
-      Source Finding: S2 entities Edition
-    - Entity: Physical Copy
-      Description: An individual copy the library owns, belonging to exactly one edition.
-      Store Model: The existing durable record store, unchanged.
-      Source Finding: S2 entities Physical Copy
-    - Entity: Bibliographic Information
-      Description: An edition's descriptive content.
-      Store Model: Held within the edition's own record.
-      Source Finding: S2 entities Bibliographic Information
-    - Entity: Edition Summary
-      Description: Enough of a description of a work's editions, carried in a search result, for staff to choose the edition they mean.
-      Store Model: Assembled at read time; not stored.
-      Source Finding: S2 entities Edition Summary
-    - Entity: Work Summary
-      Description: A short description of the work an edition belongs to, carried in that edition's retrieval.
-      Store Model: Assembled at read time; not stored.
-      Source Finding: S2 entities Work Summary
-    - Entity: Existing Catalog Record
-      Description: A catalog record written under the previous governed change, before this one.
-      Store Model: The same store the edition occupies.
-      Source Finding: S2 entities Existing Catalog Record
-    - Entity: Business Operation
-      Description: An action performed against the catalog that must be traceable and auditable.
-      Store Model: The existing append-only trail, unchanged.
-      Source Finding: S2 entities Business Operation
+  - entity: Work
+    description: A published work, recognizable as one thing across the editions in which it is published, identified by its title and author.
+    store_model: A durable record store holding one record per work, and a registry claiming each work's identity.
+    source_finding: S2 entities Work
+  - entity: Edition
+    description: A publication of a work, identified by title, author and publication year. The record the previous change calls a book is an edition.
+    store_model: The existing durable record store, unchanged.
+    source_finding: S2 entities Edition
+  - entity: Physical Copy
+    description: An individual copy the library owns, belonging to exactly one edition.
+    store_model: The existing durable record store, unchanged.
+    source_finding: S2 entities Physical Copy
+  - entity: Bibliographic Information
+    description: An edition's descriptive content.
+    store_model: Held within the edition's own record.
+    source_finding: S2 entities Bibliographic Information
+  - entity: Edition Summary
+    description: Enough of a description of a work's editions, carried in a search result, for staff to choose the edition they mean.
+    store_model: Assembled at read time; not stored.
+    source_finding: S2 entities Edition Summary
+  - entity: Work Summary
+    description: A short description of the work an edition belongs to, carried in that edition's retrieval.
+    store_model: Assembled at read time; not stored.
+    source_finding: S2 entities Work Summary
+  - entity: Existing Catalog Record
+    description: A catalog record written under the previous governed change, before this one.
+    store_model: The same store the edition occupies.
+    source_finding: S2 entities Existing Catalog Record
+  - entity: Business Operation
+    description: An action performed against the catalog that must be traceable and auditable.
+    store_model: The existing append-only trail, unchanged.
+    source_finding: S2 entities Business Operation
   resources:
-    columns:
-    - Resource
-    - Description
-    - Source Finding
-    rows:
-    - Resource: The work store
-      Description: Holds one record per work the catalog knows.
-      Source Finding: S3 authoring_decisions Hold a work record durably and update it in place
-    - Resource: The work identity registry
-      Description: Claims each work's identity so two registrations of one work do not produce two works.
-      Source Finding: S3 authoring_decisions Enforce that one work exists per title and author
+  - resource: The work store
+    description: Holds one record per work the catalog knows.
+    source_finding: S3 authoring_decisions Hold a work record durably and update it in place
+  - resource: The work identity registry
+    description: Claims each work's identity so two registrations of one work do not produce two works.
+    source_finding: S3 authoring_decisions Enforce that one work exists per title and author
   events:
-    columns:
-    - Event
-    - Trigger
-    - Lifecycle Meaning
-    - Source Finding
-    rows:
-    - Event: Work Registered
-      Trigger: Authorized staff register an edition of a work the catalog does not yet hold.
-      Lifecycle Meaning: A work enters the catalog, created by the edition that evidences it.
-      Source Finding: 'S1 business_events #1'
-    - Event: Edition Registered
-      Trigger: Authorized staff register an additional edition of an existing work.
-      Lifecycle Meaning: The catalog records a further edition of a work it already holds.
-      Source Finding: 'S1 business_events #2'
+  - event: Work Registered
+    trigger: Authorized staff register an edition of a work the catalog does not yet hold.
+    lifecycle_meaning: A work enters the catalog, created by the edition that evidences it.
+    source_finding: 'S1 business_events #1'
+  - event: Edition Registered
+    trigger: Authorized staff register an additional edition of an existing work.
+    lifecycle_meaning: The catalog records a further edition of a work it already holds.
+    source_finding: 'S1 business_events #2'
   relationships:
-    columns:
-    - Subject
-    - Verb
-    - Object
-    - Capability Need
-    - Source Finding
-    rows:
-    - Subject: Work
-      Verb: is published as
-      Object: Edition
-      Capability Need: Register an edition against the work it belongs to, creating the work when the catalog does not yet hold it
-      Source Finding: S3 authoring_decisions Register an edition of a work the catalog does not yet hold
-    - Subject: Edition
-      Verb: belongs to
-      Object: Work
-      Capability Need: Resolve the work a title and author denote, so a further edition can name it
-      Source Finding: S3 authoring_decisions Resolve the work an edition belongs to
-    - Subject: Physical Copy
-      Verb: is a copy of
-      Object: Edition
-      Capability Need: Register a copy against exactly one edition, unchanged from the previous change
-      Source Finding: S3 authoring_decisions Register a physical copy against exactly one edition
-    - Subject: Authorized staff
-      Verb: searches
-      Object: Work
-      Capability Need: Answer a search at the level of the work, carrying a summary of its editions
-      Source Finding: S3 authoring_decisions Search the catalog and answer at the level of the work
-    - Subject: Authorized staff
-      Verb: retrieves
-      Object: Edition
-      Capability Need: Return an edition's details, its copies, and a summary of the work it belongs to
-      Source Finding: S3 authoring_decisions Retrieve an edition's complete details with a summary of its work
+  - subject: Work
+    verb: is published as
+    object: Edition
+    capability_need: Register an edition against the work it belongs to, creating the work when the catalog does not yet hold it
+    source_finding: S3 authoring_decisions Register an edition of a work the catalog does not yet hold
+  - subject: Edition
+    verb: belongs to
+    object: Work
+    capability_need: Resolve the work a title and author denote, so a further edition can name it
+    source_finding: S3 authoring_decisions Resolve the work an edition belongs to
+  - subject: Physical Copy
+    verb: is a copy of
+    object: Edition
+    capability_need: Register a copy against exactly one edition, unchanged from the previous change
+    source_finding: S3 authoring_decisions Register a physical copy against exactly one edition
+  - subject: Authorized staff
+    verb: searches
+    object: Work
+    capability_need: Answer a search at the level of the work, carrying a summary of its editions
+    source_finding: S3 authoring_decisions Search the catalog and answer at the level of the work
+  - subject: Authorized staff
+    verb: retrieves
+    object: Edition
+    capability_need: Return an edition's details, its copies, and a summary of the work it belongs to
+    source_finding: S3 authoring_decisions Retrieve an edition's complete details with a summary of its work
   capability_graph:
-    columns:
-    - Capability
-    - Source Finding
-    - Status
-    - Gap Register Entry
-    - Notes
-    rows:
-    - Capability: Hold a work record durably and update it in place
-      Source Finding: S3 authoring_decisions Hold a work record durably and update it in place
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Reused as-is from the composition; read, never modified.
-    - Capability: Enforce that one work exists per title and author
-      Source Finding: S3 authoring_decisions Enforce that one work exists per title and author
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Reused as-is with a two-attribute key, exactly as the edition key uses it with three.
-    - Capability: Form the identifying key of a work from its title and author
-      Source Finding: S3 authoring_decisions Form the identifying key of a work from its title and author
-      Status: CRITICAL
-      Gap Register Entry: GAP-01
-      Notes: The edition key transform is reached by every catalog operation and is not widened.
-    - Capability: Claim a work's identity so that two registrations of one work do not produce two works
-      Source Finding: S3 authoring_decisions Claim a work's identity so that two registrations of one work do not produce two works
-      Status: CRITICAL
-      Gap Register Entry: GAP-02
-      Notes: Composed the way the edition claim is composed, against the work's own registry store.
-    - Capability: Resolve the work an edition belongs to
-      Source Finding: S3 authoring_decisions Resolve the work an edition belongs to
-      Status: CRITICAL
-      Gap Register Entry: GAP-03
-      Notes: Nothing in the composition answers which work a title and author denote.
-    - Capability: Group selected records by an attribute they share
-      Source Finding: S3 authoring_decisions Group selected records by an attribute they share
-      Status: CRITICAL
-      Gap Register Entry: GAP-04
-      Notes: Selection exists; grouping does not.
-    - Capability: Declare the stores the catalog owns
-      Source Finding: S3 authoring_decisions Declare the stores the catalog owns
-      Status: CRITICAL
-      Gap Register Entry: GAP-05
-      Notes: Extended with the work store and the work identity registry.
-    - Capability: Bind the catalog's workflows to the stores they use
-      Source Finding: S3 authoring_decisions Bind the catalog's workflows to the stores they use
-      Status: CRITICAL
-      Gap Register Entry: GAP-06
-      Notes: Extended so the new stores are reachable by the workflows that use them.
-    - Capability: Register an edition of a work the catalog does not yet hold
-      Source Finding: S3 authoring_decisions Register an edition of a work the catalog does not yet hold
-      Status: CRITICAL
-      Gap Register Entry: GAP-07
-      Notes: Gains a work claim among the claims, before any write.
-    - Capability: Validate that a registration carries what a work and an edition require
-      Source Finding: S3 authoring_decisions Validate that a registration carries what a work and an edition require
-      Status: CRITICAL
-      Gap Register Entry: GAP-08
-      Notes: Runs before any claim, as it does today.
-    - Capability: Register an additional edition of an existing work
-      Source Finding: S3 authoring_decisions Register an additional edition of an existing work
-      Status: CRITICAL
-      Gap Register Entry: GAP-09
-      Notes: The operation this change exists to add.
-    - Capability: Search the catalog and answer at the level of the work
-      Source Finding: S3 authoring_decisions Search the catalog and answer at the level of the work
-      Status: CRITICAL
-      Gap Register Entry: GAP-10
-      Notes: The search terms are unchanged; the shape of the answer is not.
-    - Capability: Retrieve an edition's complete details with a summary of its work
-      Source Finding: S3 authoring_decisions Retrieve an edition's complete details with a summary of its work
-      Status: CRITICAL
-      Gap Register Entry: GAP-11
-      Notes: Retrieval stays edition retrieval and gains the work summary.
-    - Capability: Admit a request to register an additional edition of an existing work
-      Source Finding: S3 authoring_decisions Admit a request to register an additional edition of an existing work
-      Status: CRITICAL
-      Gap Register Entry: GAP-12
-      Notes: A new business operation is reached through its own entry point.
-    - Capability: Recognise the moment a work enters the catalog
-      Source Finding: S3 authoring_decisions Recognise the moment a work enters the catalog
-      Status: CRITICAL
-      Gap Register Entry: GAP-13
-      Notes: The catalog declares a moment for each thing that enters it.
-    - Capability: Confirm the staff member performing an operation is authorized
-      Source Finding: S3 authoring_decisions Confirm the staff member performing an operation is authorized
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Reused as-is; the operations this change adds reach it first, as every other does.
-    - Capability: Record every performed operation in the catalog's audit trail
-      Source Finding: S3 authoring_decisions Record every performed operation in the catalog's audit trail
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Reused as-is; the trail records whatever operation it is handed.
-    - Capability: Register a physical copy against exactly one edition
-      Source Finding: S3 authoring_decisions Register a physical copy against exactly one edition
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Reused as-is; nothing about copies changes.
-    - Capability: Retire and reinstate an edition independently of the work's other editions
-      Source Finding: S3 authoring_decisions Retire and reinstate an edition independently of the work's other editions
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Reused as-is; retirement already cascades to nothing.
-    - Capability: Update an edition's bibliographic information
-      Source Finding: S3 authoring_decisions Update an edition's bibliographic information
-      Status: SATISFIED
-      Gap Register Entry: ''
-      Notes: Reused as-is; duplication remains an edition-level rule.
+  - capability: Hold a work record durably and update it in place
+    source_finding: S3 authoring_decisions Hold a work record durably and update it in place
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Reused as-is from the composition; read, never modified.
+  - capability: Enforce that one work exists per title and author
+    source_finding: S3 authoring_decisions Enforce that one work exists per title and author
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Reused as-is with a two-attribute key, exactly as the edition key uses it with three.
+  - capability: Form the identifying key of a work from its title and author
+    source_finding: S3 authoring_decisions Form the identifying key of a work from its title and author
+    status: CRITICAL
+    gap_register_entry: GAP-01
+    notes: The edition key transform is reached by every catalog operation and is not widened.
+  - capability: Claim a work's identity so that two registrations of one work do not produce two works
+    source_finding: S3 authoring_decisions Claim a work's identity so that two registrations of one work do not produce two works
+    status: CRITICAL
+    gap_register_entry: GAP-02
+    notes: Composed the way the edition claim is composed, against the work's own registry store.
+  - capability: Resolve the work an edition belongs to
+    source_finding: S3 authoring_decisions Resolve the work an edition belongs to
+    status: CRITICAL
+    gap_register_entry: GAP-03
+    notes: Nothing in the composition answers which work a title and author denote.
+  - capability: Group selected records by an attribute they share
+    source_finding: S3 authoring_decisions Group selected records by an attribute they share
+    status: CRITICAL
+    gap_register_entry: GAP-04
+    notes: Selection exists; grouping does not.
+  - capability: Declare the stores the catalog owns
+    source_finding: S3 authoring_decisions Declare the stores the catalog owns
+    status: CRITICAL
+    gap_register_entry: GAP-05
+    notes: Extended with the work store and the work identity registry.
+  - capability: Bind the catalog's workflows to the stores they use
+    source_finding: S3 authoring_decisions Bind the catalog's workflows to the stores they use
+    status: CRITICAL
+    gap_register_entry: GAP-06
+    notes: Extended so the new stores are reachable by the workflows that use them.
+  - capability: Register an edition of a work the catalog does not yet hold
+    source_finding: S3 authoring_decisions Register an edition of a work the catalog does not yet hold
+    status: CRITICAL
+    gap_register_entry: GAP-07
+    notes: Gains a work claim among the claims, before any write.
+  - capability: Validate that a registration carries what a work and an edition require
+    source_finding: S3 authoring_decisions Validate that a registration carries what a work and an edition require
+    status: CRITICAL
+    gap_register_entry: GAP-08
+    notes: Runs before any claim, as it does today.
+  - capability: Register an additional edition of an existing work
+    source_finding: S3 authoring_decisions Register an additional edition of an existing work
+    status: CRITICAL
+    gap_register_entry: GAP-09
+    notes: The operation this change exists to add.
+  - capability: Search the catalog and answer at the level of the work
+    source_finding: S3 authoring_decisions Search the catalog and answer at the level of the work
+    status: CRITICAL
+    gap_register_entry: GAP-10
+    notes: The search terms are unchanged; the shape of the answer is not.
+  - capability: Retrieve an edition's complete details with a summary of its work
+    source_finding: S3 authoring_decisions Retrieve an edition's complete details with a summary of its work
+    status: CRITICAL
+    gap_register_entry: GAP-11
+    notes: Retrieval stays edition retrieval and gains the work summary.
+  - capability: Admit a request to register an additional edition of an existing work
+    source_finding: S3 authoring_decisions Admit a request to register an additional edition of an existing work
+    status: CRITICAL
+    gap_register_entry: GAP-12
+    notes: A new business operation is reached through its own entry point.
+  - capability: Recognise the moment a work enters the catalog
+    source_finding: S3 authoring_decisions Recognise the moment a work enters the catalog
+    status: CRITICAL
+    gap_register_entry: GAP-13
+    notes: The catalog declares a moment for each thing that enters it.
+  - capability: Confirm the staff member performing an operation is authorized
+    source_finding: S3 authoring_decisions Confirm the staff member performing an operation is authorized
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Reused as-is; the operations this change adds reach it first, as every other does.
+  - capability: Record every performed operation in the catalog's audit trail
+    source_finding: S3 authoring_decisions Record every performed operation in the catalog's audit trail
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Reused as-is; the trail records whatever operation it is handed.
+  - capability: Register a physical copy against exactly one edition
+    source_finding: S3 authoring_decisions Register a physical copy against exactly one edition
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Reused as-is; nothing about copies changes.
+  - capability: Retire and reinstate an edition independently of the work's other editions
+    source_finding: S3 authoring_decisions Retire and reinstate an edition independently of the work's other editions
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Reused as-is; retirement already cascades to nothing.
+  - capability: Update an edition's bibliographic information
+    source_finding: S3 authoring_decisions Update an edition's bibliographic information
+    status: SATISFIED
+    gap_register_entry: ''
+    notes: Reused as-is; duplication remains an edition-level rule.
   dependency_graph:
-    columns:
-    - From
-    - To
-    - Dependency Type
-    - PPS Status
-    - Source Finding
-    rows:
-    - From: catalog
-      To: capability_side_effects::CS_MUTABLE_JSON_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries Durable record storage for works
-    - From: catalog
-      To: capability_side_effects::CS_REGISTRY_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries Uniqueness claim for a work's identity
-    - From: catalog
-      To: capability_side_effects::CS_APPENDONLY_JSONL_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The audit step every catalog operation reaches last
-    - From: catalog
-      To: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
-      Dependency Type: data read
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The store declaration that must carry the work stores
-    - From: catalog
-      To: book_library_mgmt::RB_CATALOG_BINDINGS_V0
-      Dependency Type: data read
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The binding declaration that must bind the work stores
-    - From: catalog
-      To: book_library_mgmt::CC_REGISTER_BOOK_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The registration step that must claim the work
-    - From: catalog
-      To: book_library_mgmt::CC_SEARCH_CATALOG_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The search step whose answer must be grouped by work
-    - From: catalog
-      To: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The retrieval step that must carry a work summary
-    - From: catalog
-      To: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The authorization check every catalog operation reaches first
-    - From: catalog
-      To: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries The audit step every catalog operation reaches last
-    - From: catalog
-      To: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries Copy registration and barcode uniqueness
-    - From: catalog
-      To: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
-      Dependency Type: capability call
-      PPS Status: SATISFIED
-      Source Finding: S3 dependency_discoveries Retirement and reinstatement of an edition
-    - From: catalog
-      To: staff
-      Dependency Type: capability call
-      PPS Status: GAP
-      Source Finding: S1 authority_deferrals Which staff are authorized
+  - from: catalog
+    to: capability_side_effects::CS_MUTABLE_JSON_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries Durable record storage for works
+  - from: catalog
+    to: capability_side_effects::CS_REGISTRY_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries Uniqueness claim for a work's identity
+  - from: catalog
+    to: capability_side_effects::CS_APPENDONLY_JSONL_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The audit step every catalog operation reaches last
+  - from: catalog
+    to: book_library_mgmt::STRUCTURE_CATALOG_STORAGE_V0
+    dependency_type: data read
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The store declaration that must carry the work stores
+  - from: catalog
+    to: book_library_mgmt::RB_CATALOG_BINDINGS_V0
+    dependency_type: data read
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The binding declaration that must bind the work stores
+  - from: catalog
+    to: book_library_mgmt::CC_REGISTER_BOOK_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The registration step that must claim the work
+  - from: catalog
+    to: book_library_mgmt::CC_SEARCH_CATALOG_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The search step whose answer must be grouped by work
+  - from: catalog
+    to: book_library_mgmt::CC_ASSEMBLE_BOOK_DETAILS_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The retrieval step that must carry a work summary
+  - from: catalog
+    to: book_library_mgmt::CC_CONFIRM_STAFF_AUTHORIZED_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The authorization check every catalog operation reaches first
+  - from: catalog
+    to: book_library_mgmt::CC_APPEND_CATALOG_OPERATION_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries The audit step every catalog operation reaches last
+  - from: catalog
+    to: book_library_mgmt::CC_REGISTER_PHYSICAL_COPY_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries Copy registration and barcode uniqueness
+  - from: catalog
+    to: book_library_mgmt::CC_RETIRE_BOOK_RECORD_V0
+    dependency_type: capability call
+    pps_status: SATISFIED
+    source_finding: S3 dependency_discoveries Retirement and reinstatement of an edition
+  - from: catalog
+    to: staff
+    dependency_type: capability call
+    pps_status: GAP
+    source_finding: S1 authority_deferrals Which staff are authorized
   constraint_register:
-    columns:
-    - '#'
-    - Constraint
-    - Source Finding
-    - Source
-    rows:
-    - '#': '1'
-      Constraint: No capability staff have today may be withdrawn and no existing record may become unreachable.
-      Source Finding: 'S1 constraints #1'
-      Source: governance rule
-    - '#': '2'
-      Constraint: Existing catalog records must remain valid without recreation or migration, demonstrated against records written under the previous change.
-      Source Finding: 'S1 constraints #2'
-      Source: governance rule
-    - '#': '3'
-      Constraint: Only search and retrieval may be extended; every other existing operation must behave as it does today.
-      Source Finding: 'S1 constraints #3'
-      Source: governance rule
-    - '#': '4'
-      Constraint: Multiple identifiers, governed subject taxonomy, digital resources and images must not be designed into this change.
-      Source Finding: 'S1 constraints #4'
-      Source: governance rule
-    - '#': '5'
-      Constraint: Every business operation must remain traceable and auditable.
-      Source Finding: 'S1 constraints #5'
-      Source: invariant
-    - '#': '6'
-      Constraint: Each edition belongs to exactly one work.
-      Source Finding: 'S1 business_invariants #1'
-      Source: invariant
-    - '#': '7'
-      Constraint: Each physical copy belongs to exactly one edition.
-      Source Finding: 'S1 business_invariants #2'
-      Source: invariant
-    - '#': '8'
-      Constraint: No two works share the same title and author.
-      Source Finding: 'S1 business_invariants #3'
-      Source: invariant
-    - '#': '9'
-      Constraint: No two editions of a work share the same publication year.
-      Source Finding: 'S1 business_invariants #4'
-      Source: invariant
-    - '#': '10'
-      Constraint: Every work has at least one edition.
-      Source Finding: 'S1 business_invariants #5'
-      Source: invariant
-    - '#': '11'
-      Constraint: A work is not retired; a work whose editions are all retired is simply that.
-      Source Finding: S1 operation_refusals Retire a work
-      Source: domain knowledge
-    - '#': '12'
-      Constraint: Every claim precedes every write, so a refused registration changes nothing.
-      Source Finding: 'S3 analysis_findings #10'
-      Source: domain knowledge
-    - '#': '13'
-      Constraint: The transform forming the edition key is not widened; the identity of the existing record does not change to serve a new one.
-      Source Finding: 'S3 analysis_findings #3'
-      Source: domain knowledge
+  - number: '1'
+    constraint: No capability staff have today may be withdrawn and no existing record may become unreachable.
+    source_finding: 'S1 constraints #1'
+    source: governance rule
+  - number: '2'
+    constraint: Existing catalog records must remain valid without recreation or migration, demonstrated against records written under the previous change.
+    source_finding: 'S1 constraints #2'
+    source: governance rule
+  - number: '3'
+    constraint: Only search and retrieval may be extended; every other existing operation must behave as it does today.
+    source_finding: 'S1 constraints #3'
+    source: governance rule
+  - number: '4'
+    constraint: Multiple identifiers, governed subject taxonomy, digital resources and images must not be designed into this change.
+    source_finding: 'S1 constraints #4'
+    source: governance rule
+  - number: '5'
+    constraint: Every business operation must remain traceable and auditable.
+    source_finding: 'S1 constraints #5'
+    source: invariant
+  - number: '6'
+    constraint: Each edition belongs to exactly one work.
+    source_finding: 'S1 business_invariants #1'
+    source: invariant
+  - number: '7'
+    constraint: Each physical copy belongs to exactly one edition.
+    source_finding: 'S1 business_invariants #2'
+    source: invariant
+  - number: '8'
+    constraint: No two works share the same title and author.
+    source_finding: 'S1 business_invariants #3'
+    source: invariant
+  - number: '9'
+    constraint: No two editions of a work share the same publication year.
+    source_finding: 'S1 business_invariants #4'
+    source: invariant
+  - number: '10'
+    constraint: Every work has at least one edition.
+    source_finding: 'S1 business_invariants #5'
+    source: invariant
+  - number: '11'
+    constraint: A work is not retired; a work whose editions are all retired is simply that.
+    source_finding: S1 operation_refusals Retire a work
+    source: domain knowledge
+  - number: '12'
+    constraint: Every claim precedes every write, so a refused registration changes nothing.
+    source_finding: 'S3 analysis_findings #10'
+    source: domain knowledge
+  - number: '13'
+    constraint: The transform forming the edition key is not widened; the identity of the existing record does not change to serve a new one.
+    source_finding: 'S3 analysis_findings #3'
+    source: domain knowledge
   gap_register:
-    columns:
-    - Gap Code
-    - Source Finding
-    - Capability
-    - Owner Subdomain
-    - Resolution
-    rows:
-    - Gap Code: GAP-01
-      Source Finding: S3 authoring_decisions Form the identifying key of a work from its title and author
-      Capability: Form the identifying key of a work from its title and author
-      Owner Subdomain: catalog
-      Resolution: NEW
-    - Gap Code: GAP-02
-      Source Finding: S3 authoring_decisions Claim a work's identity so that two registrations of one work do not produce two works
-      Capability: Claim a work's identity so that two registrations of one work do not produce two works
-      Owner Subdomain: catalog
-      Resolution: NEW
-    - Gap Code: GAP-03
-      Source Finding: S3 authoring_decisions Resolve the work an edition belongs to
-      Capability: Resolve the work an edition belongs to
-      Owner Subdomain: catalog
-      Resolution: NEW
-    - Gap Code: GAP-04
-      Source Finding: S3 authoring_decisions Group selected records by an attribute they share
-      Capability: Group selected records by an attribute they share
-      Owner Subdomain: catalog
-      Resolution: NEW
-    - Gap Code: GAP-05
-      Source Finding: S3 authoring_decisions Declare the stores the catalog owns
-      Capability: Declare the stores the catalog owns
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-06
-      Source Finding: S3 authoring_decisions Bind the catalog's workflows to the stores they use
-      Capability: Bind the catalog's workflows to the stores they use
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-07
-      Source Finding: S3 authoring_decisions Register an edition of a work the catalog does not yet hold
-      Capability: Register an edition of a work the catalog does not yet hold
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-08
-      Source Finding: S3 authoring_decisions Validate that a registration carries what a work and an edition require
-      Capability: Validate that a registration carries what a work and an edition require
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-09
-      Source Finding: S3 authoring_decisions Register an additional edition of an existing work
-      Capability: Register an additional edition of an existing work
-      Owner Subdomain: catalog
-      Resolution: NEW
-    - Gap Code: GAP-10
-      Source Finding: S3 authoring_decisions Search the catalog and answer at the level of the work
-      Capability: Search the catalog and answer at the level of the work
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-11
-      Source Finding: S3 authoring_decisions Retrieve an edition's complete details with a summary of its work
-      Capability: Retrieve an edition's complete details with a summary of its work
-      Owner Subdomain: catalog
-      Resolution: EXTEND
-    - Gap Code: GAP-12
-      Source Finding: S3 authoring_decisions Admit a request to register an additional edition of an existing work
-      Capability: Admit a request to register an additional edition of an existing work
-      Owner Subdomain: catalog
-      Resolution: NEW
-    - Gap Code: GAP-13
-      Source Finding: S3 authoring_decisions Recognise the moment a work enters the catalog
-      Capability: Recognise the moment a work enters the catalog
-      Owner Subdomain: catalog
-      Resolution: NEW
+  - gap_code: GAP-01
+    source_finding: S3 authoring_decisions Form the identifying key of a work from its title and author
+    capability: Form the identifying key of a work from its title and author
+    owner_subdomain: catalog
+    resolution: NEW
+  - gap_code: GAP-02
+    source_finding: S3 authoring_decisions Claim a work's identity so that two registrations of one work do not produce two works
+    capability: Claim a work's identity so that two registrations of one work do not produce two works
+    owner_subdomain: catalog
+    resolution: NEW
+  - gap_code: GAP-03
+    source_finding: S3 authoring_decisions Resolve the work an edition belongs to
+    capability: Resolve the work an edition belongs to
+    owner_subdomain: catalog
+    resolution: NEW
+  - gap_code: GAP-04
+    source_finding: S3 authoring_decisions Group selected records by an attribute they share
+    capability: Group selected records by an attribute they share
+    owner_subdomain: catalog
+    resolution: NEW
+  - gap_code: GAP-05
+    source_finding: S3 authoring_decisions Declare the stores the catalog owns
+    capability: Declare the stores the catalog owns
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-06
+    source_finding: S3 authoring_decisions Bind the catalog's workflows to the stores they use
+    capability: Bind the catalog's workflows to the stores they use
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-07
+    source_finding: S3 authoring_decisions Register an edition of a work the catalog does not yet hold
+    capability: Register an edition of a work the catalog does not yet hold
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-08
+    source_finding: S3 authoring_decisions Validate that a registration carries what a work and an edition require
+    capability: Validate that a registration carries what a work and an edition require
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-09
+    source_finding: S3 authoring_decisions Register an additional edition of an existing work
+    capability: Register an additional edition of an existing work
+    owner_subdomain: catalog
+    resolution: NEW
+  - gap_code: GAP-10
+    source_finding: S3 authoring_decisions Search the catalog and answer at the level of the work
+    capability: Search the catalog and answer at the level of the work
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-11
+    source_finding: S3 authoring_decisions Retrieve an edition's complete details with a summary of its work
+    capability: Retrieve an edition's complete details with a summary of its work
+    owner_subdomain: catalog
+    resolution: EXTEND
+  - gap_code: GAP-12
+    source_finding: S3 authoring_decisions Admit a request to register an additional edition of an existing work
+    capability: Admit a request to register an additional edition of an existing work
+    owner_subdomain: catalog
+    resolution: NEW
+  - gap_code: GAP-13
+    source_finding: S3 authoring_decisions Recognise the moment a work enters the catalog
+    capability: Recognise the moment a work enters the catalog
+    owner_subdomain: catalog
+    resolution: NEW
   design_decisions:
-    columns:
-    - '#'
-    - Decision
-    - Source Finding
-    - Rationale
-    - Constraints Imposed
-    rows:
-    - '#': '1'
-      Decision: The record the previous change calls a book is an edition; the work is added above it.
-      Source Finding: 'S3 analysis_findings #1'
-      Rationale: The existing identity of title, author and publication year already distinguishes editions, so no existing identity, record or operation is redefined.
-      Constraints Imposed: No migration of existing records; no change to the edition's identity; a record written before this change is an edition of a work with one edition.
-    - '#': '2'
-      Decision: The work's identity is formed by a new transform rather than by widening the existing key transform.
-      Source Finding: 'S3 analysis_findings #3'
-      Rationale: The edition key transform is reached by every catalog operation and 23 artifacts depend on it.
-      Constraints Imposed: The two keys stay independent; a change to one cannot alter the other.
-    - '#': '3'
-      Decision: The work is claimed through the same registry mechanism the edition is claimed through.
-      Source Finding: 'S3 analysis_findings #2'
-      Rationale: Register-if-absent gives the atomic uniqueness a work identity needs, and the mechanism is read rather than modified.
-      Constraints Imposed: The work claim is atomic; two registrations of one work cannot produce two works.
-    - '#': '4'
-      Decision: The work store and the work identity registry are declared in the catalog's own storage declaration.
-      Source Finding: 'S3 analysis_findings #7'
-      Rationale: A subdomain declares its stores once and binds them once, and every consumer of both declarations is inside the catalog.
-      Constraints Imposed: No second storage or binding declaration for this subdomain.
-    - '#': '5'
-      Decision: Registering an edition of a new work extends the existing registration; registering an additional edition is a new operation.
-      Source Finding: S3 authoring_decisions Register an additional edition of an existing work
-      Rationale: The existing registration creates the work and requires a first copy; an additional edition does neither.
-      Constraints Imposed: Two registration operations, each with its own entry point, sharing every refusal the existing one enforces.
-    - '#': '6'
-      Decision: The work claim is placed among the existing claims, before any write.
-      Source Finding: 'S3 analysis_findings #10'
-      Rationale: The previous change established the order so that a refused registration leaves nothing behind.
-      Constraints Imposed: A refused registration still changes nothing, including the work.
-    - '#': '7'
-      Decision: Search is extended rather than duplicated, and answers at the level of the work.
-      Source Finding: 'S3 analysis_findings #5'
-      Rationale: Two searches would leave staff choosing which one answers their question, and the existing search's consumers are one workflow and one entry point within the subdomain.
-      Constraints Imposed: The result shape changes; the search terms do not. Every existing record remains findable.
-    - '#': '8'
-      Decision: Retrieval stays edition retrieval and carries a summary of the work.
-      Source Finding: S1 known_facts Retrieval stays edition retrieval
-      Rationale: The business asked for one retrieval carrying a summary, not a second operation.
-      Constraints Imposed: No work-level retrieval operation in this change.
-    - '#': '9'
-      Decision: A work is not retired.
-      Source Finding: S1 operation_refusals Retire a work
-      Rationale: A work whose editions are all retired is simply that; retirement is declared on the edition and cascades to nothing.
-      Constraints Imposed: No work lifecycle beyond registered; no cascade from an edition's retirement to its work.
+  - number: '1'
+    decision: The record the previous change calls a book is an edition; the work is added above it.
+    source_finding: 'S3 analysis_findings #1'
+    rationale: The existing identity of title, author and publication year already distinguishes editions, so no existing identity, record or operation is redefined.
+    constraints_imposed: No migration of existing records; no change to the edition's identity; a record written before this change is an edition of a work with one edition.
+  - number: '2'
+    decision: The work's identity is formed by a new transform rather than by widening the existing key transform.
+    source_finding: 'S3 analysis_findings #3'
+    rationale: The edition key transform is reached by every catalog operation and 23 artifacts depend on it.
+    constraints_imposed: The two keys stay independent; a change to one cannot alter the other.
+  - number: '3'
+    decision: The work is claimed through the same registry mechanism the edition is claimed through.
+    source_finding: 'S3 analysis_findings #2'
+    rationale: Register-if-absent gives the atomic uniqueness a work identity needs, and the mechanism is read rather than modified.
+    constraints_imposed: The work claim is atomic; two registrations of one work cannot produce two works.
+  - number: '4'
+    decision: The work store and the work identity registry are declared in the catalog's own storage declaration.
+    source_finding: 'S3 analysis_findings #7'
+    rationale: A subdomain declares its stores once and binds them once, and every consumer of both declarations is inside the catalog.
+    constraints_imposed: No second storage or binding declaration for this subdomain.
+  - number: '5'
+    decision: Registering an edition of a new work extends the existing registration; registering an additional edition is a new operation.
+    source_finding: S3 authoring_decisions Register an additional edition of an existing work
+    rationale: The existing registration creates the work and requires a first copy; an additional edition does neither.
+    constraints_imposed: Two registration operations, each with its own entry point, sharing every refusal the existing one enforces.
+  - number: '6'
+    decision: The work claim is placed among the existing claims, before any write.
+    source_finding: 'S3 analysis_findings #10'
+    rationale: The previous change established the order so that a refused registration leaves nothing behind.
+    constraints_imposed: A refused registration still changes nothing, including the work.
+  - number: '7'
+    decision: Search is extended rather than duplicated, and answers at the level of the work.
+    source_finding: 'S3 analysis_findings #5'
+    rationale: Two searches would leave staff choosing which one answers their question, and the existing search's consumers are one workflow and one entry point within the subdomain.
+    constraints_imposed: The result shape changes; the search terms do not. Every existing record remains findable.
+  - number: '8'
+    decision: Retrieval stays edition retrieval and carries a summary of the work.
+    source_finding: S1 known_facts Retrieval stays edition retrieval
+    rationale: The business asked for one retrieval carrying a summary, not a second operation.
+    constraints_imposed: No work-level retrieval operation in this change.
+  - number: '9'
+    decision: A work is not retired.
+    source_finding: S1 operation_refusals Retire a work
+    rationale: A work whose editions are all retired is simply that; retirement is declared on the edition and cascades to nothing.
+    constraints_imposed: No work lifecycle beyond registered; no cascade from an edition's retirement to its work.
   authoring_scope:
-    columns:
-    - Capability
-    - Gap Register Ref
-    rows:
-    - Capability: Form the identifying key of a work from its title and author
-      Gap Register Ref: GAP-01
-    - Capability: Claim a work's identity so that two registrations of one work do not produce two works
-      Gap Register Ref: GAP-02
-    - Capability: Resolve the work an edition belongs to
-      Gap Register Ref: GAP-03
-    - Capability: Group selected records by an attribute they share
-      Gap Register Ref: GAP-04
-    - Capability: Declare the stores the catalog owns
-      Gap Register Ref: GAP-05
-    - Capability: Bind the catalog's workflows to the stores they use
-      Gap Register Ref: GAP-06
-    - Capability: Register an edition of a work the catalog does not yet hold
-      Gap Register Ref: GAP-07
-    - Capability: Validate that a registration carries what a work and an edition require
-      Gap Register Ref: GAP-08
-    - Capability: Register an additional edition of an existing work
-      Gap Register Ref: GAP-09
-    - Capability: Search the catalog and answer at the level of the work
-      Gap Register Ref: GAP-10
-    - Capability: Retrieve an edition's complete details with a summary of its work
-      Gap Register Ref: GAP-11
-    - Capability: Admit a request to register an additional edition of an existing work
-      Gap Register Ref: GAP-12
-    - Capability: Recognise the moment a work enters the catalog
-      Gap Register Ref: GAP-13
+  - capability: Form the identifying key of a work from its title and author
+    gap_register_ref: GAP-01
+  - capability: Claim a work's identity so that two registrations of one work do not produce two works
+    gap_register_ref: GAP-02
+  - capability: Resolve the work an edition belongs to
+    gap_register_ref: GAP-03
+  - capability: Group selected records by an attribute they share
+    gap_register_ref: GAP-04
+  - capability: Declare the stores the catalog owns
+    gap_register_ref: GAP-05
+  - capability: Bind the catalog's workflows to the stores they use
+    gap_register_ref: GAP-06
+  - capability: Register an edition of a work the catalog does not yet hold
+    gap_register_ref: GAP-07
+  - capability: Validate that a registration carries what a work and an edition require
+    gap_register_ref: GAP-08
+  - capability: Register an additional edition of an existing work
+    gap_register_ref: GAP-09
+  - capability: Search the catalog and answer at the level of the work
+    gap_register_ref: GAP-10
+  - capability: Retrieve an edition's complete details with a summary of its work
+    gap_register_ref: GAP-11
+  - capability: Admit a request to register an additional edition of an existing work
+    gap_register_ref: GAP-12
+  - capability: Recognise the moment a work enters the catalog
+    gap_register_ref: GAP-13
 ```
 
 Consolidation of Stages 1–3. Every capability committed at Stage 3 appears here with the status its

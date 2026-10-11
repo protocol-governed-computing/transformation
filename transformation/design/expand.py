@@ -89,6 +89,22 @@ def _register_rules(register: Register, citable: list[str]) -> list[Rule]:
             )
         )
 
+    # A column that carries structure — a list, a routing, an interface, a binding — holds a value
+    # of its declared type. A cell that did not structure is refused here, once, rather than read
+    # wrongly by every rule downstream. A column whose value may be anything declares no type.
+    for column, declared in register.types.items():
+        if not declared:
+            continue
+        out.append(
+            Rule(
+                id="CELL_NOT_OF_TYPE",
+                check="CELL_OF_TYPE",
+                register=register.id,
+                params={"column": column, "type": declared},
+                intent=f"{column} carries structure, and its value must take the declared form",
+            )
+        )
+
     # Business-language columns hold prose about the business, never compiled identities. The flag
     # may scope to specific columns, which is why this is not a whole-document rule.
     business_columns = [c for c in register.business_language_columns if c]

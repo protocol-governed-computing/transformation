@@ -10,141 +10,110 @@ header:
   Feeds: Construction
 registers:
   build_order:
-    columns:
-    - Wave
-    - Step
-    - Code
-    - Action (REPLACE, EXTEND, NEW)
-    - Subdomain
-    - Depends On
-    rows:
-    - Wave: '1'
-      Step: '1'
-      Code: blockchain::CC_RESOLVE_ACTOR_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: —
-    - Wave: '1'
-      Step: '2'
-      Code: blockchain::CC_CLAIM_WALLET_IDENTITY_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: wallet
-      Depends On: —
-    - Wave: '1'
-      Step: '3'
-      Code: blockchain::CC_CREATE_WALLET_RECORD_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: wallet
-      Depends On: —
-    - Wave: '1'
-      Step: '4'
-      Code: blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: wallet
-      Depends On: —
-    - Wave: '1'
-      Step: '5'
-      Code: blockchain::WF_REGISTER_ACTOR_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: —
-    - Wave: '2'
-      Step: '6'
-      Code: blockchain::WF_ACCEPT_ACTOR_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: blockchain::CC_RESOLVE_ACTOR_V1
-    - Wave: '2'
-      Step: '7'
-      Code: blockchain::WF_REJECT_ACTOR_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: identity
-      Depends On: blockchain::CC_RESOLVE_ACTOR_V1
-    - Wave: '2'
-      Step: '8'
-      Code: blockchain::WF_CREATE_WALLET_V1
-      Action (REPLACE, EXTEND, NEW): NEW
-      Subdomain: wallet
-      Depends On: blockchain::CC_RESOLVE_ACTOR_V1, blockchain::CC_CLAIM_WALLET_IDENTITY_V1, blockchain::CC_CREATE_WALLET_RECORD_V1, blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
+  - wave: '1'
+    step: '1'
+    code: blockchain::CC_RESOLVE_ACTOR_V1
+    action: NEW
+    subdomain: identity
+    depends_on: null
+  - wave: '1'
+    step: '2'
+    code: blockchain::CC_CLAIM_WALLET_IDENTITY_V1
+    action: NEW
+    subdomain: wallet
+    depends_on: null
+  - wave: '1'
+    step: '3'
+    code: blockchain::CC_CREATE_WALLET_RECORD_V1
+    action: NEW
+    subdomain: wallet
+    depends_on: null
+  - wave: '1'
+    step: '4'
+    code: blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
+    action: NEW
+    subdomain: wallet
+    depends_on: null
+  - wave: '1'
+    step: '5'
+    code: blockchain::WF_REGISTER_ACTOR_V1
+    action: NEW
+    subdomain: identity
+    depends_on: null
+  - wave: '2'
+    step: '6'
+    code: blockchain::WF_ACCEPT_ACTOR_V1
+    action: NEW
+    subdomain: identity
+    depends_on:
+    - blockchain::CC_RESOLVE_ACTOR_V1
+  - wave: '2'
+    step: '7'
+    code: blockchain::WF_REJECT_ACTOR_V1
+    action: NEW
+    subdomain: identity
+    depends_on:
+    - blockchain::CC_RESOLVE_ACTOR_V1
+  - wave: '2'
+    step: '8'
+    code: blockchain::WF_CREATE_WALLET_V1
+    action: NEW
+    subdomain: wallet
+    depends_on:
+    - blockchain::CC_RESOLVE_ACTOR_V1
+    - blockchain::CC_CLAIM_WALLET_IDENTITY_V1
+    - blockchain::CC_CREATE_WALLET_RECORD_V1
+    - blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
   critical_path:
-    columns:
-    - Position
-    - Code
-    rows:
-    - Position: '1'
-      Code: blockchain::CC_RESOLVE_ACTOR_V1
-    - Position: '2'
-      Code: blockchain::WF_CREATE_WALLET_V1
+  - position: '1'
+    code: blockchain::CC_RESOLVE_ACTOR_V1
+  - position: '2'
+    code: blockchain::WF_CREATE_WALLET_V1
   mandate_artifact_summary:
-    columns:
-    - Action (REPLACE, EXTEND, NEW)
-    - Count
-    - Description
-    rows:
-    - Action (REPLACE, EXTEND, NEW): NEW
-      Count: '8'
-      Description: The next versions of four contracts that end on a failed record, and of four acts that route a failed record to their rejected ending.
-    - Action (REPLACE, EXTEND, NEW): REPLACE
-      Count: '8'
-      Description: The published versions they stand in for, stood down unchanged.
+  - action: NEW
+    count: '8'
+    description: The next versions of four contracts that end on a failed record, and of four acts that route a failed record to their rejected ending.
+  - action: REPLACE
+    count: '8'
+    description: The published versions they stand in for, stood down unchanged.
   field_declarations:
-    columns:
-    - Code
-    - Subdomain Field
-    rows:
-    - Code: blockchain::CC_RESOLVE_ACTOR_V1
-      Subdomain Field: identity
-    - Code: blockchain::WF_REGISTER_ACTOR_V1
-      Subdomain Field: identity
-    - Code: blockchain::WF_ACCEPT_ACTOR_V1
-      Subdomain Field: identity
-    - Code: blockchain::WF_REJECT_ACTOR_V1
-      Subdomain Field: identity
-    - Code: blockchain::CC_CLAIM_WALLET_IDENTITY_V1
-      Subdomain Field: wallet
-    - Code: blockchain::CC_CREATE_WALLET_RECORD_V1
-      Subdomain Field: wallet
-    - Code: blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
-      Subdomain Field: wallet
-    - Code: blockchain::WF_CREATE_WALLET_V1
-      Subdomain Field: wallet
+  - code: blockchain::CC_RESOLVE_ACTOR_V1
+    subdomain_field: identity
+  - code: blockchain::WF_REGISTER_ACTOR_V1
+    subdomain_field: identity
+  - code: blockchain::WF_ACCEPT_ACTOR_V1
+    subdomain_field: identity
+  - code: blockchain::WF_REJECT_ACTOR_V1
+    subdomain_field: identity
+  - code: blockchain::CC_CLAIM_WALLET_IDENTITY_V1
+    subdomain_field: wallet
+  - code: blockchain::CC_CREATE_WALLET_RECORD_V1
+    subdomain_field: wallet
+  - code: blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
+    subdomain_field: wallet
+  - code: blockchain::WF_CREATE_WALLET_V1
+    subdomain_field: wallet
   new_capabilities:
-    columns:
-    - Code
-    - Purpose
-    - Inputs
-    - Outputs
-    rows:
-    - Code: blockchain::CC_RESOLVE_ACTOR_V1
-      Purpose: Answers which actor a contact address denotes, and reports when none does
-      Inputs: contact_address
-      Outputs: value
-    - Code: blockchain::CC_CLAIM_WALLET_IDENTITY_V1
-      Purpose: Claims the identity, and refuses when the person already holds a wallet
-      Inputs: wallet_id
-      Outputs: result_status
-    - Code: blockchain::CC_CREATE_WALLET_RECORD_V1
-      Purpose: Records the wallet with a balance of zero, its denomination and its classification
-      Inputs: wallet_id, wallet_fields
-      Outputs: result_status
-    - Code: blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
-      Purpose: Records the moment on the wallet's trail
-      Inputs: stream_id, occurrence_fields
-      Outputs: result_status
-  new_intents:
-    columns:
-    - Code
-    - Purpose
-    - Workflow
-    - Inputs
-    rows: []
+  - code: blockchain::CC_RESOLVE_ACTOR_V1
+    purpose: Answers which actor a contact address denotes, and reports when none does
+    inputs: contact_address
+    outputs: value
+  - code: blockchain::CC_CLAIM_WALLET_IDENTITY_V1
+    purpose: Claims the identity, and refuses when the person already holds a wallet
+    inputs: wallet_id
+    outputs: result_status
+  - code: blockchain::CC_CREATE_WALLET_RECORD_V1
+    purpose: Records the wallet with a balance of zero, its denomination and its classification
+    inputs: wallet_id, wallet_fields
+    outputs: result_status
+  - code: blockchain::CC_APPEND_WALLET_OCCURRENCE_V1
+    purpose: Records the moment on the wallet's trail
+    inputs: stream_id, occurrence_fields
+    outputs: result_status
+  new_intents: null
   cross_subdomain_notes:
-    columns:
-    - Code
-    - Note
-    rows:
-    - Code: blockchain::CC_RESOLVE_ACTOR_V1
-      Note: Identity's lookup, whose next version wallet runs too; both acts gain the same answer for a failed record.
+  - code: blockchain::CC_RESOLVE_ACTOR_V1
+    note: Identity's lookup, whose next version wallet runs too; both acts gain the same answer for a failed record.
 ```
 
 IN WHAT ORDER. Mechanically derived from the design; it reconciles with Stage 7 exactly and adds

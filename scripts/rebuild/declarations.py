@@ -22,22 +22,40 @@ from pathlib import Path
 ORACLE = Path.home() / "pgc-oracle" / "transformation"
 REBUILD = Path(__file__).resolve().parents[2]
 
-# Rules the rebuild changes on purpose, each a divergence in REBUILD_CHARTER §8: (phase, id,
-# register, param) whose value may differ. Everything else about the rule must still be identical.
-DIVERGENCES = {
+# Rules the rebuild changes on purpose, each a divergence in REBUILD_CHARTER §8.
+# A list param declared in another order: (phase, id, register, param), the same entries.
+REORDERED = {
     ("p7", "CELL_NOT_IN_VOCABULARY", "new_artifacts", "vocabulary"): "M3.1-1",
 }
+# A rule restated: (phase, id, register) → the divergence, and the fields that may differ. The rest
+# of the rule must still be identical.
+RESTATED = {
+    ("p7", "REGISTER_COLUMN_MISSING", "implementation_bindings"): ("M3.3-7", {"params"}),
+    ("p7", "REGISTER_COLUMN_MISSING", "molecule_steps"): ("M3.3-7", {"params"}),
+    ("p7", "STORE_PATH_FORMAT_MISMATCH", "structure_stores"): ("M3.3-7", {"params"}),
+    ("p7", "GENERATED_SOURCE_WITHOUT_GENERATOR", "step_bindings"): ("M2-9", {"params"}),
+    ("p7", "TEST_VALUE_EMPTY", "test_case_values"): ("M3.3-9", {"check", "params"}),
+}
+# A rule only the oracle has: (phase, id) → the divergence that retired it.
+RETIRED = {("p7", "TEST_VALUE_UNPARSEABLE"): "M2-10"}
+# A rule only the rebuild has: its check → the divergence that added it.
+ADDED = {"CELL_OF_TYPE": "M3.3-4"}
 
 
-def _declared(phase: str, a: dict | None, b: dict | None) -> str | None:
+def _declared(phase: str, a: dict, b: dict) -> str | None:
     """The divergence that explains a difference between two rules, or None."""
-    if not a or not b:
-        return None
-    for (p, rid, register, param), name in DIVERGENCES.items():
+    for (p, rid, register, param), name in REORDERED.items():
         if (phase, a["id"], a["register"]) == (p, rid, register) and \
                 {**a, "params": {k: v for k, v in a["params"].items() if k != param}} == \
                 {**b, "params": {k: v for k, v in b["params"].items() if k != param}} and \
                 sorted(a["params"].get(param) or []) == sorted(b["params"].get(param) or []):
+            return name
+    restated = RESTATED.get((phase, a["id"], a["register"]))
+    if restated and (b["id"], b["register"]) == (a["id"], a["register"]):
+        name, fields = restated
+        if {k: v for k, v in a.items() if k not in fields | {"intent"}} == \
+                {k: v for k, v in b.items() if k not in fields | {"intent"}} and \
+                (a["intent"] == b["intent"] or "intent" in fields):
             return name
     return None
 
@@ -88,8 +106,17 @@ def main(argv: list[str]) -> int:
                 explained.append(_declared(phase, ra, match))
                 only_a.remove(ra)
                 only_b.remove(match)
-        for name in explained:
-            print(f"{phase}: declared divergence {name}")
+        for ra in list(only_a):
+            if (phase, ra["id"]) in RETIRED:
+                explained.append(RETIRED[(phase, ra["id"])])
+                only_a.remove(ra)
+        for rb in list(only_b):
+            if rb["check"] in ADDED:
+                explained.append(ADDED[rb["check"]])
+                only_b.remove(rb)
+        for name in sorted(set(explained)):
+            count = explained.count(name)
+            print(f"{phase}: declared divergence {name}" + (f" ({count} rules)" if count > 1 else ""))
         if only_a or only_b:
             differ += 1
             print(f"\n{phase}: {len(only_a)} rule(s) only in the oracle, {len(only_b)} only in the rebuild")

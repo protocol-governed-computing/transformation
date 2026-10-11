@@ -18,264 +18,175 @@ registers:
     reinstated, and it announces the moments the business declared matter. It does not govern who borrows
     a book, what a borrower may do, or what the library charges.
   cr_type:
-    columns:
-    - Subdomain
-    - Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE)
-    - Rationale
-    rows:
-    - Subdomain: catalog
-      Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE): MODIFY
-      Rationale: The catalog exists and works. It declares six moments it announces and announces none of them, against a rule the business set when the function was established.
+  - subdomain: catalog
+    classification: MODIFY
+    rationale: The catalog exists and works. It declares six moments it announces and announces none of them, against a rule the business set when the function was established.
   business_vocabulary:
-    columns:
-    - Term
-    - Definition
-    rows:
-    - Term: Work
-      Definition: Something the library carries, independent of any particular edition of it.
-    - Term: Book
-      Definition: An edition of a work.
-    - Term: Physical copy
-      Definition: One copy of a book, on a shelf.
-    - Term: Bibliographic information
-      Definition: What the library publishes about a book.
-    - Term: Retirement
-      Definition: Taking a book or a copy out of service, without removing what is known about it.
-    - Term: Reinstatement
-      Definition: Returning a retired book or copy to service.
-    - Term: Moment
-      Definition: Something the catalog announces because the business declared it matters.
+  - term: Work
+    definition: Something the library carries, independent of any particular edition of it.
+  - term: Book
+    definition: An edition of a work.
+  - term: Physical copy
+    definition: One copy of a book, on a shelf.
+  - term: Bibliographic information
+    definition: What the library publishes about a book.
+  - term: Retirement
+    definition: Taking a book or a copy out of service, without removing what is known about it.
+  - term: Reinstatement
+    definition: Returning a retired book or copy to service.
+  - term: Moment
+    definition: Something the catalog announces because the business declared it matters.
   requested_outcomes:
-    columns:
-    - Outcome
-    rows:
-    - Outcome: Each of the six declared moments is announced when the act it names completes.
-    - Outcome: That they are announced is checked, so the silence cannot return unnoticed.
+  - outcome: Each of the six declared moments is announced when the act it names completes.
+  - outcome: That they are announced is checked, so the silence cannot return unnoticed.
   known_facts:
-    columns:
-    - Fact
-    - Certainty (HIGH, MEDIUM, LOW)
-    rows:
-    - Fact: The business decided the catalog announces the moments that matter.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: 'Six moments are declared: a work registered, a book registered, a physical copy registered, bibliographic information updated, a book retired, a physical copy retired.'
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A moment is announced when the act it names has completed, and not before.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: A refusal announces nothing. Nothing happened that anyone need be told about.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Reinstatement is silent. The catalog performs it, records it, and announces nothing.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The six declared moments are the complete set. No seventh is added by this change.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: An announcement carries which thing it concerns and when it occurred, and nothing further.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: Nobody is expected to hear these announcements today. The moment exists for the record.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: The catalog does not go back and announce moments that occurred before this change.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
-    - Fact: This is a defect, not a new requirement.
-      Certainty (HIGH, MEDIUM, LOW): HIGH
+  - fact: The business decided the catalog announces the moments that matter.
+    certainty: HIGH
+  - fact: 'Six moments are declared: a work registered, a book registered, a physical copy registered, bibliographic information updated, a book retired, a physical copy retired.'
+    certainty: HIGH
+  - fact: A moment is announced when the act it names has completed, and not before.
+    certainty: HIGH
+  - fact: A refusal announces nothing. Nothing happened that anyone need be told about.
+    certainty: HIGH
+  - fact: Reinstatement is silent. The catalog performs it, records it, and announces nothing.
+    certainty: HIGH
+  - fact: The six declared moments are the complete set. No seventh is added by this change.
+    certainty: HIGH
+  - fact: An announcement carries which thing it concerns and when it occurred, and nothing further.
+    certainty: HIGH
+  - fact: Nobody is expected to hear these announcements today. The moment exists for the record.
+    certainty: HIGH
+  - fact: The catalog does not go back and announce moments that occurred before this change.
+    certainty: HIGH
+  - fact: This is a defect, not a new requirement.
+    certainty: HIGH
   system_beliefs:
-    columns:
-    - Belief
-    - Why It Matters
-    - Verification Goal
-    rows:
-    - Belief: The catalog declares six moments and announces none of them.
-      Why It Matters: The whole of this change.
-      Verification Goal: Confirm the six are declared, and establish whether anything refers to any of them.
-    - Belief: The catalog performs registration, correction, retirement and reinstatement, each as its own act.
-      Why It Matters: Each declared moment must attach to the act it names.
-      Verification Goal: Confirm which acts the catalog performs.
-    - Belief: Nothing checks whether a declared moment is ever announced.
-      Why It Matters: Explains how the silence went unnoticed and says what the check must add.
-      Verification Goal: Establish whether any rule relates a declared moment to an announcement of it.
-    - Belief: Reinstatement has no declared moment of its own.
-      Why It Matters: The business has ruled it silent; if a moment exists, the ruling and the system disagree.
-      Verification Goal: Confirm no moment is declared for reinstatement.
+  - belief: The catalog declares six moments and announces none of them.
+    why_it_matters: The whole of this change.
+    verification_goal: Confirm the six are declared, and establish whether anything refers to any of them.
+  - belief: The catalog performs registration, correction, retirement and reinstatement, each as its own act.
+    why_it_matters: Each declared moment must attach to the act it names.
+    verification_goal: Confirm which acts the catalog performs.
+  - belief: Nothing checks whether a declared moment is ever announced.
+    why_it_matters: Explains how the silence went unnoticed and says what the check must add.
+    verification_goal: Establish whether any rule relates a declared moment to an announcement of it.
+  - belief: Reinstatement has no declared moment of its own.
+    why_it_matters: The business has ruled it silent; if a moment exists, the ruling and the system disagree.
+    verification_goal: Confirm no moment is declared for reinstatement.
   assumptions:
-    columns:
-    - Assumption
-    - Basis
-    rows:
-    - Assumption: Each declared moment corresponds to exactly one act the catalog performs.
-      Basis: The six are named after acts the catalog is known to perform.
+  - assumption: Each declared moment corresponds to exactly one act the catalog performs.
+    basis: The six are named after acts the catalog is known to perform.
   constraints:
-    columns:
-    - Constraint
-    - Source
-    rows:
-    - Constraint: Nothing a caller sends or is told back changes. This is invisible from outside.
-      Source: Business author
-    - Constraint: No moment is added and none is removed. The six are the complete set.
-      Source: Business author
-    - Constraint: Nothing outside the catalog is touched.
-      Source: Business author
+  - constraint: Nothing a caller sends or is told back changes. This is invisible from outside.
+    source: Business author
+  - constraint: No moment is added and none is removed. The six are the complete set.
+    source: Business author
+  - constraint: Nothing outside the catalog is touched.
+    source: Business author
   business_invariants:
-    columns:
-    - Invariant
-    rows:
-    - Invariant: A declared moment is announced when the act it names completes.
-    - Invariant: A refused act announces nothing.
-    - Invariant: An announcement carries which thing it concerns and when it occurred.
-    - Invariant: A recorded moment is never changed or removed.
+  - invariant: A declared moment is announced when the act it names completes.
+  - invariant: A refused act announces nothing.
+  - invariant: An announcement carries which thing it concerns and when it occurred.
+  - invariant: A recorded moment is never changed or removed.
   lifecycle_states:
-    columns:
-    - Object
-    - State
-    - Meaning
-    rows:
-    - Object: Book
-      State: In service
-      Meaning: The library carries it.
-    - Object: Book
-      State: Retired
-      Meaning: Taken out of service; what is known about it is kept.
-    - Object: Physical copy
-      State: In service
-      Meaning: On the shelf.
-    - Object: Physical copy
-      State: Retired
-      Meaning: Taken out of service.
+  - object: Book
+    state: In service
+    meaning: The library carries it.
+  - object: Book
+    state: Retired
+    meaning: Taken out of service; what is known about it is kept.
+  - object: Physical copy
+    state: In service
+    meaning: On the shelf.
+  - object: Physical copy
+    state: Retired
+    meaning: Taken out of service.
   business_events:
-    columns:
-    - Event
-    - When It Occurs
-    - Significance
-    rows:
-    - Event: A work was registered
-      When It Occurs: When the library first carries a work
-      Significance: The library can show when it began carrying it.
-    - Event: A book was registered
-      When It Occurs: When an edition of a work is registered
-      Significance: The library can show when the edition entered the catalog.
-    - Event: A physical copy was registered
-      When It Occurs: When a copy is put on a shelf
-      Significance: The library can show when the copy became available.
-    - Event: Bibliographic information was updated
-      When It Occurs: When what the library publishes about a book is corrected
-      Significance: The library can show when the record changed.
-    - Event: A book was retired
-      When It Occurs: When an edition is taken out of service
-      Significance: The library can show when it stopped carrying it.
-    - Event: A physical copy was retired
-      When It Occurs: When a copy is taken out of service
-      Significance: The library can show when the copy left the shelf.
+  - event: A work was registered
+    when_it_occurs: When the library first carries a work
+    significance: The library can show when it began carrying it.
+  - event: A book was registered
+    when_it_occurs: When an edition of a work is registered
+    significance: The library can show when the edition entered the catalog.
+  - event: A physical copy was registered
+    when_it_occurs: When a copy is put on a shelf
+    significance: The library can show when the copy became available.
+  - event: Bibliographic information was updated
+    when_it_occurs: When what the library publishes about a book is corrected
+    significance: The library can show when the record changed.
+  - event: A book was retired
+    when_it_occurs: When an edition is taken out of service
+    significance: The library can show when it stopped carrying it.
+  - event: A physical copy was retired
+    when_it_occurs: When a copy is taken out of service
+    significance: The library can show when the copy left the shelf.
   authority_boundaries:
-    columns:
-    - Business Object
-    - Authoritative Owner
-    rows:
-    - Business Object: Work, book and physical copy
-      Authoritative Owner: catalog
-    - Business Object: Bibliographic information
-      Authoritative Owner: catalog
-    - Business Object: The moments the catalog announces
-      Authoritative Owner: catalog
+  - business_object: Work, book and physical copy
+    authoritative_owner: catalog
+  - business_object: Bibliographic information
+    authoritative_owner: catalog
+  - business_object: The moments the catalog announces
+    authoritative_owner: catalog
   out_of_scope:
-    columns:
-    - Item
-    - Reason
-    rows:
-    - Item: What any listener does with an announcement
-      Reason: The catalog announces the moment; who attends to it is a later question.
-    - Item: Whether the six are the right six
-      Reason: They are the moments the business already declared.
-    - Item: A moment for reinstatement
-      Reason: The business has ruled reinstatement silent.
-    - Item: Anything about what the catalog holds or how it is searched
-      Reason: Only the announcing is touched.
-    - Item: Anything outside the catalog
-      Reason: No other subdomain is touched.
-    - Item: Moments that occurred before this change
-      Reason: The record is added to and never rewritten.
+  - item: What any listener does with an announcement
+    reason: The catalog announces the moment; who attends to it is a later question.
+  - item: Whether the six are the right six
+    reason: They are the moments the business already declared.
+  - item: A moment for reinstatement
+    reason: The business has ruled reinstatement silent.
+  - item: Anything about what the catalog holds or how it is searched
+    reason: Only the announcing is touched.
+  - item: Anything outside the catalog
+    reason: No other subdomain is touched.
+  - item: Moments that occurred before this change
+    reason: The record is added to and never rewritten.
   governance_scope:
-    columns:
-    - Scope Item
-    - Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT)
-    rows:
-    - Scope Item: catalog
-      Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT): MODIFIED
-  clarification_requests:
-    columns:
-    - Question
-    - Why Needed
-    - Blocking (YES, NO)
-    - Owner (HUMAN, SNAPSHOT, GOVERNANCE)
-    rows:
-    - Question: NONE IDENTIFIED
-      Why Needed: ''
-      Blocking (YES, NO): ''
-      Owner (HUMAN, SNAPSHOT, GOVERNANCE): ''
+  - scope_item: catalog
+    relationship: MODIFIED
+  clarification_requests: []
   acceptance_criteria:
-    columns:
-    - Criterion
-    rows:
-    - Criterion: Registering a work announces that a work was registered.
-    - Criterion: Registering a book announces that a book was registered.
-    - Criterion: Registering a physical copy announces that a physical copy was registered.
-    - Criterion: Correcting bibliographic information announces that it was updated.
-    - Criterion: Retiring a book announces that a book was retired.
-    - Criterion: Retiring a physical copy announces that a physical copy was retired.
-    - Criterion: A refused act announces nothing.
-    - Criterion: Reinstating a book or a copy announces nothing.
-    - Criterion: Each announcement carries which thing it concerns and when it occurred.
+  - criterion: Registering a work announces that a work was registered.
+  - criterion: Registering a book announces that a book was registered.
+  - criterion: Registering a physical copy announces that a physical copy was registered.
+  - criterion: Correcting bibliographic information announces that it was updated.
+  - criterion: Retiring a book announces that a book was retired.
+  - criterion: Retiring a physical copy announces that a physical copy was retired.
+  - criterion: A refused act announces nothing.
+  - criterion: Reinstating a book or a copy announces nothing.
+  - criterion: Each announcement carries which thing it concerns and when it occurred.
   identity_and_sameness:
-    columns:
-    - Business Object
-    - Identified By
-    - Two Are The Same When
-    rows:
-    - Business Object: Moment
-      Identified By: The act it names
-      Two Are The Same When: They name the same act of the catalog.
+  - business_object: Moment
+    identified_by: The act it names
+    two_are_the_same_when: They name the same act of the catalog.
   lifecycle_transitions:
-    columns:
-    - Object
-    - From State
-    - To State
-    - Triggered By
-    - Cascade
-    rows:
-    - Object: Book
-      From State: In service
-      To State: Retired
-      Triggered By: The library retiring it.
-      Cascade: A moment is announced. Nothing else follows.
-    - Object: Book
-      From State: Retired
-      To State: In service
-      Triggered By: The library reinstating it.
-      Cascade: NONE. Reinstatement is silent.
-    - Object: Physical copy
-      From State: In service
-      To State: Retired
-      Triggered By: The library retiring it.
-      Cascade: A moment is announced. Nothing else follows.
-    - Object: Physical copy
-      From State: Retired
-      To State: In service
-      Triggered By: The library reinstating it.
-      Cascade: NONE. Reinstatement is silent.
+  - object: Book
+    from_state: In service
+    to_state: Retired
+    triggered_by: The library retiring it.
+    cascade: A moment is announced. Nothing else follows.
+  - object: Book
+    from_state: Retired
+    to_state: In service
+    triggered_by: The library reinstating it.
+    cascade: NONE. Reinstatement is silent.
+  - object: Physical copy
+    from_state: In service
+    to_state: Retired
+    triggered_by: The library retiring it.
+    cascade: A moment is announced. Nothing else follows.
+  - object: Physical copy
+    from_state: Retired
+    to_state: In service
+    triggered_by: The library reinstating it.
+    cascade: NONE. Reinstatement is silent.
   operation_refusals:
-    columns:
-    - Operation
-    - Refused When
-    - Business Reason
-    rows:
-    - Operation: Announcing a moment
-      Refused When: The act it names did not complete
-      Business Reason: A moment names something that happened; announcing one for an act that failed would state something untrue.
+  - operation: Announcing a moment
+    refused_when: The act it names did not complete
+    business_reason: A moment names something that happened; announcing one for an act that failed would state something untrue.
   authority_deferrals:
-    columns:
-    - Business Object
-    - Deferred To
-    - Until
-    rows:
-    - Business Object: What a listener does with an announcement
-      Deferred To: A later change
-      Until: The business decides who is told and how.
+  - business_object: What a listener does with an announcement
+    deferred_to: A later change
+    until: The business decides who is told and how.
 ```
 
 Reorganized faithfully from `p0_business_problem_statement.md`, including the clarifications its

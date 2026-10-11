@@ -365,6 +365,18 @@ core:
           check: TABLE_HAS_ROWS
           register: rb_declarations
           intent: an empty required register asserts nothing
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: rb_declarations
+          params:
+            column: CS Bindings
+            type:
+              type:
+              - array
+              - 'null'
+              items:
+                type: string
+          intent: CS Bindings carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: rb_declarations
@@ -420,6 +432,18 @@ core:
             - EXIT
             - EXIT_SUCCESS
           intent: Node Type is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: execution_topology
+          params:
+            column: Routing
+            type:
+              type:
+              - object
+              - 'null'
+              additionalProperties:
+                type: string
+          intent: Routing carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: execution_topology
@@ -477,6 +501,62 @@ core:
             - CT
             - CS
           intent: Kind is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: cc_composition
+          params:
+            column: Consumes
+            type:
+              type:
+              - array
+              - 'null'
+              items:
+                type: string
+          intent: Consumes carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: cc_composition
+          params:
+            column: Produces
+            type:
+              type:
+              - array
+              - 'null'
+              items:
+                type: string
+          intent: Produces carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: cc_composition
+          params:
+            column: Routing
+            type:
+              type:
+              - object
+              - 'null'
+              additionalProperties:
+                type: string
+          intent: Routing carries structure, and its value must take the declared form
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: cc_composition
+          params:
+            column: Interface
+            type:
+              type:
+              - object
+              - 'null'
+              additionalProperties: false
+              properties:
+                in:
+                  type: object
+                  additionalProperties:
+                    type: string
+                out:
+                  type: object
+                  additionalProperties:
+                    type: string
+          intent: Interface carries structure, and its value must take the declared form
         - id: REGISTER_MISSING
           check: TABLE_PRESENT
           register: step_bindings
@@ -502,6 +582,29 @@ core:
             - INPUT
             - OUTPUT
           intent: Direction is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: step_bindings
+          params:
+            column: Bound To
+            type:
+              oneOf:
+              - type: 'null'
+              - type: string
+              - type: object
+                required:
+                - literal
+                additionalProperties: false
+                properties:
+                  literal: {}
+              - type: object
+                required:
+                - generated
+                additionalProperties: false
+                properties:
+                  generated:
+                    const: true
+          intent: Bound To carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: step_bindings
@@ -576,9 +679,9 @@ core:
             - Module
             - Callable
             - Operation
-            - Kind (atom, molecule)
-            - Purity (ct_pure, ct_impure)
-            - Refusal (raises, returns, never)
+            - Kind
+            - Purity
+            - Refusal
             - Source Finding
           intent: downstream phases read these columns by name
         - id: ROW_WITHOUT_SOURCE_FINDING
@@ -702,6 +805,19 @@ core:
             - Value
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: artifact_properties
+          params:
+            column: Value
+            type:
+              type:
+              - string
+              - array
+              - 'null'
+              items:
+                type: string
+          intent: Value carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: artifact_properties
@@ -813,6 +929,29 @@ core:
             - WF_INVOCATION
             - SNAPSHOT_READ
           intent: Handler Kind is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: transport_bindings
+          params:
+            column: Bound To
+            type:
+              oneOf:
+              - type: 'null'
+              - type: string
+              - type: object
+                required:
+                - literal
+                additionalProperties: false
+                properties:
+                  literal: {}
+              - type: object
+                required:
+                - generated
+                additionalProperties: false
+                properties:
+                  generated:
+                    const: true
+          intent: Bound To carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: transport_bindings
@@ -880,6 +1019,18 @@ core:
             - Generator Sources
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: generation_provenance
+          params:
+            column: Generator Sources
+            type:
+              type:
+              - array
+              - 'null'
+              items:
+                type: string
+          intent: Generator Sources carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: generation_provenance
@@ -918,6 +1069,18 @@ core:
             - Consults
             - Source Finding
           intent: downstream phases read these columns by name
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: declared_reach
+          params:
+            column: Consults
+            type:
+              type:
+              - array
+              - 'null'
+              items:
+                type: string
+          intent: Consults carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: declared_reach
@@ -1075,7 +1238,7 @@ core:
             columns:
             - CT Code
             - Step
-            - Kind (atom, molecule, loop)
+            - Kind
             - Target
             - Over
             - Iterator
@@ -1133,6 +1296,29 @@ core:
             - CARRY
             - UPDATE
           intent: Role is a controlled vocabulary declared by the template
+        - id: CELL_NOT_OF_TYPE
+          check: CELL_OF_TYPE
+          register: molecule_step_bindings
+          params:
+            column: Bound To
+            type:
+              oneOf:
+              - type: 'null'
+              - type: string
+              - type: object
+                required:
+                - literal
+                additionalProperties: false
+                properties:
+                  literal: {}
+              - type: object
+                required:
+                - generated
+                additionalProperties: false
+                properties:
+                  generated:
+                    const: true
+          intent: Bound To carries structure, and its value must take the declared form
         - id: ROW_WITHOUT_SOURCE_FINDING
           check: CELL_NOT_EMPTY
           register: molecule_step_bindings
@@ -1802,7 +1988,7 @@ core:
           check: STORE_PATH_MATCHES_STORAGE
           register: structure_stores
           params:
-            storage_column: Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0)
+            storage_column: Storage Type
             path_column: Proposed Path
             formats:
               CS_MUTABLE_JSON_V0: .json
@@ -1909,7 +2095,8 @@ core:
           params:
             column: Owner
             only_when_column: Bound To
-            only_when_value: generated
+            only_when_value:
+              generated: true
             target_registers:
             - generation_provenance
             target_column: Artifact
@@ -2318,20 +2505,12 @@ core:
             detail: value names no field — construction would have to choose one
           intent: every value names the field it is for
         - id: TEST_VALUE_EMPTY
-          check: CELL_NOT_EMPTY
+          check: CELL_PRESENT
           register: test_case_values
           params:
             column: Value
-            detail: value is empty — write the literal, and "" for the empty string
+            detail: value is not stated — write the literal; "" is the empty string and null is null
           intent: every value is stated
-        - id: TEST_VALUE_UNPARSEABLE
-          check: CELL_PARSES_AS_YAML
-          register: test_case_values
-          params:
-            column: Value
-            detail: value {value!r} is not a YAML literal ({problem}) — construction would keep it as text; quote
-              it if text is meant
-          intent: every value is read as the design wrote it
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
           check: CELL_MATCHES
           register: new_artifacts
