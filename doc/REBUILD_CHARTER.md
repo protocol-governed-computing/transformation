@@ -437,6 +437,19 @@ Rule counts: p0 88, p1 193, p2 87, p3 58, p4 93, p5 91, p6 63, p7 284, p8 39.
 - **I-6, the table closes.** Against the oracle, every live transformation artifact is the same or
   new. The 23 stood-down artifacts are each in `.github/process/notes/rebuild-retirements.yaml`,
   for deletion at the swap.
+- **I-7, the single-instance check.** `.github/process/single_instance_check.py --namespace …`
+  groups the working composition by name without its version and reports a name live in more than
+  one version. It scopes by namespace, since the platform spans several. Reuse of a deleted name stays
+  `published_identity_check`'s finding, so this one does not read the ledger. Today transformation
+  has 15 such names; it joins the regression at the swap.
+- **I-8, deleted history.** A ledger entry records the deleted artifact's successor,
+  `superseded_by`, because once both ends of a relation are deleted no live artifact states it.
+  `published_identity_check.successors()` follows the chain through the composition, live
+  `supersedes` and the ledger. `supersession_agreement` holds a ledger successor equal to the live
+  successor's `supersedes`.
+- **I-9, the swap rehearsed.** In scratch, the 23 stood-down artifacts deleted, compiled and
+  side-assembled with the deferred entries in the ledger: published identity, supersession agreement
+  and single instance pass (500 published, 16 deleted by record; 44 artifacts, one version each).
 
 ## 9. The in-flight dossiers
 
