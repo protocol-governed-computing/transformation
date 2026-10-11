@@ -91,26 +91,60 @@ entered in §8 before the build is written, never after it is seen.
    not enforced. Every check kind is used (§3).
 6. **The workspace.** `regression.sh --all` passes. The rebuild updates `expectations.yaml` only
    for counts that it explains in §8.
+7. **The genesis dossier.** One dossier, P0–P8, in the new form, describes the rebuilt module as it
+   stands: every transformation artifact at its one live version. The rebuilt module admits it. This
+   is a fixed point the rebuild must reach. It does not replace items 2–4, which measure the rebuild
+   against something other than itself.
+8. **Single instance.** The single-instance check (§6) passes on the transformation domain.
 
 ## 6. Identity at the swap
 
 Development is open. `.github/process/retention.yaml` declares that nothing is retained for its own
 sake.
 
-- An oracle artifact the rebuild does not keep is deleted, and recorded in
-  `.github/process/retired_identities.yaml`.
-- A deleted name is never reused. A rebuilt artifact takes a new identity whenever its meaning
-  changes.
-- A deletion leaves the successor's `supersedes` pointing at an absent identity. The platform's
-  surface closure refuses that today. The fix is decided (option B): `supersedes` records history,
-  is exempt from surface closure, and is checked against the ledger by `supersession_agreement`.
-  It is a `software_governance` change. The frozen oracle judges it, so the oracle is not judging
-  its own redesign. It lands before the swap.
+**Single instance.** Each artifact exists in exactly one version in the live tree.
+- An artifact whose meaning is unchanged keeps its identity.
+- An artifact whose meaning changes takes the next version never used before: not in the v5 release,
+  not in the live tree, and not in the ledger. It names its predecessor in `supersedes`.
+- Every other version is deleted, and recorded in `.github/process/retired_identities.yaml`.
+- A deleted name is never reused.
+- History is held by the v5 release at its tag, the ledger, `supersedes` on the one live version,
+  and git. The live tree holds what runs.
+
+**The single-instance check.** A new workspace check, beside `published_identity_check`. It groups
+the live tree by artifact name without its version suffix, and reports any name present in more
+than one version. It reads the same ledger. It runs on the transformation domain from the swap, and
+on every domain once the sweep (§10, step 7) is done.
+
+**Node keys follow their contract.** A workflow node's key is the live name of the contract it runs.
+No node key spells a deleted version, even as a place.
+
+**Surface closure.** A deletion leaves the successor's `supersedes` naming an absent identity. The
+platform's surface closure refuses that today. The fix is decided (option B):
+- `supersedes` records history and is exempt from surface closure;
+- `supersession_agreement` checks it against the ledger;
+- it is a `software_governance` change, judged by the frozen oracle, so the oracle does not judge its
+  own redesign;
+- it lands before the swap.
+
+**What the swap deletes from the transformation domain.**
+- Every stood-down artifact, the eleven of `.github/process/notes/rebuild-retirements.yaml` among them.
+- Every capability-transform implementation the rebuild no longer names. `implementation_closure`
+  shows none is left.
+- The table reader, and the converter once it has produced the corpus.
+- The test harnesses written for the old form.
+
+**What stays.** These are records, not code:
+- the v5 release at its tag;
+- delivered dossiers, in their original form;
+- generator scripts kept under `.github/process/notes/` (v5 ruling C1);
+- the parked dossiers (§9).
 
 ## 7. Governance exception
 
-The rebuild is not judged by its own lifecycle. It produces no dossier of its own P0–P8, because
-the tool that would judge it is the tool being replaced.
+The rebuild is not judged by its own lifecycle while it is built, because the tool that would judge
+it is the tool being replaced. Its genesis dossier (§5, item 7) is written in the new form and
+judged by the rebuilt module once the build is done.
 
 - This is an exception, made openly, and it is the reason for this charter. The generated-artifacts
   exception was declared the last one. This charter re-opens that ruling, so the exception is
@@ -129,6 +163,9 @@ rebuild starts with these:
 |---|---|---|
 | Form of a phase document | Structured block, not tables | Format, in scope (§4.1). |
 | Retained phase workflows and contracts | Deleted, with a ledger entry | Development retains nothing for its own sake (§6). |
+| Versions of one artifact | Exactly one in the live tree | Single instance (§6). |
+| Node keys that spell a deleted version | Renamed to the contract's live name | Nothing live spells a deleted version (§6). |
+| Table reader, converter, old-form harnesses | Deleted | No dead code (§6). |
 
 ## 9. The in-flight dossiers
 
@@ -148,6 +185,59 @@ rebuild starts with these:
 5. **Acceptance.** §5, item by item.
 6. **Swap.** Squash the branch into `dev/18` as one commit. The oracle's dead artifacts are deleted
    and recorded in the same change. The human runs every git command.
+7. **Sweep.** Every other domain that holds stood-down artifacts deletes them, one change per
+   domain, through the lifecycle, judged by the rebuilt module. There are 22 today: blockchain 10,
+   execution_topology 3, capability_transforms, workload, book_library_mgmt and ai_governance 2
+   each, and trace 1. Each change renames the node keys that spell a deleted version and records
+   every deletion in the ledger.
+8. **Single instance, workspace-wide.** When the last sweep lands, the single-instance check runs
+   on every domain and joins the regression.
+
+## 10a. Branches
+
+The human runs every git command.
+
+**Repositories.**
+- `transformation` carries the rebuild.
+- `.github` carries the expectations, the ledger and the runbook that change with it.
+- `software_governance` and `protocol_compiler` take the platform fix (§6) on `dev/18`, through the
+  lifecycle. They need no rebuild branch.
+
+| Repository | Ref | Purpose |
+|---|---|---|
+| transformation | tag `oracle/transformation` on `dev/18` | The frozen oracle. It never moves. |
+| transformation | `rebuild/transformation`, cut from the tag | All rebuild work. |
+| .github | `rebuild/transformation`, cut from `dev/18` | Expectations and ledger entries that match the rebuild. |
+| transformation | `dev/18` | Frozen (§3). A fix the workspace needs lands here and is cherry-picked onto the rebuild branch. |
+| every other repository | `dev/18` | Unchanged. The platform fix lands here before the swap. |
+
+**The oracle runs beside the rebuild.** The venv holds one editable `transformation`, and that is
+the rebuild.
+- The oracle is a worktree of the tag: `git worktree add ~/pgc-oracle/transformation oracle/transformation`.
+- The acceptance harness runs it as a subprocess. Its import root is provisioned through the
+  environment, never through `sys.path`.
+
+**Switching.**
+- To work on the rebuild, check out `rebuild/transformation` in both `transformation` and `.github`.
+- To work on anything else, return both to `dev/18`. Run the regression there to confirm the oracle
+  composition still passes.
+
+**Backup.**
+- `dev/18` is pushed to the remote.
+- The oracle tag and both rebuild branches are pushed as well, so the oracle and the work in progress
+  survive the loss of this machine.
+
+**The swap.**
+1. Squash `rebuild/transformation` into `dev/18` in `transformation`, as one commit.
+2. Squash it into `dev/18` in `.github`, as one commit. The deferred ledger entries
+   (`.github/process/notes/rebuild-retirements.yaml`) join `retired_identities.yaml` in this commit.
+3. Run `regression.sh --all` on `dev/18`.
+4. After confirmation, rename both branches `archive/rebuild-transformation`. The oracle tag stays.
+
+**Rollback.** Before step 4, `dev/18` in `transformation` returns to the tag. That reset is
+destructive, so a human decides it.
+
+After the swap, `dev/18` collects for v6 as before.
 
 ## 11. Open decisions
 
