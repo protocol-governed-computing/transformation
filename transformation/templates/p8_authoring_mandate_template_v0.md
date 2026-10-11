@@ -1,12 +1,47 @@
 # Authoring Mandate: [domain] / [subdomain]
-**Domain:** [domain]  
-**Subdomain:** [subdomain]  
-**Version:** V0  
-**Status:** DRAFT  
-**Pipeline Stage:** Stage 8 — Authoring Mandate  
-**Produced by:** v0.5.0 SDLC authoring pipeline  
 
----
+## Machine
+
+```yaml
+document:
+  phase: p8
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P8_V0
+  # approval: {gate: ..., rule_set: ..., state: APPROVED} — when the gate closes
+registers:
+  build_order:
+  - wave: null
+    step: null
+    code: null
+    action: null
+    subdomain: null
+    depends_on: null
+  critical_path:
+  - position: null
+    code: null
+  mandate_artifact_summary:
+  - action: null
+    count: null
+    description: null
+  field_declarations:
+  - code: null
+    subdomain_field: null
+  new_capabilities:
+  - code: null
+    purpose: null
+    inputs: null
+    outputs: null
+  new_intents:
+  - code: null
+    purpose: null
+    workflow: null
+    inputs: null
+  cross_subdomain_notes:
+  - code: null
+    note: null
+```
 
 ## Document Contract
 
@@ -16,7 +51,7 @@ ROWS; a deterministic renderer owns the document; a cross-stage oracle checks th
 Stage 7 registers.
 
 VALID OUTPUT:
-- Populated register tables (every required register below)
+- Populated registers (every required register below)
 - Every `code` cell a binding FQDN copied VERBATIM from a Stage 7 register
 
 INVALID OUTPUT:
@@ -50,15 +85,15 @@ INVALID OUTPUT:
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -76,9 +111,7 @@ REUSE / existing dependency is NOT authored: reference it in `depends_on`, never
 `step` is the GLOBAL execution order, contiguous from 1 across all waves; `wave` groups parallel
 work. `code` is copied verbatim from a Stage 7 register; `depends_on` lists prerequisite codes (or `—`).*
 
-<!-- register:build_order optional -->
-| Wave | Step | Code | Action (REPLACE, EXTEND, NEW) | Subdomain | Depends On |
-|------|------|------|-------------------------------|-----------|------------|
+Register `build_order` in the Machine block.
 
 ---
 
@@ -87,9 +120,7 @@ work. `code` is copied verbatim from a Stage 7 register; `depends_on` lists prer
 *The longest sequential dependency chain, in order. Each `code` is a build_order step on the
 critical path.*
 
-<!-- register:critical_path optional -->
-| Position | Code |
-|----------|------|
+Register `critical_path` in the Machine block.
 
 ---
 
@@ -97,9 +128,7 @@ critical path.*
 
 *Authoring action counts, for Stage 8 input. Reconciles against Stage 7 `artifact_summary`.*
 
-<!-- register:mandate_artifact_summary -->
-| Action (REPLACE, EXTEND, NEW) | Count | Description |
-|-------------------------------|-------|-------------|
+Register `mandate_artifact_summary` in the Machine block.
 
 ---
 
@@ -113,9 +142,7 @@ so nothing in the build order names it, and a workflow whose subdomain went unde
 empty one while every rule passed. The artifact already sits in a subdomain; this states which,
 because construction has no view of the composition to read it from.*
 
-<!-- register:field_declarations -->
-| Code | Subdomain Field |
-|------|-----------------|
+Register `field_declarations` in the Machine block.
 
 ---
 
@@ -123,9 +150,7 @@ because construction has no view of the composition to read it from.*
 
 *New CT/capability declarations — **business intent only**. `Code` is a binding FQDN from a Stage 7 `new_artifacts` row; `Purpose` is business language; `Inputs`/`Outputs` are typed fields written `name:type` (comma-separated, e.g. `block:object`). The Construction Compiler realizes these into candidate CT contracts — it derives ALL protocol realization (purity, governing constitution, machine/implementation binding). You declare only intent. Nothing new → leave empty.*
 
-<!-- register:new_capabilities optional -->
-| Code | Purpose | Inputs | Outputs |
-|------|---------|--------|---------|
+Register `new_capabilities` in the Machine block.
 
 ---
 
@@ -133,9 +158,7 @@ because construction has no view of the composition to read it from.*
 
 *New IN (ingress) declarations — **business intent only**. `Code` is a binding FQDN from `new_artifacts`; `Purpose` is business language; `Workflow` is the WF this intent admits into (a design decision — the FQDN); `Inputs` is the typed payload written `name:type` (comma-separated — only what ARRIVES at the intent boundary). The Construction Compiler realizes these into candidate IN contracts. Nothing new → leave empty.*
 
-<!-- register:new_intents optional -->
-| Code | Purpose | Workflow | Inputs |
-|------|---------|----------|--------|
+Register `new_intents` in the Machine block.
 
 ---
 
@@ -143,9 +166,7 @@ because construction has no view of the composition to read it from.*
 
 *Artifacts that make cross-subdomain calls (permitted) or would write cross-subdomain (forbidden — must be a peer-owned dependency-gap CC). Audit only.*
 
-<!-- register:cross_subdomain_notes optional -->
-| Code | Note |
-|------|------|
+Register `cross_subdomain_notes` in the Machine block.
 
 ---
 
@@ -166,7 +187,7 @@ because construction has no view of the composition to read it from.*
 (`contracts/gov_projection.py`). S7 consumes all five Stage 7 registers and emits the four the
 authoring step builds from. Emit keys match the register ids above exactly.*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← Stage 7 | new_artifacts · existing_inventory · rb_declarations · execution_topology · artifact_summary |
-| **Emits** → artifact authoring | build_order · critical_path · mandate_artifact_summary · field_declarations |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p7 | new_artifacts · existing_inventory · rb_declarations · execution_topology · artifact_summary |
+| **Emits** | build_order · critical_path · mandate_artifact_summary · field_declarations |

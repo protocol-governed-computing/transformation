@@ -251,7 +251,6 @@ registers:
     meaning: Each admissible origin, what it means, and whether a design carrying it is complete.
   implementation_bindings:
   - ct_code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
-    module: transformation.implementation.capability_transforms.atoms.ct_pure_attribute_provenance_v0
     callable: execute
     operation: ATTRIBUTE_PROVENANCE
     kind: atom
@@ -259,7 +258,6 @@ registers:
     refusal: returns
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_ATTRIBUTE_PROVENANCE_V0}
   - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
-    module: transformation.implementation.capability_transforms.atoms.ct_pure_render_artifacts_v0
     callable: execute
     operation: PURE_RENDER_ARTIFACTS
     kind: atom
@@ -267,7 +265,6 @@ registers:
     refusal: raises
     source_finding: {phase: p7, register: existing_inventory, key: CT_PURE_RENDER_ARTIFACTS_V0}
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
-    module: transformation.implementation.capability_transforms.atoms.ct_pure_measure_completeness_v0
     callable: execute
     operation: PURE_MEASURE_COMPLETENESS
     kind: atom

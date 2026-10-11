@@ -30,6 +30,9 @@ SNAPSHOT = Path.home() / "pgc-oracle" / "snapshot"
 HERE = Path(__file__).resolve().parent
 
 CODE_MAP: dict[str, str] = {}
+# M5-2: the `Module` column goes, and the rules about it with it.
+RETIRED_WITH_MODULE = ("IMPLEMENTATION_WITHOUT_MODULE", "IMPLEMENTATION_MODULE_MISPLACED",
+                       "MOLECULE_DECLARES_IMPLEMENTATION")
 # M4-1: the header is `document`, and two of its fields are renamed.
 HEADER_NAMES = {"phase": "Stage", "cr": "CR"}
 # M3.4a-1: procedures restated as constraints. The general kind words the finding its own way, so
@@ -64,6 +67,7 @@ def _normalised(finding: dict, side: str) -> tuple | None:
     - M4-1: the header is `document`. `Status` and `Feeds` are gone, so the oracle's findings about
       them are not compared; `phase` and `cr` read as `Stage` and `CR`.
     - M4-2: `LIFECYCLE_STATE_NOT_IN_VOCABULARY` retires with `Status`.
+    - M5-2: construction derives a transform's module, so the rules about the `Module` column retire.
     - M3.4c: the rebuild names a finding's kind `code` and places it by a locator. Both read as the
       oracle's `rule` and `where`.
     - M3.3b-1: a citation is a mapping, so an unresolved one is shown as the mapping. Both read as
@@ -72,6 +76,8 @@ def _normalised(finding: dict, side: str) -> tuple | None:
     """
     raw = finding.get("code", finding["rule"])
     code, where, detail = CODE_MAP.get(raw, raw), _where(finding), finding["detail"]
+    if code in RETIRED_WITH_MODULE:
+        return None
     if code == "LIFECYCLE_STATE_NOT_IN_VOCABULARY" or (
             code == "HEADER_FIELD_MISSING" and re.search(r"'(Status|Feeds)' absent", detail)):
         return None

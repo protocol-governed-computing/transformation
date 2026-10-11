@@ -35,6 +35,7 @@ from pathlib import Path
 import yaml
 
 import header as header_form  # this directory; the oracle runs the script from here
+import typed_values
 import transformation
 from transformation.design import read as oracle_read
 from transformation.design.checks import is_sentinel
@@ -230,6 +231,11 @@ def _binding(register_id: str, cell: str):
 OMIT = object()
 
 
+# Columns that take any value but that the oracle wrote as text. They convert as text, and
+# `typed_values` types what the oracle read as a number or a flag (M5-1).
+WRITTEN_AS_TEXT = {("interface_fields", "default"), ("artifact_properties", "value")}
+
+
 def _test_value(cell: str):
     if cell == "":
         return OMIT
@@ -250,7 +256,8 @@ def _value(register_id: str, key: str, cell: str, row: dict[str, str]):
         return _citation(cell)
     if "oneOf" in declared:
         return None if cell in NONE_MARKERS else ("" if cell == "" else _binding(register_id, cell))
-    if key in COLUMNS.get(register_id, {}) and "type" not in declared:
+    if key in COLUMNS.get(register_id, {}) and "type" not in declared \
+            and (register_id, key) not in WRITTEN_AS_TEXT:
         return _test_value(cell)
     if cell in NONE_MARKERS:
         return None
@@ -332,7 +339,7 @@ def convert(text: str) -> str:
         if line.strip() == "" and collapsed and collapsed[-1].strip() == "":
             continue
         collapsed.append(line)
-    return "\n".join(collapsed).rstrip("\n") + "\n"
+    return typed_values.migrate("\n".join(collapsed).rstrip("\n") + "\n")
 
 
 def main(argv: list[str]) -> int:

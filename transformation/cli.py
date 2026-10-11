@@ -379,13 +379,15 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
 @click.option("--change", required=True, help="What changed in the rules, and why.")
 @click.option("--retroactive", is_flag=True,
               help="The change can alter a prior document's admissibility.")
-def phase_revise(phase_key: str, change: str, retroactive: bool) -> None:
+@click.option("--amend", is_flag=True,
+              help="Replace the last revision instead of adding one. Only for a schema not yet published.")
+def phase_revise(phase_key: str, change: str, retroactive: bool, amend: bool) -> None:
     """Record a change to a phase's rules as a revision of its schema.
 
     A change declares its own effectivity. One that alters no prior document's admissibility is a
     revision under the same `$id`, and this records it with the digest the rules now have. One that
     can is retroactive: it takes a new `$id`, which is a new schema file named in the dispatch, and is
-    not recorded here.
+    not recorded here. A schema nobody has yet judged a document by may amend its last revision.
     """
     phase = RULE_SETS[phase_key]
     if retroactive:
@@ -394,7 +396,9 @@ def phase_revise(phase_key: str, change: str, retroactive: bool) -> None:
             f"name it in transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0, and start its revisions at 1")
     digest = effectivity.digest(phase.rule_set())
     revisions = list(phase.shape.revisions)
-    if revisions and revisions[-1]["digest"] == digest:
+    if amend and revisions:
+        revisions.pop()
+    elif revisions and revisions[-1]["digest"] == digest:
         raise click.ClickException(f"{phase.shape.schema_id} revision {revisions[-1]['revision']} "
                                    f"already records {digest}; the rules have not changed")
     declared = json.loads(phase.shape.path.read_text(encoding="utf-8"))

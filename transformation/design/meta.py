@@ -308,6 +308,11 @@ DESIGN_LANGUAGE = Path(__file__).resolve().parents[2] / "doc" / "DESIGN_LANGUAGE
 # The constitution naming the invariants a phase's rules must realise. The construction invariants
 # are realised by construction, not by a register schema, and are not asked of it.
 DESIGN_CONSTITUTION = "lifecycle::CONSTITUTION_CHANGE_MGMT_V1"
+# The constitution naming the invariants construction realises, each specified by a section of the
+# construction mapping standard.
+CONSTRUCTION_CONSTITUTION = "lifecycle::CONSTITUTION_CONSTRUCTION_V1"
+CONSTRUCTION_MAPPING = DESIGN_LANGUAGE.parent / "CONSTRUCTION_MAPPING.md"
+TEMPLATES = Path(__file__).resolve().parents[1] / "templates"
 STATEMENT = "DESIGN_LANGUAGE.md#"
 
 
@@ -327,9 +332,11 @@ def _statements() -> set[str]:
     return {m.lower() for m in re.findall(r"^#### ([A-Z0-9_]+)$", text, re.M)}
 
 
-def _title(column: str) -> str:
-    """A template column title without the vocabulary it lists inline, `Kind (atom, molecule)`."""
-    return re.sub(r"\s*\([^)]*\)$", "", column)
+def _template(phase_id: str) -> str:
+    """A phase's template, as the dispatch names it."""
+    from transformation.design.catalog import phase
+
+    return (TEMPLATES / phase(phase_id).template).read_text(encoding="utf-8")
 
 
 def closure(rule_sets: dict[str, PhaseRules], snapshot_root: str) -> list[MetaFinding]:
@@ -338,12 +345,13 @@ def closure(rule_sets: dict[str, PhaseRules], snapshot_root: str) -> list[MetaFi
     - every `x-realises` resolves: to an invariant the composition carries and the design
       constitution names, or to a statement in DESIGN_LANGUAGE;
     - every invariant the design constitution names is realised by some rule;
-    - every template names exactly its schema's registers, with the same columns;
-    - every rule set is the last revision its schema records.
+    - every template's Machine skeleton names exactly its schema's registers, with the same keys,
+      and a header the schema declares;
+    - every rule set is the last revision its schema records;
+    - every construction invariant has its section in the construction mapping standard.
 
     That every check kind is used, and every rule's kind exists, `verify` asserts.
     """
-    from transformation.design import template_reader
     from transformation.design.expand import DERIVED_REALISES, derived_rules
 
     findings: list[MetaFinding] = []
@@ -382,6 +390,19 @@ def closure(rule_sets: dict[str, PhaseRules], snapshot_root: str) -> list[MetaFi
             findings.append(MetaFinding("INVARIANT_UNREALISED", fqdn,
                                         "is in force, and no rule of any phase realises it"))
 
+    construction = _artifact(CONSTRUCTION_CONSTITUTION, snapshot_root)
+    if construction is None:
+        findings.append(MetaFinding("CONSTITUTION_UNREADABLE", CONSTRUCTION_CONSTITUTION,
+                                    f"is not in the composition at {snapshot_root}"))
+    else:
+        sections = set(re.findall(r"^#### ([A-Z0-9_]+)$", CONSTRUCTION_MAPPING.read_text(encoding="utf-8"), re.M))
+        for rule in _machine(construction["canonical"]["content"]).get("rules", []):
+            fqdn = str(rule.get("enforced_by", ""))
+            name = re.sub(r"^lifecycle::INVARIANT_|_V\d+$", "", fqdn)
+            if fqdn.startswith("lifecycle::INVARIANT_") and name not in sections:
+                findings.append(MetaFinding("CONSTRUCTION_INVARIANT_UNSPECIFIED", fqdn,
+                                            "is in force, and CONSTRUCTION_MAPPING.md specifies nothing that realises it"))
+
     from transformation.design.effectivity import unrecorded
 
     for phase_id, phase in sorted(rule_sets.items()):
@@ -390,8 +411,15 @@ def closure(rule_sets: dict[str, PhaseRules], snapshot_root: str) -> list[MetaFi
             findings.append(MetaFinding("REVISION_UNRECORDED", phase_id, reason))
 
     for phase_id, phase in sorted(rule_sets.items()):
-        template = {r.id: tuple(_title(c) for c in r.columns) for r in template_reader.load(phase_id).registers}
-        schema = {r.id: tuple(r.columns) for r in phase.shape.registers}
+        skeleton = _machine(_template(phase_id))
+        template = {rid: tuple(value[0]) if isinstance(value, list) and value else ()
+                    for rid, value in (skeleton.get("registers") or {}).items()}
+        schema = {r.id: tuple(r.keys) for r in phase.shape.registers}
+        header = set(skeleton.get("document") or {})
+        if not set(phase.shape.document_required) <= header <= set(phase.shape.document):
+            findings.append(MetaFinding("TEMPLATE_SCHEMA_DISAGREE", f"{phase_id}/document",
+                                        f"the template's header {sorted(header)} is not the schema's "
+                                        f"{sorted(phase.shape.document)}"))
         for register in sorted(set(template) ^ set(schema)):
             side = "template" if register in template else "schema"
             findings.append(MetaFinding("TEMPLATE_SCHEMA_DISAGREE", f"{phase_id}/{register}",

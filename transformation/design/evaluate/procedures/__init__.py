@@ -13,7 +13,6 @@ from transformation.design.evaluate.procedures import (  # noqa: F401
     emission_grounded_in_ending,
     entrance_supplies_gate,
     governing_rule_in_sealed_set,
-    implementation_module_conforms,
     interpretation_transform_refuses,
     node_input_bound,
     outcome_grounded_in_operation,

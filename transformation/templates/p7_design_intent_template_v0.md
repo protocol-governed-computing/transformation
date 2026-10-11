@@ -1,13 +1,187 @@
 # Design Intent: [domain] / [subdomain]
-**Domain:** [domain]  
-**Subdomain:** [subdomain]  
-**Version:** V0  
-**Status:** DRAFT  
-**Pipeline Stage:** Stage 7 — Design Intent (HOW)  
-**Produced by:** v0.5.0 SDLC authoring pipeline  
-**Purity:** HOW only — business facts (Business Model) and placement decisions (Governance Intent) not repeated  
 
----
+## Machine
+
+```yaml
+document:
+  phase: p7
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P7_V0
+  # approval: {gate: ..., rule_set: ..., state: APPROVED} — when the gate closes
+registers:
+  design_resolution:
+  - decision: null
+    business_fact: null
+    resolution: null
+    source_finding: null
+  existing_inventory:
+  - fqdn: null
+    action: null
+    summary: null
+    reason: null
+    source_finding: null
+  new_artifacts:
+  - capability: null
+    family: null
+    code: null
+    summary: null
+    owner_subdomain: null
+    status: null
+    source_finding: null
+  rb_declarations:
+  - rb_code: null
+    binds_wf: null
+    cs_bindings: null
+    storage_structure: null
+    source_finding: null
+  execution_topology:
+  - workflow: null
+    node: null
+    runs: null
+    node_type: null
+    routing: null
+    source_finding: null
+  cc_composition:
+  - cc_code: null
+    step: null
+    step_name: null
+    capability: null
+    kind: null
+    operation: null
+    store: null
+    consumes: null
+    produces: null
+    routing: null
+    interpreted_by: null
+    semantic_status: null
+    interface: null
+  step_bindings:
+  - owner: null
+    step: null
+    direction: null
+    field: null
+    bound_to: null
+    source_finding: null
+  interface_fields:
+  - artifact: null
+    direction: null
+    field: null
+    type: null
+    format: null
+    required: null
+    default: null
+    meaning: null
+  implementation_bindings:
+  - ct_code: null
+    callable: null
+    operation: null
+    kind: null
+    purity: null
+    refusal: null
+    source_finding: null
+  vocabulary_extensions:
+  - vocabulary_code: null
+    extends: null
+    group: null
+    casing: null
+    value: null
+    meaning: null
+    source_finding: null
+  runtime_policies:
+  - rb_code: null
+    capability: null
+    key: null
+    value: null
+    source_finding: null
+  artifact_properties:
+  - artifact: null
+    property: null
+    value: null
+    source_finding: null
+  structure_stores:
+  - store_name: null
+    storage_type: null
+    proposed_path: null
+    used_by: null
+    source_finding: null
+  transport_bindings:
+  - artifact: null
+    direction: null
+    operation: null
+    handler_kind: null
+    handler_target: null
+    field: null
+    bound_to: null
+    source_finding: null
+  artifact_summary:
+  - action: null
+    subdomain: null
+    count: null
+    artifacts: null
+  generation_provenance:
+  - artifact: null
+    generator: null
+    generator_sources: null
+    source_finding: null
+  declared_reach:
+  - act: null
+    consults: null
+    source_finding: null
+  refusal_discharge:
+  - operation: null
+    refused_when: null
+    act: null
+    step: null
+    outcome: null
+    source_finding: null
+  refusal_deferrals:
+  - operation: null
+    refused_when: null
+    deferred_to: null
+    until: null
+    source_finding: null
+  refusal_governance_discharge:
+  - operation: null
+    refused_when: null
+    phase: null
+    governing_rule: null
+    source_finding: null
+  molecule_steps:
+  - ct_code: null
+    step: null
+    kind: null
+    target: null
+    over: null
+    iterator: null
+    emits: null
+    source_finding: null
+  molecule_step_bindings:
+  - ct_code: null
+    step: null
+    role: null
+    field: null
+    bound_to: null
+    source_finding: null
+  test_cases:
+  - ct_code: null
+    case: null
+    expected_outcome: null
+    source_finding: null
+  test_case_values:
+  - ct_code: null
+    case: null
+    role: null
+    field: null
+    value: null
+    source_finding: null
+  withdrawn_facts:
+  - artifact: null
+    fact: null
+    reason: null
+    source_finding: null
+```
 
 ## Document Contract
 
@@ -16,7 +190,7 @@ FQDNs** the rest of the build depends on. The worker emits register ROWS; a dete
 owns the document and a structural oracle validates the codes BEFORE a human reviews.
 
 VALID OUTPUT:
-- Populated register tables (every required register below)
+- Populated registers (every required register below)
 - Binding FQDNs in `code` / `rb_code` / `binds_wf` / `storage_structure` columns, each
   well-formed (`domain::PREFIX_NAME_V<n>`) and assigned EXACTLY ONCE
 - Business-language capability descriptions in the `capability` column
@@ -26,9 +200,8 @@ INVALID OUTPUT:
 - A binding FQDN referenced anywhere (topology, RB) but absent from `new_artifacts`
 - Two spellings of the same capability (a typo is a SECOND immutable artifact, not a synonym)
 
-A required register with no rows MUST render as a single `| NONE IDENTIFIED |` row. The renderer
-rejects a malformed FQDN, an empty required register, an undeclared reference, or a near-duplicate
-code mechanically.
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 ---
 
@@ -135,15 +308,15 @@ binding codes belong. Existing artifacts are cited by their real FQDN in `fqdn` 
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -157,9 +330,7 @@ that owns it.
 
 *The Design Decisions Register populated throughout Stages 1–4 — resolved here. Each row traces to a Business Model design decision (`source_finding`).*
 
-<!-- register:design_resolution optional -->
-| Decision | Business Fact | Resolution | Source Finding |
-|----------|---------------|------------|----------------|
+Register `design_resolution` in the Machine block.
 
 ---
 
@@ -190,9 +361,7 @@ keeps its identity. Every live artifact that names one this design replaces is `
 required for an `EXTEND`, because a rendered artifact without its summary is one this change
 silently emptied. A `REUSE`, `REPOINT` or `REVIEW` row is not rendered and may leave it blank.*
 
-<!-- register:existing_inventory -->
-| FQDN | Action (REPLACE, REUSE, EXTEND, REPOINT, REVIEW) | Summary | Reason | Source Finding |
-|------|------------------------------------------|---------|--------|----------------|
+Register `existing_inventory` in the Machine block.
 
 ---
 
@@ -202,9 +371,7 @@ silently emptied. A `REUSE`, `REPOINT` or `REVIEW` row is not rendered and may l
 `capability` is business language; `code` is the binding FQDN; `family` is the execution concern;
 `owner_subdomain` is the owning subdomain; `source_finding` traces to the S6 ownership / S4 gap.*
 
-<!-- register:new_artifacts optional business_language=capability -->
-| Capability | Family (AC, IN, WF, RB, CC, CT, EV, VOCAB, STRUCTURE, TI, TE) | Code | Summary | Owner Subdomain | Status | Source Finding |
-|------------|------------------------------------------------|------|---------|-----------------|--------|----------------|
+Register `new_artifacts` in the Machine block.
 
 ---
 
@@ -212,9 +379,7 @@ silently emptied. A `REUSE`, `REPOINT` or `REVIEW` row is not rendered and may l
 
 *One RB per WF. The RB declares which CS substrates the WF requires and which storage structure resolves store paths. An undeclared CS binding is a runtime failure. `cs_bindings` may list several CS FQDNs (comma-separated).*
 
-<!-- register:rb_declarations -->
-| RB Code | Binds WF | CS Bindings | Storage Structure | Source Finding |
-|---------|----------|-------------|-------------------|----------------|
+Register `rb_declarations` in the Machine block.
 
 ---
 
@@ -237,9 +402,7 @@ workflow. Routing targets, step bindings and discharges name the key; the contra
 reach are read from `runs`. `NOT_FOUND -> RECORD_UNKNOWN_BORROWER` routes to a keyed node whose
 `runs` is `CC_RECORD_REFUSAL_V0`, and a second key in the same workflow may run that contract too.*
 
-<!-- register:execution_topology optional_columns=runs -->
-| Workflow | Node | Runs | Node Type (IN, CC, EXIT, EXIT_SUCCESS) | Routing | Source Finding |
-|----------|------|------|----------------------------------------|---------|----------------|
+Register `execution_topology` in the Machine block.
 
 ---
 
@@ -255,9 +418,7 @@ to the invoked capability's declared FORMAL parameters, so a reusable CT keeps i
 the CC keeps its business vocabulary. Syntax: `in: <ct_formal>=<cc_local>, …; out: <ct_output>=<cc_local>, …`
 (e.g. `in: left=predecessor_hash, right=current_head; out: is_equal=is_match`). CS steps leave it blank.*
 
-<!-- register:cc_composition optional -->
-| CC Code | Step | Step Name | Capability | Kind (CT, CS) | Operation | Store | Consumes | Produces | Routing | Interpreted By | Semantic Status | Interface |
-|---------|------|-----------|------------|---------------|-----------|-------|----------|----------|---------|----------------|-----------------|-----------|
+Register `cc_composition` in the Machine block.
 
 ---
 
@@ -284,9 +445,7 @@ or it reads as a reference. Every rule that judges a binding reads a literal thi
 as a phase workflow's sealed rule set is, and it is admitted only for an owner §16 lists as
 generated. A design that means the word itself writes it quoted.*
 
-<!-- register:step_bindings optional -->
-| Owner | Step | Direction (INPUT, OUTPUT) | Field | Bound To | Source Finding |
-|-------|------|--------------------------|-------|----------|----------------|
+Register `step_bindings` in the Machine block.
 
 ---
 
@@ -300,9 +459,7 @@ the same reason: the language could describe a capability but never a field of o
 *`direction` ∈ INPUT | OUTPUT | ATTRIBUTE. `required` ∈ YES | NO. `default` is stated only when the
 field has one; a field with no default and `required: NO` is simply absent when not supplied.*
 
-<!-- register:interface_fields optional -->
-| Artifact | Direction (INPUT, OUTPUT, ATTRIBUTE) | Field | Type | Required (YES, NO) | Default | Meaning |
-|----------|--------------------------------------|-------|------|--------------------|---------|---------|
+Register `interface_fields` in the Machine block.
 
 ---
 
@@ -325,9 +482,7 @@ every transform raises on a missing input, so that would make the fact uniform a
 A transform named as an interpretation must declare `raises`, because a judgement the step cannot
 fail on is a branch nothing reaches.*
 
-<!-- register:implementation_bindings optional -->
-| CT Code | Module | Callable | Operation | Kind (atom, molecule) | Purity (ct_pure, ct_impure) | Refusal (raises, returns, never) | Source Finding |
-|---------|--------|----------|-----------|-----------------------|-----------------------------|----------------------------------|----------------|
+Register `implementation_bindings` in the Machine block.
 
 ---
 
@@ -341,9 +496,7 @@ together or the composition compiles with a status nothing recognizes.*
 base vocabulary, which is a decision; left blank it is indistinguishable from a design that never
 settled the question, and both render the same empty field.*
 
-<!-- register:vocabulary_extensions optional -->
-| Vocabulary Code | Extends | Group | Casing | Value | Meaning | Source Finding |
-|-----------------|---------|-------|--------|-------|---------|----------------|
+Register `vocabulary_extensions` in the Machine block.
 
 ---
 
@@ -356,9 +509,7 @@ binds it is a separate fact, declared on the workflow in §4.*
 *A capability listed in `rb_declarations` with no row here binds with an empty policy, which is a
 declaration that it needs no configuration rather than an omission.*
 
-<!-- register:runtime_policies optional -->
-| RB Code | Capability | Key | Value | Source Finding |
-|---------|------------|-----|-------|----------------|
+Register `runtime_policies` in the Machine block.
 
 ---
 
@@ -373,9 +524,7 @@ that refuses may announce the refusal itself, and nothing else: an ending typed 
 moments this register declares `moment` = `refusal`. Whether a moment is a refusal is read from that
 declaration, never from its name.*
 
-<!-- register:artifact_properties optional -->
-| Artifact | Property | Value | Source Finding |
-|----------|----------|-------|----------------|
+Register `artifact_properties` in the Machine block.
 
 ---
 
@@ -383,9 +532,7 @@ declaration, never from its name.*
 
 *New entity stores. `storage_type` selects the CS substrate — a store a capability claims keys in is a registry store, which the composition already carries examples of; `proposed_path` is the declared store path (governance concern — never hardcoded later); `used_by` names the writing CC (its owning subdomain only).*
 
-<!-- register:structure_stores optional -->
-| Store Name | Storage Type (CS_APPENDONLY_JSONL_V0, CS_MUTABLE_JSON_V0, CS_REGISTRY_V0) | Proposed Path | Used By | Source Finding |
-|------------|-----------------------------------------------------------|---------------|---------|----------------|
+Register `structure_stores` in the Machine block.
 
 ---
 
@@ -396,17 +543,13 @@ operation identity a caller names, what dispatches it, and how the canonical inp
 workflow payload; an egress declares how a result surface becomes the fields a caller reads. One row
 per mapped field, so a mapping is checkable rather than a blob.*
 
-<!-- register:transport_bindings optional -->
-| Artifact | Direction (INGRESS, EGRESS) | Operation | Handler Kind (WF_INVOCATION, SNAPSHOT_READ) | Handler Target | Field | Bound To | Source Finding |
-|----------|----------------------------|-----------|---------------------------------------------|----------------|-------|----------|----------------|
+Register `transport_bindings` in the Machine block.
 
 ## 15. Artifact Summary
 
 *Artifact count by action type, for Stage 7 input. The oracle reconciles: the NEW counts here MUST equal the rows of `new_artifacts`. `artifacts` lists the codes for that action.*
 
-<!-- register:artifact_summary -->
-| Action (REPLACE, EXTEND, NEW) | Subdomain | Count | Artifacts |
-|-------------------------------|-----------|-------|-----------|
+Register `artifact_summary` in the Machine block.
 
 ---
 
@@ -429,9 +572,7 @@ regenerating from a stale pairing.*
 is what enters the composition and what conformance judges, and a mandate scheduling a generator
 schedules something that never appears in a snapshot.*
 
-<!-- register:generation_provenance optional -->
-| Artifact | Generator | Generator Sources | Source Finding |
-|----------|-----------|-------------------|----------------|
+Register `generation_provenance` in the Machine block.
 
 ---
 
@@ -453,9 +594,7 @@ permits a silent reach.*
 
 *An act that reads only what it owns declares none, which is most acts.*
 
-<!-- register:declared_reach optional -->
-| Act | Consults | Source Finding |
-|-----|----------|----------------|
+Register `declared_reach` in the Machine block.
 
 ---
 
@@ -476,9 +615,7 @@ says it does.*
 
 *A refusal this change does not carry out belongs in §19, not here and not nowhere.*
 
-<!-- register:refusal_discharge optional -->
-| Operation | Refused When | Act | Step | Outcome | Source Finding |
-|-----------|--------------|-----|------|---------|----------------|
+Register `refusal_discharge` in the Machine block.
 
 ---
 
@@ -493,9 +630,7 @@ from one meaning "unanswered".*
 *`Deferred To` is who owns it and must not be blank; a deferral with no owner is a refusal dropped
 in language that sounds like a plan. `Until` is the condition that ends the deferral.*
 
-<!-- register:refusal_deferrals optional -->
-| Operation | Refused When | Deferred To | Until | Source Finding |
-|-----------|--------------|-------------|-------|----------------|
+Register `refusal_deferrals` in the Machine block.
 
 ---
 
@@ -526,9 +661,7 @@ the rule does not exist in the pinned composition, and the citation resolves to 
 **resolution is not coverage** — that the cited rule exists and is enforced is checkable; that it
 actually refuses the condition stated in `Refused When` is not, and it is what Gate 1 is reading for.*
 
-<!-- register:refusal_governance_discharge optional -->
-| Operation | Refused When | Phase | Governing Rule | Source Finding |
-|-----------|--------------|-------|----------------|----------------|
+Register `refusal_governance_discharge` in the Machine block.
 
 ---
 
@@ -553,9 +686,7 @@ remain change nothing.*
 exactly one row per molecule, and `—` on every other. Where the emitting step is not deterministic,
 the molecule is refused: its results are offered to a deterministic step, never decided by one.*
 
-<!-- register:molecule_steps optional -->
-| CT Code | Step | Kind (atom, molecule, loop) | Target | Over | Iterator | Emits | Source Finding |
-|---------|------|-----------------------------|--------|------|----------|-------|----------------|
+Register `molecule_steps` in the Machine block.
 
 ---
 
@@ -574,9 +705,7 @@ an earlier step's result, `iterator` the member a loop pass is on, `accumulator.
 value as it stands, `results.<field>` (in an `UPDATE`) the body's result, and a bare literal a
 constant the design fixes.*
 
-<!-- register:molecule_step_bindings optional -->
-| CT Code | Step | Role (INPUT, CARRY, UPDATE) | Field | Bound To | Source Finding |
-|---------|------|-----------------------------|-------|----------|----------------|
+Register `molecule_step_bindings` in the Machine block.
 
 ---
 
@@ -594,9 +723,7 @@ vector, `TEST_DATA_<transform code>`, beside the transform; the vector is not li
 
 *`Expected Outcome` is `SUCCESS`, or `VIOLATION` for a case the transform must refuse.*
 
-<!-- register:test_cases optional -->
-| CT Code | Case | Expected Outcome (SUCCESS, VIOLATION) | Source Finding |
-|---------|------|---------------------------------------|----------------|
+Register `test_cases` in the Machine block.
 
 ---
 
@@ -616,9 +743,7 @@ substituted, never running the step.*
 case expecting `SUCCESS` states every output the transform declares, as `EXPECTED` or `ASSERT`, and
 nothing else; a case expecting `VIOLATION` states none.*
 
-<!-- register:test_case_values optional -->
-| CT Code | Case | Role (INPUT, EXPECTED, ASSERT, RECORDED) | Field | Value | Source Finding |
-|---------|------|------------------------------------------|-------|-------|----------------|
+Register `test_case_values` in the Machine block.
 
 ---
 
@@ -629,9 +754,7 @@ nothing: a fact removed from an artifact is a new artifact that the old one is `
 register is kept so that what a design may cite does not change, and it must be empty — a row here
 is refused.*
 
-<!-- register:withdrawn_facts optional -->
-| Artifact | Fact | Reason | Source Finding |
-|----------|------|--------|----------------|
+Register `withdrawn_facts` in the Machine block.
 
 ---
 
@@ -668,11 +791,7 @@ Mandate. Gate 2 (after Stage 7) locks the full dossier before artifact authoring
 the five registers S7 builds from, plus `cc_composition` which the S8 Build Sheet assembles. Emit
 keys match the register ids above exactly.*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← Stage 2 | entity_attributes · process_steps |
-| **Consumes** ← Stage 4 | gap_register · design_decisions · authoring_scope |
-| **Consumes** ← Stage 5 | scope_boundary · invariants · actions · provisional_codes |
-| **Consumes** ← Stage 6 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |
-| **Emits** → Stage 7 | new_artifacts · existing_inventory · rb_declarations · execution_topology · artifact_summary |
-| **Emits** → Stage 8 (Build Sheet) | cc_composition · generation_provenance |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p5, p6, p0 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |
+| **Emits** | cc_composition · generation_provenance |

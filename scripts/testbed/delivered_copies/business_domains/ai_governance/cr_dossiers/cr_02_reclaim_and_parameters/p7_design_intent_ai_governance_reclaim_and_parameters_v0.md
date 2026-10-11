@@ -319,14 +319,16 @@ registers:
   - artifact: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     direction: INPUT
     field: last_active_date
-    type: string (date-time)
+    type: string
+    format: date-time
     required: 'YES'
     default: ''
     meaning: Last usage date
   - artifact: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     direction: INPUT
     field: evaluation_date
-    type: string (date-time)
+    type: string
+    format: date-time
     required: 'YES'
     default: ''
     meaning: The date the reclaim is evaluated as of
@@ -335,7 +337,7 @@ registers:
     field: threshold_days
     type: integer
     required: 'YES'
-    default: '30'
+    default: 30
     meaning: Inactivity threshold in days
   - artifact: ai_governance::CC_RECLAIM_UNUSED_LICENSE_V1
     direction: OUTPUT

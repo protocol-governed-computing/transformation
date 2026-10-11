@@ -2325,7 +2325,6 @@ registers:
     meaning: The book's authoritative record
   implementation_bindings:
   - ct_code: book_library_mgmt::CT_PURE_FORM_WORK_IDENTITY_KEY_V0
-    module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_form_work_identity_key_v0
     callable: execute
     operation: PURE_FORM_WORK_IDENTITY_KEY
     kind: atom
@@ -2333,7 +2332,6 @@ registers:
     refusal: never
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_FORM_WORK_IDENTITY_KEY_V0}
   - ct_code: book_library_mgmt::CT_PURE_SELECT_RECORDS_V0
-    module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_select_records_v0
     callable: execute
     operation: PURE_SELECT_RECORDS
     kind: atom
@@ -2341,7 +2339,6 @@ registers:
     refusal: never
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_SELECT_RECORDS_V0}
   - ct_code: book_library_mgmt::CT_PURE_GROUP_RECORDS_V0
-    module: book_library_mgmt.implementation.capability_transforms.atoms.ct_pure_group_records_v0
     callable: execute
     operation: PURE_GROUP_RECORDS
     kind: atom

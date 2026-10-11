@@ -1,13 +1,46 @@
 # Governance Intent: [domain] / [subdomain]
-**Domain:** [domain]  
-**Subdomain:** [subdomain]  
-**Version:** V0  
-**Status:** DRAFT  
-**Pipeline Stage:** Stage 6 — Governance Intent (WHERE)  
-**Produced by:** v0.5.0 SDLC authoring pipeline  
-**Purity:** WHERE only — artifact family mapping, provisional artifact codes, and store declarations excluded  
 
----
+## Machine
+
+```yaml
+document:
+  phase: p6
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P6_V0
+registers:
+  ownership:
+  - capability: null
+    owner_subdomain: null
+    disposition: null
+    existing_artifact: null
+    source_finding: null
+  storage_governance:
+  - storage_need: null
+    purpose: null
+    subdomain: null
+    source_finding: null
+  cross_subdomain_deps:
+  - dependency: null
+    direction: null
+    existing_artifact: null
+    status: null
+    source_finding: null
+  pps_artifacts_requiring_action:
+  - fqdn: null
+    current_status: null
+    action: null
+    source_finding: null
+  boundary_rules:
+  - rule_name: null
+    statement: null
+    source_finding: null
+  governance_outcome:
+  - capability: null
+    owner_subdomain: null
+    source_finding: null
+```
 
 ## Document Contract
 
@@ -16,7 +49,7 @@ subdomain ownership, storage governance, cross-subdomain dependencies, and exist
 needing action. The worker emits register ROWS; a deterministic renderer owns the document.
 
 VALID OUTPUT:
-- Populated register tables (every required register below)
+- Populated registers (every required register below)
 - Business-language capability / dependency / storage descriptions
 - Existing artifacts cited by exact FQDN in evidence / artifact columns
 
@@ -24,7 +57,8 @@ INVALID OUTPUT:
 - Narrative summaries replacing registers
 - A provisional or invented artifact code in a content column (see the discipline below)
 
-A required register with no rows renders as `| NONE IDENTIFIED |`.
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 ---
 
@@ -69,15 +103,15 @@ A required register with no rows renders as `| NONE IDENTIFIED |`.
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -91,9 +125,7 @@ that owns it.
 
 *Every capability this CR needs, and who OWNS it. Disposition ∈ OWNED (this subdomain authors it) | SATISFIED (an existing artifact covers it — cite the FQDN in Evidence) | DEFERRED (future CR). `capability` is business language; `owner_subdomain` is a subdomain namespace, never an artifact code.*
 
-<!-- register:ownership business_language=capability -->
-| Capability | Owner Subdomain | Disposition (OWNED, SATISFIED, DEFERRED) | Existing Artifact | Source Finding |
-|------------|-----------------|------------------------------------------|-------------------|----------------|
+Register `ownership` in the Machine block.
 
 ---
 
@@ -101,9 +133,7 @@ that owns it.
 
 *What persistent storage the subdomain requires, as a governance requirement — NOT store names or paths (those are Stage 7). Business language only.*
 
-<!-- register:storage_governance business_language=storage_need,purpose -->
-| Storage Need | Purpose | Subdomain | Source Finding |
-|--------------|---------|-----------|----------------|
+Register `storage_governance` in the Machine block.
 
 ---
 
@@ -111,9 +141,7 @@ that owns it.
 
 *Cross-subdomain calls/reads (permitted) and dependency gaps (a peer must author a capability for this CR). `dependency` is business language; `direction` is `this_subdomain → peer`; `existing_artifact` cites an existing FQDN when reused. Status ∈ SATISFIED (reuse existing) | GAP (new, owned by the peer).*
 
-<!-- register:cross_subdomain_deps optional business_language=dependency -->
-| Dependency | Direction | Existing Artifact | Status (SATISFIED, GAP) | Source Finding |
-|------------|-----------|-------------------|-------------------------|----------------|
+Register `cross_subdomain_deps` in the Machine block.
 
 ---
 
@@ -136,9 +164,7 @@ is not there.
 *Existing PPS artifacts that must be reviewed or replaced as part of this CR. `fqdn` is the existing artifact. Action ∈ REPLACE | REVIEW | REUSE | EXTEND — Stage 7's inventory already admits EXTEND, and an
 artifact amended to admit a case it did not is extended at both rungs or at neither.*
 
-<!-- register:pps_artifacts_requiring_action optional -->
-| FQDN | Current Status | Action (REPLACE, REVIEW, REUSE, EXTEND) | Source Finding |
-|------|----------------|----------------------------------|----------------|
+Register `pps_artifacts_requiring_action` in the Machine block.
 
 ---
 
@@ -146,9 +172,7 @@ artifact amended to admit a case it did not is extended at both rungs or at neit
 
 *Non-negotiable boundary rules for this subdomain — each a governance invariant, not an implementation detail.*
 
-<!-- register:boundary_rules optional -->
-| Rule Name | Statement | Source Finding |
-|-----------|-----------|----------------|
+Register `boundary_rules` in the Machine block.
 
 ---
 
@@ -156,9 +180,7 @@ artifact amended to admit a case it did not is extended at both rungs or at neit
 
 *Capabilities requiring protocol realization (Stage 7 assigns the artifact family + binding FQDN). Business language; organized by owning subdomain.*
 
-<!-- register:governance_outcome optional business_language=capability -->
-| Capability | Owner Subdomain | Source Finding |
-|------------|-----------------|----------------|
+Register `governance_outcome` in the Machine block.
 
 ---
 
@@ -197,9 +219,7 @@ has, over a dossier that includes a design.
 are this stage's record; the four emit registers cross to Stage 7. Emit keys match the register ids
 above exactly.*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← Stage 1 | out_of_scope · governance_scope |
-| **Consumes** ← Stage 4 | events · constraint_register · dependency_graph · authoring_scope |
-| **Consumes** ← Stage 5 | scope_boundary · invariants · cross_subdomain_refs |
-| **Emits** → Stage 7 | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p5, p0 | scope_boundary · invariants · cross_subdomain_refs |
+| **Emits** | ownership · storage_governance · cross_subdomain_deps · pps_artifacts_requiring_action |

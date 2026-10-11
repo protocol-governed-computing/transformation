@@ -30,11 +30,11 @@ NEW = [
     ("Offer words", OFFER), ("Choose a word", CHOOSE),
     ("Write one word", PASS), ("Write a response", WRITE),
 ]
-IMPL = [  # code, module, callable, kind, purity
-    (OFFER, f"{D}.implementation.capability_transforms.atoms.ct_impure_offer_words_v0", "execute", "atom", "ct_impure"),
-    (CHOOSE, f"{D}.implementation.capability_transforms.atoms.ct_pure_choose_word_v0", "execute", "atom", "ct_pure"),
-    (PASS, "", "", "molecule", "ct_impure"),
-    (WRITE, "", "", "molecule", "ct_impure"),
+IMPL = [  # code, callable, kind, purity
+    (OFFER, "execute", "atom", "ct_impure"),
+    (CHOOSE, "execute", "atom", "ct_pure"),
+    (PASS, "", "molecule", "ct_impure"),
+    (WRITE, "", "molecule", "ct_impure"),
 ]
 STEPS = [  # molecule, step, kind, target, over, iterator, emits
     (PASS, "offered", "atom", OFFER, None, None, None),
@@ -68,10 +68,10 @@ def design(impl=IMPL, steps=STEPS, bindings=BINDINGS) -> str:
         _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
                                    "Source Finding"],
                  [(c, "CT", code, c, "words", "NEW", "human decision") for c, code in NEW]),
-        _table("implementation_bindings", ["CT Code", "Module", "Callable", "Operation",
+        _table("implementation_bindings", ["CT Code", "Callable", "Operation",
                                              "Kind", "Purity",
                                              "Refusal", "Source Finding"],
-                 [(c, m, k, "op", kind, p, "never", "human decision") for c, m, k, kind, p in impl]),
+                 [(c, k, "op", kind, p, "never", "human decision") for c, k, kind, p in impl]),
         _table("molecule_steps", ["CT Code", "Step", "Kind", "Target", "Over",
                                     "Iterator", "Emits", "Source Finding"],
                  [(*s, "human decision") for s in steps]),
@@ -95,18 +95,17 @@ def registers(text: str) -> dict[str, list[dict]]:
 MANDATE = {"build_order": [{"code": code} for _, code in NEW],
            "field_declarations": [{"code": code, "subdomain_field": "words"} for _, code in NEW]}
 
-# The rules a molecule is held to: the molecule rules, the atom-only module rule, the two kind rules,
+# The rules a molecule is held to: the molecule rules, the two kind rules,
 # and the vocabulary the template declares for a binding's role.
 # The molecule rules: every finding a molecule's steps and bindings can raise.
 MOLECULE_RULES = {"LOOP_COLLECTION_UNROOTED", "LOOP_FIELDS_OUTSIDE_LOOP", "LOOP_UPDATE_NOT_FROM_RESULT",
                   "LOOP_WITHOUT_COLLECTION", "LOOP_WITHOUT_ITERATOR", "MOLECULE_BINDING_SOURCE_MALFORMED",
                   "MOLECULE_BINDING_STEP_UNDECLARED", "MOLECULE_BINDING_WITHOUT_SOURCE",
-                  "MOLECULE_DECLARES_IMPLEMENTATION", "MOLECULE_EMITS_TWICE", "MOLECULE_STEP_KIND_UNKNOWN",
+                  "MOLECULE_EMITS_TWICE", "MOLECULE_STEP_KIND_UNKNOWN",
                   "MOLECULE_STEP_OWNER_NOT_MOLECULE", "MOLECULE_STEP_TARGET_UNDECLARED", "MOLECULE_STEP_UNNAMED",
                   "MOLECULE_STEP_WITHOUT_KIND", "MOLECULE_STEP_WITHOUT_TARGET", "MOLECULE_WITHOUT_EMISSION",
                   "MOLECULE_WITHOUT_STEPS"}
-HELD = MOLECULE_RULES | {"IMPLEMENTATION_WITHOUT_MODULE", "IMPLEMENTATION_WITHOUT_KIND",
-                                          "IMPLEMENTATION_KIND_UNKNOWN"}
+HELD = MOLECULE_RULES | {"IMPLEMENTATION_WITHOUT_KIND", "IMPLEMENTATION_KIND_UNKNOWN"}
 RULES = [r for r in rule_set() if r.id in HELD or (
     r.id == "CELL_NOT_IN_VOCABULARY" and r.register in ("molecule_steps", "molecule_step_bindings",
                                                         "implementation_bindings"))]
@@ -160,8 +159,6 @@ def test_a_well_formed_molecule_design_passes_every_rule():
 
 def test_each_rule_fires_on_the_defect_it_names():
     cases = {
-        "MOLECULE_DECLARES_IMPLEMENTATION":
-            design(impl=[*IMPL[:2], (PASS, "probe.x", "execute", "molecule", "ct_impure"), IMPL[3]]),
         "MOLECULE_WITHOUT_STEPS": design(steps=STEPS[2:]),
         "MOLECULE_STEP_OWNER_NOT_MOLECULE": design(steps=[*STEPS, (OFFER, "x", "atom", CHOOSE, None, None, None)]),
         "MOLECULE_STEP_TARGET_UNDECLARED": design(steps=[STEPS[0], (PASS, "chosen", "atom", f"{D}::CT_NONE_V0", None, None, "result"), STEPS[2]]),
@@ -175,13 +172,12 @@ def test_each_rule_fires_on_the_defect_it_names():
         "MOLECULE_BINDING_WITHOUT_SOURCE": design(bindings=[*BINDINGS, (PASS, "chosen", "INPUT", "x", "")]),
         "MOLECULE_BINDING_SOURCE_MALFORMED": design(bindings=[*BINDINGS, (PASS, "chosen", "INPUT", "x", "$.inputs.x")]),
         "LOOP_UPDATE_NOT_FROM_RESULT": design(bindings=[*BINDINGS[:-1], (WRITE, "written", "UPDATE", "done", "accumulator.done")]),
-        "IMPLEMENTATION_WITHOUT_MODULE": design(impl=[(OFFER, "", "execute", "atom", "ct_impure"), *IMPL[1:]]),
-        "IMPLEMENTATION_WITHOUT_KIND": design(impl=[*IMPL[:3], (WRITE, "", "", "", "ct_impure")]),
+        "IMPLEMENTATION_WITHOUT_KIND": design(impl=[*IMPL[:3], (WRITE, "", "", "ct_impure")]),
         "MOLECULE_STEP_KIND_UNKNOWN": design(steps=[*STEPS[:2], (WRITE, "written", "repeat", PASS, "inputs.positions", "position", "result")]),
         "MOLECULE_STEP_WITHOUT_KIND": design(steps=[*STEPS[:2], (WRITE, "written", "", PASS, None, None, "result")]),
         "MOLECULE_STEP_UNNAMED": design(steps=[(PASS, "", "atom", OFFER, None, None, None), *STEPS[1:]]),
         "MOLECULE_STEP_WITHOUT_TARGET": design(steps=[(PASS, "offered", "atom", "", None, None, None), *STEPS[1:]]),
-        "IMPLEMENTATION_KIND_UNKNOWN": design(impl=[*IMPL[:3], (WRITE, "", "", "compound", "ct_impure")]),
+        "IMPLEMENTATION_KIND_UNKNOWN": design(impl=[*IMPL[:3], (WRITE, "", "compound", "ct_impure")]),
         "CELL_NOT_IN_VOCABULARY": design(bindings=[*BINDINGS, (WRITE, "written", "SEED", "x", "1")]),
     }
     for rule, text in cases.items():

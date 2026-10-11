@@ -3425,11 +3425,10 @@ registers:
     field: authorized
     type: boolean
     required: 'NO'
-    default: 'false'
+    default: false
     meaning: Whether the staff member may perform catalog operations; decided by the staff function, read here
   implementation_bindings:
   - ct_code: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
-    module: ''
     callable: execute
     operation: PURE_FORM_BOOK_IDENTITY_KEY
     kind: atom
@@ -3437,7 +3436,6 @@ registers:
     refusal: ''
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_FORM_BOOK_IDENTITY_KEY_V0}
   - ct_code: book_library_mgmt::CT_PURE_FORM_BOOK_IDENTITY_KEY_V0
-    module: ai_governance.implementation.capability_transforms.atoms.ct_pure_form_book_identity_key_v0
     callable: run
     operation: PURE_FORM_BOOK_IDENTITY_KEY
     kind: atom

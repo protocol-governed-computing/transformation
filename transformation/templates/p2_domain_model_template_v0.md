@@ -1,8 +1,74 @@
 # Stage 2 — Domain Model Verification: [domain] / [subdomain]
-**Stage:** 2 — Domain Model Verification  
-**CR:** change_request_[subdomain]_v0.md  
-**Status:** DRAFT  
-**Feeds:** Stage 3 — Analysis Loop  
+
+## Machine
+
+```yaml
+document:
+  phase: p2
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P2_V0
+registers:
+  entities:
+  - entity: null
+    description: null
+    store_model: null
+    evidence_status: null
+    source_finding: null
+  entity_attributes:
+  - entity: null
+    attribute: null
+    meaning: null
+    evidence_status: null
+    source_finding: null
+  business_processes:
+  - process: null
+    initiator: null
+    outcome: null
+    evidence_status: null
+    source_finding: null
+  process_steps:
+  - process: null
+    step: null
+    action: null
+    record_produced: null
+    evidence_status: null
+    source_finding: null
+  belief_verification:
+  - belief: null
+    result: null
+    evidence: null
+    source_finding: null
+  pps_baseline_fqdns:
+  - capability: null
+    fqdn: null
+    what_it_does: null
+    fit: null
+    cannot_do: null
+  gaps:
+  - gap: null
+    severity: null
+    impact: null
+    evidence_status: null
+    source_finding: null
+  architectural_observations:
+  - observation: null
+    evidence: null
+    evidence_status: null
+    source_finding: null
+  discovery_concerns:
+  - concern: null
+    evidence: null
+    severity: null
+    evidence_status: null
+    source_finding: null
+  open_questions:
+  - question: null
+    category: null
+    why_it_matters: null
+    source_finding: null
+```
 
 > **S2 verifies the semantic model inherited from S1 — it does not discover the domain from
 > scratch.** Stage 1 already established the *meaning* (vocabulary, lifecycle states, events,
@@ -18,7 +84,7 @@
 **This artifact is a structured register document — not a narrative.**
 
 VALID OUTPUT:
-- Populated register tables (every required register below)
+- Populated registers (every required register below)
 - Existing artifacts cited by exact FQDN — only in the PPS Baseline register
 - Business-language entity / process / observation / gap descriptions
 
@@ -26,12 +92,8 @@ INVALID OUTPUT:
 - Narrative summaries, reasoning essays, executive summaries
 - Free-form prose replacing required registers
 
-A required register with no rows MUST be rendered as a single row:
-
-| NONE IDENTIFIED |
-
-A prose-only or empty *required* register is a structural defect — the renderer rejects the
-document mechanically before any human reviews it.
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 ---
 
@@ -75,7 +137,7 @@ term that already returned nothing.
 
 A row belongs in **Open Questions** ONLY if it BOTH (a) blocks a Stage-3 decision AND (b) cannot
 be answered from evidence. It is NOT a list of artifacts you noticed, and NOT an
-end-of-budget dump. `open_questions = NONE IDENTIFIED` is a **healthy, successful** outcome.
+end-of-budget dump. `open_questions: []` is a **healthy, successful** outcome.
 
 ---
 
@@ -135,15 +197,15 @@ something to re-derive as an `OBSERVED` snapshot guess.
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -158,17 +220,13 @@ that owns it.
 *Confirm/map the Stage-1 Business Vocabulary against the snapshot — these are the inherited
 objects, not a new set. A thing the business talks about, not a data store or artifact.*
 
-<!-- register:entities business_language -->
-| Entity | Description | Store Model | Evidence Status | Source Finding |
-|--------|-------------|-------------|-----------------|----------------|
+Register `entities` in the Machine block.
 
 ### Entity Attributes
 
 *One row per (entity, attribute) — attribute-level, so S5 (identity) and S7 (storage schema) can consume directly.*
 
-<!-- register:entity_attributes business_language -->
-| Entity | Attribute | Meaning | Evidence Status | Source Finding |
-|--------|-----------|---------|-----------------|----------------|
+Register `entity_attributes` in the Machine block.
 
 ---
 
@@ -176,17 +234,13 @@ objects, not a new set. A thing the business talks about, not a data store or ar
 
 *Every business process — a sequence of business decisions/actions, implementation-free.*
 
-<!-- register:business_processes business_language -->
-| Process | Initiator | Outcome | Evidence Status | Source Finding |
-|---------|-----------|---------|-----------------|----------------|
+Register `business_processes` in the Machine block.
 
 ### Process Steps
 
 *One row per step, in order — so S7 workflow authoring can consume the sequence directly.*
 
-<!-- register:process_steps business_language -->
-| Process | Step # | Action | Record Produced | Evidence Status | Source Finding |
-|---------|--------|--------|-----------------|-----------------|----------------|
+Register `process_steps` in the Machine block.
 
 ---
 
@@ -197,9 +251,7 @@ Belief. Ground its Verification Goal and record the Result. This is the STOP con
 complete when every belief has a result. `NOT_FOUND` is a valid, final result — absence is an
 answer, not a reason to keep searching.*
 
-<!-- register:belief_verification -->
-| Belief | Result (VERIFIED, NOT_FOUND, INSUFFICIENT_EVIDENCE) | Evidence | Source Finding |
-|--------|------------------------------------------------------|----------|----------------|
+Register `belief_verification` in the Machine block.
 
 ---
 
@@ -210,9 +262,7 @@ System Belief or directly serve a Requested Outcome — not the whole domain inv
 relevant existing capability, cited by exact FQDN. Fit ∈ EXACT | PARTIAL | MISMATCH (an
 observation of how well it matches the need — NOT a reuse decision; that is Stage 3).*
 
-<!-- register:pps_baseline_fqdns -->
-| Capability | FQDN | What It Does | Fit (EXACT, PARTIAL, MISMATCH) | Cannot Do |
-|-----------|------|--------------|--------------------------------|-----------|
+Register `pps_baseline_fqdns` in the Machine block.
 
 ---
 
@@ -220,9 +270,7 @@ observation of how well it matches the need — NOT a reuse decision; that is St
 
 *Each gap in business language. Severity ∈ CRITICAL (blocks authoring) | OPEN QUESTION (feeds Stage 3) | MINOR (noted).*
 
-<!-- register:gaps business_language -->
-| Gap | Severity | Impact | Evidence Status | Source Finding |
-|-----|----------|--------|-----------------|----------------|
+Register `gaps` in the Machine block.
 
 ---
 
@@ -232,9 +280,7 @@ observation of how well it matches the need — NOT a reuse decision; that is St
 row's `Source Finding` names the belief it came from. Stage 3 argues extend-vs-new from these.
 E.g. "a validator lifecycle already exists", "no canonical chain storage was found".*
 
-<!-- register:architectural_observations business_language -->
-| Observation | Evidence | Evidence Status | Source Finding |
-|-------------|----------|-----------------|----------------|
+Register `architectural_observations` in the Machine block.
 
 ---
 
@@ -244,21 +290,17 @@ E.g. "a validator lifecycle already exists", "no canonical chain storage was fou
 primary feed into Stage 3 (operationalizes CONCERN_TRACEABILITY_REQUIRED). Severity ∈ CRITICAL |
 MAJOR | MINOR.*
 
-<!-- register:discovery_concerns business_language -->
-| Concern | Evidence | Severity | Evidence Status | Source Finding |
-|---------|----------|----------|-----------------|----------------|
+Register `discovery_concerns` in the Machine block.
 
 ---
 
 ## 8. Open Questions for Stage 3
 
 *A row belongs here ONLY if it blocks a Stage-3 decision AND cannot be answered from evidence (see
-§C). NOT an artifact inventory. Empty (`NONE IDENTIFIED`) is a healthy outcome. Category ∈
+§C). NOT an artifact inventory. Empty (`[]`) is a healthy outcome. Category ∈
 business | governance | identity | workflow | storage | policy | unknown.*
 
-<!-- register:open_questions business_language optional -->
-| Question | Category | Why It Matters | Source Finding |
-|----------|----------|----------------|----------------|
+Register `open_questions` in the Machine block.
 
 ---
 
@@ -266,7 +308,7 @@ business | governance | identity | workflow | storage | policy | unknown.*
 
 *Governed, lossless, identity-preserving (Stage 0 / field manual §4.7). Every register is forwarded — Stage 3 never re-discovers what Stage 2 modelled. Emit keys match the register ids above exactly.*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← Stage 1 | business_vocabulary · known_facts · system_beliefs · lifecycle_states · business_events · governance_scope · out_of_scope · constraints · business_invariants · authority_boundaries · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |
-| **Emits** → Stage 3 | entities · entity_attributes · business_processes · process_steps · belief_verification · pps_baseline_fqdns · gaps · architectural_observations · discovery_concerns · open_questions |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p1 | business_vocabulary · known_facts · system_beliefs · lifecycle_states · business_events · governance_scope · out_of_scope · constraints · business_invariants · authority_boundaries · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |
+| **Emits** | entities · entity_attributes · business_processes · process_steps · belief_verification · pps_baseline_fqdns · gaps · architectural_observations · discovery_concerns · open_questions |

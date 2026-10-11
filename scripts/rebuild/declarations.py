@@ -48,7 +48,9 @@ RESTATED_EVERYWHERE = {
     "HEADER_FIELD_MISSING": ("M4-1", {"params", "intent"}),
 }
 # A rule only the oracle has: (phase, id) → the divergence that retired it.
-RETIRED = {("p7", "TEST_VALUE_UNPARSEABLE"): "M2-10", ("p1", "CITATION_ROW_UNRESOLVED"): "M3.4a-2"}
+RETIRED = {("p7", "TEST_VALUE_UNPARSEABLE"): "M2-10", ("p1", "CITATION_ROW_UNRESOLVED"): "M3.4a-2",
+           ("p7", "IMPLEMENTATION_WITHOUT_MODULE"): "M5-2", ("p7", "IMPLEMENTATION_MODULE_MISPLACED"): "M5-2",
+           ("p7", "MOLECULE_DECLARES_IMPLEMENTATION"): "M5-2"}
 # A rule only the oracle has, in every phase: id → the divergence that retired it.
 RETIRED_EVERYWHERE = {"LIFECYCLE_STATE_NOT_IN_VOCABULARY": "M4-2"}
 # A rule only the rebuild has: its check, or its id, → the divergence that added it.

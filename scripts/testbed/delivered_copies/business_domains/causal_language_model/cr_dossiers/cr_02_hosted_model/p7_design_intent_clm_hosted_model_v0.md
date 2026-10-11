@@ -2586,7 +2586,6 @@ registers:
     meaning: The host's name for itself; recorded against every offer, not authenticated
   implementation_bindings:
   - ct_code: causal_language_model::CT_PURE_READ_HOSTED_STATE_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_read_hosted_state_v0
     callable: execute
     operation: READ_HOSTED_STATE
     kind: atom
@@ -2594,7 +2593,6 @@ registers:
     refusal: raises
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_READ_HOSTED_STATE_V0}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_TOKEN_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_choose_permitted_token_v0
     callable: execute
     operation: CHOOSE_PERMITTED_TOKEN
     kind: atom

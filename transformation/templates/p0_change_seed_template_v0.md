@@ -1,11 +1,84 @@
 # P0 — Change Seed
 
-**Stage:** 0 — Change Seed
-**CR:** <cr-id>
-**Status:** DRAFT
-**Feeds:** Stage 1 — Change Request
+## Machine
 
----
+```yaml
+document:
+  phase: p0
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0
+  # approval: {gate: ..., rule_set: ..., state: APPROVED} — when the gate closes
+registers:
+  subdomain_purpose: null
+  cr_type:
+  - subdomain: null
+    classification: null
+    rationale: null
+  business_vocabulary:
+  - term: null
+    definition: null
+  requested_outcomes:
+  - outcome: null
+  known_facts:
+  - fact: null
+    certainty: null
+  system_beliefs:
+  - belief: null
+    why_it_matters: null
+    verification_goal: null
+  assumptions:
+  - assumption: null
+    basis: null
+  constraints:
+  - constraint: null
+    source: null
+  business_invariants:
+  - invariant: null
+  lifecycle_states:
+  - object: null
+    state: null
+    meaning: null
+  business_events:
+  - event: null
+    when_it_occurs: null
+    significance: null
+  authority_boundaries:
+  - business_object: null
+    authoritative_owner: null
+  out_of_scope:
+  - item: null
+    reason: null
+  governance_scope:
+  - scope_item: null
+    relationship: null
+  clarification_requests:
+  - question: null
+    why_needed: null
+    blocking: null
+    owner: null
+  acceptance_criteria:
+  - criterion: null
+  identity_and_sameness:
+  - business_object: null
+    identified_by: null
+    two_are_the_same_when: null
+  lifecycle_transitions:
+  - object: null
+    from_state: null
+    to_state: null
+    triggered_by: null
+    cascade: null
+  operation_refusals:
+  - operation: null
+    refused_when: null
+    business_reason: null
+  authority_deferrals:
+  - business_object: null
+    deferred_to: null
+    until: null
+```
 
 ## Document Contract
 
@@ -29,8 +102,8 @@ INVALID OUTPUT:
 - a Clarification answered by the author rather than asked
 - a System Belief promoted into a Known Fact
 
-A required register with no rows MUST render as a single `| NONE IDENTIFIED |` row. Emptiness is
-declared, never inferred from a blank register.
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 **Gate 0** — a person confirms the seed says what they meant, before any governed phase consumes it.
 
@@ -104,99 +177,69 @@ An unanswered question is an open gap, never licence to assume.
 governs and why it exists. Stated once here, at the source; consumed downstream, never
 rediscovered.*
 
-<!-- register:subdomain_purpose business_language -->
+Register `subdomain_purpose` in the Machine block.
 
 ## 1. CR Type
 
-<!-- register:cr_type business_language -->
-| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale |
-|-----------|----------------|-----------|
+Register `cr_type` in the Machine block.
 
 ## 2. Business Vocabulary
 
-<!-- register:business_vocabulary business_language -->
-| Term | Definition |
-|------|------------|
+Register `business_vocabulary` in the Machine block.
 
 ## 3. Requested Outcomes
 
-<!-- register:requested_outcomes business_language -->
-| Outcome |
-|---------|
+Register `requested_outcomes` in the Machine block.
 
 ## 4. Known Facts — Business Truths
 
-<!-- register:known_facts business_language -->
-| Fact | Certainty (HIGH, MEDIUM, LOW) |
-|------|-----------|
+Register `known_facts` in the Machine block.
 
 ## 5. Existing-System Beliefs — Requiring Verification
 
 *Not facts. Each is a discovery target the agent must verify against the snapshot at P2.*
 
-<!-- register:system_beliefs business_language -->
-| Belief | Why It Matters | Verification Goal |
-|--------|----------------|-------------------|
+Register `system_beliefs` in the Machine block.
 
 ## 6. Assumptions
 
-<!-- register:assumptions business_language optional -->
-| Assumption | Basis |
-|------------|-------|
+Register `assumptions` in the Machine block.
 
 ## 7. Constraints
 
-<!-- register:constraints business_language optional -->
-| Constraint | Source |
-|------------|--------|
+Register `constraints` in the Machine block.
 
 ## 8. Business Invariants
 
-<!-- register:business_invariants business_language -->
-| Invariant |
-|-----------|
+Register `business_invariants` in the Machine block.
 
 ## 9. Lifecycle States
 
-<!-- register:lifecycle_states business_language -->
-| Object | State | Meaning |
-|--------|-------|---------|
+Register `lifecycle_states` in the Machine block.
 
 ## 10. Business Events
 
-<!-- register:business_events business_language -->
-| Event | When It Occurs | Significance |
-|-------|----------------|--------------|
+Register `business_events` in the Machine block.
 
 ## 11. Authority Boundaries
 
-<!-- register:authority_boundaries business_language -->
-| Business Object | Authoritative Owner |
-|-----------------|---------------------|
+Register `authority_boundaries` in the Machine block.
 
 ## 12. Out of Scope
 
-<!-- register:out_of_scope business_language -->
-| Item | Reason |
-|------|--------|
+Register `out_of_scope` in the Machine block.
 
 ## 13. Governance Scope
 
-<!-- register:governance_scope business_language -->
-| Scope Item | Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT) |
-|------------|--------------|
+Register `governance_scope` in the Machine block.
 
 ## 14. Clarification Requests
 
-<!-- register:clarification_requests business_language optional -->
-| Question | Why Needed | Blocking (YES, NO) | Owner (HUMAN, SNAPSHOT, GOVERNANCE) |
-|----------|------------|----------|-------|
+Register `clarification_requests` in the Machine block.
 
 ## 15. Acceptance Criteria
 
-<!-- register:acceptance_criteria business_language -->
-| Criterion |
-|-----------|
+Register `acceptance_criteria` in the Machine block.
 
 ## 16. Identity and Sameness
 
@@ -204,9 +247,7 @@ rediscovered.*
 same thing. A domain that cannot say when two records describe one object cannot prevent a duplicate,
 and "a single authoritative record" is unverifiable.*
 
-<!-- register:identity_and_sameness business_language optional -->
-| Business Object | Identified By | Two Are The Same When |
-|-----------------|---------------|-----------------------|
+Register `identity_and_sameness` in the Machine block.
 
 ## 17. Lifecycle Transitions
 
@@ -214,18 +255,14 @@ and "a single authoritative record" is unverifiable.*
 column is the register's reason for existing: a transition that triggers nothing must say so, because
 otherwise a later phase is free to invent the cascade the business never asked for.*
 
-<!-- register:lifecycle_transitions business_language optional -->
-| Object | From State | To State | Triggered By | Cascade |
-|--------|------------|----------|--------------|---------|
+Register `lifecycle_transitions` in the Machine block.
 
 ## 18. Operation Refusals
 
 *When an operation must refuse, and the business reason. A refusal the business requires and the seed
 omits becomes, downstream, an unhandled path that silently succeeds.*
 
-<!-- register:operation_refusals business_language optional -->
-| Operation | Refused When | Business Reason |
-|-----------|--------------|-----------------|
+Register `operation_refusals` in the Machine block.
 
 ## 19. Authority Deferrals
 
@@ -233,9 +270,7 @@ omits becomes, downstream, an unhandled path that silently succeeds.*
 §11: an owner named there is owned **now**, and a deferral recorded as an owner is placement P6 will
 perform against a function that does not exist.*
 
-<!-- register:authority_deferrals business_language optional -->
-| Business Object | Deferred To | Until |
-|-----------------|-------------|-------|
+Register `authority_deferrals` in the Machine block.
 
 ---
 
@@ -244,7 +279,7 @@ perform against a function that does not exist.*
 *Governed, lossless, identity-preserving. Every register is forwarded — Stage 1 never re-discovers
 what the seed established. Emit keys match the register ids above exactly.*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← human | business problem statement |
-| **Emits** → Stage 1 | subdomain_purpose · cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← the human | business problem statement |
+| **Emits** | subdomain_purpose · cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |

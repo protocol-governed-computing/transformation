@@ -384,6 +384,30 @@ No rule changes: declarations and the comparison are unchanged.
 
 Rule counts: p0 88, p1 193, p2 87, p3 58, p4 93, p5 91, p6 63, p7 284, p8 39.
 
+### M5 — construction
+
+- **M5-1, one literal specification.** DESIGN_LANGUAGE §1.2 states every form of value construction
+  renders. Render reads nothing out of text: `_literal` and the read-text-as-YAML fallbacks are gone.
+  `interface_fields.default` and `artifact_properties.value` take any value; defaults the oracle read
+  as numbers or flags are typed (`'[]'` stays text, as the oracle rendered it). A type's format is
+  the new column `interface_fields.format`. `artifact_properties.value` loses its type rule.
+- **M5-2, the module.** `implementation_bindings.module` goes. Construction derives
+  `<domain>.implementation.capability_transforms.atoms.<code>`, governed by the domain's build
+  manifest. `IMPLEMENTATION_WITHOUT_MODULE`, `IMPLEMENTATION_MODULE_MISPLACED` and
+  `MOLECULE_DECLARES_IMPLEMENTATION` retire; 25 procedures remain.
+- **Render vectors.** `render_vectors_test`: 27 vectors, every form of §1.2.
+- **The mapping standard.** `doc/CONSTRUCTION_MAPPING.md` states 184 fields over 12 kinds, each with
+  its provenance class and source, one section per construction invariant, and the known gaps.
+  `construction_mapping_test` holds it equal to what construction writes over the corpus; closure
+  requires a section for every invariant of `CONSTITUTION_CONSTRUCTION_V1`.
+- **Construction identity.** `scripts/rebuild/construction.py`: 189 artifacts over 7 domains,
+  rendered alike by the oracle and the rebuild.
+- **Templates.** Each template carries a Machine skeleton written from its schema
+  (`scripts/rebuild/template_form.py`); the table form's prose is restated. `template_reader.py`
+  is gone; closure compares each skeleton with its schema.
+- **Effectivity before the swap.** A schema is unpublished until the swap, so a change re-records
+  revision 1 (`tc phase revise --amend`). p7 seals 280 rules.
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.

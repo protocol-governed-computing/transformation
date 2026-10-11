@@ -51,9 +51,10 @@ unless the schema types the column:
 | list | a list of names |
 | routing | a mapping from outcome to target |
 | interface | `{in: {…}, out: {…}}`, each a mapping from the capability's name to the design's |
-| binding | a path string, `{literal: v}`, or `{generated: true}` |
+| binding | a path string, `{literal: v}`, or `{generated: true}` (§1.2) |
 | citation | a citation (§1.1), a list of several, or `null` for none |
 | test value | any YAML value; a row that leaves the column out states no value |
+| typed value | any YAML value: an interface field's default, an artifact property's value |
 
 ### 1.1 Citations
 
@@ -69,6 +70,22 @@ A citation names where a row came from:
 
 A citation without `phase` cites this document. The seed is `phase: p0`.
 
+
+### 1.2 Values construction renders
+
+A value construction renders is stated in one of these forms, and in no other. No form is read out of
+text: a value means what its YAML type says.
+
+| Form | Where | Renders as |
+|---|---|---|
+| a path, `payload.title` | a step's binding | the runtime's binding expression, `$.payload.title`. A path starts at `payload`, `results`, `inputs`, `capability_result` or `result_status`; in a molecule also at `iterator` or `accumulator` |
+| a path, `surface.record.grounds` | a boundary's binding | the path, as written |
+| `${input.KEY}` | a boundary's binding | the token, as written: the boundary substitutes it |
+| `{literal: v}` | any binding | `v`, of its own type: `30`, `false`, `[a, b]`, `""` |
+| `{generated: true}` | any binding | the word `generated`; the generator its owner names supplies the value |
+| a typed value | a default, a property value | itself: `30` is a number, `false` a flag, `'30'` text |
+
+`scripts/testbed/render_vectors_test.py` pins each form.
 ---
 
 ## 2. The register schema

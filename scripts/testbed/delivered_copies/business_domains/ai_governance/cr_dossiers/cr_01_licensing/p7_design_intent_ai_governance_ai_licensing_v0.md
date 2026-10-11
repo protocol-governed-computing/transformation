@@ -143,7 +143,6 @@ registers:
     meaning: Whole days elapsed between last_active_date and evaluation_date
   implementation_bindings:
   - ct_code: ai_governance::CT_PURE_CHECK_QUOTA_AVAILABLE_V0
-    module: ai_governance.implementation.capability_transforms.atoms.ct_pure_check_quota_available_v0
     callable: execute
     operation: PURE_CHECK_QUOTA_AVAILABLE
     kind: atom
@@ -151,7 +150,6 @@ registers:
     refusal: raises
     source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 1}
   - ct_code: ai_governance::CT_PURE_CHECK_TRAINING_STATUS_V0
-    module: ai_governance.implementation.capability_transforms.atoms.ct_pure_check_training_status_v0
     callable: execute
     operation: PURE_CHECK_TRAINING_STATUS
     kind: atom
@@ -159,7 +157,6 @@ registers:
     refusal: raises
     source_finding: {phase: p6, register: pps_artifacts_requiring_action, row: 2}
   - ct_code: ai_governance::CT_PURE_EVALUATE_INACTIVITY_V0
-    module: ai_governance.implementation.capability_transforms.atoms.ct_pure_evaluate_inactivity_v0
     callable: execute
     operation: PURE_EVALUATE_INACTIVITY
     kind: atom

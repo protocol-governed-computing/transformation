@@ -1717,7 +1717,6 @@ registers:
     meaning: Whether grounds were stated.
   implementation_bindings:
   - ct_code: blockchain::CT_PURE_DERIVE_WALLET_ADDRESS_V0
-    module: blockchain.implementation.capability_transforms.atoms.ct_pure_derive_wallet_address_v0
     callable: execute
     operation: DERIVE_WALLET_ADDRESS
     kind: atom

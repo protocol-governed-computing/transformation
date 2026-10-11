@@ -63,7 +63,6 @@ WORKFLOW_STRUCTURE = "execution::STRUCTURE_RUNTIME_EXECUTION_V0"
 
 # The boundary's own substitution syntax, matched here so the renderer can tell a token it must
 # preserve verbatim from a constant it should read as a value. Kept identical to the resolver's.
-_INPUT_TOKEN = re.compile(r"^\$\{input\.(\w+)\}$")
 
 
 def norm(value: Any) -> str:
@@ -111,16 +110,18 @@ def typed_fields(design: dict, code: str, direction: str) -> dict:
     for row in rows(design, "interface_fields"):
         if bare(cell(row, "Artifact")) != bare(code) or cell(row, "Direction") != direction:
             continue
-        # A format is written after the type, `string (date-time)`, as the artifacts' own prose
-        # tables write it. Without it an amended contract could not keep a format it already had.
-        typed = re.fullmatch(r"\s*(\w+)\s*\(\s*([\w-]+)\s*\)\s*", cell(row, "Type") or "")
-        spec: dict[str, Any] = ({"type": typed.group(1), "format": typed.group(2)} if typed
-                                else {"type": cell(row, "Type") or "string"})
+        # A format is its own column. Without it an amended contract could not keep a format it
+        # already had.
+        spec: dict[str, Any] = {"type": cell(row, "Type") or "string"}
+        if cell(row, "Format"):
+            spec["format"] = cell(row, "Format")
         if cell(row, "Required") == "YES":
             spec["required"] = True
-        default = cell(row, "Default")
-        if default:
-            spec["default"] = _literal(default)
+        # A default is the value the design states, of whatever type it is. One that states nothing,
+        # or the empty text, declares no default.
+        default = value(row, "Default")
+        if default is not None and default != "":
+            spec["default"] = default
         # `Meaning` is documentation. The built corpus carries a description on some fields and not
         # others, which is a sign it is prose rather than governed content — rendering it would make
         # the generator author documentation the design never committed to.
@@ -181,16 +182,6 @@ def _supplied(sink, path: str, governed_by: str = "") -> None:
     if sink is None:
         return
     sink[path] = (GOVERNED_ELSEWHERE, governed_by) if governed_by else (SUPPLIED_BY_RENDERER, "")
-
-
-def _literal(value: str) -> Any:
-    low = value.lower()
-    if low in ("true", "false"):
-        return low == "true"
-    try:
-        return int(value)
-    except ValueError:
-        return value
 
 
 def _origin(supplied: dict, path: str) -> tuple[str, str]:
@@ -846,7 +837,16 @@ def _transform(m, code, short, summary, sub, p7, p8, supplied=None, declared_emp
         m["machine"]["atom_stream"] = stream
         m["machine"]["emit"] = emit
     else:
-        m["machine"]["implementation"] = {"module": cell(row, "Module"), "callable": cell(row, "Callable")}
+        # Where the implementation lives is not the design's to state: the domain's build manifest
+        # resolves transforms under `<domain>.implementation.capability_transforms.atoms`, and the
+        # module is named for the artifact it implements (CONSTRUCTION_MAPPING.md).
+        domain = norm(code).split("::")[0]
+        m["machine"]["implementation"] = {
+            "module": f"{domain}.implementation.capability_transforms.atoms.{short.lower()}",
+            "callable": cell(row, "Callable"),
+        }
+        _supplied(supplied, "machine.implementation.module",
+                  governed_by=f"{domain}::STRUCTURE_BUILD_{domain.upper()}_CONFIG_V0")
 
 
 def _molecule_source(bound: Any) -> Any:
@@ -854,8 +854,8 @@ def _molecule_source(bound: Any) -> Any:
 
     Separate from `_binding` because a molecule has two roots a contract step does not — the member a
     loop pass is on, and the values the loop carries — and `iterator` read as a contract binding is a
-    literal word. Anything that names no root is a literal, read as YAML so that `""` is the empty
-    string, `false` a flag and `[]` a list rather than the characters that spell them.
+    literal word. A constant is stated as `{literal: v}` and is that value; any other text passes
+    through as written.
     """
     stated, bound_to = _literal_or(bound)
     if stated:
@@ -920,9 +920,11 @@ HEADER_ONLY_PROPERTIES = {"supersedes"}
 
 
 def _property_value(r: dict) -> Any:
-    """A property's value: the names it lists, or its one value read as a literal."""
+    """A property's value as the design states it: the names it lists, a text, or a typed value."""
     held = value(r, "Value")
-    return list(items(r, "Value")) if isinstance(held, list) else _literal(cell(r, "Value"))
+    if isinstance(held, list):
+        return list(items(r, "Value"))
+    return norm(held) if isinstance(held, str) else held
 
 
 def _properties(p7: dict, code: str) -> dict:
@@ -1094,25 +1096,15 @@ def _nest(target: dict, path: str, value: Any) -> None:
 
 
 def _bound_value(bound: Any) -> Any:
-    """What a `Bound To` cell means: a substitution token, or the value itself.
+    """What a `Bound To` cell means: a constant, or a text the boundary resolves.
 
-    `${input.KEY}` is the boundary's own substitution syntax and passes through untouched. Anything
-    else is a constant the design states — the rules an act requires and a caller must not send — and
-    it is read as YAML so that a list is a list and a flag is a flag. A constant written as prose
-    would reach the act as prose, which is how a template silently sends the word "constant".
+    A constant is stated as `{literal: v}` and is that value, typed — the rules an act requires and a
+    caller must not send. A text is a `${input.KEY}` substitution token or a path into the surface,
+    and passes through as written. Nothing is read out of a text: a constant written as text would
+    reach the act as text, which is how a template once silently sent the word "constant".
     """
-    import yaml
-
     stated, bound = _literal_or(bound)
-    if stated:
-        return bound
-    bound = norm(bound)
-    if _INPUT_TOKEN.match(bound):
-        return bound
-    try:
-        return yaml.safe_load(bound)
-    except yaml.YAMLError:
-        return bound
+    return bound if stated else norm(bound)
 
 
 def _transport_ingress(m, code, short, summary, sub, p7, p8, declared_empty=None):

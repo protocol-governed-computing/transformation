@@ -913,7 +913,6 @@ core:
           params:
             columns:
             - CT Code
-            - Module
             - Callable
             - Operation
             - Kind
@@ -1069,20 +1068,6 @@ core:
             - Value
             - Source Finding
           intent: downstream phases read these columns by name
-        - id: CELL_NOT_OF_TYPE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/properties/registers/properties/artifact_properties/items/properties/value/x-derived/CELL_OF_TYPE
-          check: CELL_OF_TYPE
-          register: artifact_properties
-          params:
-            column: Value
-            type:
-              type:
-              - string
-              - array
-              - 'null'
-              items:
-                type: string
-          intent: Value carries structure, and its value must take the declared form
         - id: CELL_NOT_OF_TYPE
           identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/properties/registers/properties/artifact_properties/items/properties/source_finding/x-derived/CELL_OF_TYPE
           check: CELL_OF_TYPE
@@ -2345,18 +2330,8 @@ core:
           params:
             observation: si.capability.surface
           intent: a step hands an operation fields it accepts, never ones it was hoped would exist
-        - id: IMPLEMENTATION_WITHOUT_MODULE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/39
-          check: CELL_NOT_EMPTY
-          register: implementation_bindings
-          params:
-            column: Module
-            only_when_column: Kind
-            only_when_value: atom
-            detail: transform names no module — an implementation nobody can locate is not designed
-          intent: a declared implementation says where it lives
         - id: IMPLEMENTATION_WITHOUT_KIND
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/40
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/39
           check: CELL_NOT_EMPTY
           register: implementation_bindings
           params:
@@ -2365,7 +2340,7 @@ core:
               every other rule this row is held to
           intent: a transform says whether it is an atom or a molecule
         - id: IMPLEMENTATION_KIND_UNKNOWN
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/41
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/40
           check: CELL_MATCHES
           register: implementation_bindings
           params:
@@ -2374,17 +2349,8 @@ core:
             detail: kind is {value!r}; a transform is an atom, which runs an implementation, or a molecule, which
               runs its declared steps, and the schema admits nothing else
           intent: kind is one of the two the runtime can run
-        - id: IMPLEMENTATION_MODULE_MISPLACED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/42
-          check: IMPLEMENTATION_MODULE_CONFORMS
-          register: implementation_bindings
-          params:
-            code_column: CT Code
-            module_column: Module
-            namespace_template: '{domain}.implementation.capability_transforms.atoms'
-          intent: a transform's module is where its domain resolves implementations, named for the artifact
         - id: IMPLEMENTATION_WITHOUT_REFUSAL
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/43
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/41
           check: CELL_NOT_EMPTY
           register: implementation_bindings
           params:
@@ -2393,7 +2359,7 @@ core:
               that says if a step routing on it can ever fail, and both look the same from outside
           intent: a transform says how it expresses a judgement about its subject
         - id: IMPLEMENTATION_REFUSAL_UNKNOWN
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/44
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/42
           check: CELL_MATCHES
           register: implementation_bindings
           params:
@@ -2403,7 +2369,7 @@ core:
               schema admits nothing else
           intent: refusal is one of the three the composition can act on
         - id: INTERPRETATION_TRANSFORM_CANNOT_REFUSE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/45
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/43
           check: INTERPRETATION_TRANSFORM_REFUSES
           register: cc_composition
           params:
@@ -2415,7 +2381,7 @@ core:
             design_refusal_column: Refusal
           intent: an interpretation can fail, or the branch it feeds is unreachable
         - id: IMPLEMENTATION_CALLABLE_UNCONVENTIONAL
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/46
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/44
           check: CELL_MATCHES
           register: implementation_bindings
           params:
@@ -2425,7 +2391,7 @@ core:
               a loader given another name finds nothing
           intent: a transform is entered the one way every transform is entered
         - id: BINDING_WITHOUT_SOURCE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/47
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/45
           check: CELL_NOT_EMPTY
           register: step_bindings
           params:
@@ -2433,7 +2399,7 @@ core:
             detail: field is bound to nothing — construction would have to choose a source
           intent: every declared input names where its value comes from
         - id: STORE_PATH_FORMAT_MISMATCH
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/48
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/46
           check: CELL_MATCHES
           register: structure_stores
           params:
@@ -2445,7 +2411,7 @@ core:
               store''s name must not advertise a format its capability does not write'
           intent: a store is named for the format its capability actually writes
         - id: STORE_PATH_FORMAT_MISMATCH
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/49
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/47
           check: CELL_MATCHES
           register: structure_stores
           params:
@@ -2457,7 +2423,7 @@ core:
               name must not advertise a format its capability does not write'
           intent: a store is named for the format its capability actually writes
         - id: STORE_PATH_FORMAT_MISMATCH
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/50
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/48
           check: CELL_MATCHES
           register: structure_stores
           params:
@@ -2469,7 +2435,7 @@ core:
               — a store''s name must not advertise a format its capability does not write'
           intent: a store is named for the format its capability actually writes
         - id: BINDING_SOURCE_UNROOTED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/51
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/49
           check: CELL_MATCHES
           register: step_bindings
           params:
@@ -2479,7 +2445,7 @@ core:
               payload, inputs, results, capability_result, or is result_status'
           intent: a source that names a place is rooted in one execution scope actually offers
         - id: NODE_INPUT_UNBOUND
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/52
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/50
           check: NODE_INPUT_BOUND
           register: step_bindings
           params:
@@ -2489,7 +2455,7 @@ core:
             observation: si.capability.surface#contracts
           intent: a workflow hands a contract everything that contract says it requires
         - id: ENTRANCE_UNDERSUPPLIES_GATE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/53
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/51
           check: ENTRANCE_SUPPLIES_GATE
           register: transport_bindings
           params:
@@ -2498,7 +2464,7 @@ core:
             observation: si.capability.surface#intents
           intent: an entrance supplies everything the gate it reaches requires
         - id: BINDING_SOURCE_UNREACHABLE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/54
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/52
           check: BINDING_SOURCE_REACHABLE
           register: step_bindings
           params:
@@ -2506,21 +2472,21 @@ core:
             pattern: results\.([A-Za-z][A-Za-z0-9_.:]*?)\.
           intent: a source that names another node must name one this workflow reaches
         - id: STEP_INTERFACE_NOT_CONFORMANT
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/55
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/53
           check: STEP_INTERFACE_CONFORMS
           register: cc_composition
           params:
             observation: si.capability.surface#transforms
           intent: a transform handed an input it does not declare receives nothing under that name
         - id: STEP_BINDING_NOT_IN_INTERFACE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/56
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/54
           check: STEP_BINDINGS_MATCH_INTERFACE
           register: step_bindings
           params:
             composition_register: cc_composition
           intent: a binding outside the interface feeds a capability input that does not exist
         - id: STEP_INPUT_UNBOUND
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/57
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/55
           check: STEP_INPUTS_BOUND
           register: step_bindings
           params:
@@ -2528,7 +2494,7 @@ core:
             fields_register: interface_fields
           intent: a capability handed no value for an input it declares receives a null
         - id: BINDING_SOURCE_MALFORMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/58
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/56
           check: CELL_MATCHES
           register: step_bindings
           params:
@@ -2541,7 +2507,7 @@ core:
               or is a literal
           intent: a reference the runtime cannot resolve is indistinguishable from one it can
         - id: BINDING_SOURCE_MALFORMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/59
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/57
           check: CELL_MATCHES
           register: step_bindings
           params:
@@ -2554,14 +2520,14 @@ core:
               or is a literal
           intent: a reference the runtime cannot resolve is indistinguishable from one it can
         - id: CONTRACT_OUTPUT_UNPRODUCED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/60
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/58
           check: CONTRACT_OUTPUT_PRODUCED
           register: interface_fields
           params:
             bindings_register: step_bindings
           intent: a declared output no step emits gives every caller a name that resolves to nothing
         - id: GENERATED_ARTIFACT_UNDECLARED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/61
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/59
           check: CELL_RESOLVES_IN_REGISTER
           register: generation_provenance
           params:
@@ -2577,7 +2543,7 @@ core:
               for something nothing schedules produces nothing
           intent: provenance belongs to an artifact the design actually declares
         - id: ARTIFACT_HAS_TWO_GENERATORS
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/62
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/60
           check: COLUMN_VALUES_UNIQUE
           register: generation_provenance
           params:
@@ -2586,7 +2552,7 @@ core:
               and two producers of one truth drift'
           intent: one artifact, one producer, so agreement with the generator means something
         - id: GENERATED_SOURCE_WITHOUT_GENERATOR
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/63
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/61
           check: CELL_RESOLVES_IN_REGISTER
           register: step_bindings
           params:
@@ -2601,7 +2567,7 @@ core:
               the design says it does
           intent: a value is declared generated only where the design names its generator
         - id: GENERATOR_UNNAMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/64
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/62
           check: CELL_NOT_EMPTY
           register: generation_provenance
           params:
@@ -2610,7 +2576,7 @@ core:
               and no way to reach it
           intent: a generated artifact names what produces it
         - id: GENERATOR_UNREACHABLE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/65
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/63
           check: CELL_MATCHES
           register: generation_provenance
           params:
@@ -2620,7 +2586,7 @@ core:
               it can only shell out to is one nothing governs
           intent: a generator is invocable from the composition, not only by a person at a terminal
         - id: GENERATOR_SOURCES_UNNAMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/66
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/64
           check: CELL_NOT_EMPTY
           register: generation_provenance
           params:
@@ -2629,7 +2595,7 @@ core:
               and naming neither permits regenerating from a stale pairing
           intent: a generator is its sources together, so a change to either is a change to it
         - id: REFUSAL_UNACCOUNTED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/67
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/65
           check: PRIOR_ROWS_PRESENT_BY_KEY
           register: refusal_discharge
           params:
@@ -2647,7 +2613,7 @@ core:
             - refusal_governance_discharge
           intent: every refusal the business declared is carried out here or owned by someone else
         - id: DISCHARGE_UNDECLARED_REFUSAL
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/68
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/66
           check: ROWS_CONFINED_TO_PRIOR
           register: refusal_discharge
           params:
@@ -2661,7 +2627,7 @@ core:
             - Refused When
           intent: a discharge answers a refusal the business declared, never one the design invented
         - id: DEFERRAL_UNDECLARED_REFUSAL
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/69
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/67
           check: ROWS_CONFINED_TO_PRIOR
           register: refusal_deferrals
           params:
@@ -2675,7 +2641,7 @@ core:
             - Refused When
           intent: a deferral hands on a refusal the business declared, never one nobody approved
         - id: DEFERRAL_OWNER_UNNAMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/70
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/68
           check: CELL_NOT_EMPTY
           register: refusal_deferrals
           params:
@@ -2684,7 +2650,7 @@ core:
               like a plan
           intent: a deferred refusal names who will carry it out
         - id: GOVERNANCE_DISCHARGE_UNDECLARED_REFUSAL
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/71
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/69
           check: ROWS_CONFINED_TO_PRIOR
           register: refusal_governance_discharge
           params:
@@ -2698,7 +2664,7 @@ core:
             - Refused When
           intent: the governance surface is cited for a refusal the business declared, never for one it did not
         - id: GOVERNING_RULE_PHASE_MALFORMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/72
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/70
           check: CELL_MATCHES
           register: refusal_governance_discharge
           params:
@@ -2708,7 +2674,7 @@ core:
               p0 through p8, because an identifier alone names nine rules'
           intent: a cited rule is located in the phase whose rule set holds it
         - id: GOVERNING_RULE_UNNAMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/73
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/71
           check: CELL_NOT_EMPTY
           register: refusal_governance_discharge
           params:
@@ -2717,7 +2683,7 @@ core:
               there is prose, and prose refuses nothing
           intent: a governance-surface discharge names the rule that refuses
         - id: GOVERNING_RULE_NOT_IN_FORCE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/74
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/72
           check: GOVERNING_RULE_IN_SEALED_SET
           register: refusal_governance_discharge
           params:
@@ -2734,17 +2700,17 @@ core:
               p8: WF_P8_AUTHORING_MANDATE_ADMISSIBILITY
           intent: a rule said to carry out a refusal is really in force where the design is pinned
         - id: DISCHARGE_NOT_IN_TOPOLOGY
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/75
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/73
           check: DISCHARGE_GROUNDED_IN_TOPOLOGY
           register: refusal_discharge
           intent: a discharge names a step the act has and an outcome that step reports
         - id: DISCHARGE_DOES_NOT_REFUSE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/76
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/74
           check: DISCHARGE_OUTCOME_REFUSES
           register: refusal_discharge
           intent: the outcome a discharge names stops the act rather than continuing it
         - id: EMISSION_NOT_FROM_COMPLETING_ENDING
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/77
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/75
           check: EMISSION_GROUNDED_IN_ENDING
           register: artifact_properties
           params:
@@ -2754,7 +2720,7 @@ core:
           intent: a moment is announced from an ending the act has, and one that completes it — or, for a moment
             declared a refusal, one that refuses it
         - id: EMITTED_EVENT_UNDECLARED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/78
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/76
           check: CELL_RESOLVES_IN_REGISTER
           register: artifact_properties
           params:
@@ -2770,20 +2736,8 @@ core:
             - FQDN
             detail: an announced moment must be an identity this design declares
           intent: an act announces a moment that exists, never one nothing declares
-        - id: MOLECULE_DECLARES_IMPLEMENTATION
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/79
-          check: CELL_MATCHES
-          register: implementation_bindings
-          params:
-            column: Module
-            pattern: ^(?:—|-)$
-            only_when_column: Kind
-            only_when_value: molecule
-            detail: a molecule names module {value!r}; a molecule is run as its declared steps, and a module beside
-              them is a second account of what it does
-          intent: a molecule is its steps, never an implementation as well
         - id: MOLECULE_WITHOUT_STEPS
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/80
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/77
           check: REGISTER_COVERS_REGISTER
           register: molecule_steps
           params:
@@ -2794,7 +2748,7 @@ core:
             only_when_value: molecule
           intent: a molecule with no declared steps specifies nothing to run
         - id: MOLECULE_STEP_OWNER_NOT_MOLECULE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/81
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/78
           check: CELL_RESOLVES_IN_REGISTER
           register: molecule_steps
           params:
@@ -2806,7 +2760,7 @@ core:
             detail: steps belong to a transform this design declares a molecule
           intent: only a molecule has steps
         - id: MOLECULE_STEP_KIND_UNKNOWN
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/82
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/79
           check: CELL_MATCHES
           register: molecule_steps
           params:
@@ -2816,7 +2770,7 @@ core:
               of a collection, and the compiler lowers nothing else
           intent: a step is one of the three the compiler lowers
         - id: MOLECULE_STEP_WITHOUT_KIND
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/83
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/80
           check: CELL_NOT_EMPTY
           register: molecule_steps
           params:
@@ -2824,7 +2778,7 @@ core:
             detail: step declares no kind — construction would have to choose how it runs
           intent: every step says how it runs
         - id: MOLECULE_STEP_TARGET_UNDECLARED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/84
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/81
           check: CELL_RESOLVES_IN_REGISTER
           register: molecule_steps
           params:
@@ -2839,7 +2793,7 @@ core:
             detail: a step runs a transform this design declares or carries over
           intent: a step runs something that exists
         - id: MOLECULE_STEP_WITHOUT_TARGET
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/85
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/82
           check: CELL_NOT_EMPTY
           register: molecule_steps
           params:
@@ -2847,7 +2801,7 @@ core:
             detail: step runs nothing — construction would have to choose what
           intent: every step names the transform it runs
         - id: MOLECULE_STEP_UNNAMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/86
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/83
           check: CELL_NOT_EMPTY
           register: molecule_steps
           params:
@@ -2855,7 +2809,7 @@ core:
             detail: step has no symbol — a result nothing can name is a result no later step can read
           intent: every step's result has a name later steps read it by
         - id: LOOP_WITHOUT_COLLECTION
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/87
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/84
           check: CELL_NOT_EMPTY
           register: molecule_steps
           params:
@@ -2865,7 +2819,7 @@ core:
             detail: loop names no collection — its passes would have no stated bound
           intent: a loop runs once per member of a collection the composition can see
         - id: LOOP_COLLECTION_UNROOTED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/88
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/85
           check: CELL_MATCHES
           register: molecule_steps
           params:
@@ -2877,7 +2831,7 @@ core:
               so its length is fixed before the first pass and never by one
           intent: a loop's length never depends on the data it computes
         - id: LOOP_WITHOUT_ITERATOR
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/89
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/86
           check: CELL_NOT_EMPTY
           register: molecule_steps
           params:
@@ -2887,7 +2841,7 @@ core:
             detail: loop names no iterator — its body is handed a member under no name
           intent: a loop's body receives each member under a declared name
         - id: LOOP_FIELDS_OUTSIDE_LOOP
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/90
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/87
           check: CELL_MATCHES
           register: molecule_steps
           params:
@@ -2900,7 +2854,7 @@ core:
             detail: a step that is not a loop names collection {value!r}, which nothing reads
           intent: a collection is stated where it bounds something
         - id: MOLECULE_WITHOUT_EMISSION
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/91
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/88
           check: REGISTER_COVERS_REGISTER
           register: molecule_steps
           params:
@@ -2912,7 +2866,7 @@ core:
             covered_present_column: Emits
           intent: a molecule yields a value, and says which step it comes from
         - id: MOLECULE_EMITS_TWICE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/92
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/89
           check: COLUMN_VALUES_UNIQUE
           register: molecule_steps
           params:
@@ -2922,7 +2876,7 @@ core:
               leave a caller to guess which it was handed'
           intent: a molecule yields exactly one value
         - id: MOLECULE_BINDING_STEP_UNDECLARED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/93
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/90
           check: CELL_RESOLVES_IN_REGISTER
           register: molecule_step_bindings
           params:
@@ -2932,7 +2886,7 @@ core:
             detail: a binding belongs to a step this design declares
           intent: a binding hands a value to a step that exists
         - id: MOLECULE_BINDING_WITHOUT_SOURCE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/94
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/91
           check: CELL_NOT_EMPTY
           register: molecule_step_bindings
           params:
@@ -2940,7 +2894,7 @@ core:
             detail: field is bound to nothing — construction would have to choose a source
           intent: every molecule binding names where its value comes from
         - id: MOLECULE_BINDING_SOURCE_MALFORMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/95
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/92
           check: CELL_MATCHES
           register: molecule_step_bindings
           params:
@@ -2950,7 +2904,7 @@ core:
               accumulator.<field>, or is a literal
           intent: a reference the runtime cannot resolve is indistinguishable from one it can
         - id: LOOP_UPDATE_NOT_FROM_RESULT
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/96
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/93
           check: CELL_MATCHES
           register: molecule_step_bindings
           params:
@@ -2962,7 +2916,7 @@ core:
               or the loop carries forward something no pass computed
           intent: what a loop carries forward is what each pass produced
         - id: WITHDRAWAL_IS_A_CHANGE_OF_MEANING
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/97
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/94
           check: TABLE_ROW_COUNT
           register: withdrawn_facts
           params:
@@ -2970,7 +2924,7 @@ core:
             detail: a withdrawal changes what an artifact means — author its successor and REPLACE it instead
           intent: an amendment withdraws nothing; a change of meaning is a new identity
         - id: TRANSFORM_WITHOUT_VECTOR
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/98
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/95
           check: REGISTER_COVERS_REGISTER
           register: test_cases
           params:
@@ -2981,7 +2935,7 @@ core:
             only_when_value: CT
           intent: a transform authored here enters the composition with its proof
         - id: AMENDED_TRANSFORM_WITHOUT_VECTOR
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/99
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/96
           check: REGISTER_COVERS_REGISTER
           register: test_cases
           params:
@@ -2993,7 +2947,7 @@ core:
             only_when_source_pattern: ^CT_
           intent: a transform this change amends is proven as it will be
         - id: TEST_CASE_TRANSFORM_UNDECLARED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/100
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/97
           check: CELL_RESOLVES_IN_REGISTER
           register: test_cases
           params:
@@ -3008,7 +2962,7 @@ core:
             detail: a case proves a transform this design declares or carries over
           intent: a case tests something that exists
         - id: TEST_CASE_UNNAMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/101
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/98
           check: CELL_NOT_EMPTY
           register: test_cases
           params:
@@ -3016,7 +2970,7 @@ core:
             detail: case has no name — a failure nothing can name is one nobody can find
           intent: every case is named
         - id: TEST_CASE_NAME_MALFORMED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/102
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/99
           check: CELL_MATCHES
           register: test_cases
           params:
@@ -3025,7 +2979,7 @@ core:
             detail: case is named {value!r}; a case is named in lower case, words joined by underscores
           intent: a case name is a stable identifier
         - id: TEST_VALUE_CASE_UNDECLARED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/103
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/100
           check: CELL_RESOLVES_IN_REGISTER
           register: test_case_values
           params:
@@ -3035,7 +2989,7 @@ core:
             detail: a value belongs to a case this design declares
           intent: a value is handed to, or expected of, a case that exists
         - id: TEST_VALUE_WITHOUT_FIELD
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/104
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/101
           check: CELL_NOT_EMPTY
           register: test_case_values
           params:
@@ -3043,7 +2997,7 @@ core:
             detail: value names no field — construction would have to choose one
           intent: every value names the field it is for
         - id: TEST_VALUE_EMPTY
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/105
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/102
           check: CELL_PRESENT
           register: test_case_values
           params:
@@ -3051,7 +3005,7 @@ core:
             detail: value is not stated — write the literal; "" is the empty string and null is null
           intent: every value is stated
         - id: EVENT_CODE_NOT_PAST_PARTICIPLE
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/106
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/103
           check: CELL_MATCHES
           register: new_artifacts
           params:
@@ -3063,7 +3017,7 @@ core:
               as EV_ACTOR_REGISTERED_V0 does'
           intent: an event names an occurrence, and a code in the imperative names an operation
         - id: REGISTER_CELL_UNRESOLVED
-          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/107
+          identity: transformation.schemas.REGISTER_SCHEMA_P7_V0#/allOf/104
           check: UNRESOLVED_MARKER_ABSENT
           params:
             exempt: []

@@ -4606,7 +4606,7 @@ registers:
     field: authorized
     type: boolean
     required: 'NO'
-    default: 'false'
+    default: false
     meaning: Whether the staff member is model staff; decided by the business's existing arrangements, read here
   - artifact: causal_language_model::AC_REQUESTER_V0
     direction: ATTRIBUTE
@@ -4624,7 +4624,6 @@ registers:
     meaning: The customers the requester may act for; decided by the business's existing arrangements, read here
   implementation_bindings:
   - ct_code: causal_language_model::CT_PURE_FORM_MODEL_IDENTITY_KEY_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_form_model_identity_key_v0
     callable: execute
     operation: FORM_MODEL_IDENTITY_KEY
     kind: atom
@@ -4632,7 +4631,6 @@ registers:
     refusal: never
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_FORM_MODEL_IDENTITY_KEY_V0}
   - ct_code: causal_language_model::CT_PURE_COMPARE_SENSITIVITY_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_compare_sensitivity_v0
     callable: execute
     operation: COMPARE_SENSITIVITY
     kind: atom
@@ -4640,7 +4638,6 @@ registers:
     refusal: raises
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_COMPARE_SENSITIVITY_V0}
   - ct_code: causal_language_model::CT_PURE_ASSEMBLE_MODEL_READING_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_assemble_model_reading_v0
     callable: execute
     operation: ASSEMBLE_MODEL_READING
     kind: atom
@@ -4648,7 +4645,6 @@ registers:
     refusal: raises
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_ASSEMBLE_MODEL_READING_V0}
   - ct_code: causal_language_model::CT_PURE_FORM_RESPONSE_RULES_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_form_response_rules_v0
     callable: execute
     operation: FORM_RESPONSE_RULES
     kind: atom
@@ -4656,7 +4652,6 @@ registers:
     refusal: never
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_FORM_RESPONSE_RULES_V0}
   - ct_code: causal_language_model::CT_IMPURE_OFFER_NEXT_WORDS_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_impure_offer_next_words_v0
     callable: execute
     operation: OFFER_NEXT_WORDS
     kind: atom
@@ -4664,7 +4659,6 @@ registers:
     refusal: never
     source_finding: {phase: p7, register: new_artifacts, key: CT_IMPURE_OFFER_NEXT_WORDS_V0}
   - ct_code: causal_language_model::CT_PURE_CHOOSE_PERMITTED_WORD_V0
-    module: causal_language_model.implementation.capability_transforms.atoms.ct_pure_choose_permitted_word_v0
     callable: execute
     operation: CHOOSE_PERMITTED_WORD
     kind: atom
@@ -4672,7 +4666,6 @@ registers:
     refusal: returns
     source_finding: {phase: p7, register: new_artifacts, key: CT_PURE_CHOOSE_PERMITTED_WORD_V0}
   - ct_code: causal_language_model::CT_WRITE_NEXT_WORD_V0
-    module: ''
     callable: ''
     operation: WRITE_NEXT_WORD
     kind: molecule
@@ -4680,7 +4673,6 @@ registers:
     refusal: returns
     source_finding: {phase: p7, register: new_artifacts, key: CT_WRITE_NEXT_WORD_V0}
   - ct_code: causal_language_model::CT_WRITE_RESPONSE_V0
-    module: ''
     callable: ''
     operation: WRITE_RESPONSE
     kind: molecule
