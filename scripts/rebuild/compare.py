@@ -30,6 +30,10 @@ SNAPSHOT = Path.home() / "pgc-oracle" / "snapshot"
 HERE = Path(__file__).resolve().parent
 
 CODE_MAP: dict[str, str] = {}
+# M3.4a-1: procedures restated as constraints. The general kind words the finding its own way, so
+# these are compared by code and place.
+RESTATED_AS_CONSTRAINTS = ("BELIEF_STATED_AS_FACT", "STORE_PATH_FORMAT_MISMATCH", "BINDING_SOURCE_UNROOTED",
+                           "BINDING_SOURCE_MALFORMED")
 
 
 def _normalised(finding: dict, side: str) -> tuple | None:
@@ -39,14 +43,22 @@ def _normalised(finding: dict, side: str) -> tuple | None:
       and the column, once.
     - M3.3-6: a governed hole names the column by its key, not its heading. Both read as the
       register and the row, with the detail's column dropped.
+    - M3.4a-2: the two ordinal rules are one. The oracle's row rule reads as the ordinal rule, and
+      an unresolved ordinal is compared once per row.
+    - M3.4a-1: a procedure restated as a constraint words its finding as the general kind does.
+      Compared by code and place.
     - M3.3b-1: a citation is a mapping, so an unresolved one is shown as the mapping. Both read as
       the register and the row. A citation that does not structure is refused by its type, which
       reads as the unresolved citation it was.
     """
     code, where, detail = CODE_MAP.get(finding["rule"], finding["rule"]), finding["where"], finding["detail"]
+    if code == "CITATION_ROW_UNRESOLVED":
+        code = "CITATION_ORDINAL_UNRESOLVED"
+    if code == "CITATION_ORDINAL_UNRESOLVED":
+        return (code, where, "")
     if code == "CELL_NOT_OF_TYPE" and detail.startswith(("'Source Finding'", "'Origin'")):
         code = "SOURCE_FINDING_UNRESOLVED"
-    if code == "SOURCE_FINDING_UNRESOLVED":
+    if code in ("SOURCE_FINDING_UNRESOLVED",) + RESTATED_AS_CONSTRAINTS:
         return (code, where, "")
     register = where.split(" row ")[0]
     if code == "REGISTER_COLUMN_MISSING":
@@ -83,26 +95,13 @@ def _empty_registers(path: Path) -> set[str]:
     return {r["id"] for r in registers if r["value"] is None or r["value"] == []}
 
 
-def findings(result: dict, side: str, oracle: dict | None = None) -> Counter:
+def findings(result: dict, side: str) -> Counter:
     listed = result.get("findings", [])
-    if oracle is not None:
-        # M3.3b-3: a seed citation's ordinal is resolved by both ordinal rules. The oracle's ordinal
-        # rule read no seed citation, so where the row rule reports a row and the oracle's ordinal
-        # rule does not, the rebuild's ordinal report of it is set aside.
-        rows = {f["where"] for f in listed if f["rule"] == "CITATION_ROW_UNRESOLVED"}
-        held = Counter(f["where"] for f in oracle.get("findings", [])
-                       if f["rule"] == "CITATION_ORDINAL_UNRESOLVED")
-        kept = []
-        for f in listed:
-            if f["rule"] == "CITATION_ORDINAL_UNRESOLVED" and f["where"] in rows:
-                if not held[f["where"]]:
-                    continue
-                held[f["where"]] -= 1
-            kept.append(f)
-        listed = kept
     seen = Counter(_normalised(f, side) for f in listed)
-    # A per-row missing column collapses to one finding per register and column.
-    return Counter({k: (1 if k[0] == "REGISTER_COLUMN_MISSING" else v) for k, v in seen.items()})
+    # A per-row missing column collapses to one finding per register and column, and an unresolved
+    # ordinal to one finding per row (M3.4a-2).
+    return Counter({k: (1 if k[0] in ("REGISTER_COLUMN_MISSING", "CITATION_ORDINAL_UNRESOLVED") else v)
+                    for k, v in seen.items()})
 
 
 def main(argv: list[str]) -> int:
@@ -127,7 +126,7 @@ def main(argv: list[str]) -> int:
         else:
             if a["verdict"] != b["verdict"]:
                 problems.append(f"verdict {a['verdict']} → {b['verdict']}")
-            fa, fb = findings(a, 'oracle'), findings(b, 'rebuild', a)
+            fa, fb = findings(a, 'oracle'), findings(b, 'rebuild')
             # M2-2: a register with no rows has no column to miss.
             empty = _empty_registers(mirror / before["doc"])
             fa = Counter({k: v for k, v in fa.items()

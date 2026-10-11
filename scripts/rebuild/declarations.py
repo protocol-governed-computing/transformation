@@ -32,7 +32,11 @@ REORDERED = {
 RESTATED = {
     ("p7", "REGISTER_COLUMN_MISSING", "implementation_bindings"): ("M3.3-7", {"params"}),
     ("p7", "REGISTER_COLUMN_MISSING", "molecule_steps"): ("M3.3-7", {"params"}),
-    ("p7", "STORE_PATH_FORMAT_MISMATCH", "structure_stores"): ("M3.3-7", {"params"}),
+    ("p7", "STORE_PATH_FORMAT_MISMATCH", "structure_stores"): ("M3.4a-1", {"check", "params"}),
+    ("p0", "BELIEF_STATED_AS_FACT", "system_beliefs"): ("M3.4a-1", {"check", "params"}),
+    ("p7", "TOPOLOGY_NODE_REPEATED", "execution_topology"): ("M3.4a-1", {"check", "params"}),
+    ("p7", "BINDING_SOURCE_UNROOTED", "step_bindings"): ("M3.4a-1", {"check", "params"}),
+    ("p7", "BINDING_SOURCE_MALFORMED", "step_bindings"): ("M3.4a-1", {"check", "params"}),
     ("p7", "GENERATED_SOURCE_WITHOUT_GENERATOR", "step_bindings"): ("M2-9", {"params"}),
     ("p7", "TEST_VALUE_EMPTY", "test_case_values"): ("M3.3-9", {"check", "params"}),
     ("p7", "GOVERNING_RULE_NOT_IN_FORCE", "refusal_governance_discharge"): ("M3.3b-4", {"params"}),
@@ -43,9 +47,12 @@ RESTATED_EVERYWHERE = {
     "ROW_WITHOUT_SOURCE_FINDING": ("M3.3b-2", {"check"}),
 }
 # A rule only the oracle has: (phase, id) → the divergence that retired it.
-RETIRED = {("p7", "TEST_VALUE_UNPARSEABLE"): "M2-10"}
+RETIRED = {("p7", "TEST_VALUE_UNPARSEABLE"): "M2-10", ("p1", "CITATION_ROW_UNRESOLVED"): "M3.4a-2"}
 # A rule only the rebuild has: its check → the divergence that added it.
 ADDED = {"CELL_OF_TYPE": "M3.3-4"}
+# A procedure restated as several constraints: (phase, id) → the divergence. The first is matched
+# as restated; the rest are added.
+SPLIT = {("p7", "STORE_PATH_FORMAT_MISMATCH"): "M3.4a-1", ("p7", "BINDING_SOURCE_MALFORMED"): "M3.4a-1"}
 
 
 def _declared(phase: str, a: dict, b: dict) -> str | None:
@@ -119,6 +126,9 @@ def main(argv: list[str]) -> int:
         for rb in list(only_b):
             if rb["check"] in ADDED:
                 explained.append(ADDED[rb["check"]])
+                only_b.remove(rb)
+            elif (phase, rb["id"]) in SPLIT:
+                explained.append(SPLIT[(phase, rb["id"])])
                 only_b.remove(rb)
         for name in sorted(set(explained)):
             count = explained.count(name)

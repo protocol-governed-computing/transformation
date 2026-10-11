@@ -46,6 +46,8 @@ implement — a defect in the rule set, not in the seed.
 
 ```yaml
 fqdn: transformation::WF_P0_SEED_ADMISSIBILITY_V0
+superseded_by:
+- transformation::WF_P0_SEED_ADMISSIBILITY_V1
 artifact_kind: WORKFLOW
 version: v0
 governed_by: workflow::CONSTITUTION_WORKFLOW_V0

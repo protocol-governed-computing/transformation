@@ -244,6 +244,23 @@ Multi-citations are each resolved, not only the first (D2). No corpus finding ch
 `WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0` is published, so its changed rule set is sealed into
 `WF_P1_…_V1`, which supersedes it (D3). `WF_P2`–`WF_P7` are unpublished and re-emitted in place.
 
+### M3.4a — procedures, built
+
+Five procedures are restated in the general language. Three stay procedures, for want of a
+construct that would not be one in disguise.
+
+| # | Oracle | Rebuild | Effect |
+|---|---|---|---|
+| M3.4a-1 | `TOPOLOGY_KEY_UNIQUE`, `CELL_NOT_PREFIXED`, `STORE_PATH_MATCHES_STORAGE`, `BINDING_SOURCE_ROOTED` and `BINDING_SOURCE_WELL_FORMED` are procedures. | A composite `x-key` on `(Workflow, Node)`; a case-insensitive `not: pattern` on `Belief`; one `if`/`then` pattern per storage capability (3); a pattern on `Bound To`; one `if`/`then` pattern per direction (2). | Same rows refused. The general kinds word their findings their own way; compared by code and place. p7 seals 279 rules. p0's rule set changes, and `WF_P0_SEED_ADMISSIBILITY_V0` is published, so `WF_P0_…_V1` supersedes it (D5). |
+| M3.4a-2 | Two rules resolve an ordinal citation: `CITATION_ORDINAL_UNRESOLVED` on every traceable register, and `CITATION_ROW_UNRESOLVED` on p1's 19. | One: `CITATION_ORDINAL_UNRESOLVED`, resolving each citation in the phase it names, or in this document (D4). | A row the oracle reported twice is reported once. Compared once per row. p1 seals 189 rules. |
+
+**Kept as procedures.** `CONTRACT_OUTPUT_PRODUCED` and `STEP_BINDINGS_MATCH_INTERFACE` relate a
+field to a field of another register scoped by two columns and a direction, or to the keys of a
+mapping inside a cell. `DEPENDENCY_PRECEDES` compares positions. A reference able to state these would
+carry parameters for one rule each. `CELL_PREFIXED_BY_COLUMN` relates two cells of one row, and
+`UNRESOLVED_MARKER_ABSENT` reads every cell of every register but the exempt. Each is specified in
+M3.4b. `IMPLEMENTATION_MODULE_CONFORMS` goes with its column in M5 (D6). 26 procedures remain.
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.

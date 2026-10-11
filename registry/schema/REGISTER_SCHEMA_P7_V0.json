@@ -1826,9 +1826,15 @@
         "code": "TOPOLOGY_NODE_REPEATED",
         "intent": "a node names one place in its workflow"
       },
-      "x-procedure": {
-        "name": "TOPOLOGY_KEY_UNIQUE",
-        "params": {}
+      "x-key": {
+        "mode": "unique",
+        "params": {
+          "columns": [
+            "Workflow",
+            "Node"
+          ],
+          "detail": "{0} names {1} again (first at row {first}) — a node that runs a contract twice needs a key for each place, and `Runs` naming the contract"
+        }
       }
     },
     {
@@ -2570,17 +2576,79 @@
       "x-register": "structure_stores",
       "x-finding": {
         "code": "STORE_PATH_FORMAT_MISMATCH",
-        "intent": "a store is named for the format its capability actually writes"
+        "intent": "a store is named for the format its capability actually writes",
+        "detail": "{value!r} names a store CS_MUTABLE_JSON_V0 keeps, and CS_MUTABLE_JSON_V0 writes .json — a store's name must not advertise a format its capability does not write"
       },
-      "x-procedure": {
-        "name": "STORE_PATH_MATCHES_STORAGE",
-        "params": {
-          "storage_column": "Storage Type",
-          "path_column": "Proposed Path",
-          "formats": {
-            "CS_MUTABLE_JSON_V0": ".json",
-            "CS_REGISTRY_V0": ".jsonl",
-            "CS_APPENDONLY_JSONL_V0": ".jsonl"
+      "items": {
+        "if": {
+          "properties": {
+            "storage_type": {
+              "const": "CS_MUTABLE_JSON_V0"
+            }
+          },
+          "required": [
+            "storage_type"
+          ]
+        },
+        "then": {
+          "properties": {
+            "proposed_path": {
+              "pattern": "^.*\\.json$"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "structure_stores",
+      "x-finding": {
+        "code": "STORE_PATH_FORMAT_MISMATCH",
+        "intent": "a store is named for the format its capability actually writes",
+        "detail": "{value!r} names a store CS_REGISTRY_V0 keeps, and CS_REGISTRY_V0 writes .jsonl — a store's name must not advertise a format its capability does not write"
+      },
+      "items": {
+        "if": {
+          "properties": {
+            "storage_type": {
+              "const": "CS_REGISTRY_V0"
+            }
+          },
+          "required": [
+            "storage_type"
+          ]
+        },
+        "then": {
+          "properties": {
+            "proposed_path": {
+              "pattern": "^.*\\.jsonl$"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "structure_stores",
+      "x-finding": {
+        "code": "STORE_PATH_FORMAT_MISMATCH",
+        "intent": "a store is named for the format its capability actually writes",
+        "detail": "{value!r} names a store CS_APPENDONLY_JSONL_V0 keeps, and CS_APPENDONLY_JSONL_V0 writes .jsonl — a store's name must not advertise a format its capability does not write"
+      },
+      "items": {
+        "if": {
+          "properties": {
+            "storage_type": {
+              "const": "CS_APPENDONLY_JSONL_V0"
+            }
+          },
+          "required": [
+            "storage_type"
+          ]
+        },
+        "then": {
+          "properties": {
+            "proposed_path": {
+              "pattern": "^.*\\.jsonl$"
+            }
           }
         }
       }
@@ -2589,21 +2657,14 @@
       "x-register": "step_bindings",
       "x-finding": {
         "code": "BINDING_SOURCE_UNROOTED",
-        "intent": "a source that names a place is rooted in one execution scope actually offers"
+        "intent": "a source that names a place is rooted in one execution scope actually offers",
+        "detail": "{value!r} is not rooted in a scope execution offers — a source names a field under one of payload, inputs, results, capability_result, or is result_status"
       },
-      "x-procedure": {
-        "name": "BINDING_SOURCE_ROOTED",
-        "params": {
-          "roots": [
-            "payload",
-            "inputs",
-            "results",
-            "capability_result",
-            "result_status"
-          ],
-          "value_roots": [
-            "result_status"
-          ]
+      "items": {
+        "properties": {
+          "bound_to": {
+            "pattern": "^(?:(?:payload|inputs|results|capability_result)\\..+|result_status|(?!(?:payload|inputs|results|capability_result)$)[^.]*|.*::.*|-?[0-9]+(?:\\.[0-9]+)?)$"
+          }
         }
       }
     },
@@ -2697,14 +2758,52 @@
       "x-finding": {
         "code": "BINDING_SOURCE_MALFORMED",
         "intent": "a reference the runtime cannot resolve is indistinguishable from one it can",
-        "detail": "an output is written to capability_result.<field> or result_status; an input reads inputs.<field>, payload.<field>, results.<step>.<field>, or is a literal"
+        "detail": "output binds {value!r}, which is not a form the runtime resolves — an output is written to capability_result.<field> or result_status; an input reads inputs.<field>, payload.<field>, results.<step>.<field>, or is a literal"
       },
-      "x-procedure": {
-        "name": "BINDING_SOURCE_WELL_FORMED",
-        "params": {
-          "output_pattern": "^(?:capability_result\\.[A-Za-z_][A-Za-z0-9_]*|result_status)$",
-          "input_pattern": "^(?:inputs\\.[A-Za-z_][A-Za-z0-9_.]*|payload\\.[A-Za-z_][A-Za-z0-9_.]*|results\\.[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_.]*|[\\[{].*[\\]}]|\"[^\"]*\"|'[^']*'|-?[0-9]+(?:\\.[0-9]+)?|[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_-]*)$",
-          "detail": "an output is written to capability_result.<field> or result_status; an input reads inputs.<field>, payload.<field>, results.<step>.<field>, or is a literal"
+      "items": {
+        "if": {
+          "properties": {
+            "direction": {
+              "const": "OUTPUT"
+            }
+          },
+          "required": [
+            "direction"
+          ]
+        },
+        "then": {
+          "properties": {
+            "bound_to": {
+              "pattern": "^(?:capability_result\\.[A-Za-z_][A-Za-z0-9_]*|result_status)$"
+            }
+          }
+        }
+      }
+    },
+    {
+      "x-register": "step_bindings",
+      "x-finding": {
+        "code": "BINDING_SOURCE_MALFORMED",
+        "intent": "a reference the runtime cannot resolve is indistinguishable from one it can",
+        "detail": "input binds {value!r}, which is not a form the runtime resolves — an output is written to capability_result.<field> or result_status; an input reads inputs.<field>, payload.<field>, results.<step>.<field>, or is a literal"
+      },
+      "items": {
+        "if": {
+          "properties": {
+            "direction": {
+              "const": "INPUT"
+            }
+          },
+          "required": [
+            "direction"
+          ]
+        },
+        "then": {
+          "properties": {
+            "bound_to": {
+              "pattern": "^(?:inputs\\.[A-Za-z_][A-Za-z0-9_.]*|payload\\.[A-Za-z_][A-Za-z0-9_.]*|results\\.[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_.]*|[\\[{].*[\\]}]|\"[^\"]*\"|'[^']*'|-?[0-9]+(?:\\.[0-9]+)?|[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_-]*)$"
+            }
+          }
         }
       }
     },

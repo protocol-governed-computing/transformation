@@ -390,24 +390,6 @@ def _citation_present(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             for i, row in _rows(doc, rule) if _value(row, column) in (None, "", [])]
 
 
-@check("CELL_NOT_PREFIXED")
-def _cell_not_prefixed(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    out = []
-    column = rule.params["column"]
-    for i, row in _rows(doc, rule):
-        value = _cell(row, column).lower()
-        for prefix in rule.params["prefixes"]:
-            if value.startswith(prefix):
-                out.append(
-                    (
-                        f"{_where(rule)} row {i}",
-                        rule.params["detail"].format(prefix=prefix.strip()),
-                    )
-                )
-                break
-    return out
-
-
 @check("ROW_ABSENT_WHEN")
 def _row_absent_when(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """A register may not carry a row in a given state.
@@ -1173,28 +1155,6 @@ def _binding_source_reachable(doc: ParsedDocument, rule) -> list[tuple[str, str]
     return out
 
 
-@check("TOPOLOGY_KEY_UNIQUE")
-def _topology_key_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    """A node names one place in its workflow.
-
-    Routing, bindings and discharges address a node by its key. Two rows with one key are two
-    places nothing can tell apart, and construction keeps whichever it reads last.
-    """
-    seen: dict[tuple[str, str], int] = {}
-    out = []
-    for i, row in _rows(doc, rule):
-        key = (_bare_identity(_cell(row, "Workflow")), _bare_identity(_cell(row, "Node")))
-        if key in seen:
-            out.append((
-                f"{_where(rule)} row {i}",
-                f"{key[0]} names {key[1]} again (first at row {seen[key]}) — a node that runs a "
-                f"contract twice needs a key for each place, and `Runs` naming the contract",
-            ))
-        else:
-            seen[key] = i
-    return out
-
-
 @check("TOPOLOGY_ROUTE_RESOLVES")
 def _topology_route_resolves(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """Every routing target is a node of the same workflow.
@@ -1727,103 +1687,6 @@ def _binding_source_published(doc: ParsedDocument, rule) -> list[tuple[str, str]
     return out
 
 
-@check("BINDING_SOURCE_ROOTED")
-def _binding_source_rooted(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    """A source that names a place must be rooted in a scope execution offers.
-
-    `BINDING_SOURCE_PUBLISHED` asks whether a source reads a field that exists. This asks the prior
-    question: whether the source is a reference at all. A binding cell is either a literal the design
-    chose — `CATALOG_OPERATIONS`, `false`, `REGISTER_BOOK` — or a reference to somewhere a value comes
-    from, and only the roots in `roots` are places. Nothing distinguished the two, so a reference
-    written without its root was read as a literal by every layer beneath: the renderer emitted the
-    string verbatim, the compiler accepted it, and the runtime handed the step its own binding text.
-
-    CR-1 wrote `results.check_existing.capability_result.exists` and worked. Its re-run wrote
-    `assemble_book_record.book_record` — the same intent, the root dropped — and every workflow
-    reported SUCCESS while writing the string `"assemble_book_record.book_record"` into the store as
-    the book. Construction completeness was 100%: a determined binding to a literal is still
-    determined, which is exactly why this has to be a design rule and not a construction one.
-
-    Two shapes are caught. A dotted source whose first segment is not a root names a scope that does
-    not exist. A *scope* root written bare is a reference whose field was never written — `payload`
-    alone addresses no value. `result_status` is the exception and is not a scope: it is the step's
-    status, a scalar with nothing under it, and standing alone is its only correct form. A literal is
-    left alone: no dots, or an FQDN, or a number, or an inline object the design states outright.
-    """
-    roots = rule.params["roots"]
-    scopes = [r for r in roots if r not in rule.params["value_roots"]]
-
-    out = []
-    for i, row in _rows(doc, rule):
-        bound = _source(row)
-        if not bound:
-            continue                      # a literal, or BINDING_WITHOUT_SOURCE's empty cell
-        if bound in scopes:
-            out.append((
-                f"{_where(rule)} row {i}",
-                f"{bound!r} is a scope, not a value — a source rooted in {bound!r} must name the "
-                f"field it reads, or construction binds the step to the word itself",
-            ))
-            continue
-        if "." not in bound or "::" in bound or bound.startswith(("{", "[", '"', "'")):
-            continue                      # a literal the design chose, not a reference
-        if _is_number(bound):
-            continue
-        root = bound.split(".", 1)[0]
-        if root not in roots:
-            out.append((
-                f"{_where(rule)} row {i}",
-                f"{bound!r} is rooted in {root!r}, which execution does not offer — a source names "
-                f"one of {sorted(roots)}, or construction reads it as the literal string {bound!r}",
-            ))
-    return out
-
-
-def _is_number(value: str) -> bool:
-    try:
-        float(value)
-    except ValueError:
-        return False
-    return True
-
-
-@check("STORE_PATH_MATCHES_STORAGE")
-def _store_path_matches_storage(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    """A store's path must carry the extension its storage capability writes.
-
-    The capabilities do not all write the same file format: `CS_MUTABLE_JSON_V0` writes one JSON
-    object keyed by store key, while `CS_REGISTRY_V0` and `CS_APPENDONLY_JSONL_V0` write JSON Lines.
-    A path is free naming and nothing derived it from the binding, so the catalog named two registry
-    stores `.json` — files that could never be parsed as the document their extension advertised.
-
-    It cost nothing at compile time and nothing at run time, because the runtime opens the path it is
-    given and neither reads nor cares about the suffix. It cost a reader, and the tooling a reader
-    writes: the first thing that tried to `json.loads` a store crashed on the second line.
-
-    The mapping is declared in `formats` rather than derived from the capability, because a CS states
-    its format in the prose of its configuration schema — `path: Filesystem path to JSONL registry
-    file` — and nothing machine-readable says it. Closing *that* gap is a change to the CS
-    declaration substrate, and this rule is the cheap half.
-    """
-    formats: dict[str, str] = rule.params["formats"]
-
-    out = []
-    for i, row in _rows(doc, rule):
-        storage, path = _cell(row, rule.params["storage_column"]), _cell(row, rule.params["path_column"])
-        if not storage or not path:
-            continue
-        expected = formats.get(_bare_identity(storage))
-        if expected is None:
-            continue                      # a capability this rule states no format for
-        if not path.endswith(expected):
-            out.append((
-                f"{_where(rule)} row {i}",
-                f"{storage.split('::')[-1]} writes {expected} and the path ends {path[path.rfind('.'):]!r} "
-                f"— a store's name must not advertise a format its capability does not write",
-            ))
-    return out
-
-
 @check("ROWS_CONFINED_TO_PRIOR")
 def _rows_confined_to_prior(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """No row here may assert something the upstream register does not.
@@ -2150,68 +2013,6 @@ def _governing_rule_in_sealed_set(doc: ParsedDocument, rule) -> list[tuple[str, 
     return out
 
 
-@check("CITATION_ROW_UNRESOLVED")
-def _citation_row_unresolved(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    """An ordinal citation must name a row that exists.
-
-    `SOURCE_FINDING_UNRESOLVED` checks that a citation names a register some phase declares, which
-    catches a fabricated register id and nothing else: `CR seed §4 Known Facts #99` named a real
-    register and a row that was never written, and passed.
-
-    Resolution looks in the priors supplied and in this document's own registers. A citation
-    carrying no ordinal is out of scope:
-    every downstream phase from P3 on cites by register name alone, and 162 of P7's citations are
-    of that form. Requiring ordinals everywhere is a separate decision from refusing a citation
-    that points at nothing.
-    """
-    column = rule.params["column"]
-
-    resolvable: dict[str, int] = {}
-    for entry in doc.registers:
-        rid = entry["id"] if isinstance(entry, dict) else entry.id
-        block = doc.register(rid)
-        if block is not None and block.table is not None:
-            resolvable[rid] = len(_content_rows(block))
-
-    for phase in doc.priors:
-        for register, count in _prior_register_sizes(doc, phase).items():
-            resolvable.setdefault(f"{phase}:{register}", count)
-
-    out = []
-    for i, (_, row) in enumerate(_rows(doc, rule), start=1):
-        for register, ordinal in ((c["register"], c["row"]) for c in _cited(row, column)
-                                  if "register" in c and "row" in c):
-            # A register id names this document's register *and* the prior's — `acceptance_criteria`
-            # exists at both rungs — so the ordinal resolves against whichever candidate can hold
-            # it. Checking only the nearest one reported a defect against a P1 row that correctly
-            # cited the seed's ninth criterion while this document carried eight.
-            candidates = [
-                v for k, v in resolvable.items()
-                if k == register or k.endswith(f":{register}")
-            ]
-            size = max(candidates, default=None)
-            if size is None or not 1 <= ordinal <= size:
-                out.append((
-                    f"{_where(rule)} row {i}",
-                    f"cites {register} #{ordinal}, which "
-                    + ("names no register any phase declares" if size is None
-                       else f"does not exist — that register carries {size} row(s)"),
-                ))
-    return out
-
-
-def _prior_register_sizes(doc: ParsedDocument, phase: str) -> dict[str, int]:
-    """How many content rows each register of a supplied prior carries."""
-    from transformation.design.schema import load
-
-    sizes: dict[str, int] = {}
-    for r in load(phase).registers:
-        block = doc.prior_register(phase, r.id)
-        if block is not None and block.table is not None:
-            sizes[r.id] = len(_content_rows(block))
-    return sizes
-
-
 @check("STEP_OPERATION_PUBLISHED")
 def _step_operation_published(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     """A step must name an operation its capability actually offers.
@@ -2427,31 +2228,6 @@ def _step_inputs_bound(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
             out.append((f"{composition} {owner}/{step}",
                         f"consumes {field!r} and binds it to nothing — the capability receives "
                         f"no value for it"))
-    return out
-
-
-@check("BINDING_SOURCE_WELL_FORMED")
-def _binding_source_well_formed(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
-    """A binding must name where a value comes from in the form the runtime resolves.
-
-    An output is written to the capability result; an input is read from the artifact's own inputs,
-    from a named earlier step, from the admitted payload, or is a literal. `results.record` looks
-    like a reference and resolves to nothing, because a step's result is addressed by the step that
-    produced it. Well formed, wrong, and silent until execution.
-    """
-    out: list[tuple[str, str]] = []
-    output_form = re.compile(rule.params["output_pattern"])
-    input_form = re.compile(rule.params["input_pattern"])
-    for i, row in _rows(doc, rule):
-        source = _source(row)
-        if not source:
-            continue                      # a literal or the generated marker is not a reference
-        direction = _cell(row, "Direction")
-        form = output_form if direction == "OUTPUT" else input_form
-        if not form.match(source):
-            out.append((f"{_where(rule)} row {i}",
-                        f"{direction.lower()} binds {source!r}, which is not a form the runtime "
-                        f"resolves — {rule.params['detail']}"))
     return out
 
 
@@ -3116,9 +2892,11 @@ def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     Compared on the bare identity, because a subject written once as `domain::CODE_V0` and once as
     `CODE_V0` is one subject stated twice, and a comparison on the full string would call it two.
     """
-    seen: dict[str, int] = {}
+    seen: dict[tuple[str, ...], int] = {}
     out: list[tuple[str, str]] = []
-    column = rule.params["column"]
+    # A key is one column, or several that identify a row only together: a topology node is a
+    # place within its workflow, and the same key names another place in another workflow.
+    columns = rule.params.get("columns") or [rule.params["column"]]
     # Uniqueness over the rows that state something in another column, where a register holds many
     # rows per subject and only one of them may carry a given fact: a molecule has many steps and
     # exactly one emission.
@@ -3126,10 +2904,11 @@ def _column_values_unique(doc: ParsedDocument, rule) -> list[tuple[str, str]]:
     for index, row in _rows(doc, rule):
         if present_column and not _present(row, present_column):
             continue
-        value = _bare_identity(_cell(row, column))
-        if not value:
+        key = tuple(_bare_identity(_cell(row, c)) for c in columns)
+        if not all(key):
             continue
-        first = seen.setdefault(value, index)
+        first = seen.setdefault(key, index)
         if first != index:
-            out.append((f"{_where(rule)} row {index}", rule.params["detail"].format(value=value, first=first)))
+            out.append((f"{_where(rule)} row {index}",
+                        rule.params["detail"].format(*key, value=" · ".join(key), first=first)))
     return out

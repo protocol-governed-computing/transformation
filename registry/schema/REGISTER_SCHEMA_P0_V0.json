@@ -800,21 +800,15 @@
       "x-finding": {
         "code": "BELIEF_STATED_AS_FACT",
         "intent": "P0 must not promote a System Belief to a Known Fact",
-        "detail": "belief is asserted, not suspected ({prefix!r}) — state it as a belief or move it to Known Facts"
+        "detail": "belief is asserted, not suspected ({token!r}) — state it as a belief or move it to Known Facts"
       },
-      "x-procedure": {
-        "name": "CELL_NOT_PREFIXED",
-        "params": {
-          "column": "Belief",
-          "prefixes": [
-            "there is ",
-            "there are ",
-            "the system provides ",
-            "the system has ",
-            "it is confirmed ",
-            "confirmed: "
-          ],
-          "detail": "belief is asserted, not suspected ({prefix!r}) — state it as a belief or move it to Known Facts"
+      "items": {
+        "properties": {
+          "belief": {
+            "not": {
+              "pattern": "(?i)^(?:there is|there are|the system provides|the system has|it is confirmed|confirmed:)(?=\\s)"
+            }
+          }
         }
       }
     },

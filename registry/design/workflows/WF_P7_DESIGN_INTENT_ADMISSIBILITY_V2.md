@@ -1704,8 +1704,14 @@ core:
               synonym
           intent: every node in the topology runs an identity this design actually assigned
         - id: TOPOLOGY_NODE_REPEATED
-          check: TOPOLOGY_KEY_UNIQUE
+          check: COLUMN_VALUES_UNIQUE
           register: execution_topology
+          params:
+            columns:
+            - Workflow
+            - Node
+            detail: '{0} names {1} again (first at row {first}) — a node that runs a contract twice needs a key
+              for each place, and `Runs` naming the contract'
           intent: a node names one place in its workflow
         - id: TOPOLOGY_ROUTE_UNRESOLVED
           check: TOPOLOGY_ROUTE_RESOLVES
@@ -2126,28 +2132,46 @@ core:
             detail: field is bound to nothing — construction would have to choose a source
           intent: every declared input names where its value comes from
         - id: STORE_PATH_FORMAT_MISMATCH
-          check: STORE_PATH_MATCHES_STORAGE
+          check: CELL_MATCHES
           register: structure_stores
           params:
-            storage_column: Storage Type
-            path_column: Proposed Path
-            formats:
-              CS_MUTABLE_JSON_V0: .json
-              CS_REGISTRY_V0: .jsonl
-              CS_APPENDONLY_JSONL_V0: .jsonl
+            column: Proposed Path
+            pattern: ^.*\.json$
+            only_when_column: Storage Type
+            only_when_value: CS_MUTABLE_JSON_V0
+            detail: '{value!r} names a store CS_MUTABLE_JSON_V0 keeps, and CS_MUTABLE_JSON_V0 writes .json — a
+              store''s name must not advertise a format its capability does not write'
+          intent: a store is named for the format its capability actually writes
+        - id: STORE_PATH_FORMAT_MISMATCH
+          check: CELL_MATCHES
+          register: structure_stores
+          params:
+            column: Proposed Path
+            pattern: ^.*\.jsonl$
+            only_when_column: Storage Type
+            only_when_value: CS_REGISTRY_V0
+            detail: '{value!r} names a store CS_REGISTRY_V0 keeps, and CS_REGISTRY_V0 writes .jsonl — a store''s
+              name must not advertise a format its capability does not write'
+          intent: a store is named for the format its capability actually writes
+        - id: STORE_PATH_FORMAT_MISMATCH
+          check: CELL_MATCHES
+          register: structure_stores
+          params:
+            column: Proposed Path
+            pattern: ^.*\.jsonl$
+            only_when_column: Storage Type
+            only_when_value: CS_APPENDONLY_JSONL_V0
+            detail: '{value!r} names a store CS_APPENDONLY_JSONL_V0 keeps, and CS_APPENDONLY_JSONL_V0 writes .jsonl
+              — a store''s name must not advertise a format its capability does not write'
           intent: a store is named for the format its capability actually writes
         - id: BINDING_SOURCE_UNROOTED
-          check: BINDING_SOURCE_ROOTED
+          check: CELL_MATCHES
           register: step_bindings
           params:
-            roots:
-            - payload
-            - inputs
-            - results
-            - capability_result
-            - result_status
-            value_roots:
-            - result_status
+            column: Bound To
+            pattern: ^(?:(?:payload|inputs|results|capability_result)\..+|result_status|(?!(?:payload|inputs|results|capability_result)$)[^.]*|.*::.*|-?[0-9]+(?:\.[0-9]+)?)$
+            detail: '{value!r} is not rooted in a scope execution offers — a source names a field under one of
+              payload, inputs, results, capability_result, or is result_status'
           intent: a source that names a place is rooted in one execution scope actually offers
         - id: NODE_INPUT_UNBOUND
           check: NODE_INPUT_BOUND
@@ -2193,13 +2217,28 @@ core:
             fields_register: interface_fields
           intent: a capability handed no value for an input it declares receives a null
         - id: BINDING_SOURCE_MALFORMED
-          check: BINDING_SOURCE_WELL_FORMED
+          check: CELL_MATCHES
           register: step_bindings
           params:
-            output_pattern: ^(?:capability_result\.[A-Za-z_][A-Za-z0-9_]*|result_status)$
-            input_pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|payload\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|"[^"]*"|'[^']*'|-?[0-9]+(?:\.[0-9]+)?|[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_-]*)$
-            detail: an output is written to capability_result.<field> or result_status; an input reads inputs.<field>,
-              payload.<field>, results.<step>.<field>, or is a literal
+            column: Bound To
+            pattern: ^(?:capability_result\.[A-Za-z_][A-Za-z0-9_]*|result_status)$
+            only_when_column: Direction
+            only_when_value: OUTPUT
+            detail: output binds {value!r}, which is not a form the runtime resolves — an output is written to
+              capability_result.<field> or result_status; an input reads inputs.<field>, payload.<field>, results.<step>.<field>,
+              or is a literal
+          intent: a reference the runtime cannot resolve is indistinguishable from one it can
+        - id: BINDING_SOURCE_MALFORMED
+          check: CELL_MATCHES
+          register: step_bindings
+          params:
+            column: Bound To
+            pattern: ^(?:inputs\.[A-Za-z_][A-Za-z0-9_.]*|payload\.[A-Za-z_][A-Za-z0-9_.]*|results\.[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]*|[\[{].*[\]}]|"[^"]*"|'[^']*'|-?[0-9]+(?:\.[0-9]+)?|[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_-]*)$
+            only_when_column: Direction
+            only_when_value: INPUT
+            detail: input binds {value!r}, which is not a form the runtime resolves — an output is written to
+              capability_result.<field> or result_status; an input reads inputs.<field>, payload.<field>, results.<step>.<field>,
+              or is a literal
           intent: a reference the runtime cannot resolve is indistinguishable from one it can
         - id: CONTRACT_OUTPUT_UNPRODUCED
           check: CONTRACT_OUTPUT_PRODUCED

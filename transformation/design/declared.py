@@ -38,7 +38,6 @@ ANNOTATIONS = {
         "matches_cited": "PRIOR_ROW_MATCHES_CITED",
         "identities_covered": "PRIOR_IDENTITIES_COVERED",
         "prose": "PRIOR_PROSE_CARRIED",
-        "citation_rows": "CITATION_ROW_UNRESOLVED",
     },
     "x-grounding": {
         "exists": "CITED_ARTIFACTS_RESOLVE",

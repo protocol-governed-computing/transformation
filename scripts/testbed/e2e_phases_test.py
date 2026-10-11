@@ -126,11 +126,8 @@ CASES = [
          "BLOCKING_CLARIFICATION_OUTSTANDING",
          "BUSINESS_CLARIFICATION_OUTSTANDING",
          "CITATION_ORDINAL_UNRESOLVED",
-         # The seed citation past the end of cr_type is resolved by both ordinal rules until they
-         # merge (rebuild M3.3b-3).
+         # One ordinal rule resolves every citation, the seed's included (rebuild M3.4a-2).
          "CITATION_ORDINAL_UNRESOLVED",
-         "CITATION_ROW_UNRESOLVED",
-         "CITATION_ROW_UNRESOLVED",
          "BUSINESS_CLARIFICATION_OUTSTANDING",
      ], RULES["P1"], 3),
     # Six SEED_ROW_NOT_CARRIED and one ROW_NOT_IN_SEED are the cost of the shape defects, not extra
