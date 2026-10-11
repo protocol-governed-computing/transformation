@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import sys
 
+import machine
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
 from transformation.design.p7_design_intent.rules import rule_set
@@ -23,20 +24,17 @@ WF, REFUSED, DONE = f"{D}::WF_SUBMIT_V0", f"{D}::EV_REFUSED_V0", f"{D}::EV_DONE_
 RULES = [r for r in rule_set() if r.id == "EMISSION_NOT_FROM_COMPLETING_ENDING"]
 
 
-def _table(register: str, header: list[str], rows: list[tuple]) -> str:
-    lines = [f"<!-- register:{register} optional -->", "| " + " | ".join(header) + " |",
-             "|" + "|".join("---" for _ in header) + "|"]
-    lines += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows]
-    return "\n".join(lines) + "\n\n"
+def _table(register: str, header: list[str], rows: list[tuple]) -> tuple[str, dict]:
+    return machine.register(register, header, rows)
 
 
 def design(properties) -> str:
-    return (
-        "# Design Intent: probe / moments\n\n"
-        + _table("execution_topology", ["Workflow", "Node", "Node Type", "Routing", "Source Finding"], [
+    return machine.document(
+        "Design Intent: probe / moments",
+        _table("execution_topology", ["Workflow", "Node", "Node Type", "Routing", "Source Finding"], [
             (WF, "EXIT_SUCCESS", "EXIT_SUCCESS", "—", "human decision"),
-            (WF, "EXIT_REFUSED", "EXIT", "—", "human decision")])
-        + _table("artifact_properties", ["Artifact", "Property", "Value", "Source Finding"],
+            (WF, "EXIT_REFUSED", "EXIT", "—", "human decision")]),
+        _table("artifact_properties", ["Artifact", "Property", "Value", "Source Finding"],
                  [(*p, "human decision") for p in properties])
     )
 

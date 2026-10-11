@@ -18,6 +18,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
+import machine
 from transformation.build.render import build_manifest, render_all, requirements
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
@@ -45,25 +46,22 @@ VALUES = [  # transform, case, role, field, value
 AMENDED = f"{D}::CT_PURE_CHOOSE_WORD_V0"
 
 
-def _table(register: str, header: list[str], rows: list[tuple]) -> str:
-    lines = [f"<!-- register:{register} optional -->", "| " + " | ".join(header) + " |",
-             "|" + "|".join("---" for _ in header) + "|"]
-    lines += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows] or ["| NONE IDENTIFIED |"]
-    return "\n".join(lines) + "\n\n"
+def _table(register: str, header: list[str], rows: list[tuple]) -> tuple[str, dict]:
+    return machine.register(register, header, rows)
 
 
 def design(cases=CASES, values=VALUES, amended=()) -> str:
-    return (
-        "# Design Intent: probe / words\n\n"
-        + _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
+    return machine.document(
+        "Design Intent: probe / words",
+        _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
                                    "Source Finding"],
-                 [(c, "CT", code, c, "words", "NEW", "human decision") for c, code in NEW])
-        + _table("existing_inventory", ["FQDN", "Action (REPLACE, REUSE, EXTEND, REVIEW)", "Summary",
+                 [(c, "CT", code, c, "words", "NEW", "human decision") for c, code in NEW]),
+        _table("existing_inventory", ["FQDN", "Action (REPLACE, REUSE, EXTEND, REVIEW)", "Summary",
                                         "Reason", "Source Finding"],
-                 [(a, "EXTEND", "Chooses a word", "Amended", "human decision") for a in amended])
-        + _table("test_cases", ["CT Code", "Case", "Expected Outcome (SUCCESS, VIOLATION)", "Source Finding"],
-                 [(*c, "human decision") for c in cases])
-        + _table("test_case_values", ["CT Code", "Case", "Role (INPUT, EXPECTED, ASSERT, RECORDED)", "Field",
+                 [(a, "EXTEND", "Chooses a word", "Amended", "human decision") for a in amended]),
+        _table("test_cases", ["CT Code", "Case", "Expected Outcome (SUCCESS, VIOLATION)", "Source Finding"],
+                 [(*c, "human decision") for c in cases]),
+        _table("test_case_values", ["CT Code", "Case", "Role (INPUT, EXPECTED, ASSERT, RECORDED)", "Field",
                                       "Value", "Source Finding"],
                  [(*v, "human decision") for v in values])
     )

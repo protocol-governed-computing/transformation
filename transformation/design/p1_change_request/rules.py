@@ -16,7 +16,7 @@ per-register flags rather than as a phase-wide rule, because the flag is where t
 
 from __future__ import annotations
 
-from transformation.design.derive import derived_rules
+from transformation.design.expand import derived_rules
 from transformation.design.rules import (
     Rule,
     business_question_closure_rules,
@@ -24,7 +24,7 @@ from transformation.design.rules import (
     dossier_header_rules,
     governed_hole_rules,
 )
-from transformation.design.template_reader import load
+from transformation.design.schema import load
 
 TEMPLATE = load("p1")
 

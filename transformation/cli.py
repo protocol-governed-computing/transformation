@@ -56,7 +56,7 @@ from transformation.design.sealed import sealed_rule_set
 from transformation.design.project import PROJECTIONS
 from transformation.design.read import read_seed
 from transformation.design import catalog
-from transformation.design.template_reader import load as load_template
+from transformation.design.schema import load as load_template
 
 # Rule sets are declared per phase and mapped once, in `design.meta` — the module that has to
 # verify the mapping is complete. Purpose, question, key rule and purity rung come from the

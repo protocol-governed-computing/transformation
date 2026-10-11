@@ -40,14 +40,14 @@ it, and construction invokes that rather than becoming a second producer of the 
 from __future__ import annotations
 
 from transformation.design.families import authorable_fqdn_pattern, binding_fqdn_pattern
-from transformation.design.derive import derived_rules
+from transformation.design.expand import derived_rules
 from transformation.design.rules import (
     event_naming_rules,
     Rule,
     dossier_header_rules,
     governed_hole_rules,
 )
-from transformation.design.template_reader import load
+from transformation.design.schema import load
 
 TEMPLATE = load("p7")
 

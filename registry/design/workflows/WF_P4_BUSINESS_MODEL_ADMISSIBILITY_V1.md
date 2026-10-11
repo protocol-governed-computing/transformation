@@ -8,7 +8,7 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 
 - **Generator:** `transformation.design.emit:emit_rule_sets`
 - **Generator sources** — one generator together, never separately:
-  - `templates/p4_business_model_template_v0.md`
+  - `registry/schema/REGISTER_SCHEMA_P4_V0.json`
   - `transformation/design/p4_business_model/rules.py`
   - `registry/design/capability_contracts/CC_JUDGE_AGAINST_SNAPSHOT_V1.md`
 

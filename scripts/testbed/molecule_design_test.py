@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import sys
 
+import machine as probe
 from transformation.build.render import render_all, requirements
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
@@ -55,27 +56,24 @@ BINDINGS = [  # molecule, step, role, field, bound to
 ]
 
 
-def _table(register: str, header: list[str], rows: list[tuple]) -> str:
-    lines = [f"<!-- register:{register} optional -->", "| " + " | ".join(header) + " |",
-             "|" + "|".join("---" for _ in header) + "|"]
-    lines += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows] or ["| NONE IDENTIFIED |"]
-    return "\n".join(lines) + "\n\n"
+def _table(register: str, header: list[str], rows: list[tuple]) -> tuple[str, dict]:
+    return probe.register(register, header, rows)
 
 
 def design(impl=IMPL, steps=STEPS, bindings=BINDINGS) -> str:
-    return (
-        "# Design Intent: probe / words\n\n"
-        + _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
+    return probe.document(
+        "Design Intent: probe / words",
+        _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
                                    "Source Finding"],
-                 [(c, "CT", code, c, "words", "NEW", "human decision") for c, code in NEW])
-        + _table("implementation_bindings", ["CT Code", "Module", "Callable", "Operation",
+                 [(c, "CT", code, c, "words", "NEW", "human decision") for c, code in NEW]),
+        _table("implementation_bindings", ["CT Code", "Module", "Callable", "Operation",
                                              "Kind (atom, molecule)", "Purity (ct_pure, ct_impure)",
                                              "Refusal (raises, returns, never)", "Source Finding"],
-                 [(c, m, k, "op", kind, p, "never", "human decision") for c, m, k, kind, p in impl])
-        + _table("molecule_steps", ["CT Code", "Step", "Kind (atom, molecule, loop)", "Target", "Over",
+                 [(c, m, k, "op", kind, p, "never", "human decision") for c, m, k, kind, p in impl]),
+        _table("molecule_steps", ["CT Code", "Step", "Kind (atom, molecule, loop)", "Target", "Over",
                                     "Iterator", "Emits", "Source Finding"],
-                 [(*s, "human decision") for s in steps])
-        + _table("molecule_step_bindings", ["CT Code", "Step", "Role (INPUT, CARRY, UPDATE)", "Field",
+                 [(*s, "human decision") for s in steps]),
+        _table("molecule_step_bindings", ["CT Code", "Step", "Role (INPUT, CARRY, UPDATE)", "Field",
                                             "Bound To", "Source Finding"],
                  [(*b, "human decision") for b in bindings])
     )

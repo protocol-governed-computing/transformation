@@ -1,13 +1,18 @@
 """Read a phase document into registers.
 
-This is a reader, not a validator: it reports what the document contains and says nothing about
-whether that is admissible. Malformed input yields an empty or partial structure and lets the rule
-set produce the finding — a reader that raised would report a parse error where the author needs a
-governance finding.
+A phase document carries its facts in one Machine block, a fenced YAML block under `## Machine`,
+and its prose around it. This reader splits the two and parses the YAML. It applies no convention:
+no table is read, and no column is matched by prefix here.
 
-`parse_text` is the single parser. The compiled transform calls it and returns plain data across the
-capability boundary; the genesis oracle calls it and wraps the result. One parser, so a differential
-run compares rule evaluation rather than two different readers.
+This is a reader, not a validator: it reports what the document contains and says nothing about
+whether that is admissible. A document with no Machine block, or one that does not parse, yields no
+header and no registers, and the rule set reports every register missing. A reader that raised would
+report a parse error where the author needs a governance finding.
+
+The shape it returns is the one every consumer receives: header fields, the sections of the prose,
+and the registers, each a table as columns and rows or a text-only register as its text. `parse_text`
+is the single parser. The compiled transforms call it and return plain data across the capability
+boundary.
 """
 
 from __future__ import annotations
@@ -16,131 +21,98 @@ import re
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from transformation.design.evaluate import ParsedDocument
 
 HEADING = re.compile(r"^##\s+(?:(\d+[a-z]?)\.\s+)?(.+?)\s*$")
-REGISTER_MARKER = re.compile(r"^<!--\s*register:([a-z_]+)(?:\s[^>]*)?-->\s*$")
-# Header fields appear two ways: the seed lists them as bullets, a dossier document states them
-# bare. Both are `**Name:** value`; only the leading dash differs.
-BULLET_FIELD = re.compile(r"^(?:-\s+)?\*\*(?P<name>[^:*]+):\*\*\s*(?P<value>.*?)\s*$")
-TABLE_DIVIDER = re.compile(r"^\|[\s:|-]+\|$")
+MACHINE_HEADING = "## Machine"
+FENCE_OPEN = re.compile(r"^```ya?ml\s*$")
+FENCE_CLOSE = "```"
 
 
-def _split_row(line: str) -> list[str]:
-    """A table row's cells. A pipe inside a cell is written `\\|`, as GitHub-flavoured Markdown escapes
-    it: a value may contain one — a book's identity key is `title|author|year` — and a row split on it
-    would shift every cell after it one column to the right."""
-    stripped = line.strip()
-    if stripped.startswith("|"):
-        stripped = stripped[1:]
-    if stripped.endswith("|") and not stripped.endswith("\\|"):
-        stripped = stripped[:-1]
-    cells = re.split(r"(?<!\\)\|", stripped)
-    return [cell.strip().replace("\\|", "|") for cell in cells]
+def _text(value: Any) -> str:
+    """A cell as the text the rules judge. A value YAML typed (a number, a boolean) is read back as
+    the text that wrote it; an absent value is empty."""
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
 
 
-def _read_table(lines: list[str]) -> tuple[list[str], list[dict[str, str]]]:
-    """Extract the first pipe table in a block.
-
-    A table needs a header row and a divider. Zero data rows is a legitimate document state (an
-    empty Assumptions table) and is the rule set's business, not the reader's.
-    """
+def _machine_block(lines: list[str]) -> tuple[Any, set[int]]:
+    """The parsed Machine block, and the line indexes it occupies, heading included."""
     for i, line in enumerate(lines):
-        if not line.strip().startswith("|"):
+        if line.strip() != MACHINE_HEADING:
             continue
-        if i + 1 >= len(lines) or not TABLE_DIVIDER.match(lines[i + 1].strip()):
-            continue
+        opened = next((j for j in range(i + 1, len(lines)) if lines[j].strip()), None)
+        if opened is None or not FENCE_OPEN.match(lines[opened].strip()):
+            return None, {i}
+        closed = next((j for j in range(opened + 1, len(lines))
+                       if lines[j].strip() == FENCE_CLOSE), None)
+        if closed is None:
+            return None, set(range(i, len(lines)))
+        try:
+            data = yaml.safe_load("\n".join(lines[opened + 1:closed]))
+        except yaml.YAMLError:
+            data = None
+        return data, set(range(i, closed + 1))
+    return None, set()
 
-        columns = _split_row(line)
-        rows: list[dict[str, str]] = []
-        for row_line in lines[i + 2:]:
-            if not row_line.strip().startswith("|"):
-                break
-            cells = _split_row(row_line)
-            if len(cells) != len(columns):
-                # Ragged row: keep what aligns so a rule can name the offending row.
-                cells = (cells + [""] * len(columns))[: len(columns)]
-            rows.append(dict(zip(columns, cells)))
-        return columns, rows
-    return [], []
+
+def _registers(data: Any) -> list[dict[str, Any]]:
+    registers: list[dict[str, Any]] = []
+    declared = data.get("registers") if isinstance(data, dict) else None
+    if not isinstance(declared, dict):
+        return registers
+    for register_id, body in declared.items():
+        if isinstance(body, dict):
+            columns = [_text(c) for c in (body.get("columns") or [])]
+            rows = []
+            for row in body.get("rows") or []:
+                if isinstance(row, dict):
+                    rows.append({_text(k): _text(row.get(k)) for k in row})
+            registers.append({"id": str(register_id), "columns": columns, "rows": rows, "text": ""})
+        else:
+            registers.append({"id": str(register_id), "columns": [], "rows": [], "text": _text(body)})
+    return registers
 
 
 def parse_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]], list[dict[str, Any]]]:
-    """Parse document text into (header fields, sections, registers) as plain data.
-
-    Registers are the unit rules attach to. An authored phase document carries the same
-    `<!-- register:id -->` markers as its template, so a register is addressed by identity rather
-    than by matching a section title — a section may hold several registers, and retitling one
-    must not silently detach its rules.
-    """
-    header: dict[str, str] = {}
-    sections: list[dict[str, Any]] = []
-    registers: list[dict[str, Any]] = []
-
-    current: dict[str, Any] | None = None
-    current_lines: list[str] = []
-    preamble: list[str] = []
-
-    def close() -> None:
-        if current is None:
-            return
-        columns, rows = _read_table(current_lines)
-        current["text"] = "\n".join(current_lines)
-        current["columns"] = columns
-        current["rows"] = rows
-        sections.append(current)
-
+    """Parse document text into (header fields, sections, registers) as plain data."""
     lines = text.splitlines()
-    for idx, line in enumerate(lines):
-        marker = REGISTER_MARKER.match(line)
-        if marker:
-            # The table opening after the marker belongs to this register.
-            header_at = next(
-                (j for j in range(idx + 1, min(idx + 4, len(lines)))
-                 if lines[j].lstrip().startswith("|")),
-                None,
-            )
-            columns: list[str] = []
-            rows: list[dict[str, str]] = []
-            text_lines: list[str] = []
-            if header_at is not None:
-                columns, rows = _read_table(lines[header_at:])
-            else:
-                # A marker opening no table declares a narrative register; its content is the prose
-                # up to the next heading or marker.
-                for j in range(idx + 1, len(lines)):
-                    if HEADING.match(lines[j]) or REGISTER_MARKER.match(lines[j]):
-                        break
-                    text_lines.append(lines[j])
-            registers.append({
-                "id": marker.group(1),
-                "columns": columns,
-                "rows": rows,
-                "text": "\n".join(text_lines),
-            })
+    data, machine_lines = _machine_block(lines)
 
+    header: dict[str, str] = {}
+    if isinstance(data, dict) and isinstance(data.get("header"), dict):
+        header = {str(k): _text(v) for k, v in data["header"].items()}
+
+    sections: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
+    body: list[str] = []
+    for i, line in enumerate(lines):
+        if i in machine_lines:
+            continue
         match = HEADING.match(line)
         if match:
-            close()
+            if current is not None:
+                current["text"] = "\n".join(body)
+                sections.append(current)
             current = {
-                "number": int(match.group(1)) if match.group(1) else None,
+                "number": int(match.group(1)) if match.group(1) and match.group(1).isdigit() else None,
                 "title": match.group(2).strip(),
+                "columns": [],
+                "rows": [],
             }
-            current_lines = []
-            continue
-        if current is None:
-            preamble.append(line)
-        else:
-            current_lines.append(line)
+            body = []
+        elif current is not None:
+            body.append(line)
+    if current is not None:
+        current["text"] = "\n".join(body)
+        sections.append(current)
 
-    close()
-
-    for line in preamble:
-        field_match = BULLET_FIELD.match(line.strip())
-        if field_match:
-            header[field_match.group("name").strip()] = field_match.group("value").strip()
-
-    return header, sections, registers
+    return header, sections, _registers(data)
 
 
 def read_seed(path: Path) -> ParsedDocument:

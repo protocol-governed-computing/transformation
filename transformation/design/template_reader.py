@@ -75,6 +75,9 @@ class Register:
     vocabularies: dict[str, tuple[str, ...]] = field(default_factory=dict)
     flags: frozenset[str] = frozenset()
     scoped_flags: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    # The header cells as the template writes them, vocabulary included. A document carries these,
+    # not the parsed names.
+    headings: tuple[str, ...] = ()
 
     @property
     def business_language(self) -> bool:
@@ -269,6 +272,8 @@ def read_template(path: Path, phase: str) -> PhaseTemplate:
                 vocabularies=vocabularies,
                 flags=frozenset(bare),
                 scoped_flags=scoped,
+                headings=tuple(c.strip() for c in header_line.strip().strip("|").split("|"))
+                if header_line else (),
             )
         )
 

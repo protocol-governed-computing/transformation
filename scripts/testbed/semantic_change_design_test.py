@@ -18,6 +18,7 @@ from pathlib import Path
 
 from inspector import api as inspector_api
 
+import machine
 from transformation.build import sameness
 from transformation.build.generators import Context
 from transformation.cli import _meaning_refusals
@@ -148,18 +149,15 @@ core:
 # --- the design phase --------------------------------------------------------------------------
 
 def _doc(action: str, withdrawal: bool) -> ParsedDocument:
-    text = (
-        "# Design Intent: probe / semantic change\n\n"
-        "<!-- register:existing_inventory -->\n"
-        "| FQDN | Action (REPLACE, REUSE, EXTEND, REPOINT, REVIEW) | Summary | Reason | Source Finding |\n"
-        "|---|---|---|---|---|\n"
-        f"| probe::CC_DECIDE_V0 | {action} | Decides | Amended | human decision |\n\n"
-        "<!-- register:withdrawn_facts optional -->\n"
-        "| Artifact | Fact | Reason | Source Finding |\n"
-        "|---|---|---|---|\n"
-        + ("| probe::CC_DECIDE_V0 | .core.inputs.allowed_set | Gone | human decision |\n"
-           if withdrawal else "")
-        + "\n"
+    text = machine.document(
+        "Design Intent: probe / semantic change",
+        machine.register("existing_inventory",
+                         ["FQDN", "Action (REPLACE, REUSE, EXTEND, REPOINT, REVIEW)", "Summary", "Reason",
+                          "Source Finding"],
+                         [("probe::CC_DECIDE_V0", action, "Decides", "Amended", "human decision")]),
+        machine.register("withdrawn_facts", ["Artifact", "Fact", "Reason", "Source Finding"],
+                         [("probe::CC_DECIDE_V0", ".core.inputs.allowed_set", "Gone", "human decision")]
+                         if withdrawal else [], sentinel=False),
     )
     header, sections, registers = parse_text(text)
     return ParsedDocument(header=header, sections=sections, registers=registers, raw=text,

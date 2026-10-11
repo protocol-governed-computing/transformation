@@ -45,6 +45,11 @@ class Phase:
     gate: str | None = None
 
     @property
+    def schema(self) -> str:
+        """The register schema declaring this phase's document shape."""
+        return f"REGISTER_SCHEMA_{self.id.upper()}_V0.json"
+
+    @property
     def admits(self) -> tuple[str, ...]:
         """Every vocabulary class this phase may use — its rung and all below it."""
         return RUNGS[: RUNGS.index(self.rung) + 1]

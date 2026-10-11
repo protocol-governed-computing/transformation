@@ -66,29 +66,43 @@ REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 # `(dossier root, registry, whole)`. `whole` is whether the dossiers account for the registry
 # entirely — true where a domain was built by change requests from its first artifact, false where
 # the registry predates the lifecycle and most of it is determined by no design.
+COPIES = REPO / "scripts/testbed/delivered_copies"
+
+# Delivered dossiers are read from their test copies, never where they were delivered. A delivered
+# dossier is never edited, and it stays in the form it was approved in, which this reader does not
+# read. Each copy holds a dossier's design and mandate, converted mechanically once by the oracle's
+# reader (`scripts/rebuild/convert.py`), because those two documents are all construction reads.
 DOMAINS = (
     (CR_DOSSIERS, REGISTRY, True),
-    (WORKSPACE / "business_domains/blockchain/cr_dossiers",
+    (COPIES / "business_domains/blockchain/cr_dossiers",
      WORKSPACE / "business_domains/blockchain/registry", True),
-    (WORKSPACE / "business_domains/causal_language_model/cr_dossiers",
+    (COPIES / "business_domains/causal_language_model/cr_dossiers",
      WORKSPACE / "business_domains/causal_language_model/registry", True),
     # ai_governance's registry predates the lifecycle: its change requests determine a few of its
     # artifacts, and the rest were authored by hand.
-    (WORKSPACE / "business_domains/ai_governance/cr_dossiers",
+    (COPIES / "business_domains/ai_governance/cr_dossiers",
      WORKSPACE / "business_domains/ai_governance/registry", False),
-    (WORKSPACE / "software_governance/dossiers",
+    (COPIES / "software_governance/dossiers",
      WORKSPACE / "software_governance/registry", False),
-    (WORKSPACE / "transformation/dossiers",
+    (COPIES / "transformation/dossiers",
      WORKSPACE / "transformation/registry", False),
     # The Collatz workload predates the lifecycle too; cr_01 is its first change through it.
-    (WORKSPACE / "conformance_workloads/workloads/collatz/cr_dossiers",
+    (COPIES / "conformance_workloads/workloads/collatz/cr_dossiers",
      WORKSPACE / "conformance_workloads/workloads/collatz/registry", False),
 )
 
-# The catalog's entry above overrides what discovery would find, and only that one: its dossiers are
-# read from maintained fixtures rather than from the domain's own delivered ones. Named here so the
-# coverage check below can tell a deliberate substitution from an omission.
-SUBSTITUTED = {WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers"}
+# Every delivered root is read through a substitute: the catalog's through maintained fixtures, the
+# rest through their test copies. Named here so the coverage check below can tell a deliberate
+# substitution from an omission.
+SUBSTITUTED = {
+    WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers",
+    WORKSPACE / "business_domains/blockchain/cr_dossiers",
+    WORKSPACE / "business_domains/causal_language_model/cr_dossiers",
+    WORKSPACE / "business_domains/ai_governance/cr_dossiers",
+    WORKSPACE / "software_governance/dossiers",
+    WORKSPACE / "transformation/dossiers",
+    WORKSPACE / "conformance_workloads/workloads/collatz/cr_dossiers",
+}
 
 # The sequence used to be a literal list, and a delivered dossier that re-rendered an artifact an
 # earlier one rendered had to be appended by hand. Miss the step and the harness compares a built

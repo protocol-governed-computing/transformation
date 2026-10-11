@@ -26,14 +26,14 @@ admissible, scored on the figure of merit, and strictly better than a guess.
 
 from __future__ import annotations
 
-from transformation.design.derive import derived_rules
+from transformation.design.expand import derived_rules
 from transformation.design.rules import (
     event_naming_rules,
     Rule,
     dossier_header_rules,
     governed_hole_rules,
 )
-from transformation.design.template_reader import load
+from transformation.design.schema import load
 
 TEMPLATE = load("p5")
 

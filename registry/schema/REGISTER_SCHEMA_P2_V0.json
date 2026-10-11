@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.REGISTER_SCHEMA_P2_V0",
+  "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "type": "object",
+  "required": [
+    "registers"
+  ],
+  "x-consumes": [
+    "business_vocabulary",
+    "known_facts",
+    "system_beliefs",
+    "lifecycle_states",
+    "business_events",
+    "governance_scope",
+    "out_of_scope",
+    "constraints",
+    "business_invariants",
+    "authority_boundaries",
+    "identity_and_sameness",
+    "lifecycle_transitions",
+    "operation_refusals",
+    "authority_deferrals"
+  ],
+  "x-emits": [
+    "entities",
+    "entity_attributes",
+    "business_processes",
+    "process_steps",
+    "belief_verification",
+    "pps_baseline_fqdns",
+    "gaps",
+    "architectural_observations",
+    "discovery_concerns",
+    "open_questions"
+  ],
+  "properties": {
+    "registers": {
+      "type": "object",
+      "required": [
+        "entities",
+        "entity_attributes",
+        "business_processes",
+        "process_steps",
+        "belief_verification",
+        "pps_baseline_fqdns",
+        "gaps",
+        "architectural_observations",
+        "discovery_concerns",
+        "open_questions"
+      ],
+      "properties": {
+        "entities": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Business Entities"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "title": "Entity"
+              },
+              "description": {
+                "title": "Description"
+              },
+              "store_model": {
+                "title": "Store Model"
+              },
+              "evidence_status": {
+                "title": "Evidence Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "entity",
+              "description",
+              "store_model",
+              "evidence_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "entity_attributes": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Business Entities"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "title": "Entity"
+              },
+              "attribute": {
+                "title": "Attribute"
+              },
+              "meaning": {
+                "title": "Meaning"
+              },
+              "evidence_status": {
+                "title": "Evidence Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "entity",
+              "attribute",
+              "meaning",
+              "evidence_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "business_processes": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Business Processes"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "process": {
+                "title": "Process"
+              },
+              "initiator": {
+                "title": "Initiator"
+              },
+              "outcome": {
+                "title": "Outcome"
+              },
+              "evidence_status": {
+                "title": "Evidence Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "process",
+              "initiator",
+              "outcome",
+              "evidence_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "process_steps": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Business Processes"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "process": {
+                "title": "Process"
+              },
+              "step": {
+                "title": "Step #"
+              },
+              "action": {
+                "title": "Action"
+              },
+              "record_produced": {
+                "title": "Record Produced"
+              },
+              "evidence_status": {
+                "title": "Evidence Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "process",
+              "step",
+              "action",
+              "record_produced",
+              "evidence_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "belief_verification": {
+          "type": "array",
+          "x-section": {
+            "number": "3",
+            "title": "Belief Verification — THE SPINE (fill this register FIRST)"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "belief": {
+                "title": "Belief"
+              },
+              "result": {
+                "title": "Result",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "belief_result"
+                }
+              },
+              "evidence": {
+                "title": "Evidence"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "belief",
+              "result",
+              "evidence",
+              "source_finding"
+            ]
+          },
+          "minItems": 1
+        },
+        "pps_baseline_fqdns": {
+          "type": "array",
+          "x-section": {
+            "number": "4",
+            "title": "PPS Baseline — What Already Exists"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {
+                "title": "Capability"
+              },
+              "fqdn": {
+                "title": "FQDN"
+              },
+              "what_it_does": {
+                "title": "What It Does"
+              },
+              "fit": {
+                "title": "Fit",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "fit"
+                }
+              },
+              "cannot_do": {
+                "title": "Cannot Do"
+              }
+            },
+            "required": [
+              "capability",
+              "fqdn",
+              "what_it_does",
+              "fit",
+              "cannot_do"
+            ]
+          },
+          "minItems": 1
+        },
+        "gaps": {
+          "type": "array",
+          "x-section": {
+            "number": "5",
+            "title": "Gap Analysis — What Is Missing"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "gap": {
+                "title": "Gap"
+              },
+              "severity": {
+                "title": "Severity"
+              },
+              "impact": {
+                "title": "Impact"
+              },
+              "evidence_status": {
+                "title": "Evidence Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "gap",
+              "severity",
+              "impact",
+              "evidence_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "architectural_observations": {
+          "type": "array",
+          "x-section": {
+            "number": "6",
+            "title": "Architectural Observations"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "observation": {
+                "title": "Observation"
+              },
+              "evidence": {
+                "title": "Evidence"
+              },
+              "evidence_status": {
+                "title": "Evidence Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "observation",
+              "evidence",
+              "evidence_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "discovery_concerns": {
+          "type": "array",
+          "x-section": {
+            "number": "7",
+            "title": "Discovery Concerns"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "concern": {
+                "title": "Concern"
+              },
+              "evidence": {
+                "title": "Evidence"
+              },
+              "severity": {
+                "title": "Severity"
+              },
+              "evidence_status": {
+                "title": "Evidence Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "concern",
+              "evidence",
+              "severity",
+              "evidence_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "open_questions": {
+          "type": "array",
+          "x-section": {
+            "number": "8",
+            "title": "Open Questions for Stage 3"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "title": "Question"
+              },
+              "category": {
+                "title": "Category"
+              },
+              "why_it_matters": {
+                "title": "Why It Matters"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "question",
+              "category",
+              "why_it_matters",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        }
+      }
+    }
+  }
+}

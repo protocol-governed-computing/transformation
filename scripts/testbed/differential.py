@@ -69,7 +69,7 @@ PHASES = {
         "wf": workflow_fqdn("p0"),
         "rules": p0_rule_set,
         "corpus": [
-            REPO / "dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md",
+            REPO / "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md",
             CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus").glob("*.md")),
         ],
@@ -78,7 +78,7 @@ PHASES = {
         "wf": workflow_fqdn("p1"),
         "rules": p1_rule_set,
         "corpus": [
-            REPO / "dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
+            REPO / "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
             CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p1").glob("*.md")),
         ],
@@ -92,7 +92,7 @@ PHASES = {
         "observes": {"si.artifact.list": "artifacts"},
         # Cross-phase rules read an upstream document, and which one is a property of the
         "corpus": [
-            REPO / "dossiers/founding_design_bootstrap/p2_domain_model_transformation_phases_v0.md",
+            REPO / "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p2_domain_model_transformation_phases_v0.md",
             CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p2").glob("*.md")),
         ],

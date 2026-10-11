@@ -39,7 +39,7 @@ PHASE_IN_NAME = re.compile(r"^\d+_(p\d)_")
 # fixture is maintained against the current rule set on purpose.
 PAYLOADS = {
     "01_admissible_seed.json":
-        "dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md",
+        "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md",
     "02_admissible_reference.json":
         "scripts/testbed/corpus/admissible_blockchain_reference.md",
     "03_inadmissible_seven_violations.json":
@@ -49,11 +49,11 @@ PAYLOADS = {
     "05_inadmissible_truncated.json":
         "scripts/testbed/corpus/inadmissible_truncated.md",
     "06_p1_admissible_register.json":
-        "dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
+        "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
     "07_p1_inadmissible_register.json":
         "scripts/testbed/corpus_p1/inadmissible_p1_register.md",
     "08_p2_admissible_register.json":
-        "dossiers/founding_design_bootstrap/p2_domain_model_transformation_phases_v0.md",
+        "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p2_domain_model_transformation_phases_v0.md",
     "09_p2_inadmissible_register.json":
         "scripts/testbed/corpus_p2/inadmissible_p2_register.md",
     "10_p0_admissible_catalog_seed.json":

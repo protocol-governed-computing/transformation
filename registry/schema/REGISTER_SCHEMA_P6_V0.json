@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.REGISTER_SCHEMA_P6_V0",
+  "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "type": "object",
+  "required": [
+    "registers"
+  ],
+  "x-consumes": [
+    "scope_boundary",
+    "invariants",
+    "cross_subdomain_refs"
+  ],
+  "x-emits": [
+    "ownership",
+    "storage_governance",
+    "cross_subdomain_deps",
+    "pps_artifacts_requiring_action"
+  ],
+  "properties": {
+    "registers": {
+      "type": "object",
+      "required": [
+        "ownership",
+        "storage_governance",
+        "cross_subdomain_deps",
+        "pps_artifacts_requiring_action",
+        "boundary_rules",
+        "governance_outcome"
+      ],
+      "properties": {
+        "ownership": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Subdomain Boundary — Ownership"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {
+                "title": "Capability"
+              },
+              "owner_subdomain": {
+                "title": "Owner Subdomain"
+              },
+              "disposition": {
+                "title": "Disposition",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "ownership_disposition"
+                }
+              },
+              "existing_artifact": {
+                "title": "Existing Artifact"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "capability",
+              "owner_subdomain",
+              "disposition",
+              "existing_artifact",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": [
+            "capability"
+          ]
+        },
+        "storage_governance": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Storage Governance Requirements"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "storage_need": {
+                "title": "Storage Need"
+              },
+              "purpose": {
+                "title": "Purpose"
+              },
+              "subdomain": {
+                "title": "Subdomain"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "storage_need",
+              "purpose",
+              "subdomain",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": [
+            "storage_need",
+            "purpose"
+          ]
+        },
+        "cross_subdomain_deps": {
+          "type": "array",
+          "x-section": {
+            "number": "3",
+            "title": "Cross-Subdomain Dependency Declaration"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "dependency": {
+                "title": "Dependency"
+              },
+              "direction": {
+                "title": "Direction"
+              },
+              "existing_artifact": {
+                "title": "Existing Artifact"
+              },
+              "status": {
+                "title": "Status",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "dependency_status"
+                }
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "dependency",
+              "direction",
+              "existing_artifact",
+              "status",
+              "source_finding"
+            ]
+          },
+          "x-business-language": [
+            "dependency"
+          ]
+        },
+        "pps_artifacts_requiring_action": {
+          "type": "array",
+          "x-section": {
+            "number": "4",
+            "title": "PPS Artifacts Requiring Action"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "fqdn": {
+                "title": "FQDN"
+              },
+              "current_status": {
+                "title": "Current Status"
+              },
+              "action": {
+                "title": "Action",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "pps_action"
+                }
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "fqdn",
+              "current_status",
+              "action",
+              "source_finding"
+            ]
+          }
+        },
+        "boundary_rules": {
+          "type": "array",
+          "x-section": {
+            "number": "5",
+            "title": "Governance Boundary Rules"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule_name": {
+                "title": "Rule Name"
+              },
+              "statement": {
+                "title": "Statement"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "rule_name",
+              "statement",
+              "source_finding"
+            ]
+          }
+        },
+        "governance_outcome": {
+          "type": "array",
+          "x-section": {
+            "number": "6",
+            "title": "Governance Outcome"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {
+                "title": "Capability"
+              },
+              "owner_subdomain": {
+                "title": "Owner Subdomain"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "capability",
+              "owner_subdomain",
+              "source_finding"
+            ]
+          },
+          "x-business-language": [
+            "capability"
+          ]
+        }
+      }
+    }
+  }
+}

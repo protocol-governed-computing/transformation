@@ -2171,7 +2171,7 @@ def _prior_section_registers(phase: str) -> dict[str, str]:
     middle is free-form and has already drifted between two change requests, but the number is
     declared by the template, so the number is what resolves.
     """
-    from transformation.design.template_reader import load
+    from transformation.design.schema import load
 
     return {
         r.section_number: r.id
@@ -2237,7 +2237,7 @@ def _citation_row_unresolved(doc: ParsedDocument, rule) -> list[tuple[str, str]]
 
 def _prior_register_sizes(doc: ParsedDocument, phase: str) -> dict[str, int]:
     """How many content rows each register of a supplied prior carries."""
-    from transformation.design.template_reader import load
+    from transformation.design.schema import load
 
     sizes: dict[str, int] = {}
     for r in load(phase).registers:
@@ -2254,7 +2254,7 @@ def _citations(value: str, sections: dict[str, dict[str, str]]) -> list[tuple[st
     before a `#` read `Business Vocabulary #1` as a citation of `ocabulary` — a register no phase
     declares — and reported a defect against a correct citation.
     """
-    from transformation.design.derive import _all_declared_registers
+    from transformation.design.expand import _all_declared_registers
 
     found: list[tuple[str, int]] = []
     for number, ordinal in re.findall(r"§\s*(\d+)[^#|]*#\s*(\d+)", value):

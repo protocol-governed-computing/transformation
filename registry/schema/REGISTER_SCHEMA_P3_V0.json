@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.REGISTER_SCHEMA_P3_V0",
+  "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "type": "object",
+  "required": [
+    "registers"
+  ],
+  "x-consumes": [
+    "belief_verification",
+    "pps_baseline_fqdns",
+    "gaps",
+    "architectural_observations",
+    "discovery_concerns",
+    "open_questions"
+  ],
+  "x-emits": [
+    "authoring_decisions",
+    "dependency_discoveries",
+    "placement_decision",
+    "saturation"
+  ],
+  "properties": {
+    "registers": {
+      "type": "object",
+      "required": [
+        "analysis_findings",
+        "verification_results",
+        "dependency_discoveries",
+        "impact_analysis",
+        "authoring_decisions",
+        "placement_decision",
+        "saturation"
+      ],
+      "properties": {
+        "analysis_findings": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Analysis Findings"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "question_id": {
+                "title": "Question Id"
+              },
+              "finding": {
+                "title": "Finding"
+              },
+              "impact": {
+                "title": "Impact"
+              },
+              "evidence_status": {
+                "title": "Evidence Status",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "evidence_status"
+                }
+              },
+              "confidence": {
+                "title": "Confidence",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "certainty"
+                }
+              },
+              "resolution_status": {
+                "title": "Resolution Status",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "resolution_status"
+                }
+              },
+              "evidence": {
+                "title": "Evidence"
+              }
+            },
+            "required": [
+              "question_id",
+              "finding",
+              "impact",
+              "evidence_status",
+              "confidence",
+              "resolution_status",
+              "evidence"
+            ]
+          },
+          "minItems": 1
+        },
+        "verification_results": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Mandatory Verification Pass"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "title": "Item"
+              },
+              "origin": {
+                "title": "Origin"
+              },
+              "result": {
+                "title": "Result",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "verification_result"
+                }
+              },
+              "evidence": {
+                "title": "Evidence"
+              }
+            },
+            "required": [
+              "item",
+              "origin",
+              "result",
+              "evidence"
+            ]
+          },
+          "minItems": 1
+        },
+        "dependency_discoveries": {
+          "type": "array",
+          "x-section": {
+            "number": "3",
+            "title": "Dependency Discoveries"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "dependency": {
+                "title": "Dependency"
+              },
+              "type": {
+                "title": "Type"
+              },
+              "disposition": {
+                "title": "Disposition",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "dependency_disposition"
+                }
+              },
+              "evidence": {
+                "title": "Evidence"
+              }
+            },
+            "required": [
+              "dependency",
+              "type",
+              "disposition",
+              "evidence"
+            ]
+          },
+          "minItems": 1
+        },
+        "impact_analysis": {
+          "type": "array",
+          "x-section": {
+            "number": "4",
+            "title": "Impact Analysis"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "title": "Artifact"
+              },
+              "impact_scope": {
+                "title": "Impact Scope"
+              },
+              "consumer_count": {
+                "title": "Consumer Count"
+              },
+              "evidence": {
+                "title": "Evidence"
+              }
+            },
+            "required": [
+              "artifact",
+              "impact_scope",
+              "consumer_count",
+              "evidence"
+            ]
+          },
+          "minItems": 1
+        },
+        "authoring_decisions": {
+          "type": "array",
+          "x-section": {
+            "number": "5",
+            "title": "Authoring Decisions"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {
+                "title": "Capability"
+              },
+              "decision": {
+                "title": "Decision",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "reuse_decision"
+                }
+              },
+              "rationale": {
+                "title": "Rationale"
+              },
+              "alternatives_checked": {
+                "title": "Alternatives Checked"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "capability",
+              "decision",
+              "rationale",
+              "alternatives_checked",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": [
+            "capability"
+          ]
+        },
+        "placement_decision": {
+          "type": "array",
+          "x-section": {
+            "number": "6",
+            "title": "Subdomain Placement Decision"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "decision": {
+                "title": "Decision",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "placement_decision"
+                }
+              },
+              "subdomain": {
+                "title": "Subdomain"
+              },
+              "rationale": {
+                "title": "Rationale"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "decision",
+              "subdomain",
+              "rationale",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": [
+            "subdomain"
+          ]
+        },
+        "saturation": {
+          "type": "array",
+          "x-section": {
+            "number": "7",
+            "title": "Saturation Assessment"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "criterion": {
+                "title": "Criterion"
+              },
+              "status": {
+                "title": "Status",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "saturation_status"
+                }
+              },
+              "evidence": {
+                "title": "Evidence"
+              }
+            },
+            "required": [
+              "criterion",
+              "status",
+              "evidence"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": [
+            "criterion"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -4,8 +4,8 @@ CT_PURE_PARSE_REGISTERS_V0
 Pure Capability Transform (Atom)
 
 Purpose:
-    Parse a phase document into structured registers — header fields and numbered sections,
-    each with any pipe table extracted as columns and rows.
+    Parse a phase document into structured registers — the header fields and registers its
+    Machine block carries, and the numbered sections of its prose.
 
 Implementation:
     - Reads supplied text only; never touches the filesystem
@@ -32,8 +32,8 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
 
     Outputs:
         header (dict): header field name → declared value
-        sections (list): ordered sections with number, title, text, columns, rows
-        registers (list): registers by marker id, each with columns and rows
+        sections (list): ordered prose sections with number, title and text
+        registers (list): registers by id, each with columns and rows, or text
     """
     if "document_text" not in inputs:
         raise CTExecutionError(

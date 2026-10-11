@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.REGISTER_SCHEMA_P8_V0",
+  "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "type": "object",
+  "required": [
+    "registers"
+  ],
+  "x-consumes": [
+    "new_artifacts",
+    "existing_inventory",
+    "rb_declarations",
+    "execution_topology",
+    "artifact_summary"
+  ],
+  "x-emits": [
+    "build_order",
+    "critical_path",
+    "mandate_artifact_summary",
+    "field_declarations"
+  ],
+  "properties": {
+    "registers": {
+      "type": "object",
+      "required": [
+        "build_order",
+        "critical_path",
+        "mandate_artifact_summary",
+        "field_declarations",
+        "new_capabilities",
+        "new_intents",
+        "cross_subdomain_notes"
+      ],
+      "properties": {
+        "build_order": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Build Dependency Order"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "wave": {
+                "title": "Wave"
+              },
+              "step": {
+                "title": "Step"
+              },
+              "code": {
+                "title": "Code"
+              },
+              "action": {
+                "title": "Action",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "gap_resolution"
+                }
+              },
+              "subdomain": {
+                "title": "Subdomain"
+              },
+              "depends_on": {
+                "title": "Depends On"
+              }
+            },
+            "required": [
+              "wave",
+              "step",
+              "code",
+              "action",
+              "subdomain",
+              "depends_on"
+            ]
+          }
+        },
+        "critical_path": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Critical Path"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "position": {
+                "title": "Position"
+              },
+              "code": {
+                "title": "Code"
+              }
+            },
+            "required": [
+              "position",
+              "code"
+            ]
+          }
+        },
+        "mandate_artifact_summary": {
+          "type": "array",
+          "x-section": {
+            "number": "3",
+            "title": "Artifact Summary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "title": "Action",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "gap_resolution"
+                }
+              },
+              "count": {
+                "title": "Count"
+              },
+              "description": {
+                "title": "Description"
+              }
+            },
+            "required": [
+              "action",
+              "count",
+              "description"
+            ]
+          },
+          "minItems": 1
+        },
+        "field_declarations": {
+          "type": "array",
+          "x-section": {
+            "number": "4",
+            "title": "Subdomain Field Declarations"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "title": "Code"
+              },
+              "subdomain_field": {
+                "title": "Subdomain Field"
+              }
+            },
+            "required": [
+              "code",
+              "subdomain_field"
+            ]
+          },
+          "minItems": 1
+        },
+        "new_capabilities": {
+          "type": "array",
+          "x-section": {
+            "number": "5",
+            "title": "New Capabilities"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "title": "Code"
+              },
+              "purpose": {
+                "title": "Purpose"
+              },
+              "inputs": {
+                "title": "Inputs"
+              },
+              "outputs": {
+                "title": "Outputs"
+              }
+            },
+            "required": [
+              "code",
+              "purpose",
+              "inputs",
+              "outputs"
+            ]
+          }
+        },
+        "new_intents": {
+          "type": "array",
+          "x-section": {
+            "number": "6",
+            "title": "New Intents"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "title": "Code"
+              },
+              "purpose": {
+                "title": "Purpose"
+              },
+              "workflow": {
+                "title": "Workflow"
+              },
+              "inputs": {
+                "title": "Inputs"
+              }
+            },
+            "required": [
+              "code",
+              "purpose",
+              "workflow",
+              "inputs"
+            ]
+          }
+        },
+        "cross_subdomain_notes": {
+          "type": "array",
+          "x-section": {
+            "number": "7",
+            "title": "Cross-Subdomain Notes"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "title": "Code"
+              },
+              "note": {
+                "title": "Note"
+              }
+            },
+            "required": [
+              "code",
+              "note"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -15,7 +15,7 @@ which is the failure mode that leaves one register quietly ungoverned.
 
 from __future__ import annotations
 
-from transformation.design.template_reader import PhaseTemplate, Register
+from transformation.design.schema import PhaseShape as PhaseTemplate, Register
 from transformation.design.rules import Rule
 
 # A compiled artifact identity. Business-language columns must not contain one — a business
@@ -157,7 +157,7 @@ def _all_declared_registers() -> set[str]:
     global _DECLARED
     if _DECLARED is None:
         from transformation.design.catalog import PHASES
-        from transformation.design.template_reader import load
+        from transformation.design.schema import load
 
         ids: set[str] = set()
         for spec in PHASES:

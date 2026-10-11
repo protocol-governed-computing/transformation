@@ -403,23 +403,43 @@ class Emission:
 def sources(phase_id: str) -> list[str]:
     """Everything the emission reads for one phase, as repo-relative paths.
 
-    The template declares the registers and their columns; the rule module declares what remains.
-    Both, together, are the generator — so both are named, and a change to either is a change to it.
-    P0 has no vendored template, being new in this rehost, so its declaration is the whole of it.
+    The register schema declares the registers and their columns, the vocabulary declaration the
+    values its columns admit, and the rule module what remains. Together they are the generator, so
+    all are named, and a change to any is a change to it.
     """
     from transformation.design.catalog import phase as phase_spec
     from transformation.design.meta import RULE_MODULES
+    from transformation.design.schema import SCHEMAS, load
 
-    out = []
-    template = phase_spec(phase_id).template
-    if template:
-        out.append(f"templates/{template}")
+    out = [str((SCHEMAS / phase_spec(phase_id).schema).relative_to(REPO))]
+    vocabularies = sorted({v["artifact"] for r in load(phase_id).registers for v in _vocab_refs(phase_id, r.id)})
+    for artifact in vocabularies:
+        out.append(str(_declaration_path(artifact).relative_to(REPO)))
     module_file = Path(RULE_MODULES[phase_id].__file__).resolve()
     out.append(str(module_file.relative_to(REPO)))
     # The judging contract's declared outcomes are what the workflow's routing is generated from.
     contract = judge_contract((WORKFLOWS / SEALED_IN[phase_id]).read_text(encoding="utf-8"))
     out.append(str((CONTRACTS / f"{contract}.md").relative_to(REPO)))
     return out
+
+
+def _vocab_refs(phase_id: str, register_id: str) -> list[dict]:
+    """The vocabulary references one register's columns make, as its schema writes them."""
+    import json
+
+    from transformation.design.catalog import phase as phase_spec
+    from transformation.design.schema import SCHEMAS
+
+    declared = json.loads((SCHEMAS / phase_spec(phase_id).schema).read_text(encoding="utf-8"))
+    body = declared["properties"]["registers"]["properties"][register_id]
+    columns = (body.get("items") or {}).get("properties") or {}
+    return [c["x-vocab"] for c in columns.values() if "x-vocab" in c]
+
+
+def _declaration_path(artifact: str) -> Path:
+    from transformation.design.schema import REGISTRY
+
+    return sorted(REGISTRY.rglob(f"{artifact.split('::')[-1]}.md"))[0]
 
 
 def declared(phase_id: str) -> list[dict]:

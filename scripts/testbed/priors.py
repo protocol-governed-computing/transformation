@@ -10,7 +10,7 @@ Two facts already exist and this reads them rather than duplicating them:
   **which phases** a document is judged against — `PRIORS` in that phase's rule module, which is also
   what the compiled workflow declares;
 
-  **which dossier** supplies them — the document's own `**CR:**` header, which every dossier document
+  **which dossier** supplies them — the document's own `CR` header field, which every dossier document
   carries because P1 is the Change Request phase whatever domain it runs against.
 
 So a new probe needs no wiring at all: cut it from a fixture, and it is judged against that fixture's
@@ -21,22 +21,23 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from transformation.design.read import parse_text
+
 REPO = Path(__file__).resolve().parents[2]
 
-CR_HEADER = re.compile(r"^\*\*CR:\*\*\s*(?P<cr>.+?)\s*$", re.M)
-
 # Where a dossier that can supply priors may live. A directory is one if it carries a seed — the
-# document P0 produces — rather than because it was listed here.
+# document P0 produces — rather than because it was listed here. Delivered dossiers stay in the form
+# they were approved in, so a prior from one is read from its test copy, converted once by the
+# oracle's reader.
 DOSSIER_ROOTS = (
     REPO / "scripts/testbed/fixture_dossiers",
-    REPO / "dossiers",
+    REPO / "scripts/testbed/delivered_copies/transformation/dossiers",
 )
 
 
 def cr_of(path: Path) -> str | None:
-    """The change request a document declares itself part of."""
-    match = CR_HEADER.search(path.read_text(encoding="utf-8"))
-    return match.group("cr") if match else None
+    """The change request a document declares itself part of, read from its Machine block."""
+    return parse_text(path.read_text(encoding="utf-8"))[0].get("CR") or None
 
 
 def dossiers_by_cr() -> dict[str, Path]:
@@ -83,7 +84,7 @@ def prior_paths(doc_path: Path, declared: tuple[str, ...]) -> dict[str, Path]:
     cr = cr_of(doc_path)
     if cr is None:
         raise SystemExit(
-            f"{doc_path.name} is judged by a phase with cross-phase rules and carries no **CR:** "
+            f"{doc_path.name} is judged by a phase with cross-phase rules and carries no CR "
             f"header, so nothing says which dossier supplies its priors"
         )
     dossier = DOSSIERS_BY_CR.get(cr)

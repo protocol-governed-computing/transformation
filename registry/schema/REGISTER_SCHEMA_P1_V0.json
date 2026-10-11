@@ -1,0 +1,642 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.REGISTER_SCHEMA_P1_V0",
+  "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "type": "object",
+  "required": [
+    "registers"
+  ],
+  "x-consumes": [
+    "human elicitation answers (the seed)"
+  ],
+  "x-emits": [
+    "cr_type",
+    "business_vocabulary",
+    "requested_outcomes",
+    "known_facts",
+    "system_beliefs",
+    "assumptions",
+    "constraints",
+    "business_invariants",
+    "lifecycle_states",
+    "business_events",
+    "authority_boundaries",
+    "out_of_scope",
+    "governance_scope",
+    "clarification_requests",
+    "acceptance_criteria",
+    "identity_and_sameness",
+    "lifecycle_transitions",
+    "operation_refusals",
+    "authority_deferrals"
+  ],
+  "properties": {
+    "registers": {
+      "type": "object",
+      "required": [
+        "cr_type",
+        "business_vocabulary",
+        "requested_outcomes",
+        "known_facts",
+        "system_beliefs",
+        "assumptions",
+        "constraints",
+        "business_invariants",
+        "lifecycle_states",
+        "business_events",
+        "authority_boundaries",
+        "out_of_scope",
+        "governance_scope",
+        "clarification_requests",
+        "acceptance_criteria",
+        "identity_and_sameness",
+        "lifecycle_transitions",
+        "operation_refusals",
+        "authority_deferrals"
+      ],
+      "properties": {
+        "cr_type": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "CR Type"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "subdomain": {
+                "title": "Subdomain"
+              },
+              "classification": {
+                "title": "Classification",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "classification"
+                }
+              },
+              "rationale": {
+                "title": "Rationale"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "subdomain",
+              "classification",
+              "rationale",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "business_vocabulary": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Business Vocabulary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "term": {
+                "title": "Term"
+              },
+              "definition": {
+                "title": "Definition"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "term",
+              "definition",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "requested_outcomes": {
+          "type": "array",
+          "x-section": {
+            "number": "3",
+            "title": "Requested Outcomes"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "title": "Outcome"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "outcome",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "known_facts": {
+          "type": "array",
+          "x-section": {
+            "number": "4",
+            "title": "Known Facts — Business Truths"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "fact": {
+                "title": "Fact"
+              },
+              "certainty": {
+                "title": "Certainty",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "certainty"
+                }
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "fact",
+              "certainty",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "system_beliefs": {
+          "type": "array",
+          "x-section": {
+            "number": "5",
+            "title": "Existing-System Beliefs — Requiring Verification"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "belief": {
+                "title": "Belief"
+              },
+              "why_it_matters": {
+                "title": "Why It Matters"
+              },
+              "verification_goal": {
+                "title": "Verification Goal"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "belief",
+              "why_it_matters",
+              "verification_goal",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "assumptions": {
+          "type": "array",
+          "x-section": {
+            "number": "6",
+            "title": "Assumptions"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "assumption": {
+                "title": "Assumption"
+              },
+              "basis": {
+                "title": "Basis"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "assumption",
+              "basis",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "constraints": {
+          "type": "array",
+          "x-section": {
+            "number": "7",
+            "title": "Constraints"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "constraint": {
+                "title": "Constraint"
+              },
+              "source": {
+                "title": "Source"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "constraint",
+              "source",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "business_invariants": {
+          "type": "array",
+          "x-section": {
+            "number": "8",
+            "title": "Business Invariants"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "invariant": {
+                "title": "Invariant"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "invariant",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "lifecycle_states": {
+          "type": "array",
+          "x-section": {
+            "number": "9",
+            "title": "Lifecycle States"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "object": {
+                "title": "Object"
+              },
+              "state": {
+                "title": "State"
+              },
+              "meaning": {
+                "title": "Meaning"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "object",
+              "state",
+              "meaning",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "business_events": {
+          "type": "array",
+          "x-section": {
+            "number": "10",
+            "title": "Business Events"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {
+                "title": "Event"
+              },
+              "when_it_occurs": {
+                "title": "When It Occurs"
+              },
+              "significance": {
+                "title": "Significance"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "event",
+              "when_it_occurs",
+              "significance",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "authority_boundaries": {
+          "type": "array",
+          "x-section": {
+            "number": "11",
+            "title": "Authority Boundaries"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "business_object": {
+                "title": "Business Object"
+              },
+              "authoritative_owner": {
+                "title": "Authoritative Owner"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "business_object",
+              "authoritative_owner",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "out_of_scope": {
+          "type": "array",
+          "x-section": {
+            "number": "12",
+            "title": "Out of Scope"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "title": "Item"
+              },
+              "reason": {
+                "title": "Reason"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "item",
+              "reason",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "governance_scope": {
+          "type": "array",
+          "x-section": {
+            "number": "13",
+            "title": "Governance Scope"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "scope_item": {
+                "title": "Scope Item"
+              },
+              "relationship": {
+                "title": "Relationship",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "scope_relationship"
+                }
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "scope_item",
+              "relationship",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "clarification_requests": {
+          "type": "array",
+          "x-section": {
+            "number": "14",
+            "title": "Clarification Requests"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "title": "Question"
+              },
+              "why_needed": {
+                "title": "Why Needed"
+              },
+              "blocking": {
+                "title": "Blocking",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "yes_no"
+                }
+              },
+              "owner": {
+                "title": "Owner",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "clarification_owner"
+                }
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "question",
+              "why_needed",
+              "blocking",
+              "owner",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "x-section": {
+            "number": "15",
+            "title": "Acceptance Criteria"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "criterion": {
+                "title": "Criterion"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "criterion",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "identity_and_sameness": {
+          "type": "array",
+          "x-section": {
+            "number": "16",
+            "title": "Identity and Sameness"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "business_object": {
+                "title": "Business Object"
+              },
+              "identified_by": {
+                "title": "Identified By"
+              },
+              "two_are_the_same_when": {
+                "title": "Two Are The Same When"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "business_object",
+              "identified_by",
+              "two_are_the_same_when",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "lifecycle_transitions": {
+          "type": "array",
+          "x-section": {
+            "number": "17",
+            "title": "Lifecycle Transitions"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "object": {
+                "title": "Object"
+              },
+              "from_state": {
+                "title": "From State"
+              },
+              "to_state": {
+                "title": "To State"
+              },
+              "triggered_by": {
+                "title": "Triggered By"
+              },
+              "cascade": {
+                "title": "Cascade"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "object",
+              "from_state",
+              "to_state",
+              "triggered_by",
+              "cascade",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "operation_refusals": {
+          "type": "array",
+          "x-section": {
+            "number": "18",
+            "title": "Operation Refusals"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "title": "Operation"
+              },
+              "refused_when": {
+                "title": "Refused When"
+              },
+              "business_reason": {
+                "title": "Business Reason"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "operation",
+              "refused_when",
+              "business_reason",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "authority_deferrals": {
+          "type": "array",
+          "x-section": {
+            "number": "19",
+            "title": "Authority Deferrals"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "business_object": {
+                "title": "Business Object"
+              },
+              "deferred_to": {
+                "title": "Deferred To"
+              },
+              "until": {
+                "title": "Until"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "business_object",
+              "deferred_to",
+              "until",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        }
+      }
+    }
+  }
+}

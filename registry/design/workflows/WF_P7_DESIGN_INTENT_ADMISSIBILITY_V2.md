@@ -8,7 +8,8 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 
 - **Generator:** `transformation.design.emit:emit_rule_sets`
 - **Generator sources** — one generator together, never separately:
-  - `templates/p7_design_intent_template_v0.md`
+  - `registry/schema/REGISTER_SCHEMA_P7_V0.json`
+  - `registry/design/vocabulary/VOCAB_DESIGN_REGISTER_TERMS_V0.md`
   - `transformation/design/p7_design_intent/rules.py`
   - `registry/design/capability_contracts/CC_JUDGE_AGAINST_SNAPSHOT_V1.md`
 
@@ -301,10 +302,10 @@ core:
             - AC
             - IN
             - WF
-            - RB
             - CC
             - CT
             - EV
+            - RB
             - VOCAB
             - STRUCTURE
             - TI

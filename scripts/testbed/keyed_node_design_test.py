@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import sys
 
+import machine
 from transformation.build.render import _binding, render_all
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
@@ -51,31 +52,29 @@ HELD = {"TOPOLOGY_NODE_UNDECLARED", "TOPOLOGY_NODE_REPEATED", "TOPOLOGY_ROUTE_UN
 RULES = [r for r in rule_set() if r.id in HELD]
 
 
-def _table(register: str, header: list[str], rows: list[tuple]) -> str:
-    lines = [f"<!-- register:{register} optional -->", "| " + " | ".join(header) + " |",
-             "|" + "|".join("---" for _ in header) + "|"]
-    lines += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows] or ["| NONE IDENTIFIED |"]
-    return "\n".join(lines) + "\n\n"
+def _table(register: str, header: list[str], rows: list[tuple]) -> tuple[str, dict]:
+    return machine.register(register, header, rows)
 
 
-def design(topology=TOPOLOGY, bindings=BINDINGS, discharges=DISCHARGES, keyed=True) -> str:
+def design(topology=TOPOLOGY, bindings=BINDINGS, discharges=DISCHARGES, keyed=True, extra=()) -> str:
     header = ["Workflow", "Node", "Runs", "Node Type", "Routing", "Source Finding"]
     rows = [(WF, n, r, t, route, "human decision") for n, r, t, route in topology]
     if not keyed:
         header.remove("Runs")
         rows = [(WF, n, t, route, "human decision") for n, _, t, route in topology]
-    return (
-        "# Design Intent: probe / keyed\n\n"
-        + _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
+    return machine.document(
+        "Design Intent: probe / keyed",
+        _table("new_artifacts", ["Capability", "Family", "Code", "Summary", "Owner Subdomain", "Status",
                                    "Source Finding"],
-                 [(c, f, code, c, "keyed", "NEW", "human decision") for c, f, code in NEW])
-        + _table("execution_topology", header, rows)
-        + _table("interface_fields", ["Artifact", "Direction", "Field", "Type", "Required", "Default", "Meaning"],
-                 [(a, d, f, "string", "YES", "—", f) for a, d, f in INTERFACE])
-        + _table("step_bindings", ["Owner", "Step", "Direction", "Field", "Bound To", "Source Finding"],
-                 [(WF, s, "INPUT", f, b, "human decision") for s, f, b in bindings])
-        + _table("refusal_discharge", ["Operation", "Refused When", "Act", "Step", "Outcome", "Source Finding"],
-                 [(o, w, WF, s, out, "human decision") for o, w, s, out in discharges])
+                 [(c, f, code, c, "keyed", "NEW", "human decision") for c, f, code in NEW]),
+        _table("execution_topology", header, rows),
+        _table("interface_fields", ["Artifact", "Direction", "Field", "Type", "Required", "Default", "Meaning"],
+                 [(a, d, f, "string", "YES", "—", f) for a, d, f in INTERFACE]),
+        _table("step_bindings", ["Owner", "Step", "Direction", "Field", "Bound To", "Source Finding"],
+                 [(WF, s, "INPUT", f, b, "human decision") for s, f, b in bindings]),
+        _table("refusal_discharge", ["Operation", "Refused When", "Act", "Step", "Outcome", "Source Finding"],
+                 [(o, w, WF, s, out, "human decision") for o, w, s, out in discharges]),
+        *extra,
     )
 
 
@@ -183,7 +182,7 @@ def test_a_contract_redeclared_whole_requires_only_what_it_now_declares():
     def fired_with(text):
         return [f.rule for f in evaluate(parsed(text, pinned), unbound).findings]
 
-    assert fired_with(design() + composition) == [], fired_with(design() + composition)
+    assert fired_with(design(extra=(composition,))) == [], fired_with(design(extra=(composition,)))
     assert fired_with(design()) == ["NODE_INPUT_UNBOUND"], "a contract only called keeps what it had"
 
 def test_an_input_written_as_an_object_that_does_not_parse_is_refused():

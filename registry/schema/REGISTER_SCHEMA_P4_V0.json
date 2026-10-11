@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.REGISTER_SCHEMA_P4_V0",
+  "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "type": "object",
+  "required": [
+    "registers"
+  ],
+  "x-consumes": [
+    "authoring_decisions",
+    "dependency_discoveries",
+    "placement_decision",
+    "saturation"
+  ],
+  "x-emits": [
+    "actors",
+    "bm_entities",
+    "events",
+    "capability_graph",
+    "dependency_graph",
+    "constraint_register",
+    "gap_register",
+    "design_decisions",
+    "authoring_scope"
+  ],
+  "properties": {
+    "registers": {
+      "type": "object",
+      "required": [
+        "actors",
+        "bm_entities",
+        "resources",
+        "events",
+        "relationships",
+        "capability_graph",
+        "dependency_graph",
+        "constraint_register",
+        "gap_register",
+        "design_decisions",
+        "authoring_scope"
+      ],
+      "properties": {
+        "actors": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Discovery Summary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "actor": {
+                "title": "Actor"
+              },
+              "role": {
+                "title": "Role"
+              },
+              "authority_class": {
+                "title": "Authority Class"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "actor",
+              "role",
+              "authority_class",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "bm_entities": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Discovery Summary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "title": "Entity"
+              },
+              "description": {
+                "title": "Description"
+              },
+              "store_model": {
+                "title": "Store Model"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "entity",
+              "description",
+              "store_model",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "resources": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Discovery Summary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "resource": {
+                "title": "Resource"
+              },
+              "description": {
+                "title": "Description"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "resource",
+              "description",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "events": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Discovery Summary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {
+                "title": "Event"
+              },
+              "trigger": {
+                "title": "Trigger"
+              },
+              "lifecycle_meaning": {
+                "title": "Lifecycle Meaning"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "event",
+              "trigger",
+              "lifecycle_meaning",
+              "source_finding"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "relationships": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Discovery Summary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject": {
+                "title": "Subject"
+              },
+              "verb": {
+                "title": "Verb"
+              },
+              "object": {
+                "title": "Object"
+              },
+              "capability_need": {
+                "title": "Capability Need"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "subject",
+              "verb",
+              "object",
+              "capability_need",
+              "source_finding"
+            ]
+          },
+          "x-business-language": true
+        },
+        "capability_graph": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Capability Graph (capability_graph)"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {
+                "title": "Capability"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              },
+              "status": {
+                "title": "Status"
+              },
+              "gap_register_entry": {
+                "title": "Gap Register Entry"
+              },
+              "notes": {
+                "title": "Notes"
+              }
+            },
+            "required": [
+              "capability",
+              "source_finding",
+              "status",
+              "gap_register_entry",
+              "notes"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "dependency_graph": {
+          "type": "array",
+          "x-section": {
+            "number": "3",
+            "title": "Dependency Graph (dependency_graph)"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "title": "From"
+              },
+              "to": {
+                "title": "To"
+              },
+              "dependency_type": {
+                "title": "Dependency Type"
+              },
+              "pps_status": {
+                "title": "PPS Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "dependency_type",
+              "pps_status",
+              "source_finding"
+            ]
+          },
+          "minItems": 1
+        },
+        "constraint_register": {
+          "type": "array",
+          "x-section": {
+            "number": "4",
+            "title": "Constraint Register (constraint_register)"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "number": {
+                "title": "#"
+              },
+              "constraint": {
+                "title": "Constraint"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              },
+              "source": {
+                "title": "Source"
+              }
+            },
+            "required": [
+              "number",
+              "constraint",
+              "source_finding",
+              "source"
+            ]
+          },
+          "minItems": 1
+        },
+        "gap_register": {
+          "type": "array",
+          "x-section": {
+            "number": "5",
+            "title": "Gap Register (gap_register)"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "gap_code": {
+                "title": "Gap Code"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              },
+              "capability": {
+                "title": "Capability"
+              },
+              "owner_subdomain": {
+                "title": "Owner Subdomain"
+              },
+              "resolution": {
+                "title": "Resolution"
+              }
+            },
+            "required": [
+              "gap_code",
+              "source_finding",
+              "capability",
+              "owner_subdomain",
+              "resolution"
+            ]
+          },
+          "minItems": 1,
+          "x-business-language": true
+        },
+        "design_decisions": {
+          "type": "array",
+          "x-section": {
+            "number": "6",
+            "title": "Design Decisions (design_decisions)"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "number": {
+                "title": "#"
+              },
+              "decision": {
+                "title": "Decision"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              },
+              "rationale": {
+                "title": "Rationale"
+              },
+              "constraints_imposed": {
+                "title": "Constraints Imposed"
+              }
+            },
+            "required": [
+              "number",
+              "decision",
+              "source_finding",
+              "rationale",
+              "constraints_imposed"
+            ]
+          },
+          "minItems": 1
+        },
+        "authoring_scope": {
+          "type": "array",
+          "x-section": {
+            "number": "7",
+            "title": "Authoring Scope (authoring_scope)"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {
+                "title": "Capability"
+              },
+              "gap_register_ref": {
+                "title": "Gap Register Ref"
+              }
+            },
+            "required": [
+              "capability",
+              "gap_register_ref"
+            ]
+          },
+          "minItems": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1045 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.REGISTER_SCHEMA_P7_V0",
+  "$comment": "The registers a phase document's Machine block carries, and their shape.",
+  "type": "object",
+  "required": [
+    "registers"
+  ],
+  "x-consumes": [
+    "ownership",
+    "storage_governance",
+    "cross_subdomain_deps",
+    "pps_artifacts_requiring_action"
+  ],
+  "x-emits": [
+    "cc_composition",
+    "generation_provenance"
+  ],
+  "properties": {
+    "registers": {
+      "type": "object",
+      "required": [
+        "design_resolution",
+        "existing_inventory",
+        "new_artifacts",
+        "rb_declarations",
+        "execution_topology",
+        "cc_composition",
+        "step_bindings",
+        "interface_fields",
+        "implementation_bindings",
+        "vocabulary_extensions",
+        "runtime_policies",
+        "artifact_properties",
+        "structure_stores",
+        "transport_bindings",
+        "artifact_summary",
+        "generation_provenance",
+        "declared_reach",
+        "refusal_discharge",
+        "refusal_deferrals",
+        "refusal_governance_discharge",
+        "molecule_steps",
+        "molecule_step_bindings",
+        "test_cases",
+        "test_case_values",
+        "withdrawn_facts"
+      ],
+      "properties": {
+        "design_resolution": {
+          "type": "array",
+          "x-section": {
+            "number": "1",
+            "title": "Design Decisions Resolution"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "decision": {
+                "title": "Decision"
+              },
+              "business_fact": {
+                "title": "Business Fact"
+              },
+              "resolution": {
+                "title": "Resolution"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "decision",
+              "business_fact",
+              "resolution",
+              "source_finding"
+            ]
+          }
+        },
+        "existing_inventory": {
+          "type": "array",
+          "x-section": {
+            "number": "2",
+            "title": "Artifact Inventory — Existing Artifacts"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "fqdn": {
+                "title": "FQDN"
+              },
+              "action": {
+                "title": "Action",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "inventory_action"
+                }
+              },
+              "summary": {
+                "title": "Summary"
+              },
+              "reason": {
+                "title": "Reason"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "fqdn",
+              "action",
+              "summary",
+              "reason",
+              "source_finding"
+            ]
+          },
+          "minItems": 1
+        },
+        "new_artifacts": {
+          "type": "array",
+          "x-section": {
+            "number": "3",
+            "title": "Artifact Family Mapping — New Artifacts"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {
+                "title": "Capability"
+              },
+              "family": {
+                "title": "Family",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "artifact_family"
+                }
+              },
+              "code": {
+                "title": "Code"
+              },
+              "summary": {
+                "title": "Summary"
+              },
+              "owner_subdomain": {
+                "title": "Owner Subdomain"
+              },
+              "status": {
+                "title": "Status"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "capability",
+              "family",
+              "code",
+              "summary",
+              "owner_subdomain",
+              "status",
+              "source_finding"
+            ]
+          },
+          "x-business-language": [
+            "capability"
+          ]
+        },
+        "rb_declarations": {
+          "type": "array",
+          "x-section": {
+            "number": "4",
+            "title": "Runtime Binding (RB) Declarations"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "rb_code": {
+                "title": "RB Code"
+              },
+              "binds_wf": {
+                "title": "Binds WF"
+              },
+              "cs_bindings": {
+                "title": "CS Bindings"
+              },
+              "storage_structure": {
+                "title": "Storage Structure"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "rb_code",
+              "binds_wf",
+              "cs_bindings",
+              "storage_structure",
+              "source_finding"
+            ]
+          },
+          "minItems": 1
+        },
+        "execution_topology": {
+          "type": "array",
+          "x-section": {
+            "number": "5",
+            "title": "Execution Topology"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "workflow": {
+                "title": "Workflow"
+              },
+              "node": {
+                "title": "Node"
+              },
+              "runs": {
+                "title": "Runs"
+              },
+              "node_type": {
+                "title": "Node Type",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "node_type"
+                }
+              },
+              "routing": {
+                "title": "Routing"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "workflow",
+              "node",
+              "node_type",
+              "routing",
+              "source_finding"
+            ]
+          },
+          "minItems": 1
+        },
+        "cc_composition": {
+          "type": "array",
+          "x-section": {
+            "number": "6",
+            "title": "Capability Composition"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "cc_code": {
+                "title": "CC Code"
+              },
+              "step": {
+                "title": "Step"
+              },
+              "step_name": {
+                "title": "Step Name"
+              },
+              "capability": {
+                "title": "Capability"
+              },
+              "kind": {
+                "title": "Kind",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "composition_kind"
+                }
+              },
+              "operation": {
+                "title": "Operation"
+              },
+              "store": {
+                "title": "Store"
+              },
+              "consumes": {
+                "title": "Consumes"
+              },
+              "produces": {
+                "title": "Produces"
+              },
+              "routing": {
+                "title": "Routing"
+              },
+              "interpreted_by": {
+                "title": "Interpreted By"
+              },
+              "semantic_status": {
+                "title": "Semantic Status"
+              },
+              "interface": {
+                "title": "Interface"
+              }
+            },
+            "required": [
+              "cc_code",
+              "step",
+              "step_name",
+              "capability",
+              "kind",
+              "operation",
+              "store",
+              "consumes",
+              "produces",
+              "routing",
+              "interpreted_by",
+              "semantic_status",
+              "interface"
+            ]
+          }
+        },
+        "step_bindings": {
+          "type": "array",
+          "x-section": {
+            "number": "7",
+            "title": "Step Bindings"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "owner": {
+                "title": "Owner"
+              },
+              "step": {
+                "title": "Step"
+              },
+              "direction": {
+                "title": "Direction",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "field_direction"
+                }
+              },
+              "field": {
+                "title": "Field"
+              },
+              "bound_to": {
+                "title": "Bound To"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "owner",
+              "step",
+              "direction",
+              "field",
+              "bound_to",
+              "source_finding"
+            ]
+          }
+        },
+        "interface_fields": {
+          "type": "array",
+          "x-section": {
+            "number": "8",
+            "title": "Interface Fields"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "title": "Artifact"
+              },
+              "direction": {
+                "title": "Direction",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "interface_direction"
+                }
+              },
+              "field": {
+                "title": "Field"
+              },
+              "type": {
+                "title": "Type"
+              },
+              "required": {
+                "title": "Required",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "yes_no"
+                }
+              },
+              "default": {
+                "title": "Default"
+              },
+              "meaning": {
+                "title": "Meaning"
+              }
+            },
+            "required": [
+              "artifact",
+              "direction",
+              "field",
+              "type",
+              "required",
+              "default",
+              "meaning"
+            ]
+          }
+        },
+        "implementation_bindings": {
+          "type": "array",
+          "x-section": {
+            "number": "9",
+            "title": "Implementation Bindings"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "ct_code": {
+                "title": "CT Code"
+              },
+              "module": {
+                "title": "Module"
+              },
+              "callable": {
+                "title": "Callable"
+              },
+              "operation": {
+                "title": "Operation"
+              },
+              "kind_atom_molecule": {
+                "title": "Kind (atom, molecule)"
+              },
+              "purity_ct_pure_ct_impure": {
+                "title": "Purity (ct_pure, ct_impure)"
+              },
+              "refusal_raises_returns_never": {
+                "title": "Refusal (raises, returns, never)"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "ct_code",
+              "module",
+              "callable",
+              "operation",
+              "kind_atom_molecule",
+              "purity_ct_pure_ct_impure",
+              "refusal_raises_returns_never",
+              "source_finding"
+            ]
+          }
+        },
+        "vocabulary_extensions": {
+          "type": "array",
+          "x-section": {
+            "number": "10",
+            "title": "Vocabulary Extensions"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "vocabulary_code": {
+                "title": "Vocabulary Code"
+              },
+              "extends": {
+                "title": "Extends"
+              },
+              "group": {
+                "title": "Group"
+              },
+              "casing": {
+                "title": "Casing"
+              },
+              "value": {
+                "title": "Value"
+              },
+              "meaning": {
+                "title": "Meaning"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "vocabulary_code",
+              "extends",
+              "group",
+              "casing",
+              "value",
+              "meaning",
+              "source_finding"
+            ]
+          }
+        },
+        "runtime_policies": {
+          "type": "array",
+          "x-section": {
+            "number": "11",
+            "title": "Runtime Policies"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "rb_code": {
+                "title": "RB Code"
+              },
+              "capability": {
+                "title": "Capability"
+              },
+              "key": {
+                "title": "Key"
+              },
+              "value": {
+                "title": "Value"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "rb_code",
+              "capability",
+              "key",
+              "value",
+              "source_finding"
+            ]
+          }
+        },
+        "artifact_properties": {
+          "type": "array",
+          "x-section": {
+            "number": "12",
+            "title": "Artifact Properties"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "title": "Artifact"
+              },
+              "property": {
+                "title": "Property"
+              },
+              "value": {
+                "title": "Value"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "artifact",
+              "property",
+              "value",
+              "source_finding"
+            ]
+          }
+        },
+        "structure_stores": {
+          "type": "array",
+          "x-section": {
+            "number": "13",
+            "title": "STRUCTURE Stores"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "store_name": {
+                "title": "Store Name"
+              },
+              "storage_type": {
+                "title": "Storage Type",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "storage_type"
+                }
+              },
+              "proposed_path": {
+                "title": "Proposed Path"
+              },
+              "used_by": {
+                "title": "Used By"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "store_name",
+              "storage_type",
+              "proposed_path",
+              "used_by",
+              "source_finding"
+            ]
+          }
+        },
+        "transport_bindings": {
+          "type": "array",
+          "x-section": {
+            "number": "14",
+            "title": "Transport Bindings"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "title": "Artifact"
+              },
+              "direction": {
+                "title": "Direction",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "transport_direction"
+                }
+              },
+              "operation": {
+                "title": "Operation"
+              },
+              "handler_kind": {
+                "title": "Handler Kind",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "handler_kind"
+                }
+              },
+              "handler_target": {
+                "title": "Handler Target"
+              },
+              "field": {
+                "title": "Field"
+              },
+              "bound_to": {
+                "title": "Bound To"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "artifact",
+              "direction",
+              "operation",
+              "handler_kind",
+              "handler_target",
+              "field",
+              "bound_to",
+              "source_finding"
+            ]
+          }
+        },
+        "artifact_summary": {
+          "type": "array",
+          "x-section": {
+            "number": "15",
+            "title": "Artifact Summary"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "title": "Action",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "gap_resolution"
+                }
+              },
+              "subdomain": {
+                "title": "Subdomain"
+              },
+              "count": {
+                "title": "Count"
+              },
+              "artifacts": {
+                "title": "Artifacts"
+              }
+            },
+            "required": [
+              "action",
+              "subdomain",
+              "count",
+              "artifacts"
+            ]
+          },
+          "minItems": 1
+        },
+        "generation_provenance": {
+          "type": "array",
+          "x-section": {
+            "number": "16",
+            "title": "Generation Provenance"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "title": "Artifact"
+              },
+              "generator": {
+                "title": "Generator"
+              },
+              "generator_sources": {
+                "title": "Generator Sources"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "artifact",
+              "generator",
+              "generator_sources",
+              "source_finding"
+            ]
+          }
+        },
+        "declared_reach": {
+          "type": "array",
+          "x-section": {
+            "number": "17",
+            "title": "Declared Reach"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "act": {
+                "title": "Act"
+              },
+              "consults": {
+                "title": "Consults"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "act",
+              "consults",
+              "source_finding"
+            ]
+          }
+        },
+        "refusal_discharge": {
+          "type": "array",
+          "x-section": {
+            "number": "18",
+            "title": "Refusal Discharge"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "title": "Operation"
+              },
+              "refused_when": {
+                "title": "Refused When"
+              },
+              "act": {
+                "title": "Act"
+              },
+              "step": {
+                "title": "Step"
+              },
+              "outcome": {
+                "title": "Outcome"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "operation",
+              "refused_when",
+              "act",
+              "step",
+              "outcome",
+              "source_finding"
+            ]
+          }
+        },
+        "refusal_deferrals": {
+          "type": "array",
+          "x-section": {
+            "number": "19",
+            "title": "Refusal Deferrals"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "title": "Operation"
+              },
+              "refused_when": {
+                "title": "Refused When"
+              },
+              "deferred_to": {
+                "title": "Deferred To"
+              },
+              "until": {
+                "title": "Until"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "operation",
+              "refused_when",
+              "deferred_to",
+              "until",
+              "source_finding"
+            ]
+          }
+        },
+        "refusal_governance_discharge": {
+          "type": "array",
+          "x-section": {
+            "number": "20",
+            "title": "Refusal — Governance-Surface Discharge"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "title": "Operation"
+              },
+              "refused_when": {
+                "title": "Refused When"
+              },
+              "phase": {
+                "title": "Phase"
+              },
+              "governing_rule": {
+                "title": "Governing Rule"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "operation",
+              "refused_when",
+              "phase",
+              "governing_rule",
+              "source_finding"
+            ]
+          }
+        },
+        "molecule_steps": {
+          "type": "array",
+          "x-section": {
+            "number": "21",
+            "title": "Molecule Steps"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "ct_code": {
+                "title": "CT Code"
+              },
+              "step": {
+                "title": "Step"
+              },
+              "kind_atom_molecule_loop": {
+                "title": "Kind (atom, molecule, loop)"
+              },
+              "target": {
+                "title": "Target"
+              },
+              "over": {
+                "title": "Over"
+              },
+              "iterator": {
+                "title": "Iterator"
+              },
+              "emits": {
+                "title": "Emits"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "ct_code",
+              "step",
+              "kind_atom_molecule_loop",
+              "target",
+              "over",
+              "iterator",
+              "emits",
+              "source_finding"
+            ]
+          }
+        },
+        "molecule_step_bindings": {
+          "type": "array",
+          "x-section": {
+            "number": "22",
+            "title": "Molecule Step Bindings"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "ct_code": {
+                "title": "CT Code"
+              },
+              "step": {
+                "title": "Step"
+              },
+              "role": {
+                "title": "Role",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "molecule_binding_role"
+                }
+              },
+              "field": {
+                "title": "Field"
+              },
+              "bound_to": {
+                "title": "Bound To"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "ct_code",
+              "step",
+              "role",
+              "field",
+              "bound_to",
+              "source_finding"
+            ]
+          }
+        },
+        "test_cases": {
+          "type": "array",
+          "x-section": {
+            "number": "23",
+            "title": "Test Cases"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "ct_code": {
+                "title": "CT Code"
+              },
+              "case": {
+                "title": "Case"
+              },
+              "expected_outcome": {
+                "title": "Expected Outcome",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "expected_outcome"
+                }
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "ct_code",
+              "case",
+              "expected_outcome",
+              "source_finding"
+            ]
+          }
+        },
+        "test_case_values": {
+          "type": "array",
+          "x-section": {
+            "number": "24",
+            "title": "Test Case Values"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "ct_code": {
+                "title": "CT Code"
+              },
+              "case": {
+                "title": "Case"
+              },
+              "role": {
+                "title": "Role",
+                "x-vocab": {
+                  "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+                  "group": "test_value_role"
+                }
+              },
+              "field": {
+                "title": "Field"
+              },
+              "value": {
+                "title": "Value"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "ct_code",
+              "case",
+              "role",
+              "field",
+              "value",
+              "source_finding"
+            ]
+          }
+        },
+        "withdrawn_facts": {
+          "type": "array",
+          "x-section": {
+            "number": "25",
+            "title": "Withdrawn Facts"
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "title": "Artifact"
+              },
+              "fact": {
+                "title": "Fact"
+              },
+              "reason": {
+                "title": "Reason"
+              },
+              "source_finding": {
+                "title": "Source Finding"
+              }
+            },
+            "required": [
+              "artifact",
+              "fact",
+              "reason",
+              "source_finding"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import sys
 
+import machine
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
 from transformation.design.p7_design_intent.rules import rule_set
@@ -23,10 +24,12 @@ HEADER = ["CT Code", "Case", "Role (INPUT, EXPECTED, ASSERT, RECORDED)", "Field"
 
 
 def design(values: list[str]) -> str:
-    lines = ["# Design Intent: probe / vectors", "", "<!-- register:test_case_values optional -->",
-             "| " + " | ".join(HEADER) + " |", "|" + "|".join("---" for _ in HEADER) + "|"]
-    lines += [f"| probe::CT_PURE_PROBE_V0 | a_case | INPUT | field | {v} | human decision |" for v in values]
-    return "\n".join(lines) + "\n"
+    return machine.document(
+        "Design Intent: probe / vectors",
+        machine.register("test_case_values", HEADER,
+                         [("probe::CT_PURE_PROBE_V0", "a_case", "INPUT", "field", v, "human decision")
+                          for v in values]),
+    )
 
 
 def findings(values: list[str]):

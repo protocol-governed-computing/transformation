@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transformation.schemas.SCHEMA_REGISTER_SCHEMA_V0",
+  "title": "Register schema",
+  "description": "What a phase's register schema may declare. The surface is closed: a keyword the evaluator does not implement is refused here, so a schema never says more than is enforced.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "$id",
+    "type",
+    "required",
+    "properties"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "const": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "$id": {
+      "type": "string",
+      "pattern": "^transformation\\.schemas\\.REGISTER_SCHEMA_P[0-8]_V[0-9]+$"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "type": {
+      "const": "object"
+    },
+    "required": {
+      "const": [
+        "registers"
+      ]
+    },
+    "x-consumes": {
+      "$ref": "#/$defs/handoff"
+    },
+    "x-emits": {
+      "$ref": "#/$defs/handoff"
+    },
+    "properties": {
+      "type": "object",
+      "required": [
+        "registers"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "registers": {
+          "type": "object",
+          "required": [
+            "type",
+            "required",
+            "properties"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "object"
+            },
+            "required": {
+              "$ref": "#/$defs/names"
+            },
+            "properties": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/register"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "names": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "uniqueItems": true
+    },
+    "section": {
+      "type": "object",
+      "required": [
+        "number",
+        "title"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "register": {
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "A text-only register: the context no row could carry.",
+          "required": [
+            "type",
+            "minLength",
+            "x-section"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "string"
+            },
+            "minLength": {
+              "const": 1
+            },
+            "x-section": {
+              "$ref": "#/$defs/section"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "A table register: a list of rows, each a mapping from column key to value.",
+          "required": [
+            "type",
+            "items",
+            "x-section"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "array"
+            },
+            "minItems": {
+              "const": 1
+            },
+            "x-section": {
+              "$ref": "#/$defs/section"
+            },
+            "x-business-language": {
+              "oneOf": [
+                {
+                  "const": true
+                },
+                {
+                  "$ref": "#/$defs/names"
+                }
+              ]
+            },
+            "items": {
+              "type": "object",
+              "required": [
+                "type",
+                "properties",
+                "required"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "object"
+                },
+                "required": {
+                  "$ref": "#/$defs/names"
+                },
+                "properties": {
+                  "type": "object",
+                  "minProperties": 1,
+                  "propertyNames": {
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "additionalProperties": {
+                    "$ref": "#/$defs/column"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "column": {
+      "type": "object",
+      "required": [
+        "title"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "x-vocab": {
+          "type": "object",
+          "required": [
+            "artifact",
+            "group"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "artifact": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_.]*::VOCAB_[A-Z0-9_]+_V[0-9]+$"
+            },
+            "group": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          }
+        }
+      }
+    },
+    "handoff": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  }
+}

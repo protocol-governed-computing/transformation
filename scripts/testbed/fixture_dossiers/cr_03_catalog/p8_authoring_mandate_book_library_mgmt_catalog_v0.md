@@ -1,8 +1,95 @@
 # Stage 8 — Authoring Mandate: book_library_mgmt / catalog
-**Stage:** 8 — Authoring Mandate
-**CR:** cr_03_catalog
-**Status:** DRAFT
-**Feeds:** Artifact Authoring
+
+## Machine
+
+```yaml
+header:
+  Stage: 8 — Authoring Mandate
+  CR: cr_03_catalog
+  Status: DRAFT
+  Feeds: Artifact Authoring
+registers:
+  build_order:
+    columns:
+    - Wave
+    - Step
+    - Code
+    - Action (REPLACE, EXTEND, NEW)
+    - Subdomain
+    - Depends On
+    rows:
+    - Wave: NONE IDENTIFIED
+      Step: ''
+      Code: ''
+      Action (REPLACE, EXTEND, NEW): ''
+      Subdomain: ''
+      Depends On: ''
+  critical_path:
+    columns:
+    - Position
+    - Code
+    rows:
+    - Position: NONE IDENTIFIED
+      Code: ''
+  mandate_artifact_summary:
+    columns:
+    - Action (REPLACE, EXTEND, NEW)
+    - Count
+    - Description
+    rows:
+    - Action (REPLACE, EXTEND, NEW): EXTEND
+      Count: '6'
+      Description: The six acts that complete a declared moment, each re-rendered whole so that it announces what it completed. One of them announces three.
+    - Action (REPLACE, EXTEND, NEW): NEW
+      Count: '0'
+      Description: The change authors no artifact. All six moments were declared long ago and referenced by nothing; what was missing was the acts saying they had completed them.
+  field_declarations:
+    columns:
+    - Code
+    - Subdomain Field
+    rows:
+    - Code: book_library_mgmt::WF_REGISTER_BOOK_V0
+      Subdomain Field: catalog
+    - Code: book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0
+      Subdomain Field: catalog
+    - Code: book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0
+      Subdomain Field: catalog
+    - Code: book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0
+      Subdomain Field: catalog
+    - Code: book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0
+      Subdomain Field: catalog
+    - Code: book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0
+      Subdomain Field: catalog
+  new_capabilities:
+    columns:
+    - Code
+    - Purpose
+    - Inputs
+    - Outputs
+    rows:
+    - Code: NONE IDENTIFIED
+      Purpose: ''
+      Inputs: ''
+      Outputs: ''
+  new_intents:
+    columns:
+    - Code
+    - Purpose
+    - Workflow
+    - Inputs
+    rows:
+    - Code: NONE IDENTIFIED
+      Purpose: ''
+      Workflow: ''
+      Inputs: ''
+  cross_subdomain_notes:
+    columns:
+    - Code
+    - Note
+    rows:
+    - Code: NONE IDENTIFIED
+      Note: ''
+```
 
 Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing added, nothing dropped.
 
@@ -10,70 +97,29 @@ Mechanical. Stage 7's assignments re-ordered into a build sequence; nothing adde
 
 ## 1. Build Dependency Order
 
-<!-- register:build_order optional -->
-| Wave | Step | Code | Action (REPLACE, EXTEND, NEW) | Subdomain | Depends On |
-|------|------|------|-------------------------------|-----------|------------|
-| NONE IDENTIFIED |
-
 ---
 
 ## 2. Critical Path
-
-<!-- register:critical_path optional -->
-| Position | Code |
-|----------|------|
-| NONE IDENTIFIED |
 
 ---
 
 ## 3. Artifact Summary
 
-<!-- register:mandate_artifact_summary -->
-| Action (REPLACE, EXTEND, NEW) | Count | Description |
-|-------------------------------|-------|-------------|
-| EXTEND | 6 | The six acts that complete a declared moment, each re-rendered whole so that it announces what it completed. One of them announces three. |
-| NEW | 0 | The change authors no artifact. All six moments were declared long ago and referenced by nothing; what was missing was the acts saying they had completed them. |
-
 ---
 
 ## 4. Subdomain Field Declarations
-
-<!-- register:field_declarations -->
-| Code | Subdomain Field |
-|------|-----------------|
-| book_library_mgmt::WF_REGISTER_BOOK_V0 | catalog |
-| book_library_mgmt::WF_REGISTER_ADDITIONAL_EDITION_V0 | catalog |
-| book_library_mgmt::WF_REGISTER_PHYSICAL_COPY_V0 | catalog |
-| book_library_mgmt::WF_UPDATE_BIBLIOGRAPHIC_INFORMATION_V0 | catalog |
-| book_library_mgmt::WF_RETIRE_BOOK_RECORD_V0 | catalog |
-| book_library_mgmt::WF_RETIRE_PHYSICAL_COPY_V0 | catalog |
 
 ---
 
 ## 5. New Capabilities
 
-<!-- register:new_capabilities optional -->
-| Code | Purpose | Inputs | Outputs |
-|------|---------|--------|---------|
-| NONE IDENTIFIED |
-
 ---
 
 ## 6. New Intents
 
-<!-- register:new_intents optional -->
-| Code | Purpose | Workflow | Inputs |
-|------|---------|----------|--------|
-| NONE IDENTIFIED |
-
 ---
 
 ## 7. Cross-Subdomain Notes
-
-<!-- register:cross_subdomain_notes optional -->
-| Code | Note |
-|------|------|
-| NONE IDENTIFIED |
 
 ---
 

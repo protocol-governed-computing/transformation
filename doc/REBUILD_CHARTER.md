@@ -167,6 +167,40 @@ rebuild starts with these:
 | Node keys that spell a deleted version | Renamed to the contract's live name | Nothing live spells a deleted version (§6). |
 | Table reader, converter, old-form harnesses | Deleted | No dead code (§6). |
 
+### M3.1 — schemas
+
+| # | Oracle | Rebuild | Effect |
+|---|---|---|---|
+| M3.1-1 | `Family` is declared in two orders: p5 `provisional_codes` and p7 `new_artifacts`. | One vocabulary group, `artifact_family`, in p5's order. | The p7 rule's `vocabulary` param, and the detail of its findings, list the values in p5's order. |
+
+### Structure (planned as M2, built in M3)
+
+Confirmed. Structure is built with the register schemas in M3, because half of what a schema states
+is the type of a value (design §8.3). Each line says what the oracle does, what the rebuild does, and
+what that moves in the comparison. Counts are cells in the converted corpus.
+
+| # | Oracle | Rebuild | Effect on findings |
+|---|---|---|---|
+| M2-1 | A column is found by the start of its name (C3). | A row is a mapping with exact `snake_case` keys, taken from the template's column name without its vocabulary. A rule names the full key. | None expected. A rule whose param is only a prefix is corrected to the full name. |
+| M2-2 | A register's columns are its header row. A missing header is `REGISTER_COLUMN_MISSING` at the register. | Columns are declared by the template. Every row carries every declared key, `null` when it says nothing. A row lacking a key is `REGISTER_COLUMN_MISSING` at that row. | Location moves from register to row. |
+| M2-3 | The sentinel row `NONE IDENTIFIED` declares an empty register (C5), 475 cells. | An empty list declares it. | None. Row numbering no longer counts the sentinel. |
+| M2-4 | A table with no rows and no sentinel is `REGISTER_EMPTY`, 237 registers. | The key with a `null` value: present, and stating nothing. An empty list is a declared empty register. | None. |
+| M2-5 | `—`, `-`, `NONE`, `N/A` mean a cell says nothing (C6), 2,591 cells. | `null`. A kind's own none markers become `null` the same way. | None expected. A vocabulary column that admitted a marker as a value is listed if one appears. |
+| M2-6 | Routing is `OUTCOME -> target; …`, malformed segments dropped (§4.4), 2,291 cells. | A mapping, outcome to target. The converter writes a cell it cannot parse as the string it was. | A malformed routing string becomes a type finding. Each such corpus case is listed in the code map. |
+| M2-7 | Interface is `in: a=b, …; out: …`, 430 cells. | Two mappings, `in` and `out`. | As M2-6. |
+| M2-8 | Name lists are comma-separated, dashes dropped. | Lists. | None expected. |
+| M2-9 | A binding is a path, a quoted or numeric literal, or the word `generated`. | A path string, `{literal: …}`, or `{generated: <artifact>}`. Construction renders the same values. | `BINDING_SOURCE_MALFORMED` no longer sees literal spellings. `GENERATED_SOURCE_WITHOUT_GENERATOR` reads the typed marker. |
+| M2-10 | A test value is YAML inside a cell, and one that does not parse is `TEST_VALUE_UNPARSEABLE`, 744 cells. | A native YAML value. | `TEST_VALUE_UNPARSEABLE` retires: a value that does not parse is a document that does not parse. Its two probes go. |
+
+**Deferred from M2 to M3: citations.** Provenance cells (15,337) carry several idioms: `S2 gaps #1`,
+`CR seed §7 Constraints #1`, ordinals like `Q3` and `GAP-1`, literal sources, and free text after a
+dash. About 250 rules judge them, most of them carriage rules. Their structure is the carriage
+annotation M3 designs (`x-carriage`, design §3.3). Structuring them in M2 would design that twice.
+They stay strings in M2.
+
+**Deferred from M2 to M4: the header.** `Stage`, `CR`, `Status` and `Feeds` stay as they are until M4
+adds `rule_set` and drops `Status`.
+
 ## 9. The in-flight dossiers
 
 - `binding_literals` and `quoted_literals` stay as delivered. They are part of the oracle.

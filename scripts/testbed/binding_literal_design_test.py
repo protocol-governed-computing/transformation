@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import sys
 
+import machine
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
 from transformation.design.p7_design_intent.rules import rule_set
@@ -30,25 +31,22 @@ LITERALS = ['"si.artifact.list"', "'si.store.list'", "3", "-1.5", "transformatio
             "accepted", "{}", "[]", '""']
 
 
-def _table(register: str, header: list[str], rows: list[tuple]) -> str:
-    lines = [f"<!-- register:{register} optional -->", "| " + " | ".join(header) + " |",
-             "|" + "|".join("---" for _ in header) + "|"]
-    lines += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows] or ["| NONE IDENTIFIED |"]
-    return "\n".join(lines) + "\n\n"
+def _table(register: str, header: list[str], rows: list[tuple]) -> tuple[str, dict]:
+    return machine.register(register, header, rows)
 
 
 def design(step_sources=(), molecule_sources=(), generated_owner=None) -> str:
     provenance = [(generated_owner, "probe.emit:emit", "probe/rules.py", "human decision")] \
         if generated_owner else []
-    return (
-        "# Design Intent: probe / literals\n\n"
-        + _table("step_bindings", ["Owner", "Step", "Direction", "Field", "Bound To", "Source Finding"],
+    return machine.document(
+        "Design Intent: probe / literals",
+        _table("step_bindings", ["Owner", "Step", "Direction", "Field", "Bound To", "Source Finding"],
                  [(o, "observe", "INPUT", f"field_{i}", s, "human decision")
-                  for i, (o, s) in enumerate(step_sources)])
-        + _table("molecule_step_bindings", ["CT Code", "Step", "Role", "Field", "Bound To", "Source Finding"],
+                  for i, (o, s) in enumerate(step_sources)]),
+        _table("molecule_step_bindings", ["CT Code", "Step", "Role", "Field", "Bound To", "Source Finding"],
                  [(CT, "probe", "INPUT", f"field_{i}", s, "human decision")
-                  for i, s in enumerate(molecule_sources)])
-        + _table("generation_provenance", ["Artifact", "Generator", "Generator Sources", "Source Finding"],
+                  for i, s in enumerate(molecule_sources)]),
+        _table("generation_provenance", ["Artifact", "Generator", "Generator Sources", "Source Finding"],
                  provenance)
     )
 
