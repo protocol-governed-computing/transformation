@@ -64,6 +64,8 @@ exact.
 
 ```yaml
 fqdn: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1
+superseded_by:
+- transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V2
 supersedes: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
 version: v1

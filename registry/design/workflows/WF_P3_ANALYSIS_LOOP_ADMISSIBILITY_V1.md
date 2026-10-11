@@ -60,6 +60,8 @@ citation would otherwise lend a substitution provenance it does not have.
 
 ```yaml
 fqdn: transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1
+superseded_by:
+- transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V2
 supersedes: transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
 version: v1

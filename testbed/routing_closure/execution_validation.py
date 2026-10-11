@@ -101,9 +101,9 @@ def main() -> int:
 
     # 1 and 2 — a phase whose observation finds nothing rejects, and judges nothing
     for phase, wf, payload, op in (
-        ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1",
+        ("P2", "transformation::WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V2",
          "08_p2_admissible_register.json", "si.store.list"),
-        ("P3", "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1",
+        ("P3", "transformation::WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V2",
          "14_p3_admissible_catalog_register.json", "si.artifact.list"),
     ):
         control = dispatch(wf, payload, snapshot, None)

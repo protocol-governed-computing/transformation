@@ -425,6 +425,13 @@ Rule counts: p0 88, p1 193, p2 87, p3 58, p4 93, p5 91, p6 63, p7 284, p8 39.
   compose them re-point and keep their identity (`sameness` with the successor map).
 - **I-4, held.** `interface_structures_test`: each structure is a valid JSON Schema, and every
   output conforms over the corpus (159 documents parsed and judged).
+- **I-5, the workflows.** Seven phase workflows carry a rule set that means something else than the
+  oracle's: `WF_P2`–`WF_P6` and `WF_P8` take V2, `WF_P7` takes V3, none used before. Each supersedes
+  its predecessor, which stands down. Node keys follow their contract (`CC_JUDGE_AGAINST_*_V1`). The
+  dispatch, seven intents and the routing-closure check re-point; `sameness` keeps their identity.
+- **I-6, the table closes.** Against the oracle, every live transformation artifact is the same or
+  new. The 23 stood-down artifacts are each in `.github/process/notes/rebuild-retirements.yaml`,
+  for deletion at the swap.
 
 ## 9. The in-flight dossiers
 

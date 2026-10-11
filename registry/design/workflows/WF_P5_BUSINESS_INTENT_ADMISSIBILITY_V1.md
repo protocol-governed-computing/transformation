@@ -49,6 +49,8 @@ there.
 
 ```yaml
 fqdn: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1
+superseded_by:
+- transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V2
 supersedes: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V0
 artifact_kind: WORKFLOW
 version: v1

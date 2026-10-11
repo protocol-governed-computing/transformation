@@ -53,6 +53,8 @@ nobody owns.
 
 ```yaml
 fqdn: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2
+superseded_by:
+- transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V3
 supersedes: transformation::WF_P7_DESIGN_INTENT_ADMISSIBILITY_V1
 artifact_kind: WORKFLOW
 version: v2
