@@ -123,9 +123,14 @@ No node key spells a deleted version, even as a place.
 platform's surface closure refuses that today. The fix is decided (option B):
 - `supersedes` records history and is exempt from surface closure;
 - `supersession_agreement` checks it against the ledger;
-- it is a `software_governance` change, judged by the frozen oracle, so the oracle does not judge its
-  own redesign;
 - it lands before the swap.
+
+The trial found the platform already declares this. `artifact::VOCAB_DECLARATION_REPRESENTATION_V0`
+names `supersedes` and `superseded_by` a supersession part, which names an artifact without reaching
+it, and S1 reads references accordingly. Only the surface-closure handler departed from the
+declaration: it read every FQDN-shaped string as a reference. It now resolves the references S1 read
+(`protocol_compiler`, on `dev/18`). No artifact changes meaning, so there is no dossier for the
+lifecycle to judge.
 
 **What the swap deletes from the transformation domain.**
 - Every stood-down artifact, the eleven of `.github/process/notes/rebuild-retirements.yaml` among them.
@@ -445,8 +450,8 @@ Rule counts: p0 88, p1 193, p2 87, p3 58, p4 93, p5 91, p6 63, p7 284, p8 39.
 
 1. **Checkpoint.** Commit the workspace as it stands, tag the oracle, and record the exception.
 2. **Design.** One design document for the whole scope. A human gates it, and it fills §8.
-3. **The platform fix.** `supersedes` exempt from surface closure (§6), through the lifecycle,
-   judged by the oracle.
+3. **The platform fix.** `supersedes` exempt from surface closure (§6). Done as a compiler
+   conformance fix, since the platform already declared it.
 4. **Build.** On the branch `rebuild/transformation`, cut from the tag.
 5. **Acceptance.** §5, item by item.
 6. **Swap.** Squash the branch into `dev/18` as one commit. The oracle's dead artifacts are deleted
