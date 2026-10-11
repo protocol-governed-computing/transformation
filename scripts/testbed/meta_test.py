@@ -22,17 +22,18 @@ REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from transformation.design.checks import kinds as check_kinds
-from transformation.design.meta import RULE_MODULES, verify
+from transformation.design.evaluate import kinds as check_kinds
+from transformation.design.meta import verify
+from transformation.design.rule_sets import RULE_SETS
 
 
 def report() -> int:
     """Print the meta verdict. Returns the process exit code."""
-    findings = verify(RULE_MODULES)
-    examined = sum(len(module.rule_set()) for module in RULE_MODULES.values())
+    findings = verify(RULE_SETS)
+    examined = sum(len(module.rule_set()) for module in RULE_SETS.values())
 
     print(
-        f"meta — {examined} rule(s) across {len(RULE_MODULES)} phase(s) "
+        f"meta — {examined} rule(s) across {len(RULE_SETS)} phase(s) "
         f"against {len(check_kinds())} check kind(s)\n"
     )
 
@@ -53,7 +54,7 @@ def assert_consistent() -> None:
     Fail-hard rather than a warning: a suite that proceeds past this reports verdicts it cannot
     stand behind, and a green run is then indistinguishable from an unevaluated one.
     """
-    findings = verify(RULE_MODULES)
+    findings = verify(RULE_SETS)
     if findings:
         print("META FAILED — rule sets are inconsistent; no verdict over a document is evidence\n")
         for finding in findings:

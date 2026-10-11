@@ -39,7 +39,7 @@ for _root in (WORKSPACE / "software_governance", WORKSPACE / "conformance_worklo
 from runtime import api
 from meta_test import assert_consistent
 from transformation.design.emit import workflow_fqdn
-from transformation.design.meta import RULE_MODULES
+from transformation.design.rule_sets import RULE_SETS
 from transformation.design.merit import Merit, load_policy, rate
 PAYLOADS = REPO / "testbed" / "phases" / "test_payloads"
 
@@ -62,8 +62,8 @@ PAYLOADS = REPO / "testbed" / "phases" / "test_payloads"
 # than restated: a version or a count copied here goes stale the moment a rule is added or a
 # workflow replaced, and the suite then fails on the copy instead of on behaviour. The assertion
 # keeps its force — the runtime must evaluate every declared rule, never a subset.
-WF = {p.upper(): workflow_fqdn(p) for p in RULE_MODULES}
-RULES = {p.upper(): len(module.rule_set()) for p, module in RULE_MODULES.items()}
+WF = {p.upper(): workflow_fqdn(p) for p in RULE_SETS}
+RULES = {p.upper(): len(module.rule_set()) for p, module in RULE_SETS.items()}
 
 CASES = [
     ("P0", WF["P0"],

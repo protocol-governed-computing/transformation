@@ -22,7 +22,9 @@ import machine
 from transformation.build.render import build_manifest, render_all, requirements
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import rule_set
+from transformation.design.rule_sets import RULE_SETS
+
+rule_set = RULE_SETS["p7"].rule_set
 from transformation.design.read import parse_text
 
 D = "probe"

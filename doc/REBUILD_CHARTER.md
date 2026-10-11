@@ -134,9 +134,20 @@ platform's surface closure refuses that today. The fix is decided (option B):
 - The table reader, and the converter once it has produced the corpus.
 - The test harnesses written for the old form.
 
+**What the swap also deletes.** Everything the rebuild needed and the rebuilt module does not:
+- every dossier under `dossiers/`. The genesis dossier (§5, item 7) describes the module as it
+  stands and is the only one that remains. Delivered dossiers are held by the v5 release at its
+  tag and by git;
+- the working documents: `TRANSFORMATION_UNRAVEL.md`, `REGISTER_COVERAGE_VERIFICATION.md`, this
+  charter and `REBUILD_DESIGN.md`, once their rulings are restated in `DESIGN_LANGUAGE.md` and the
+  repository's `CLAUDE.md`;
+- `scripts/rebuild/`, once the oracle is retired;
+- the testbed's `delivered_copies/`, and any payload or harness nothing reads.
+
+The repository's `CLAUDE.md` is rewritten for the rebuilt module in the same change.
+
 **What stays.** These are records, not code:
 - the v5 release at its tag;
-- delivered dossiers, in their original form;
 - generator scripts kept under `.github/process/notes/` (v5 ruling C1);
 - the parked dossiers (§9).
 
@@ -332,6 +343,25 @@ No rule changes: sealed rule sets, declarations and the comparison are unchanged
 
 No rule changes meaning: sealed rule sets differ only by `identity`, and declarations and the
 comparison are unchanged.
+
+### M3.4d — closure and the evaluator's shape
+
+- **Closure.** `meta.closure` and `scripts/testbed/closure_test.py`, a regression step: every
+  `x-realises` resolves to an invariant `lifecycle::CONSTITUTION_CHANGE_MGMT_V1` names or a
+  statement of `DESIGN_LANGUAGE.md`; every design invariant is realised; every template names its
+  schema's registers and columns. A derived rule has no entry to state what it realises, so
+  `expand.DERIVED_REALISES` states it for the citation and business-language checks.
+  `ROW_PROVENANCE_CITED` is realised only there.
+- **Divergence M3.4d-1.** The design's "every `enforced_by` names a workflow that exists" is
+  dropped: §6a made `enforced_by` prose.
+- **The evaluator.** `checks.py` is the package `design/evaluate/`: `document`, `registry`,
+  `common`, `keywords` (18 kinds), `constructs` (13), and `procedures/`, one module per procedure
+  (26). The code moved unchanged. `tc phase meta` reads parameter contracts across the package.
+- **One rule type.** `Rule.from_mapping` reads a sealed rule; `DeclaredRule` is gone.
+- **No phase modules.** The nine `p*/rules.py` loaders are gone. `rule_sets.RULE_SETS` reads each
+  phase from the schema the dispatch names. A workflow's sources no longer list a loader.
+
+No rule changes: declarations and the comparison are unchanged.
 
 ## 9. The in-flight dossiers
 

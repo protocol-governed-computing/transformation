@@ -92,9 +92,9 @@ def grounded_registers(phase: str) -> tuple[str, ...]:
     assert something the composition could later contradict. Registers governed only by structural
     or cross-phase rules say nothing about the snapshot and need no re-approval.
     """
-    from transformation.design.meta import RULE_MODULES
+    from transformation.design.rule_sets import RULE_SETS
 
-    module = RULE_MODULES.get(phase)
+    module = RULE_SETS.get(phase)
     if module is None:
         return ()
     return tuple(sorted({

@@ -1,8 +1,8 @@
 """The P0 structural oracle — a generic evaluator over the declared rule set.
 
-This module contains **no rules**. It walks `rules.rule_set()`, dispatches each declared rule to
+This module contains **no rules**. It walks a phase's rule set, dispatches each declared rule to
 its check kind, and collects findings. What makes a seed admissible is declared in `rules.py`; how
-a check is performed is implemented in `checks.py`; this file only composes them.
+a check is performed is implemented in `evaluate/`; this file only composes them.
 
 The oracle is deterministic and reads no snapshot. It judges shape and discipline, never business
 correctness: it cannot know whether a Business Truth is true, only whether the seed keeps truths,
@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from transformation.design.checks import dispatch, place
+from transformation.design.evaluate import dispatch, place
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.read import read_seed
 from transformation.design.rules import Rule

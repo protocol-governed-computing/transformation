@@ -26,8 +26,7 @@ sys.path.insert(0, str(REPO))
 
 from meta_test import assert_consistent  # noqa: E402
 from transformation.design.oracle import evaluate  # noqa: E402
-from transformation.design.p0_change_seed import rules as p0_rules  # noqa: E402
-from transformation.design.p1_change_request import rules as p1_rules  # noqa: E402
+from transformation.design.rule_sets import RULE_SETS  # noqa: E402
 from transformation.design.project import PROJECTIONS  # noqa: E402
 from transformation.design.read import parse_text, read_seed  # noqa: E402
 
@@ -79,7 +78,7 @@ def main() -> int:
             problems.append(f"{name} projection differs from the committed P1")
             print(f"  FAIL  {name}  projection differs from the committed P1")
 
-        verdict = evaluate(doc, p1_rules.rule_set())
+        verdict = evaluate(doc, RULE_SETS["p1"].rule_set())
         status = "PASS" if verdict.admissible else "FAIL"
         print(f"  {status}  {name}  projected P1 {verdict.verdict} "
               f"over {verdict.rules_evaluated} rules")
@@ -91,7 +90,7 @@ def main() -> int:
     # Refused: a prior that still carries an open blocking clarification is not projectable, and the
     # CLI is what enforces it — this asserts the verdict the CLI acts on.
     blocked = read_seed(CORPUS / "inadmissible_p0_blocking_clarification.md")
-    verdict = evaluate(blocked, p0_rules.rule_set())
+    verdict = evaluate(blocked, RULE_SETS["p0"].rule_set())
     fired = {f.code for f in verdict.findings}
     if not verdict.admissible and "BLOCKING_CLARIFICATION_OUTSTANDING" in fired:
         print("  PASS  corpus blocking-clarification seed refused before projection")

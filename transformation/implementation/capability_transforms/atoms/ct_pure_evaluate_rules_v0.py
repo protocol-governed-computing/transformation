@@ -22,8 +22,9 @@ from typing import Any, Dict, List
 
 from runtime.ct_executor import CTExecutionError
 
-from transformation.design.checks import dispatch, kinds, place
-from transformation.design.evaluate import DeclaredRule, ParsedDocument
+from transformation.design.evaluate import dispatch, kinds, place
+from transformation.design.evaluate import ParsedDocument
+from transformation.design.rules import Rule
 
 ADMISSIBLE = "ADMISSIBLE"
 INADMISSIBLE = "INADMISSIBLE"
@@ -72,7 +73,7 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
     findings: List[Dict[str, Any]] = []
 
     for entry in rule_set:
-        rule = DeclaredRule.from_mapping(entry)
+        rule = Rule.from_mapping(entry)
         try:
             check = dispatch(rule.check)
         except KeyError:

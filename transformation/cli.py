@@ -22,7 +22,7 @@ from transformation.baseline import (
     pending,
     verify,
 )
-from transformation.design.checks import kinds as check_kinds
+from transformation.design.evaluate import kinds as check_kinds
 from inspector import api as inspector_api
 
 from transformation.build import sameness
@@ -48,9 +48,10 @@ from transformation.build.generators import (
 )
 from transformation.design.emit import emit as emit_phase_workflows
 from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
-from transformation.design.meta import RULE_MODULES, verify as meta_verify
+from transformation.design.meta import closure as meta_closure, verify as meta_verify
+from transformation.design.rule_sets import RULE_SETS
+from transformation.design.rules import Rule
 from transformation.design.emit import workflow_fqdn
-from transformation.design.evaluate import DeclaredRule
 from transformation.design.oracle import evaluate
 from transformation.design.sealed import sealed_rule_set
 from transformation.design.project import PROJECTIONS
@@ -61,7 +62,6 @@ from transformation.design.schema import load as load_template
 # Rule sets are declared per phase and mapped once, in `design.meta` — the module that has to
 # verify the mapping is complete. Purpose, question, key rule and purity rung come from the
 # catalogue, which mirrors field manual §4.1 and §4.2.
-RULE_SETS = RULE_MODULES
 
 
 def _parse_prior(argument: str) -> tuple[str, Path]:
@@ -152,7 +152,7 @@ def phase_check(
     # operation → the key its result carries the rows under. A phase may ground against more than
     # one observation: P3 resolves identities against the artifact list and bounds its reuse search
     # by what each domain declares, and those are different questions asked of different surfaces.
-    observes = getattr(rules_mod, "OBSERVATIONS", {})
+    observes = rules_mod.observations
 
     doc = read_seed(doc_path)
     if observes and snapshot_root:
@@ -179,7 +179,7 @@ def phase_check(
     # Reading a prior is the driver's job, exactly as reading the document is. A check that opened
     # a file would make its verdict depend on a filesystem the compiled transform cannot reach, and
     # the genesis oracle and the composition would stop judging the same thing.
-    declared_priors = getattr(rules_mod, "PRIORS", ())
+    declared_priors = rules_mod.priors
     supplied = dict(_parse_prior(arg) for arg in prior_args)
     for unexpected in sorted(set(supplied) - set(declared_priors)):
         raise click.ClickException(
@@ -213,7 +213,7 @@ def phase_check(
     if rules_source == "sealed":
         if snapshot_root:
             sealed = sealed_rule_set(workflow_fqdn(phase_key), str(snapshot_root))
-            rules = [DeclaredRule.from_mapping(entry) for entry in sealed]
+            rules = [Rule.from_mapping(entry) for entry in sealed]
             judged_by = f"the rule set sealed in {snapshot_root}"
         else:
             judged_by = "the working tree's declaration — no --snapshot to read a sealed one from"
@@ -361,7 +361,9 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
 
 @phase.command("meta")
 @click.option("--json", "as_json", is_flag=True, help="Emit the findings as JSON.")
-def phase_meta(as_json: bool) -> None:
+@click.option("--snapshot", "snapshot_root", type=click.Path(exists=True, file_okay=False, path_type=Path),
+              default=None, help="Also check closure against this composition's invariants.")
+def phase_meta(as_json: bool, snapshot_root: Path | None) -> None:
     """Verify the rule sets themselves — declaration/enforcement parity, before any document.
 
     Meta-governance: this judges no dossier. It asserts that every declared rule can actually run
@@ -370,6 +372,8 @@ def phase_meta(as_json: bool) -> None:
     never evaluated.
     """
     findings = meta_verify(RULE_SETS)
+    if snapshot_root is not None:
+        findings += meta_closure(RULE_SETS, str(snapshot_root))
 
     if as_json:
         click.echo(
@@ -985,7 +989,7 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
 
     # The id proves the composition is the one named. It proves nothing about whether anyone
     # re-read the registers that assert facts about it, which is the half a re-pin silently drops.
-    outstanding = {phase: pending(pin, phase) for phase in sorted(RULE_MODULES)}
+    outstanding = {phase: pending(pin, phase) for phase in sorted(RULE_SETS)}
     outstanding = {phase: regs for phase, regs in outstanding.items() if regs}
     approved = sum(len(r) for r in pin.approved_registers.values())
     if approved:
@@ -1004,7 +1008,7 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
 
 @baseline.command("approve")
 @click.argument("pin_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
-@click.option("--phase", "phase_key", type=click.Choice(sorted(RULE_MODULES)), required=True,
+@click.option("--phase", "phase_key", type=click.Choice(sorted(RULE_SETS)), required=True,
               help="Which phase's grounded registers were re-read.")
 @click.option("--by", "approver", required=True, help="Who re-grounded them.")
 @click.option("--register", "registers", multiple=True,

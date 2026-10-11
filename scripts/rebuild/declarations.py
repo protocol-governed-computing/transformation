@@ -74,10 +74,13 @@ def _declared(phase: str, a: dict, b: dict) -> str | None:
 
 
 def dump() -> dict:
-    from transformation.design.meta import RULE_MODULES
+    try:
+        from transformation.design.rule_sets import RULE_SETS
+    except ImportError:  # the oracle declares its rule sets in one module per phase
+        from transformation.design.meta import RULE_MODULES as RULE_SETS
 
     out = {}
-    for phase, module in RULE_MODULES.items():
+    for phase, module in RULE_SETS.items():
         out[phase] = [
             {"id": r.id, "check": r.check, "register": r.register, "section_title": r.section_title,
              "params": r.params, "intent": r.intent}

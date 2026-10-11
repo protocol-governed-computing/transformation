@@ -98,6 +98,6 @@ def prior_paths(doc_path: Path, declared: tuple[str, ...]) -> dict[str, Path]:
 
 def declared_priors(phase_id: str) -> tuple[str, ...]:
     """The phases a phase declares as priors, read from the module that declares them."""
-    from transformation.design.meta import RULE_MODULES
+    from transformation.design.rule_sets import RULE_SETS
 
-    return tuple(getattr(RULE_MODULES[phase_id], "PRIORS", ()))
+    return RULE_SETS[phase_id].priors

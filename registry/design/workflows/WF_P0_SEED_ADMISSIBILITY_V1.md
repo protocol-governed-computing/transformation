@@ -10,7 +10,6 @@ artifact is stale, and an edit here lasts until whoever next runs the emission.
 - **Generator sources** — one generator together, never separately:
   - `registry/schema/REGISTER_SCHEMA_P0_V0.json`
   - `registry/design/vocabulary/VOCAB_DESIGN_REGISTER_TERMS_V0.md`
-  - `transformation/design/p0_change_seed/rules.py`
   - `registry/design/capability_contracts/CC_JUDGE_DOCUMENT_V0.md`
 
 To change what this phase judges, amend a source and invoke the generator.

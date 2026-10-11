@@ -141,11 +141,11 @@ def observations() -> dict[str, str]:
     ignores it, which costs nothing; a phase that reads a key nobody passed is the defect this
     exists to prevent.
     """
-    from transformation.design.meta import RULE_MODULES
+    from transformation.design.rule_sets import RULE_SETS
 
     out: dict[str, str] = {}
-    for module in RULE_MODULES.values():
-        for key, field in (getattr(module, "OBSERVATIONS", {}) or {}).items():
+    for phase in RULE_SETS.values():
+        for key, field in phase.observations.items():
             out[key] = field
     return dict(sorted(out.items()))
 
@@ -396,19 +396,16 @@ def sources(phase_id: str) -> list[str]:
     """Everything the emission reads for one phase, as repo-relative paths.
 
     The register schema declares the registers and their columns, the vocabulary declaration the
-    values its columns admit, and the rule module what remains. Together they are the generator, so
+    values its columns admit. Together they are the generator, so
     all are named, and a change to any is a change to it.
     """
     from transformation.design.catalog import phase as phase_spec
-    from transformation.design.meta import RULE_MODULES
     from transformation.design.schema import SCHEMAS, load
 
     out = [str((SCHEMAS / phase_spec(phase_id).schema).relative_to(REPO))]
     vocabularies = sorted({v["artifact"] for r in load(phase_id).registers for v in _vocab_refs(phase_id, r.id)})
     for artifact in vocabularies:
         out.append(str(_declaration_path(artifact).relative_to(REPO)))
-    module_file = Path(RULE_MODULES[phase_id].__file__).resolve()
-    out.append(str(module_file.relative_to(REPO)))
     # The judging contract's declared outcomes are what the workflow's routing is generated from.
     contract = judge_contract((WORKFLOWS / SEALED_IN[phase_id]).read_text(encoding="utf-8"))
     out.append(str((CONTRACTS / f"{contract}.md").relative_to(REPO)))
@@ -441,10 +438,10 @@ def declared(phase_id: str) -> list[dict]:
     derived rule from the register it was derived for, and `register` alone loses the fallback P0
     depends on — the failure mode is a rule that resolves to nothing and passes silently.
     """
-    from transformation.design.meta import RULE_MODULES
+    from transformation.design.rule_sets import RULE_SETS
 
     out = []
-    for rule in RULE_MODULES[phase_id].rule_set():
+    for rule in RULE_SETS[phase_id].rule_set():
         entry: dict = {"id": rule.id, "identity": rule.identity, "check": rule.check}
         if rule.register:
             entry["register"] = rule.register

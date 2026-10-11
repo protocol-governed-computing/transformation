@@ -104,6 +104,18 @@ declared. No two rules of a rule set share one.
   by `x-derived/<check>`. A register's base is `/properties/registers/properties/<register>`; a
   column's is that, followed by `/items/properties/<key>`.
 
+### 2.2 Closure
+
+The rule sets close over the governance they realise:
+
+- every `x-realises` names an invariant the design constitution,
+  `lifecycle::CONSTITUTION_CHANGE_MGMT_V1`, names, or a statement in §6.2;
+- every invariant that constitution names is realised by some rule. A derived rule realises what its
+  check states: the citation checks realise `ROW_PROVENANCE_CITED`, and the business-language check
+  `PHASE_SPEAKS_ITS_RUNG`;
+- every check kind is used, and every rule's kind exists;
+- every template names exactly its schema's registers, with the same columns.
+
 ---
 
 ## 3. Rules derived from shape

@@ -203,6 +203,17 @@ def derived_rules(template: PhaseTemplate) -> list[Rule]:
     return out
 
 
+# The invariant a derived rule realises, where it realises one. A declared rule states its own in
+# `x-realises`; a derived rule has no entry to state it in, so its check kind states it here. The rest
+# of the derived rules realise the register schema itself (DESIGN_LANGUAGE §3).
+DERIVED_REALISES = {
+    "CITATION_PRESENT": "lifecycle::INVARIANT_ROW_PROVENANCE_CITED_V0",
+    "SOURCE_FINDING_RESOLVES": "lifecycle::INVARIANT_ROW_PROVENANCE_CITED_V0",
+    "CITED_ORDINAL_RESOLVES": "lifecycle::INVARIANT_ROW_PROVENANCE_CITED_V0",
+    "CELL_TOKEN_ABSENT": "lifecycle::INVARIANT_PHASE_SPEAKS_ITS_RUNG_V0",
+}
+
+
 # Where a derived rule is declared: the keyword it expands, where the schema has one, and otherwise
 # the declaration it derives from, followed by `x-derived/<check>`.
 _AT_REGISTER = {"SECTION_HAS_TEXT": "minLength", "TABLE_HAS_ROWS": "minItems",

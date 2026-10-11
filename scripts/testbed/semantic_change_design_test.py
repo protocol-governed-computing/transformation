@@ -24,7 +24,9 @@ from transformation.build.generators import Context
 from transformation.cli import _meaning_refusals
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import rule_set
+from transformation.design.rule_sets import RULE_SETS
+
+rule_set = RULE_SETS["p7"].rule_set
 from transformation.design.read import parse_text
 
 SNAPSHOT = Path(__file__).resolve().parents[3] / "snapshot"
