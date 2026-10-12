@@ -2061,7 +2061,10 @@ core:
           params:
             column: Store
             capability_column: Capability
-            storage_category: storage
+            store_keeping:
+            - CS_APPENDONLY_JSONL_V0
+            - CS_MUTABLE_JSON_V0
+            - CS_REGISTRY_V0
             observation: si.capability.surface
             detail_missing: names no store on {capability}, which keeps records — a storage step that addresses
               nothing is a read or a write with no subject

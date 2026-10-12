@@ -450,6 +450,79 @@ Rule counts: p0 88, p1 193, p2 87, p3 58, p4 93, p5 91, p6 63, p7 284, p8 39.
 - **I-9, the swap rehearsed.** In scratch, the 23 stood-down artifacts deleted, compiled and
   side-assembled with the deferred entries in the ledger: published identity, supersession agreement
   and single instance pass (500 published, 16 deleted by record; 44 artifacts, one version each).
+- **I-10, `structure` declared.** The platform schemas declare it: `fieldDef.structure` in
+  `SCHEMA_CAPABILITY_TRANSFORM_V0` and `SCHEMA_CAPABILITY_CONTRACT_V0` (a STRUCTURE's full identity),
+  and `core.json_schema` in `SCHEMA_STRUCTURE_V0`. A field naming anything else is refused by schema
+  conformance. Not checked: that the structure named carries a `json_schema`. That needs a platform
+  invariant, and is a later change.
+
+### Genesis — what the dossier exposed
+
+The genesis dossier is evidence, not a design driver. Each defect it exposes is entered here before
+the code that fixes it is written.
+
+- **G-1, the policy of a composition without transformation.** `tc phase check` reads the figure-of-
+  merit policy from the composition it grounds against. Transformation's own founding change is
+  grounded against a composition without transformation, so the policy is absent and the check
+  crashed. An absent policy now means the rating is not computed, as an absent snapshot already did;
+  a malformed policy still fails hard. The verdict is unaffected.
+- **G-2, one actor per design.** Construction gives every workflow the first actor the design
+  declares. The phases run under three: the seed author at P0, the register author elsewhere, the
+  reviewer at a gate. The design language cannot say which workflow runs under which. Affects
+  reconstruction only; not fixed.
+- **G-3, a field's structure.** `interface_fields` has no column for the `structure` a field names
+  (I-1), so a design cannot state it and construction cannot write it. Affects reconstruction only;
+  not fixed.
+- **G-4, refusals the composition does not enforce.** The seed's three refusals — continuing past
+  a gate unapproved, building an unapproved mandate, judging against another composition — are
+  enforced by people and by `tc baseline verify`, outside any governed workflow. The design states
+  them as deferrals, which is true of the module today.
+- **G-5, transforms without vectors.** P7 refuses a transform without test cases
+  (`TRANSFORM_WITHOUT_VECTOR`). None of the module's six transforms carries one, so its own design
+  is refused by its own rule, and transform conformance reports all six unproven.
+- **G-6, a root-addressed store.** `STORE_UNGROUNDED_IN_CAPABILITY` requires a store on every step
+  of a capability whose category is `storage`. `CS_TEXT_ARTIFACT_V0` is `storage` and addressed by a
+  root its binding's policy declares, not by a named store, so the persist step is refused.
+  **Fixed:** the rule keys on the design language's own `storage_type` group, the capabilities that
+  keep named stores, instead of on `category`. A procedure parameter may name a vocabulary group,
+  `{"x-vocab": {artifact, group}}`, read in when the rule is sealed (DESIGN_LANGUAGE §2). P7
+  revision 1 amended. Declaration divergence G-6 (params); findings unchanged over the corpus.
+- **G-7, construction's provenance step was decorative.** Writing vectors for the build transforms
+  found three faults in one path. `CT_PURE_RENDER_ARTIFACTS_V0` declares a required output,
+  `sources`, and never returned it. `CT_PURE_ATTRIBUTE_PROVENANCE_V0` keyed each leaf with a leading
+  dot the renderer's record does not have, so even given sources it matched none, and it declares
+  `rendered` an object while reading a list. So the provenance step of `CC_CONSTRUCT_ARTIFACTS_V0`
+  reported every leaf as stated by the design. The completeness gate was not affected: the measure
+  recomputes origins itself (G-8). The oracle has the same faults; nothing ran the governed
+  construction workflow. **Fix:** render returns what it declares (identity kept: its declaration is
+  unchanged); attribution keys leaves as the renderer records them; `CT_PURE_ATTRIBUTE_PROVENANCE_V1`
+  declares `rendered` as the array it reads and supersedes V0; the contract re-points.
+- **G-8, the measure ignores its provenance.** `CT_PURE_MEASURE_COMPLETENESS_V0` declares a required
+  input, `provenance`, and derives origins itself instead. Two derivations of one fact; open.
+- **G-9, a stood-down transform must be reached.** `ASSERT_CT_SURFACE_DERIVED_CLOSED_V1` refused
+  `CT_PURE_ATTRIBUTE_PROVENANCE_V0` once its successor took its place, as declared and invoked by
+  nothing. The platform declares a superseded artifact unreachable from the executable projections,
+  so it is history, not surface. **Fixed** in `protocol_compiler`: a superseded transform still
+  resolves a reference to it, and is not required to be reached.
+- **G-10, the module's vocabularies were never sealed.** The build manifest's `artifact_types` named
+  neither `VOCAB` nor `TEST_DATA`, so `VOCAB_DESIGN_REGISTER_TERMS_V0` and `VOCAB_FACT_PROVENANCE_V0`
+  were never compiled into the composition, and vectors would not have been either. **Fixed:** the
+  manifest names both, and where conformance results go, as every business domain's does. The
+  manifest was published in v5, so this is `STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V1`, superseding V0;
+  `compile_domain.sh` builds from the manifest that is not stood down.
+- **G-11, test data read as references.** S1 reads every value written as a full name as a
+  reference, and refuses one outside a declared reference part (E105). A vector's `bindings` and
+  `expected` are data, and a design compiler's data names artifacts: a rendered artifact carries
+  `governed_by: governance::…`. So no vector can state what render returns or what attribution
+  reads. Four of the six transforms are proven by vectors; render and attribution wait on a platform
+  declaration that a vector's payload is data, which is a new version of
+  `artifact::VOCAB_DECLARATION_REPRESENTATION_V0` and everything that reads it by identity.
+  **Fixed** under `software_governance/dossiers/data_parts/` (P0–P6, judged by the oracle):
+  `artifact::VOCAB_DECLARATION_REPRESENTATION_V1` adds a `data` group holding `cases`, and the walk
+  passes over a data part as it passes over a supersession part. The compiler and `sameness` read
+  V1; V0 stands down and is deleted at the swap. `target` stays a reference.
+  `test_reference_semantics` 17/17. Render and attribution now carry vectors, and all six
+  transforms are proven (G-5 closed).
 
 ## 9. The in-flight dossiers
 

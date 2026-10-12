@@ -10,6 +10,8 @@ Build-time manifest for the `transformation` domain — the governed change pipe
 
 ```yaml
 fqdn: transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V0
+superseded_by:
+- transformation::STRUCTURE_BUILD_TRANSFORMATION_CONFIG_V1
 artifact_kind: STRUCTURE
 version: V0
 governed_by: structure::CONSTITUTION_STRUCTURE_V0

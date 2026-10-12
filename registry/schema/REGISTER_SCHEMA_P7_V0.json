@@ -7,7 +7,7 @@
       "revision": 1,
       "retroactive": false,
       "change": "The rule set as rebuilt: declared in this schema, each rule named by its identity, the header stated under document.",
-      "digest": "sha256:0ca4c0f2144680596228f6fc0aa695ede543d6adc2fd34fbed96e0da2f50bafc"
+      "digest": "sha256:71d872642905b893c4bcfba18b1a3d02b12d67cea7e05faea2e8c5a98c796930"
     }
   ],
   "type": "object",
@@ -2042,7 +2042,12 @@
         "params": {
           "column": "Store",
           "capability_column": "Capability",
-          "storage_category": "storage",
+          "store_keeping": {
+            "x-vocab": {
+              "artifact": "transformation::VOCAB_DESIGN_REGISTER_TERMS_V0",
+              "group": "storage_type"
+            }
+          },
           "observation": "si.capability.surface",
           "detail_missing": "names no store on {capability}, which keeps records — a storage step that addresses nothing is a read or a write with no subject",
           "detail_spurious": "names a store on {capability}, which keeps none — the step addresses records that capability has no way to hold"

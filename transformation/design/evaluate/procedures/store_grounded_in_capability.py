@@ -17,9 +17,11 @@ def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[Locat
     clock step that named a store — and neither could be told from a step that was right.
 
     The dash is the same kind of declaration `Interpreted By`'s is: it says this step addresses no
-    store. What decides whether that is true is the capability's `category`, published per
-    capability and authored on the artifact rather than inferred from the name. `storage` keeps
-    records; `external` and `inspection` do not, and a capability transform keeps none by being one.
+    store. What decides whether that is true is the design language's own list of the capabilities
+    that keep named stores, the `storage_type` group a store's declaration is already drawn from. A
+    capability's `category` cannot decide it: a capability that persists beneath a root its binding
+    declares is `storage` and addresses no named store (genesis G-6). A capability transform keeps
+    none by being one.
 
     An unknown capability is `COMPOSITION_STEP_UNDECLARED`'s finding and an unknown operation is
     `STEP_NAMES_UNPUBLISHED_OPERATION`'s; neither is restated here.
@@ -32,6 +34,7 @@ def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[Locat
             "checked against capabilities nobody published",
         )]
 
+    store_keeping = {_bare_identity(str(c)) for c in rule.params["store_keeping"]}
     storage, known = set(), set()
     for entry in observed:
         if not isinstance(entry, dict):
@@ -39,7 +42,7 @@ def _store_grounded_in_capability(doc: ParsedDocument, rule) -> list[tuple[Locat
         if entry.get("capability") is not None:
             identity = _bare_identity(str(entry["capability"]))
             known.add(identity)
-            if str(entry.get("category") or "").lower() == rule.params["storage_category"]:
+            if identity in store_keeping:
                 storage.add(identity)
         elif entry.get("transform") is not None:
             known.add(_bare_identity(str(entry["transform"])))

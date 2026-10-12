@@ -42,6 +42,8 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
         artifacts (list): one entry per artifact, each {path, domain, machine}
         documents (list): the same artifacts as {path, text} — what persistence is handed
         artifact_count (int): how many were rendered
+        sources (dict): per artifact code, where each value the renderer did not read from a
+            register came from — path → [origin, governing artifact]
     """
     for required in ("design_registers", "mandate_registers"):
         if required not in inputs:
@@ -64,4 +66,10 @@ def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
         # machine block and the document that carries it cannot disagree if one produced both.
         "documents": [{"path": a["path"], "text": render_document(a)} for a in artifacts],
         "artifact_count": len(artifacts),
+        # Only the renderer knows where a value came from, because it put it there. Without this
+        # the provenance step read every leaf as stated by the design, and the completeness gate
+        # could not refuse a value the renderer supplied (genesis G-7).
+        "sources": {str(a["machine"].get("fqdn", "")).split("::")[-1]:
+                    {path: list(record) for path, record in (a.get("supplied") or {}).items()}
+                    for a in artifacts},
     }

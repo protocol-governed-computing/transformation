@@ -115,7 +115,8 @@ Which schema judges which phase is declared once, in
 `transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0`. A row there names a phase, its schema's
 `$id`, the workflow its rule set is sealed into, and the template its documents are authored from.
 A procedure parameter written `{"x-dispatch": <field>}` reads as that field of every phase, keyed by
-phase, so a schema never copies the dispatch.
+phase, so a schema never copies the dispatch. One written `{"x-vocab": {artifact, group}}` reads as
+that vocabulary group's entries, so a schema never copies a vocabulary.
 
 ### 2.1 Rule identity
 

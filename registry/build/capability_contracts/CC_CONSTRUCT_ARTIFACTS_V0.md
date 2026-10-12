@@ -131,7 +131,7 @@ core:
   # One origin per leaf: stated by the design, governed elsewhere, carried from the predecessor, or
   # supplied by the renderer. Only the last is a fact nobody accounted for.
   - step: attribute_provenance
-    transform: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V0
+    transform: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V1
     inputs:
       rendered: $.results.render_artifacts.capability_result.artifacts
       sources: $.results.render_artifacts.capability_result.sources

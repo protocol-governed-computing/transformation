@@ -47,7 +47,7 @@ from transformation.build.generators import (
     resolve as resolve_generator,
 )
 from transformation.design.emit import emit as emit_phase_workflows
-from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
+from transformation.design.merit import PolicyAbsent, PolicyUnavailable, load_policy, rate as rate_merit
 from transformation.design.meta import closure as meta_closure, verify as meta_verify
 from transformation.design.rule_sets import RULE_SETS
 from transformation.design.rules import Rule
@@ -231,9 +231,14 @@ def phase_check(
     # inadmissible over one misspelling while otherwise strong.
     # The policy is declared in the composition, so a rating needs one to read. Without a snapshot
     # there is no policy and therefore no rating — reported as not computed, never defaulted.
+    # A composition without the policy is reported the same way: transformation's own founding change
+    # is grounded against a composition that does not yet hold transformation.
     merit = None
     if snapshot_root:
-        merit = rate_merit(verdict, doc, load_policy(str(snapshot_root)))
+        try:
+            merit = rate_merit(verdict, doc, load_policy(str(snapshot_root)))
+        except PolicyAbsent as absent:
+            click.echo(f"  note: figure of merit not computed — {absent}", err=True)
 
     if as_json:
         payload = verdict.as_dict()
@@ -266,7 +271,9 @@ def phase_check(
         click.echo()
         click.echo(f"  Status            {verdict.verdict}")
         if merit is None:
-            click.echo("  Figure of Merit   not computed — pass --snapshot to read the policy")
+            why = ("the composition holds no policy" if snapshot_root
+                   else "pass --snapshot to read the policy")
+            click.echo(f"  Figure of Merit   not computed — {why}")
         else:
             click.echo(f"  Figure of Merit   {merit.stars} {merit.rating}/{merit.maximum}")
             if merit.deductions:

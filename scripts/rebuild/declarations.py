@@ -40,6 +40,7 @@ RESTATED = {
     ("p7", "GENERATED_SOURCE_WITHOUT_GENERATOR", "step_bindings"): ("M2-9", {"params"}),
     ("p7", "TEST_VALUE_EMPTY", "test_case_values"): ("M3.3-9", {"check", "params"}),
     ("p7", "GOVERNING_RULE_NOT_IN_FORCE", "refusal_governance_discharge"): ("M3.3b-4", {"params"}),
+    ("p7", "STORE_UNGROUNDED_IN_CAPABILITY", "cc_composition"): ("G-6", {"params"}),
 }
 # A rule restated in every phase that derives it: id → the divergence, and the fields that may differ.
 RESTATED_EVERYWHERE = {

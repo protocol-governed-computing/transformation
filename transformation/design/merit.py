@@ -37,6 +37,11 @@ class PolicyUnavailable(RuntimeError):
     """The composition does not publish a figure-of-merit policy."""
 
 
+class PolicyAbsent(PolicyUnavailable):
+    """The composition holds no policy. Transformation's own founding change is grounded against a
+    composition without transformation, and so without the policy: the rating is not computed."""
+
+
 @dataclass(frozen=True)
 class Deduction:
     """One declared deduction that actually fired, and what tripped it."""
@@ -72,6 +77,8 @@ def load_policy(snapshot_root: str) -> dict[str, Any]:
     from inspector import api
 
     status, artifact = api.query("si.artifact.show", {"artifact": POLICY_ARTIFACT}, snapshot_root)
+    if status == "NOT_FOUND":
+        raise PolicyAbsent(f"{POLICY_ARTIFACT} is not in {snapshot_root}")
     if status != "SUCCESS":
         raise PolicyUnavailable(f"{POLICY_ARTIFACT} not readable from {snapshot_root}: {status}")
     core = ((artifact.get("canonical") or {}).get("frontmatter") or {}).get("core") or {}

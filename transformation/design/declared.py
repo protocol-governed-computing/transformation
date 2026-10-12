@@ -183,7 +183,7 @@ def decode(entry: dict, register: str | None, cols: Columns | None) -> Rule:
             return rule(ANNOTATIONS[construct][body["mode"]], dict(body["params"]))
     if "x-procedure" in entry:
         return rule(entry["x-procedure"]["name"],
-                    {k: _dispatched(v) for k, v in entry["x-procedure"]["params"].items()})
+                    {k: _parameter(v) for k, v in entry["x-procedure"]["params"].items()})
     if "maxItems" in entry:
         return rule("TABLE_ROW_COUNT", {"maximum": entry["maxItems"], **detail})
     if "minItems" in entry:
@@ -217,12 +217,20 @@ def entries(declared: Any) -> list[dict]:
 __all__ = ["ANNOTATIONS", "CONSTRAINTS", "Columns", "decode", "encode", "entries"]
 
 
-def _dispatched(value: Any) -> Any:
-    """A parameter the dispatch states. `{"x-dispatch": <field>}` reads as that field of every phase
-    in `transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0`, keyed by phase, so the schema does
-    not hold a second copy of it."""
+def _parameter(value: Any) -> Any:
+    """A procedure parameter, with what it references read in so the sealed rule is complete.
+
+    - `{"x-dispatch": <field>}` reads as that field of every phase in
+      `transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0`, keyed by phase.
+    - `{"x-vocab": {"artifact": …, "group": …}}` reads as that vocabulary group's entries.
+
+    Either way the schema does not hold a second copy of what it names."""
     if isinstance(value, dict) and set(value) == {"x-dispatch"}:
         from transformation.design.catalog import PHASES
 
         return {spec.id: getattr(spec, value["x-dispatch"]) for spec in PHASES}
+    if isinstance(value, dict) and set(value) == {"x-vocab"}:
+        from transformation.design.schema import vocabulary_group
+
+        return list(vocabulary_group(**value["x-vocab"]))
     return value
