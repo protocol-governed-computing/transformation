@@ -832,8 +832,12 @@ def design_baseline() -> str:
                "PGC_SOURCE_ROOTS": roots,
                "PGC_SNAPSHOT_OUT": str(DESIGN_BASELINE),
                "PGC_SNAPSHOT_PROFILE": "GOVERNANCE_SURFACE_PROFILE_V0"}
-        subprocess.run([str(WORKSPACE / "snapshot_assembler" / "assemble.sh")],
-                       env=env, capture_output=True, check=True)
+        # The assembler's own words are the diagnosis: a bare exit status hid why it refused.
+        done = subprocess.run([str(WORKSPACE / "snapshot_assembler" / "assemble.sh")],
+                              env=env, capture_output=True, text=True)
+        if done.returncode:
+            raise SystemExit(f"design baseline: assembly refused (exit {done.returncode})\n"
+                             + "\n".join((done.stdout + done.stderr).splitlines()[-20:]))
     return str(DESIGN_BASELINE)
 
 

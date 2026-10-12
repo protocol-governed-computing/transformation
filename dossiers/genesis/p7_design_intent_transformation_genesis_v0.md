@@ -4932,56 +4932,142 @@ registers:
   molecule_steps: []
   molecule_step_bindings: []
   test_cases:
+  - ct_code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V1
+    case: attributes_a_supplied_layer_to_the_renderer
+    expected_outcome: SUCCESS
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     expected_outcome: SUCCESS
-    source_finding: &id001
+    source_finding:
       phase: p6
       register: governance_outcome
       key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: refuses_a_design_that_leaves_facts_undetermined
     expected_outcome: VIOLATION
-    source_finding: &id002
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: renders_the_actor_a_mandate_schedules
+    expected_outcome: SUCCESS
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: refuses_a_mandate_scheduling_nothing
+    expected_outcome: VIOLATION
+    source_finding:
       phase: p6
       register: governance_outcome
       key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     expected_outcome: SUCCESS
-    source_finding: &id003
+    source_finding:
       phase: p6
       register: governance_outcome
       key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     expected_outcome: SUCCESS
-    source_finding: &id004
+    source_finding:
       phase: p6
       register: governance_outcome
       key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_PARSE_PRIOR_PHASES_V1
     case: reads_each_prior_by_phase
     expected_outcome: SUCCESS
-    source_finding: &id005
+    source_finding:
       phase: p6
       register: governance_outcome
       key: Read the earlier phase documents a phase must agree with
   - ct_code: transformation::CT_PURE_PARSE_PRIOR_PHASES_V1
     case: reads_no_prior_when_none_is_handed_over
     expected_outcome: SUCCESS
-    source_finding: &id006
+    source_finding:
       phase: p6
       register: governance_outcome
       key: Read the earlier phase documents a phase must agree with
   - ct_code: transformation::CT_PURE_PARSE_REGISTERS_V1
     case: reads_header_registers_and_sections
     expected_outcome: SUCCESS
-    source_finding: &id007
+    source_finding:
       phase: p6
       register: governance_outcome
       key: Read a phase document into its registers
   test_case_values:
+  - ct_code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V1
+    case: attributes_a_supplied_layer_to_the_renderer
+    role: INPUT
+    field: rendered
+    value:
+    - path: registry/s/layers/STRUCTURE_S_STORAGE_V0.md
+      domain: STRUCTURE_S_STORAGE_V0
+      machine:
+        fqdn: STRUCTURE_S_STORAGE_V0
+        artifact_kind: STRUCTURE
+        version: v0
+        governed_by: structure::CONSTITUTION_STRUCTURE_V0
+        authority: pgc.platform
+        concern: s
+        core:
+          summary: The stores the subdomain owns
+          layer: DOMAINS
+          domain: STRUCTURE_S_STORAGE_V0
+          subdomain: s
+          entity_stores: {}
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V1
+    case: attributes_a_supplied_layer_to_the_renderer
+    role: INPUT
+    field: sources
+    value:
+      STRUCTURE_S_STORAGE_V0:
+        core.layer:
+        - supplied_by_renderer
+        - ''
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V1
+    case: attributes_a_supplied_layer_to_the_renderer
+    role: EXPECTED
+    field: provenance
+    value:
+      STRUCTURE_S_STORAGE_V0.fqdn: stated_by_design
+      STRUCTURE_S_STORAGE_V0.artifact_kind: stated_by_design
+      STRUCTURE_S_STORAGE_V0.version: stated_by_design
+      STRUCTURE_S_STORAGE_V0.governed_by: stated_by_design
+      STRUCTURE_S_STORAGE_V0.authority: stated_by_design
+      STRUCTURE_S_STORAGE_V0.concern: stated_by_design
+      STRUCTURE_S_STORAGE_V0.core.summary: stated_by_design
+      STRUCTURE_S_STORAGE_V0.core.layer: supplied_by_renderer
+      STRUCTURE_S_STORAGE_V0.core.domain: stated_by_design
+      STRUCTURE_S_STORAGE_V0.core.subdomain: stated_by_design
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_ATTRIBUTE_PROVENANCE_V1
+    case: attributes_a_supplied_layer_to_the_renderer
+    role: EXPECTED
+    field: governing_artifacts
+    value: {}
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: INPUT
@@ -5013,7 +5099,10 @@ registers:
         required: 'YES'
         default: null
         meaning: What the reader does
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: INPUT
@@ -5027,43 +5116,64 @@ registers:
       value:
       - code: AC_READER_V0
         subdomain_field: s
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: INPUT
     field: threshold
     value: 100.0
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: INPUT
     field: provenance
     value: {}
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: EXPECTED
     field: completeness
     value: 100.0
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: EXPECTED
     field: determined
     value: 10
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: EXPECTED
     field: required
     value: 10
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: admits_a_design_that_determines_its_artifact
     role: EXPECTED
     field: undetermined
     value: []
-    source_finding: *id001
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: refuses_a_design_that_leaves_facts_undetermined
     role: INPUT
@@ -5081,7 +5191,10 @@ registers:
           source: human
     - id: structure_stores
       value: []
-    source_finding: *id002
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: refuses_a_design_that_leaves_facts_undetermined
     role: INPUT
@@ -5095,19 +5208,186 @@ registers:
       value:
       - code: STRUCTURE_S_STORAGE_V0
         subdomain_field: s
-    source_finding: *id002
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: refuses_a_design_that_leaves_facts_undetermined
     role: INPUT
     field: threshold
     value: 100.0
-    source_finding: *id002
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_MEASURE_COMPLETENESS_V0
     case: refuses_a_design_that_leaves_facts_undetermined
     role: INPUT
     field: provenance
     value: {}
-    source_finding: *id002
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: renders_the_actor_a_mandate_schedules
+    role: INPUT
+    field: design_registers
+    value:
+    - id: new_artifacts
+      value:
+      - capability: Reader
+        family: AC
+        code: AC_READER_V0
+        summary: A reader of the catalog
+        owner_subdomain: s
+        status: NEW
+        source_finding:
+          source: human
+    - id: artifact_properties
+      value:
+      - artifact: AC_READER_V0
+        property: type
+        value: human
+        source_finding:
+          source: human
+    - id: interface_fields
+      value:
+      - artifact: AC_READER_V0
+        direction: ATTRIBUTE
+        field: role
+        type: string
+        required: 'YES'
+        default: null
+        meaning: What the reader does
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: renders_the_actor_a_mandate_schedules
+    role: INPUT
+    field: mandate_registers
+    value:
+    - id: build_order
+      value:
+      - wave: '1'
+        code: AC_READER_V0
+    - id: field_declarations
+      value:
+      - code: AC_READER_V0
+        subdomain_field: s
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: renders_the_actor_a_mandate_schedules
+    role: EXPECTED
+    field: artifacts
+    value:
+    - path: registry/s/actors/AC_READER_V0.md
+      domain: AC_READER_V0
+      machine:
+        fqdn: AC_READER_V0
+        artifact_kind: ACTOR
+        version: v0
+        governed_by: governance::CONSTITUTION_GOVERNANCE_V0
+        authority: pgc.platform
+        concern: s
+        core:
+          summary: A reader of the catalog
+          type: human
+          attributes:
+            role:
+              type: string
+              required: true
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: renders_the_actor_a_mandate_schedules
+    role: EXPECTED
+    field: documents
+    value:
+    - path: registry/s/actors/AC_READER_V0.md
+      text: "# AC_READER_V0\n\n## Machine\n\n```yaml\nfqdn: AC_READER_V0\nartifact_kind: ACTOR\nversion:\
+        \ v0\ngoverned_by: governance::CONSTITUTION_GOVERNANCE_V0\nauthority: pgc.platform\nconcern: s\n\
+        core:\n  summary: A reader of the catalog\n  type: human\n  attributes:\n    role:\n      type:\
+        \ string\n      required: true\n```\n\n---\n\n## Intent\n\nA reader of the catalog\n"
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: renders_the_actor_a_mandate_schedules
+    role: EXPECTED
+    field: artifact_count
+    value: 1
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: renders_the_actor_a_mandate_schedules
+    role: EXPECTED
+    field: sources
+    value:
+      AC_READER_V0: {}
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: refuses_a_mandate_scheduling_nothing
+    role: INPUT
+    field: design_registers
+    value:
+    - id: new_artifacts
+      value:
+      - capability: Reader
+        family: AC
+        code: AC_READER_V0
+        summary: A reader of the catalog
+        owner_subdomain: s
+        status: NEW
+        source_finding:
+          source: human
+    - id: artifact_properties
+      value:
+      - artifact: AC_READER_V0
+        property: type
+        value: human
+        source_finding:
+          source: human
+    - id: interface_fields
+      value:
+      - artifact: AC_READER_V0
+        direction: ATTRIBUTE
+        field: role
+        type: string
+        required: 'YES'
+        default: null
+        meaning: What the reader does
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
+  - ct_code: transformation::CT_PURE_RENDER_ARTIFACTS_V0
+    case: refuses_a_mandate_scheduling_nothing
+    role: INPUT
+    field: mandate_registers
+    value:
+    - id: build_order
+      value: []
+    - id: field_declarations
+      value: []
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Render, measure and attribute the artifacts a mandate schedules
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: INPUT
@@ -5118,7 +5398,10 @@ registers:
       subdomain: s
       cr: c
       rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: INPUT
@@ -5129,7 +5412,10 @@ registers:
       text: '
 
         Nothing else.'
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: INPUT
@@ -5141,7 +5427,10 @@ registers:
         reason: Not in this release.
     - id: clarification_requests
       value: null
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: INPUT
@@ -5150,7 +5439,10 @@ registers:
       \ s\n  cr: c\n  rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0\nregisters:\n  out_of_scope:\n\
       \  - item: Fines\n    reason: Not in this release.\n  clarification_requests: null\n```\n\n## 12.\
       \ Out of Scope\n\nNothing else.\n"
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: INPUT
@@ -5161,25 +5453,37 @@ registers:
       check: TABLE_PRESENT
       register: cr_type
       intent: a declared register must be present and readable as rows
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: INPUT
     field: observed
     value: {}
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: INPUT
     field: priors
     value: {}
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: EXPECTED
     field: verdict
     value: INADMISSIBLE
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: EXPECTED
@@ -5193,13 +5497,19 @@ registers:
         field: null
       detail: declared register is absent from the document
       intent: a declared register must be present and readable as rows
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: finds_an_absent_register
     role: EXPECTED
     field: rules_evaluated
     value: 1
-    source_finding: *id003
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: INPUT
@@ -5210,7 +5520,10 @@ registers:
       subdomain: s
       cr: c
       rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: INPUT
@@ -5221,7 +5534,10 @@ registers:
       text: '
 
         Nothing else.'
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: INPUT
@@ -5233,7 +5549,10 @@ registers:
         reason: Not in this release.
     - id: clarification_requests
       value: null
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: INPUT
@@ -5242,7 +5561,10 @@ registers:
       \ s\n  cr: c\n  rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0\nregisters:\n  out_of_scope:\n\
       \  - item: Fines\n    reason: Not in this release.\n  clarification_requests: null\n```\n\n## 12.\
       \ Out of Scope\n\nNothing else.\n"
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: INPUT
@@ -5253,37 +5575,55 @@ registers:
       check: TABLE_PRESENT
       register: out_of_scope
       intent: a declared register must be present and readable as rows
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: INPUT
     field: observed
     value: {}
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: INPUT
     field: priors
     value: {}
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: EXPECTED
     field: verdict
     value: ADMISSIBLE
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: EXPECTED
     field: findings
     value: []
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_EVALUATE_RULES_V1
     case: admits_a_present_register
     role: EXPECTED
     field: rules_evaluated
     value: 1
-    source_finding: *id004
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Apply every rule of a phase and report each failure
   - ct_code: transformation::CT_PURE_PARSE_PRIOR_PHASES_V1
     case: reads_each_prior_by_phase
     role: INPUT
@@ -5293,7 +5633,10 @@ registers:
         \ s\n  cr: c\n  rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0\nregisters:\n  out_of_scope:\n\
         \  - item: Fines\n    reason: Not in this release.\n  clarification_requests: null\n```\n\n##\
         \ 12. Out of Scope\n\nNothing else.\n"
-    source_finding: *id005
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read the earlier phase documents a phase must agree with
   - ct_code: transformation::CT_PURE_PARSE_PRIOR_PHASES_V1
     case: reads_each_prior_by_phase
     role: EXPECTED
@@ -5319,19 +5662,28 @@ registers:
             reason: Not in this release.
         - id: clarification_requests
           value: null
-    source_finding: *id005
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read the earlier phase documents a phase must agree with
   - ct_code: transformation::CT_PURE_PARSE_PRIOR_PHASES_V1
     case: reads_no_prior_when_none_is_handed_over
     role: INPUT
     field: prior_texts
     value: {}
-    source_finding: *id006
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read the earlier phase documents a phase must agree with
   - ct_code: transformation::CT_PURE_PARSE_PRIOR_PHASES_V1
     case: reads_no_prior_when_none_is_handed_over
     role: EXPECTED
     field: priors
     value: {}
-    source_finding: *id006
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read the earlier phase documents a phase must agree with
   - ct_code: transformation::CT_PURE_PARSE_REGISTERS_V1
     case: reads_header_registers_and_sections
     role: INPUT
@@ -5340,7 +5692,10 @@ registers:
       \ s\n  cr: c\n  rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0\nregisters:\n  out_of_scope:\n\
       \  - item: Fines\n    reason: Not in this release.\n  clarification_requests: null\n```\n\n## 12.\
       \ Out of Scope\n\nNothing else.\n"
-    source_finding: *id007
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read a phase document into its registers
   - ct_code: transformation::CT_PURE_PARSE_REGISTERS_V1
     case: reads_header_registers_and_sections
     role: EXPECTED
@@ -5351,7 +5706,10 @@ registers:
       subdomain: s
       cr: c
       rule_set: transformation.schemas.REGISTER_SCHEMA_P0_V0
-    source_finding: *id007
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read a phase document into its registers
   - ct_code: transformation::CT_PURE_PARSE_REGISTERS_V1
     case: reads_header_registers_and_sections
     role: EXPECTED
@@ -5362,7 +5720,10 @@ registers:
       text: '
 
         Nothing else.'
-    source_finding: *id007
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read a phase document into its registers
   - ct_code: transformation::CT_PURE_PARSE_REGISTERS_V1
     case: reads_header_registers_and_sections
     role: EXPECTED
@@ -5374,7 +5735,10 @@ registers:
         reason: Not in this release.
     - id: clarification_requests
       value: null
-    source_finding: *id007
+    source_finding:
+      phase: p6
+      register: governance_outcome
+      key: Read a phase document into its registers
   withdrawn_facts: null
 ```
 
