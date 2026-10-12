@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -137,8 +138,16 @@ def findings(result: dict, side: str) -> Counter:
 
 
 def main(argv: list[str]) -> int:
-    keep = Path(argv[argv.index("--keep") + 1]) if "--keep" in argv else None
-    mirror = keep or Path(tempfile.mkdtemp(prefix="pgc_mirror_"))
+    if "--keep" in argv:
+        return compare(Path(argv[argv.index("--keep") + 1]))
+    mirror = Path(tempfile.mkdtemp(prefix="pgc_mirror_"))
+    try:
+        return compare(mirror)
+    finally:
+        shutil.rmtree(mirror, ignore_errors=True)
+
+
+def compare(mirror: Path) -> int:
     cases = json.loads(oracle(str(HERE / "cases.py")))
 
     paths = sorted({c["doc"] for c in cases} | {p for c in cases for p in c["priors"].values()})
