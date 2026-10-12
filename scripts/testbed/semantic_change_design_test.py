@@ -13,6 +13,7 @@ Run:  python scripts/testbed/semantic_change_design_test.py
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -229,9 +230,15 @@ def test_a_referrer_the_design_re_points_is_accounted_for():
 # --- inspection --------------------------------------------------------------------------------
 
 def test_inspection_reports_every_referrer_the_record_holds():
-    status, result = inspector_api.query(
-        "si.artifact.refs", {"artifact": "workflow::CONSTITUTION_WORKFLOW_V0"}, str(SNAPSHOT))
-    assert status == "SUCCESS" and result["ref_count"] >= 41, result["ref_count"]
+    # Counted from the canonical record itself, so the check follows the composition rather than a
+    # size it once had.
+    target = "workflow::CONSTITUTION_WORKFLOW_V0"
+    held = {d["fqdn_id"] for d in (json.loads(p.read_text())
+                                   for p in (SNAPSHOT / "canonical").rglob("*.json"))
+            if d.get("fqdn_id") != target and target in (d.get("references") or [])}
+    status, result = inspector_api.query("si.artifact.refs", {"artifact": target}, str(SNAPSHOT))
+    assert status == "SUCCESS" and held and result["ref_count"] == len(held), \
+        (result.get("ref_count"), len(held))
 
 
 if __name__ == "__main__":

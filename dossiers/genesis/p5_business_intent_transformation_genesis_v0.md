@@ -277,7 +277,7 @@ registers:
       register: capability_graph
       key: The nine phases, each with its rules and its entry point
   - subdomain: design
-    provisional_code: IN_BUSINESS_INTENT_SUBMITTED_V0
+    provisional_code: IN_BUSINESS_INTENT_SUBMITTED_V1
     family: IN
     summary: Offer a Business Intent register for admissibility judgement
     source_finding:

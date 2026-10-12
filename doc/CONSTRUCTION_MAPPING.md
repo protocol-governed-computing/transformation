@@ -44,7 +44,7 @@ pins each form.
 | `governed_by` | every | stated_by_design | constant per family (`design.families`); a transform's by its kind and purity |
 | `authority` | every | stated_by_design | constant `pgc.platform` |
 | `concern` | every | stated_by_design | the subdomain `new_artifacts.Owner Subdomain` places it in |
-| `supersedes` | CAPABILITY_CONTRACT, INTENT, WORKFLOW | stated_by_design | `existing_inventory` rows the artifact replaces |
+| `supersedes` | CAPABILITY_CONTRACT, INTENT, TRANSPORT_INGRESS, WORKFLOW | stated_by_design | `existing_inventory` rows the artifact replaces |
 | `subdomain` | WORKFLOW | stated_by_design | the owning subdomain |
 | `core.summary` | ACTOR, CAPABILITY_CONTRACT, CAPABILITY_TRANSFORM, EVENT, INTENT, RUNTIME_BINDING, STRUCTURE, TRANSPORT_EGRESS, TRANSPORT_INGRESS, WORKFLOW | stated_by_design | `new_artifacts.Summary`; an intent falls back to `new_intents.Purpose` |
 

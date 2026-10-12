@@ -154,7 +154,7 @@ registers:
     depends_on: null
   - wave: '1'
     step: '24'
-    code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+    code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     action: NEW
     subdomain: design
     depends_on: null
@@ -288,7 +288,7 @@ registers:
     action: NEW
     subdomain: design
     depends_on:
-    - transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+    - transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     - transformation::CC_JUDGE_AGAINST_SNAPSHOT_V1
   - wave: '3'
     step: '42'
@@ -400,7 +400,7 @@ registers:
     subdomain_field: design
   - code: transformation::IN_AUTHORING_MANDATE_SUBMITTED_V0
     subdomain_field: design
-  - code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+  - code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     subdomain_field: design
   - code: transformation::IN_BUSINESS_MODEL_SUBMITTED_V0
     subdomain_field: design
@@ -486,10 +486,10 @@ registers:
     purpose: Offer an Authoring Mandate for admissibility judgement
     workflow: transformation::WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V2
     inputs: register_text:string, prior_texts:object, author_of_record:string
-  - code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+  - code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     purpose: Offer a Business Intent register for admissibility judgement
     workflow: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V2
-    inputs: register_text:string, author_of_record:string
+    inputs: register_text:string, prior_texts:object, author_of_record:string
   - code: transformation::IN_BUSINESS_MODEL_SUBMITTED_V0
     purpose: Offer a Business Model register for admissibility judgement
     workflow: transformation::WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V2

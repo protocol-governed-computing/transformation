@@ -290,7 +290,7 @@ registers:
       key: The nine phases, each with its rules and its entry point
   - capability: The nine phases, each with its rules and its entry point
     family: IN
-    code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+    code: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     summary: Offer a Business Intent register for admissibility judgement
     owner_subdomain: design
     status: NEW
@@ -883,7 +883,7 @@ registers:
       register: new_artifacts
       key: WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V2
   - workflow: transformation::WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V2
-    node: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+    node: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     node_type: IN
     routing:
       ACK: transformation::CC_JUDGE_AGAINST_SNAPSHOT_V1
@@ -3088,14 +3088,23 @@ registers:
     required: 'YES'
     default: null
     meaning: Identity of the person accountable for the register's content
-  - artifact: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+  - artifact: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     direction: INPUT
     field: register_text
     type: string
     required: 'YES'
     default: null
     meaning: Full text of the P5 register — supplied by the driver, never read downstream
-  - artifact: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+  - artifact: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
+    direction: INPUT
+    field: prior_texts
+    type: object
+    required: 'YES'
+    default: null
+    meaning: 'Phase id → full text of the upstream document — p0 carries the subdomain purpose this register
+      restates. Supplied by the driver alongside the register itself: a handoff is checked by reading
+      both documents, and an absent prior is reported as an unchecked handoff rather than passed over.'
+  - artifact: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
     direction: INPUT
     field: author_of_record
     type: string
@@ -4781,7 +4790,7 @@ registers:
       transformation::CC_JUDGE_AGAINST_COMPOSITION_V1, transformation::CC_JUDGE_AGAINST_SNAPSHOT_V1, transformation::CC_JUDGE_DOCUMENT_V0,
       transformation::CT_PURE_EVALUATE_RULES_V1, transformation::CT_PURE_PARSE_PRIOR_PHASES_V1, transformation::CT_PURE_PARSE_REGISTERS_V1,
       transformation::IN_ANALYSIS_LOOP_SUBMITTED_V0, transformation::IN_AUTHORING_MANDATE_SUBMITTED_V0,
-      transformation::IN_BUSINESS_INTENT_SUBMITTED_V0, transformation::IN_BUSINESS_MODEL_SUBMITTED_V0,
+      transformation::IN_BUSINESS_INTENT_SUBMITTED_V1, transformation::IN_BUSINESS_MODEL_SUBMITTED_V0,
       transformation::IN_CHANGE_REQUEST_SUBMITTED_V0, transformation::IN_DESIGN_INTENT_SUBMITTED_V0, transformation::IN_DOMAIN_MODEL_SUBMITTED_V0,
       transformation::IN_GOVERNANCE_INTENT_SUBMITTED_V0, transformation::IN_SEED_SUBMITTED_V0, transformation::RB_TRANSFORMATION_BINDINGS_V0,
       transformation::VOCAB_DESIGN_REGISTER_TERMS_V0, transformation::WF_P0_SEED_ADMISSIBILITY_V1, transformation::WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V1,

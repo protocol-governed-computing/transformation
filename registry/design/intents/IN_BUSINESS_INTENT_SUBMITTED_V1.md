@@ -1,4 +1,4 @@
-# IN_BUSINESS_INTENT_SUBMITTED_V0
+# IN_BUSINESS_INTENT_SUBMITTED_V1
 
 ## 1. Intent
 
@@ -14,12 +14,13 @@ against.
 ## Machine
 
 ```yaml
-fqdn: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
+fqdn: transformation::IN_BUSINESS_INTENT_SUBMITTED_V1
 artifact_kind: INTENT
-version: v0
+version: v1
 governed_by: intent::CONSTITUTION_INTENT_V0
 authority: pgc.platform
 concern: design
+supersedes: transformation::IN_BUSINESS_INTENT_SUBMITTED_V0
 
 core:
   summary: Offer a Business Intent register for admissibility judgement
@@ -30,6 +31,14 @@ core:
       type: string
       required: true
       description: Full text of the P5 register — supplied by the driver, never read downstream
+    prior_texts:
+      type: object
+      required: true
+      description: |
+        Phase id → full text of the upstream document — p0 carries the subdomain purpose this
+        register restates. Supplied by the driver alongside the register itself: a handoff is
+        checked by reading both documents, and an absent prior is reported as an unchecked handoff
+        rather than passed over.
     author_of_record:
       type: string
       required: true

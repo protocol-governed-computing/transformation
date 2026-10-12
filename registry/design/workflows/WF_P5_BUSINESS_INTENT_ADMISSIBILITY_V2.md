@@ -64,12 +64,12 @@ core:
   summary: Decide whether an offered Business Intent register is admissible
   actor_context: transformation::AC_REGISTER_AUTHOR_V0
 
-  start_node: IN_BUSINESS_INTENT_SUBMITTED_V0
+  start_node: IN_BUSINESS_INTENT_SUBMITTED_V1
 
   nodes:
-    IN_BUSINESS_INTENT_SUBMITTED_V0:
+    IN_BUSINESS_INTENT_SUBMITTED_V1:
       type: IN
-      code: IN_BUSINESS_INTENT_SUBMITTED_V0
+      code: IN_BUSINESS_INTENT_SUBMITTED_V1
       next:
         ACK: CC_JUDGE_AGAINST_SNAPSHOT_V1
         NACK: EXIT_REJECTED

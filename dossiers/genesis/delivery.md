@@ -30,6 +30,7 @@ held by git.
 | G-9 | A stood-down transform was required to be reached | Fixed in the compiler |
 | G-10 | The module's vocabularies and vectors were never compiled | Fixed: the build manifest names them |
 | G-11 | The compiler reads artifact names in test data as references | Fixed: `artifact::VOCAB_DECLARATION_REPRESENTATION_V1` declares a vector's cases data (dossier `data_parts`, held on `archive/rebuild-transformation`) |
+| G-12 | P5's entry point did not declare `prior_texts`, which its workflow reads, so the gate admitted a payload the workflow could not resolve | Fixed: `IN_BUSINESS_INTENT_SUBMITTED_V1` requires it, as every other phase's entry point does; V0 is retired by record |
 
 ## Where it stands
 
