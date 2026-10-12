@@ -39,8 +39,16 @@ def main() -> int:
 
     for e in results:
         state = "OK      " if not e.drifted else ("DRIFTED " if check_only else "WROTE   ")
+        if e.unrecorded:
+            state = "REFUSED "
         print(f"  {state} {e.phase}  {e.rules:>3} rules  {e.filename}")
+        if e.unrecorded:
+            print(f"           {e.unrecorded}")
 
+    refused = [e for e in results if e.unrecorded]
+    if refused:
+        print(f"\n{len(refused)} rule set(s) changed without a recorded revision (REVISION_UNRECORDED).")
+        return 1
     drifted = [e for e in results if e.drifted]
     if check_only and drifted:
         print(f"\n{len(drifted)} workflow(s) do not agree with the generator that produces them.")

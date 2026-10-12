@@ -1,8 +1,101 @@
 # Stage 1 — Change Request: Clarification & Fact Capture: [domain] / [subdomain]
-**Stage:** 1 — Change Request (Clarification & Fact Capture)  
-**CR:** change_request_[subdomain]_v0.md  
-**Status:** DRAFT  
-**Feeds:** Stage 2 — Domain Model Discovery  
+
+## Machine
+
+```yaml
+document:
+  phase: p1
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P1_V0
+registers:
+  cr_type:
+  - subdomain: null
+    classification: null
+    rationale: null
+    source_finding: null
+  business_vocabulary:
+  - term: null
+    definition: null
+    source_finding: null
+  requested_outcomes:
+  - outcome: null
+    source_finding: null
+  known_facts:
+  - fact: null
+    certainty: null
+    source_finding: null
+  system_beliefs:
+  - belief: null
+    why_it_matters: null
+    verification_goal: null
+    source_finding: null
+  assumptions:
+  - assumption: null
+    basis: null
+    source_finding: null
+  constraints:
+  - constraint: null
+    source: null
+    source_finding: null
+  business_invariants:
+  - invariant: null
+    source_finding: null
+  lifecycle_states:
+  - object: null
+    state: null
+    meaning: null
+    source_finding: null
+  business_events:
+  - event: null
+    when_it_occurs: null
+    significance: null
+    source_finding: null
+  authority_boundaries:
+  - business_object: null
+    authoritative_owner: null
+    source_finding: null
+  out_of_scope:
+  - item: null
+    reason: null
+    source_finding: null
+  governance_scope:
+  - scope_item: null
+    relationship: null
+    source_finding: null
+  clarification_requests:
+  - question: null
+    why_needed: null
+    blocking: null
+    owner: null
+    source_finding: null
+  acceptance_criteria:
+  - criterion: null
+    source_finding: null
+  identity_and_sameness:
+  - business_object: null
+    identified_by: null
+    two_are_the_same_when: null
+    source_finding: null
+  lifecycle_transitions:
+  - object: null
+    from_state: null
+    to_state: null
+    triggered_by: null
+    cascade: null
+    source_finding: null
+  operation_refusals:
+  - operation: null
+    refused_when: null
+    business_reason: null
+    source_finding: null
+  authority_deferrals:
+  - business_object: null
+    deferred_to: null
+    until: null
+    source_finding: null
+```
 
 > **S1 interrogates; it does not author.** It captures *what is requested*, the *business
 > semantics* (vocabulary, invariants, lifecycle states, business events, authority boundaries),
@@ -22,15 +115,15 @@ Background / Business Need / Goals prose (those invite speculation). Capture fac
 as registers.
 
 VALID OUTPUT:
-- Populated register tables (every required register)
+- Populated registers (every required register)
 - Business-language statements; existing artifacts cited by FQDN ONLY in a Source Finding cell
 
 INVALID OUTPUT:
 - Narrative prose replacing registers; design options; recommended architecture; capability /
   workflow / artifact candidates (all premature at S1)
 
-A required register with no rows MUST render as a single `| NONE IDENTIFIED |` row. The renderer
-rejects a prose-only or empty register mechanically before any human reviews it.
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 ---
 
@@ -102,15 +195,15 @@ INVALID: "WF_REGISTER_VALIDATOR_V0 exists"
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -124,9 +217,7 @@ that owns it.
 
 *The classification of this change.*
 
-<!-- register:cr_type business_language -->
-| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
-|-----------|----------------|-----------|----------------|
+Register `cr_type` in the Machine block.
 
 ---
 
@@ -136,9 +227,7 @@ that owns it.
 first-class evidence — they prevent every downstream stage from re-inferring what the human
 already means. Define the term, not its implementation.*
 
-<!-- register:business_vocabulary business_language -->
-| Term | Definition | Source Finding |
-|------|------------|----------------|
+Register `business_vocabulary` in the Machine block.
 
 ---
 
@@ -146,9 +235,7 @@ already means. Define the term, not its implementation.*
 
 *What the requester wants to be true at close — business outcomes, not solutions.*
 
-<!-- register:requested_outcomes business_language -->
-| Outcome | Source Finding |
-|---------|----------------|
+Register `requested_outcomes` in the Machine block.
 
 ---
 
@@ -158,9 +245,7 @@ already means. Define the term, not its implementation.*
 statements about what the system currently provides (those are §5 System Beliefs). Certainty
 ∈ HIGH | MEDIUM | LOW; source is the human (or an explicit human-cited authority).*
 
-<!-- register:known_facts business_language -->
-| Fact | Certainty (HIGH, MEDIUM, LOW) | Source Finding |
-|------|-----------|----------------|
+Register `known_facts` in the Machine block.
 
 ---
 
@@ -171,9 +256,7 @@ authoritative here; the snapshot is. Each row is a Stage-2 discovery target: `Wh
 scopes the grounding to this CR, and `Verification Goal` states what Stage 2 must establish to
 confirm or refute the belief (governing workflow(s), producers, emitted records, ownership).*
 
-<!-- register:system_beliefs business_language -->
-| Belief | Why It Matters | Verification Goal | Source Finding |
-|--------|----------------|-------------------|----------------|
+Register `system_beliefs` in the Machine block.
 
 ---
 
@@ -182,9 +265,7 @@ confirm or refute the belief (governing workflow(s), producers, emitted records,
 *Things taken as true WITHOUT full evidence — each with its basis. If an assumption is
 load-bearing and unverified, prefer raising a clarification request instead.*
 
-<!-- register:assumptions business_language optional -->
-| Assumption | Basis | Source Finding |
-|------------|-------|----------------|
+Register `assumptions` in the Machine block.
 
 ---
 
@@ -192,9 +273,7 @@ load-bearing and unverified, prefer raising a clarification request instead.*
 
 *Non-negotiable rules the change must honor (monetary, governance, regulatory, immutability, …).*
 
-<!-- register:constraints business_language -->
-| Constraint | Source | Source Finding |
-|------------|--------|----------------|
+Register `constraints` in the Machine block.
 
 ---
 
@@ -204,9 +283,7 @@ load-bearing and unverified, prefer raising a clarification request instead.*
 implementation rules. S3 uses these to eliminate competing designs (a design that violates an
 invariant is inadmissible). Each is a single, testable business statement.*
 
-<!-- register:business_invariants business_language -->
-| Invariant | Source Finding |
-|-----------|----------------|
+Register `business_invariants` in the Machine block.
 
 ---
 
@@ -215,9 +292,7 @@ invariant is inadmissible). Each is a single, testable business statement.*
 *The states each core business object moves through, in business language. S3 uses these to scope
 the state transitions a design must support (and the ones it must not). One row per object-state.*
 
-<!-- register:lifecycle_states business_language -->
-| Object | State | Meaning | Source Finding |
-|--------|-------|---------|----------------|
+Register `lifecycle_states` in the Machine block.
 
 ---
 
@@ -226,9 +301,7 @@ the state transitions a design must support (and the ones it must not). One row 
 *The business moments that matter — the events the domain must recognize. Stated in business
 language (not artifact/event-code names). One row per event.*
 
-<!-- register:business_events business_language -->
-| Event | When It Occurs | Significance | Source Finding |
-|-------|----------------|--------------|----------------|
+Register `business_events` in the Machine block.
 
 ---
 
@@ -238,9 +311,7 @@ language (not artifact/event-code names). One row per event.*
 these to drive REUSE-vs-AUTHOR_NEW: an authority handoff (e.g. proposed→committed) is exactly the
 boundary a design must respect. State the owner in business terms, not artifact names.*
 
-<!-- register:authority_boundaries business_language -->
-| Business Object | Authoritative Owner | Source Finding |
-|-----------------|---------------------|----------------|
+Register `authority_boundaries` in the Machine block.
 
 ---
 
@@ -249,9 +320,7 @@ boundary a design must respect. State the owner in business terms, not artifact 
 *Explicitly excluded from this CR — deferred to future CRs. State the release boundary
 explicitly so downstream stages do not chase future-state architecture.*
 
-<!-- register:out_of_scope business_language optional -->
-| Item | Reason | Source Finding |
-|------|--------|----------------|
+Register `out_of_scope` in the Machine block.
 
 ---
 
@@ -260,9 +329,7 @@ explicitly so downstream stages do not chase future-state architecture.*
 *Which governance concerns this CR touches, in business terms (not artifact bindings). Each scope
 item declares its `Relationship` to this CR — what the CR does to/with that boundary.*
 
-<!-- register:governance_scope business_language -->
-| Scope Item | Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT) | Source Finding |
-|------------|----------------|----------------|
+Register `governance_scope` in the Machine block.
 
 ---
 
@@ -273,9 +340,7 @@ could change the design is a row here. Blocking ∈ YES (cannot proceed until an
 Owner ∈ HUMAN (only the requester can answer) | SNAPSHOT (discovery answers it in Stage 2) |
 GOVERNANCE (a governance/topology decision). Do not ask the human a SNAPSHOT question.*
 
-<!-- register:clarification_requests business_language optional -->
-| Question | Why Needed | Blocking (YES, NO) | Owner (HUMAN, SNAPSHOT, GOVERNANCE) | Source Finding |
-|----------|------------|----------|-------|----------------|
+Register `clarification_requests` in the Machine block.
 
 ---
 
@@ -285,9 +350,7 @@ GOVERNANCE (a governance/topology decision). Do not ask the human a SNAPSHOT que
 criterion must be business-observable: testable by a business reviewer without inspecting runtime
 internals.*
 
-<!-- register:acceptance_criteria business_language -->
-| Criterion | Source Finding |
-|-----------|----------------|
+Register `acceptance_criteria` in the Machine block.
 
 ---
 
@@ -296,9 +359,7 @@ internals.*
 *What identifies each business object, and when two of them are the same thing. S3 eliminates any
 design that cannot enforce the sameness rule; S5 declares it as behaviour.*
 
-<!-- register:identity_and_sameness business_language optional -->
-| Business Object | Identified By | Two Are The Same When | Source Finding |
-|-----------------|---------------|-----------------------|----------------|
+Register `identity_and_sameness` in the Machine block.
 
 ---
 
@@ -307,9 +368,7 @@ design that cannot enforce the sameness rule; S5 declares it as behaviour.*
 *What moves an object between states, and what does not follow from it. A transition whose Cascade is
 declared as none forbids a later phase from inventing one.*
 
-<!-- register:lifecycle_transitions business_language optional -->
-| Object | From State | To State | Triggered By | Cascade | Source Finding |
-|--------|------------|----------|--------------|---------|----------------|
+Register `lifecycle_transitions` in the Machine block.
 
 ---
 
@@ -318,9 +377,7 @@ declared as none forbids a later phase from inventing one.*
 *When an operation must refuse, and why in business terms. S5 declares each refusal; an omitted
 refusal becomes a path that succeeds when the business requires it to fail.*
 
-<!-- register:operation_refusals business_language optional -->
-| Operation | Refused When | Business Reason | Source Finding |
-|-----------|--------------|-----------------|----------------|
+Register `operation_refusals` in the Machine block.
 
 ---
 
@@ -329,9 +386,7 @@ refusal becomes a path that succeeds when the business requires it to fail.*
 *Authority this CR does not take, and where it is expected to land. S6 places only what §11 owns
 now; a deferral here keeps it from placing what does not yet exist.*
 
-<!-- register:authority_deferrals business_language optional -->
-| Business Object | Deferred To | Until | Source Finding |
-|-----------------|-------------|-------|----------------|
+Register `authority_deferrals` in the Machine block.
 
 ---
 
@@ -343,7 +398,7 @@ Authority Boundaries cross as authoritative business semantics; System Beliefs c
 discovery targets (verified, never trusted). Blocking clarification requests are resolved by the
 human at the S1 gate before Stage 2 proceeds.*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← CR seed | human elicitation answers (the seed) |
-| **Emits** → Stage 2 | cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p0 | human elicitation answers (the seed) |
+| **Emits** | cr_type · business_vocabulary · requested_outcomes · known_facts · system_beliefs · assumptions · constraints · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · governance_scope · clarification_requests · acceptance_criteria · identity_and_sameness · lifecycle_transitions · operation_refusals · authority_deferrals |

@@ -26,7 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from transformation.design.checks import is_sentinel
+from transformation.design.schema import column_key
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import Verdict
 
@@ -35,6 +35,11 @@ POLICY_ARTIFACT = "transformation::STRUCTURE_FIGURE_OF_MERIT_POLICY_V1"
 
 class PolicyUnavailable(RuntimeError):
     """The composition does not publish a figure-of-merit policy."""
+
+
+class PolicyAbsent(PolicyUnavailable):
+    """The composition holds no policy. Transformation's own founding change is grounded against a
+    composition without transformation, and so without the policy: the rating is not computed."""
 
 
 @dataclass(frozen=True)
@@ -72,6 +77,8 @@ def load_policy(snapshot_root: str) -> dict[str, Any]:
     from inspector import api
 
     status, artifact = api.query("si.artifact.show", {"artifact": POLICY_ARTIFACT}, snapshot_root)
+    if status == "NOT_FOUND":
+        raise PolicyAbsent(f"{POLICY_ARTIFACT} is not in {snapshot_root}")
     if status != "SUCCESS":
         raise PolicyUnavailable(f"{POLICY_ARTIFACT} not readable from {snapshot_root}: {status}")
     core = ((artifact.get("canonical") or {}).get("frontmatter") or {}).get("core") or {}
@@ -84,19 +91,16 @@ def _row_hits(doc: ParsedDocument, spec: dict[str, Any]) -> int:
     """Rows the document itself declares as unresolved, per the policy's row selector."""
     hits = 0
     hole_registers = tuple(spec.get("registers") or ())
-    columns = {k: {str(v).strip().upper() for v in vals}
+    columns = {column_key(k): {str(v).strip() for v in vals}
                for k, vals in (spec.get("columns") or {}).items()}
 
     for register in hole_registers:
         block = doc.register(register)
         if block is None or block.table is None:
             continue
-        # `| NONE IDENTIFIED |` is a considered answer, not an open question. Counting any non-empty
-        # row scored a register whose author correctly said there was nothing to report as one
-        # outstanding item, so a document was marked down for being complete. `checks.py` already
-        # owns what the marker is; reading it there keeps one spelling of emptiness.
+        # A register declared empty is a considered answer, not an open question, and holds no rows.
         hits += sum(1 for row in block.table.rows
-                    if not is_sentinel(row) and any(str(v).strip() for v in row.values()))
+                    if any(str(v).strip() for v in row.values() if v is not None))
 
     for entry in doc.registers:
         block = doc.register(entry["id"] if isinstance(entry, dict) else entry.id)
@@ -104,9 +108,8 @@ def _row_hits(doc: ParsedDocument, spec: dict[str, Any]) -> int:
             continue
         for row in block.table.rows:
             for key, value in row.items():
-                for column, markers in columns.items():
-                    if key.startswith(column) and str(value).strip().upper() in markers:
-                        hits += 1
+                if key in columns and isinstance(value, str) and value.strip() in columns[key]:
+                    hits += 1
     return hits
 
 
@@ -118,7 +121,7 @@ def rate(verdict: Verdict, doc: ParsedDocument | None, policy: dict[str, Any]) -
     if doc is None:
         return Merit(rating=minimum, maximum=maximum, deductions=[])
 
-    fired = [f.rule for f in verdict.findings]
+    fired = [f.code for f in verdict.findings]
     claimed: set[int] = set()
     deductions: list[Deduction] = []
     remaining_spec = None

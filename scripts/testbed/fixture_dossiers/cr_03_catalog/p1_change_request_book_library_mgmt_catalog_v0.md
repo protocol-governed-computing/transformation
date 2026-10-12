@@ -1,8 +1,254 @@
 # Stage 1 — Change Request: Clarification & Fact Capture: book_library_mgmt / catalog
-**Stage:** 1 — Change Request (Clarification & Fact Capture)
-**CR:** cr_03_catalog
-**Status:** DRAFT
-**Feeds:** Stage 2 — Domain Model Discovery
+
+## Machine
+
+```yaml
+document:
+  phase: p1
+  domain: book_library_mgmt
+  subdomain: catalog
+  cr: cr_03_catalog
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P1_V0
+registers:
+  cr_type:
+  - subdomain: catalog
+    classification: MODIFY
+    rationale: The catalog exists and works. It declares six moments it announces and announces none of them, against a rule the business set when the function was established.
+    source_finding: {phase: p0, register: cr_type, row: 1}
+  business_vocabulary:
+  - term: Work
+    definition: Something the library carries, independent of any particular edition of it.
+    source_finding: {phase: p0, register: business_vocabulary, row: 1}
+  - term: Book
+    definition: An edition of a work.
+    source_finding: {phase: p0, register: business_vocabulary, row: 2}
+  - term: Physical copy
+    definition: One copy of a book, on a shelf.
+    source_finding: {phase: p0, register: business_vocabulary, row: 3}
+  - term: Bibliographic information
+    definition: What the library publishes about a book.
+    source_finding: {phase: p0, register: business_vocabulary, row: 4}
+  - term: Retirement
+    definition: Taking a book or a copy out of service, without removing what is known about it.
+    source_finding: {phase: p0, register: business_vocabulary, row: 5}
+  - term: Reinstatement
+    definition: Returning a retired book or copy to service.
+    source_finding: {phase: p0, register: business_vocabulary, row: 6}
+  - term: Moment
+    definition: Something the catalog announces because the business declared it matters.
+    source_finding: {phase: p0, register: business_vocabulary, row: 7}
+  requested_outcomes:
+  - outcome: Each of the six declared moments is announced when the act it names completes.
+    source_finding: {phase: p0, register: requested_outcomes, row: 1}
+  - outcome: That they are announced is checked, so the silence cannot return unnoticed.
+    source_finding: {phase: p0, register: requested_outcomes, row: 2}
+  known_facts:
+  - fact: The business decided the catalog announces the moments that matter.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 1}
+  - fact: 'Six moments are declared: a work registered, a book registered, a physical copy registered, bibliographic information updated, a book retired, a physical copy retired.'
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 2}
+  - fact: A moment is announced when the act it names has completed, and not before.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 3}
+  - fact: A refusal announces nothing. Nothing happened that anyone need be told about.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 4}
+  - fact: Reinstatement is silent. The catalog performs it, records it, and announces nothing.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 5}
+  - fact: The six declared moments are the complete set. No seventh is added by this change.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 6}
+  - fact: An announcement carries which thing it concerns and when it occurred, and nothing further.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 7}
+  - fact: Nobody is expected to hear these announcements today. The moment exists for the record.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 8}
+  - fact: The catalog does not go back and announce moments that occurred before this change.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 9}
+  - fact: This is a defect, not a new requirement.
+    certainty: HIGH
+    source_finding: {phase: p0, register: known_facts, row: 10}
+  system_beliefs:
+  - belief: The catalog declares six moments and announces none of them.
+    why_it_matters: The whole of this change.
+    verification_goal: Confirm the six are declared, and establish whether anything refers to any of them.
+    source_finding: {phase: p0, register: system_beliefs, row: 1}
+  - belief: The catalog performs registration, correction, retirement and reinstatement, each as its own act.
+    why_it_matters: Each declared moment must attach to the act it names.
+    verification_goal: Confirm which acts the catalog performs.
+    source_finding: {phase: p0, register: system_beliefs, row: 2}
+  - belief: Nothing checks whether a declared moment is ever announced.
+    why_it_matters: Explains how the silence went unnoticed and says what the check must add.
+    verification_goal: Establish whether any rule relates a declared moment to an announcement of it.
+    source_finding: {phase: p0, register: system_beliefs, row: 3}
+  - belief: Reinstatement has no declared moment of its own.
+    why_it_matters: The business has ruled it silent; if a moment exists, the ruling and the system disagree.
+    verification_goal: Confirm no moment is declared for reinstatement.
+    source_finding: {phase: p0, register: system_beliefs, row: 4}
+  assumptions:
+  - assumption: Each declared moment corresponds to exactly one act the catalog performs.
+    basis: The six are named after acts the catalog is known to perform.
+    source_finding: {phase: p0, register: assumptions, row: 1}
+  constraints:
+  - constraint: Nothing a caller sends or is told back changes. This is invisible from outside.
+    source: Business author
+    source_finding: {phase: p0, register: constraints, row: 1}
+  - constraint: No moment is added and none is removed. The six are the complete set.
+    source: Business author
+    source_finding: {phase: p0, register: constraints, row: 2}
+  - constraint: Nothing outside the catalog is touched.
+    source: Business author
+    source_finding: {phase: p0, register: constraints, row: 3}
+  business_invariants:
+  - invariant: A declared moment is announced when the act it names completes.
+    source_finding: {phase: p0, register: business_invariants, row: 1}
+  - invariant: A refused act announces nothing.
+    source_finding: {phase: p0, register: business_invariants, row: 2}
+  - invariant: An announcement carries which thing it concerns and when it occurred.
+    source_finding: {phase: p0, register: business_invariants, row: 3}
+  - invariant: A recorded moment is never changed or removed.
+    source_finding: {phase: p0, register: business_invariants, row: 4}
+  lifecycle_states:
+  - object: Book
+    state: In service
+    meaning: The library carries it.
+    source_finding: {phase: p0, register: lifecycle_states, row: 1}
+  - object: Book
+    state: Retired
+    meaning: Taken out of service; what is known about it is kept.
+    source_finding: {phase: p0, register: lifecycle_states, row: 2}
+  - object: Physical copy
+    state: In service
+    meaning: On the shelf.
+    source_finding: {phase: p0, register: lifecycle_states, row: 3}
+  - object: Physical copy
+    state: Retired
+    meaning: Taken out of service.
+    source_finding: {phase: p0, register: lifecycle_states, row: 4}
+  business_events:
+  - event: A work was registered
+    when_it_occurs: When the library first carries a work
+    significance: The library can show when it began carrying it.
+    source_finding: {phase: p0, register: business_events, row: 1}
+  - event: A book was registered
+    when_it_occurs: When an edition of a work is registered
+    significance: The library can show when the edition entered the catalog.
+    source_finding: {phase: p0, register: business_events, row: 2}
+  - event: A physical copy was registered
+    when_it_occurs: When a copy is put on a shelf
+    significance: The library can show when the copy became available.
+    source_finding: {phase: p0, register: business_events, row: 3}
+  - event: Bibliographic information was updated
+    when_it_occurs: When what the library publishes about a book is corrected
+    significance: The library can show when the record changed.
+    source_finding: {phase: p0, register: business_events, row: 4}
+  - event: A book was retired
+    when_it_occurs: When an edition is taken out of service
+    significance: The library can show when it stopped carrying it.
+    source_finding: {phase: p0, register: business_events, row: 5}
+  - event: A physical copy was retired
+    when_it_occurs: When a copy is taken out of service
+    significance: The library can show when the copy left the shelf.
+    source_finding: {phase: p0, register: business_events, row: 6}
+  authority_boundaries:
+  - business_object: Work, book and physical copy
+    authoritative_owner: catalog
+    source_finding: {phase: p0, register: authority_boundaries, row: 1}
+  - business_object: Bibliographic information
+    authoritative_owner: catalog
+    source_finding: {phase: p0, register: authority_boundaries, row: 2}
+  - business_object: The moments the catalog announces
+    authoritative_owner: catalog
+    source_finding: {phase: p0, register: authority_boundaries, row: 3}
+  out_of_scope:
+  - item: What any listener does with an announcement
+    reason: The catalog announces the moment; who attends to it is a later question.
+    source_finding: {phase: p0, register: out_of_scope, row: 1}
+  - item: Whether the six are the right six
+    reason: They are the moments the business already declared.
+    source_finding: {phase: p0, register: out_of_scope, row: 2}
+  - item: A moment for reinstatement
+    reason: The business has ruled reinstatement silent.
+    source_finding: {phase: p0, register: out_of_scope, row: 3}
+  - item: Anything about what the catalog holds or how it is searched
+    reason: Only the announcing is touched.
+    source_finding: {phase: p0, register: out_of_scope, row: 4}
+  - item: Anything outside the catalog
+    reason: No other subdomain is touched.
+    source_finding: {phase: p0, register: out_of_scope, row: 5}
+  - item: Moments that occurred before this change
+    reason: The record is added to and never rewritten.
+    source_finding: {phase: p0, register: out_of_scope, row: 6}
+  governance_scope:
+  - scope_item: catalog
+    relationship: MODIFIED
+    source_finding: {phase: p0, register: governance_scope, row: 1}
+  clarification_requests: []
+  acceptance_criteria:
+  - criterion: Registering a work announces that a work was registered.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 1}
+  - criterion: Registering a book announces that a book was registered.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 2}
+  - criterion: Registering a physical copy announces that a physical copy was registered.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 3}
+  - criterion: Correcting bibliographic information announces that it was updated.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 4}
+  - criterion: Retiring a book announces that a book was retired.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 5}
+  - criterion: Retiring a physical copy announces that a physical copy was retired.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 6}
+  - criterion: A refused act announces nothing.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 7}
+  - criterion: Reinstating a book or a copy announces nothing.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 8}
+  - criterion: Each announcement carries which thing it concerns and when it occurred.
+    source_finding: {phase: p0, register: acceptance_criteria, row: 9}
+  identity_and_sameness:
+  - business_object: Moment
+    identified_by: The act it names
+    two_are_the_same_when: They name the same act of the catalog.
+    source_finding: {phase: p0, register: identity_and_sameness, row: 1}
+  lifecycle_transitions:
+  - object: Book
+    from_state: In service
+    to_state: Retired
+    triggered_by: The library retiring it.
+    cascade: A moment is announced. Nothing else follows.
+    source_finding: {phase: p0, register: lifecycle_transitions, row: 1}
+  - object: Book
+    from_state: Retired
+    to_state: In service
+    triggered_by: The library reinstating it.
+    cascade: NONE. Reinstatement is silent.
+    source_finding: {phase: p0, register: lifecycle_transitions, row: 2}
+  - object: Physical copy
+    from_state: In service
+    to_state: Retired
+    triggered_by: The library retiring it.
+    cascade: A moment is announced. Nothing else follows.
+    source_finding: {phase: p0, register: lifecycle_transitions, row: 3}
+  - object: Physical copy
+    from_state: Retired
+    to_state: In service
+    triggered_by: The library reinstating it.
+    cascade: NONE. Reinstatement is silent.
+    source_finding: {phase: p0, register: lifecycle_transitions, row: 4}
+  operation_refusals:
+  - operation: Announcing a moment
+    refused_when: The act it names did not complete
+    business_reason: A moment names something that happened; announcing one for an act that failed would state something untrue.
+    source_finding: {phase: p0, register: operation_refusals, row: 1}
+  authority_deferrals:
+  - business_object: What a listener does with an announcement
+    deferred_to: A later change
+    until: The business decides who is told and how.
+    source_finding: {phase: p0, register: authority_deferrals, row: 1}
+```
 
 Projected from the change seed. Every row is the seed's own, cited to the section it was said in.
 S1 interrogates and does not author.
@@ -11,184 +257,38 @@ S1 interrogates and does not author.
 
 ## 1. CR Type
 
-<!-- register:cr_type business_language -->
-| Subdomain | Classification (NEW_SUBDOMAIN, EXTEND_SUBDOMAIN, MODIFY, DEPRECATE) | Rationale | Source Finding |
-|-----------|----------------|-----------|--------------|
-| catalog | MODIFY | The catalog exists and works. It declares six moments it announces and announces none of them, against a rule the business set when the function was established. | CR seed §1 CR Type #1 |
-
 ## 2. Business Vocabulary
-
-<!-- register:business_vocabulary business_language -->
-| Term | Definition | Source Finding |
-|------|------------|--------------|
-| Work | Something the library carries, independent of any particular edition of it. | CR seed §2 Business Vocabulary #1 |
-| Book | An edition of a work. | CR seed §2 Business Vocabulary #2 |
-| Physical copy | One copy of a book, on a shelf. | CR seed §2 Business Vocabulary #3 |
-| Bibliographic information | What the library publishes about a book. | CR seed §2 Business Vocabulary #4 |
-| Retirement | Taking a book or a copy out of service, without removing what is known about it. | CR seed §2 Business Vocabulary #5 |
-| Reinstatement | Returning a retired book or copy to service. | CR seed §2 Business Vocabulary #6 |
-| Moment | Something the catalog announces because the business declared it matters. | CR seed §2 Business Vocabulary #7 |
 
 ## 3. Requested Outcomes
 
-<!-- register:requested_outcomes business_language -->
-| Outcome | Source Finding |
-|---------|--------------|
-| Each of the six declared moments is announced when the act it names completes. | CR seed §3 Requested Outcomes #1 |
-| That they are announced is checked, so the silence cannot return unnoticed. | CR seed §3 Requested Outcomes #2 |
-
 ## 4. Known Facts — Business Truths
-
-<!-- register:known_facts business_language -->
-| Fact | Certainty (HIGH, MEDIUM, LOW) | Source Finding |
-|------|-----------|--------------|
-| The business decided the catalog announces the moments that matter. | HIGH | CR seed §4 Known Facts — Business Truths #1 |
-| Six moments are declared: a work registered, a book registered, a physical copy registered, bibliographic information updated, a book retired, a physical copy retired. | HIGH | CR seed §4 Known Facts — Business Truths #2 |
-| A moment is announced when the act it names has completed, and not before. | HIGH | CR seed §4 Known Facts — Business Truths #3 |
-| A refusal announces nothing. Nothing happened that anyone need be told about. | HIGH | CR seed §4 Known Facts — Business Truths #4 |
-| Reinstatement is silent. The catalog performs it, records it, and announces nothing. | HIGH | CR seed §4 Known Facts — Business Truths #5 |
-| The six declared moments are the complete set. No seventh is added by this change. | HIGH | CR seed §4 Known Facts — Business Truths #6 |
-| An announcement carries which thing it concerns and when it occurred, and nothing further. | HIGH | CR seed §4 Known Facts — Business Truths #7 |
-| Nobody is expected to hear these announcements today. The moment exists for the record. | HIGH | CR seed §4 Known Facts — Business Truths #8 |
-| The catalog does not go back and announce moments that occurred before this change. | HIGH | CR seed §4 Known Facts — Business Truths #9 |
-| This is a defect, not a new requirement. | HIGH | CR seed §4 Known Facts — Business Truths #10 |
 
 ## 5. Existing-System Beliefs — Requiring Verification
 
-<!-- register:system_beliefs business_language -->
-| Belief | Why It Matters | Verification Goal | Source Finding |
-|--------|----------------|-------------------|--------------|
-| The catalog declares six moments and announces none of them. | The whole of this change. | Confirm the six are declared, and establish whether anything refers to any of them. | CR seed §5 Existing-System Beliefs — Requiring Verification #1 |
-| The catalog performs registration, correction, retirement and reinstatement, each as its own act. | Each declared moment must attach to the act it names. | Confirm which acts the catalog performs. | CR seed §5 Existing-System Beliefs — Requiring Verification #2 |
-| Nothing checks whether a declared moment is ever announced. | Explains how the silence went unnoticed and says what the check must add. | Establish whether any rule relates a declared moment to an announcement of it. | CR seed §5 Existing-System Beliefs — Requiring Verification #3 |
-| Reinstatement has no declared moment of its own. | The business has ruled it silent; if a moment exists, the ruling and the system disagree. | Confirm no moment is declared for reinstatement. | CR seed §5 Existing-System Beliefs — Requiring Verification #4 |
-
 ## 6. Assumptions
-
-<!-- register:assumptions business_language optional -->
-| Assumption | Basis | Source Finding |
-|------------|-------|--------------|
-| Each declared moment corresponds to exactly one act the catalog performs. | The six are named after acts the catalog is known to perform. | CR seed §6 Assumptions #1 |
 
 ## 7. Constraints
 
-<!-- register:constraints business_language optional -->
-| Constraint | Source | Source Finding |
-|------------|--------|--------------|
-| Nothing a caller sends or is told back changes. This is invisible from outside. | Business author | CR seed §7 Constraints #1 |
-| No moment is added and none is removed. The six are the complete set. | Business author | CR seed §7 Constraints #2 |
-| Nothing outside the catalog is touched. | Business author | CR seed §7 Constraints #3 |
-
 ## 8. Business Invariants
-
-<!-- register:business_invariants business_language -->
-| Invariant | Source Finding |
-|-----------|--------------|
-| A declared moment is announced when the act it names completes. | CR seed §8 Business Invariants #1 |
-| A refused act announces nothing. | CR seed §8 Business Invariants #2 |
-| An announcement carries which thing it concerns and when it occurred. | CR seed §8 Business Invariants #3 |
-| A recorded moment is never changed or removed. | CR seed §8 Business Invariants #4 |
 
 ## 9. Lifecycle States
 
-<!-- register:lifecycle_states business_language -->
-| Object | State | Meaning | Source Finding |
-|--------|-------|---------|--------------|
-| Book | In service | The library carries it. | CR seed §9 Lifecycle States #1 |
-| Book | Retired | Taken out of service; what is known about it is kept. | CR seed §9 Lifecycle States #2 |
-| Physical copy | In service | On the shelf. | CR seed §9 Lifecycle States #3 |
-| Physical copy | Retired | Taken out of service. | CR seed §9 Lifecycle States #4 |
-
 ## 10. Business Events
-
-<!-- register:business_events business_language -->
-| Event | When It Occurs | Significance | Source Finding |
-|-------|----------------|--------------|--------------|
-| A work was registered | When the library first carries a work | The library can show when it began carrying it. | CR seed §10 Business Events #1 |
-| A book was registered | When an edition of a work is registered | The library can show when the edition entered the catalog. | CR seed §10 Business Events #2 |
-| A physical copy was registered | When a copy is put on a shelf | The library can show when the copy became available. | CR seed §10 Business Events #3 |
-| Bibliographic information was updated | When what the library publishes about a book is corrected | The library can show when the record changed. | CR seed §10 Business Events #4 |
-| A book was retired | When an edition is taken out of service | The library can show when it stopped carrying it. | CR seed §10 Business Events #5 |
-| A physical copy was retired | When a copy is taken out of service | The library can show when the copy left the shelf. | CR seed §10 Business Events #6 |
 
 ## 11. Authority Boundaries
 
-<!-- register:authority_boundaries business_language -->
-| Business Object | Authoritative Owner | Source Finding |
-|-----------------|---------------------|--------------|
-| Work, book and physical copy | catalog | CR seed §11 Authority Boundaries #1 |
-| Bibliographic information | catalog | CR seed §11 Authority Boundaries #2 |
-| The moments the catalog announces | catalog | CR seed §11 Authority Boundaries #3 |
-
 ## 12. Out of Scope
-
-<!-- register:out_of_scope business_language -->
-| Item | Reason | Source Finding |
-|------|--------|--------------|
-| What any listener does with an announcement | The catalog announces the moment; who attends to it is a later question. | CR seed §12 Out of Scope #1 |
-| Whether the six are the right six | They are the moments the business already declared. | CR seed §12 Out of Scope #2 |
-| A moment for reinstatement | The business has ruled reinstatement silent. | CR seed §12 Out of Scope #3 |
-| Anything about what the catalog holds or how it is searched | Only the announcing is touched. | CR seed §12 Out of Scope #4 |
-| Anything outside the catalog | No other subdomain is touched. | CR seed §12 Out of Scope #5 |
-| Moments that occurred before this change | The record is added to and never rewritten. | CR seed §12 Out of Scope #6 |
 
 ## 13. Governance Scope
 
-<!-- register:governance_scope business_language -->
-| Scope Item | Relationship (CREATED, EXTENDED, MODIFIED, DEPRECATED, ADJACENT) | Source Finding |
-|------------|--------------|--------------|
-| catalog | MODIFIED | CR seed §13 Governance Scope #1 |
-
 ## 14. Clarification Requests
-
-<!-- register:clarification_requests business_language optional -->
-| Question | Why Needed | Blocking (YES, NO) | Owner (HUMAN, SNAPSHOT, GOVERNANCE) | Source Finding |
-|----------|------------|----------|-------|--------------|
-| NONE IDENTIFIED |
 
 ## 15. Acceptance Criteria
 
-<!-- register:acceptance_criteria business_language -->
-| Criterion | Source Finding |
-|-----------|--------------|
-| Registering a work announces that a work was registered. | CR seed §15 Acceptance Criteria #1 |
-| Registering a book announces that a book was registered. | CR seed §15 Acceptance Criteria #2 |
-| Registering a physical copy announces that a physical copy was registered. | CR seed §15 Acceptance Criteria #3 |
-| Correcting bibliographic information announces that it was updated. | CR seed §15 Acceptance Criteria #4 |
-| Retiring a book announces that a book was retired. | CR seed §15 Acceptance Criteria #5 |
-| Retiring a physical copy announces that a physical copy was retired. | CR seed §15 Acceptance Criteria #6 |
-| A refused act announces nothing. | CR seed §15 Acceptance Criteria #7 |
-| Reinstating a book or a copy announces nothing. | CR seed §15 Acceptance Criteria #8 |
-| Each announcement carries which thing it concerns and when it occurred. | CR seed §15 Acceptance Criteria #9 |
-
 ## 16. Identity and Sameness
-
-<!-- register:identity_and_sameness business_language optional -->
-| Business Object | Identified By | Two Are The Same When | Source Finding |
-|-----------------|---------------|-----------------------|--------------|
-| Moment | The act it names | They name the same act of the catalog. | CR seed §16 Identity and Sameness #1 |
 
 ## 17. Lifecycle Transitions
 
-<!-- register:lifecycle_transitions business_language optional -->
-| Object | From State | To State | Triggered By | Cascade | Source Finding |
-|--------|------------|----------|--------------|---------|--------------|
-| Book | In service | Retired | The library retiring it. | A moment is announced. Nothing else follows. | CR seed §17 Lifecycle Transitions #1 |
-| Book | Retired | In service | The library reinstating it. | NONE. Reinstatement is silent. | CR seed §17 Lifecycle Transitions #2 |
-| Physical copy | In service | Retired | The library retiring it. | A moment is announced. Nothing else follows. | CR seed §17 Lifecycle Transitions #3 |
-| Physical copy | Retired | In service | The library reinstating it. | NONE. Reinstatement is silent. | CR seed §17 Lifecycle Transitions #4 |
-
 ## 18. Operation Refusals
 
-<!-- register:operation_refusals business_language optional -->
-| Operation | Refused When | Business Reason | Source Finding |
-|-----------|--------------|-----------------|--------------|
-| Announcing a moment | The act it names did not complete | A moment names something that happened; announcing one for an act that failed would state something untrue. | CR seed §18 Operation Refusals #1 |
-
 ## 19. Authority Deferrals
-
-<!-- register:authority_deferrals business_language optional -->
-| Business Object | Deferred To | Until | Source Finding |
-|-----------------|-------------|-------|--------------|
-| What a listener does with an announcement | A later change | The business decides who is told and how. | CR seed §19 Authority Deferrals #1 |
-

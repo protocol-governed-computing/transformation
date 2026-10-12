@@ -66,6 +66,15 @@ REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 # `(dossier root, registry, whole)`. `whole` is whether the dossiers account for the registry
 # entirely — true where a domain was built by change requests from its first artifact, false where
 # the registry predates the lifecycle and most of it is determined by no design.
+COPIES = REPO / "scripts/testbed/delivered_copies"
+# Every identity deleted by record (`4e` SU-12). A delivered design may still render one.
+RETIRED = {e["identity"] for e in yaml.safe_load(
+    (WORKSPACE / ".github/process/retired_identities.yaml").read_text(encoding="utf-8"))["retired"]}
+
+# A business domain's dossiers are read where they were delivered: they were converted to the
+# Machine form in place, mechanically, by the oracle's own reader at the swap. The two base-code
+# roots, whose dossiers the swap deleted, are read from their test copies, which hold each dossier's
+# design and mandate, because those two documents are all construction reads.
 DOMAINS = (
     (CR_DOSSIERS, REGISTRY, True),
     (WORKSPACE / "business_domains/blockchain/cr_dossiers",
@@ -76,19 +85,23 @@ DOMAINS = (
     # artifacts, and the rest were authored by hand.
     (WORKSPACE / "business_domains/ai_governance/cr_dossiers",
      WORKSPACE / "business_domains/ai_governance/registry", False),
-    (WORKSPACE / "software_governance/dossiers",
+    (COPIES / "software_governance/dossiers",
      WORKSPACE / "software_governance/registry", False),
-    (WORKSPACE / "transformation/dossiers",
-     WORKSPACE / "transformation/registry", False),
+    (COPIES / "transformation/dossiers",
+     WORKSPACE / "transformation_compilers/registry", False),
     # The Collatz workload predates the lifecycle too; cr_01 is its first change through it.
     (WORKSPACE / "conformance_workloads/workloads/collatz/cr_dossiers",
      WORKSPACE / "conformance_workloads/workloads/collatz/registry", False),
 )
 
-# The catalog's entry above overrides what discovery would find, and only that one: its dossiers are
-# read from maintained fixtures rather than from the domain's own delivered ones. Named here so the
-# coverage check below can tell a deliberate substitution from an omission.
-SUBSTITUTED = {WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers"}
+# A delivered root read through a substitute: the catalog's through maintained fixtures, and the
+# base-code roots through their test copies. Named here so the coverage check below can tell a
+# deliberate substitution from an omission.
+SUBSTITUTED = {
+    WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers",
+    WORKSPACE / "software_governance/dossiers",
+    WORKSPACE / "transformation_compilers/dossiers",
+}
 
 # The sequence used to be a literal list, and a delivered dossier that re-rendered an artifact an
 # earlier one rendered had to be appended by hand. Miss the step and the harness compares a built
@@ -97,7 +110,7 @@ SUBSTITUTED = {WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers"}
 # cost 12 such differences before anyone thought to look at the list.
 #
 # A business-domain dossier is numbered, and the number *is* the sequence: `cr_NN_<subject>` is the
-# form, declared in `transformation/CLAUDE.md`. So the ordering is read from the name rather than
+# form, declared in `transformation_compilers/CLAUDE.md`. So the ordering is read from the name rather than
 # restated beside it. A directory that is not numbered that way is not part of a sequence and is
 # not silently swept in.
 SEQUENCED = re.compile(r"^cr_(\d+)_")
@@ -107,7 +120,7 @@ def sequence(root: Path) -> list[Path]:
     """The delivered dossiers of one domain, in the order they were delivered.
 
     A business domain numbers its dossiers and the number *is* the order. A base-code domain does
-    not — `transformation/CLAUDE.md` rules that `cr_NN_` "says nothing true about it and reads as a
+    not — `transformation_compilers/CLAUDE.md` rules that `cr_NN_` "says nothing true about it and reads as a
     sequence that does not exist", because git manages the change. So an unnumbered root has a set
     and no order, and this returns it sorted by name for a stable report rather than a meaningful one.
 
@@ -239,7 +252,7 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
             # Overriding is what promotion did, and it is only meaningful where the dossiers are
             # ordered. An unnumbered root carries no order, so two of its dossiers determining one
             # artifact is two designs of record and nothing says which is later. That is the hazard
-            # `transformation/CLAUDE.md` names and nothing enforces — enforced here, for the roots
+            # `transformation_compilers/CLAUDE.md` names and nothing enforces — enforced here, for the roots
             # where it can be.
             if not ordered and code in rendered:
                 print(f"  REFUSED  {code} is determined by both {determined_by[code]} and "
@@ -303,6 +316,11 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
         if rendered[code]["machine"].get("artifact_kind") == "TEST_DATA":
             print(f"  NOT YET DELIVERED  {code:<33} {determined_by[code]}")
             continue
+        # An artifact a delivered design rendered and a later change deleted by record. The design is
+        # history; the ledger says why the artifact is gone. Reported by name, never counted.
+        if rendered[code]["machine"].get("fqdn") in RETIRED:
+            print(f"  RETIRED BY RECORD  {code:<33} {determined_by[code]}")
+            continue
         print(f"  EXTRA {code:<44} rendered, never built")
         failures += 1
 
@@ -328,16 +346,9 @@ def determines_artifacts(dossier: Path) -> bool:
         return False
     for p7 in dossier.glob("p7_*.md"):
         rows = registers(p7).get("new_artifacts") or []
-        if any(_cell_of(row, "Code") for row in rows):
+        if any(cell(row, "Code") for row in rows):
             return True
     return False
-
-
-def _cell_of(row: dict, prefix: str) -> str:
-    for key, value in row.items():
-        if key.startswith(prefix):
-            return str(value).strip()
-    return ""
 
 
 def uncovered() -> list[Path]:

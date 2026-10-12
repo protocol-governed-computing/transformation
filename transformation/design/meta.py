@@ -1,6 +1,6 @@
 """Meta-validation — governance validating governance, before it judges a document.
 
-The design compiler's split is declaration in `rules.py`, mechanism in `checks.py`. That split is
+The design compiler's split is declaration in the register schemas, mechanism in `evaluate/`. That split is
 only worth having if the two halves are held in correspondence, and nothing held them: a rule could
 name a check kind that no longer exists, pass a parameter no check reads, or omit one every check
 path requires, and none of it surfaces until a dossier happens to reach that rule. A mechanism could
@@ -24,39 +24,21 @@ from __future__ import annotations
 
 import ast
 import inspect
+import re
 from dataclasses import dataclass
-from types import ModuleType
+from pathlib import Path
+
+import yaml
+
+from inspector import api
 
 from transformation.design import catalog
 from transformation.design.families import AUTHORABLE, BY_CODE
-from transformation.design import checks as checks_module
-from transformation.design import rules as shared_rules
-from transformation.design.checks import kinds as declared_kinds
-from transformation.design.p0_change_seed import rules as p0_rules
-from transformation.design.p1_change_request import rules as p1_rules
-from transformation.design.p2_domain_model import rules as p2_rules
-from transformation.design.p3_analysis_loop import rules as p3_rules
-from transformation.design.p4_business_model import rules as p4_rules
-from transformation.design.p5_business_intent import rules as p5_rules
-from transformation.design.p6_governance_intent import rules as p6_rules
-from transformation.design.p7_design_intent import rules as p7_rules
-from transformation.design.p8_authoring_mandate import rules as p8_rules
+from transformation.design.evaluate import common, constructs, keywords, registry
+from transformation.design.evaluate import procedures
+from transformation.design.evaluate import kinds as declared_kinds
+from transformation.design.rule_sets import PhaseRules
 from transformation.design.rules import Rule
-
-# Which module declares which phase's rule set. Declared here rather than in the CLI because the
-# meta pass and the testbed both need it, and a second mapping is a second thing to forget a phase
-# in — the failure this pass exists to catch, one level up.
-RULE_MODULES: dict[str, ModuleType] = {
-    "p0": p0_rules,
-    "p1": p1_rules,
-    "p2": p2_rules,
-    "p3": p3_rules,
-    "p4": p4_rules,
-    "p5": p5_rules,
-    "p6": p6_rules,
-    "p7": p7_rules,
-    "p8": p8_rules,
-}
 
 # A subscript under one of these is reached only on some paths, so the rule that omits it is not
 # thereby broken. `BoolOp` covers the `params.get(a) or params[b]` alternation — b is required only
@@ -92,7 +74,7 @@ def _params_read(node: ast.AST, functions: dict[str, ast.FunctionDef]) -> tuple[
     """Parameter names one function body reads directly, plus the module functions it calls.
 
     Returns (unconditionally required, optional, callees). A check kind's full contract is the
-    union over its call graph — two helpers in `checks.py` read `params` on their caller's behalf,
+    union over its call graph — helpers in `evaluate/` read `params` on their caller's behalf,
     and a contract that stopped at the decorated function would miss them.
     """
     required: set[str] = set()
@@ -166,9 +148,12 @@ def _check_kind(node: ast.FunctionDef) -> str | None:
 
 
 def param_contracts() -> dict[str, ParamContract]:
-    """Read every check kind's parameter contract out of `checks.py` itself."""
-    tree = ast.parse(inspect.getsource(checks_module))
-    functions = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+    """Read every check kind's parameter contract out of the evaluator's own source."""
+    sources = [registry, common, keywords, constructs] + [
+        getattr(procedures, name) for name in sorted(vars(procedures))
+        if inspect.ismodule(getattr(procedures, name)) and getattr(procedures, name).__name__.startswith(procedures.__name__ + ".")]
+    functions = {n.name: n for module in sources
+                 for n in ast.parse(inspect.getsource(module)).body if isinstance(n, ast.FunctionDef)}
 
     def contract(name: str, seen: tuple[str, ...] = ()) -> tuple[set[str], set[str]]:
         if name in seen:  # a cycle contributes nothing it has not already contributed
@@ -191,25 +176,10 @@ def param_contracts() -> dict[str, ParamContract]:
     return contracts
 
 
-def _shared_factories() -> set[str]:
-    """The rule factories `design/rules.py` publishes for phases to compose.
-
-    Functions only — `Rule` itself is the declaration type every phase uses, not a factory that
-    contributes rules to a set.
-    """
-    return {
-        name
-        for name, obj in vars(shared_rules).items()
-        if not name.startswith("_")
-        and inspect.isfunction(obj)
-        and obj.__module__ == shared_rules.__name__
-    }
-
-
-def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
+def verify(rule_sets: dict[str, PhaseRules]) -> list[MetaFinding]:
     """Assert the declaration/enforcement correspondence across every phase's rule set.
 
-    `rule_modules` is always supplied — for the same reason `oracle.evaluate` takes its rules. A
+    `rule_sets` is always supplied — for the same reason `oracle.evaluate` takes its rules. A
     default here would silently verify eight phases and report a confident verdict over nine.
     """
     contracts = param_contracts()
@@ -219,7 +189,7 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
     # A phase the catalogue declares but nothing judges is the vacuity failure one level up: the
     # pipeline reports a phase exists and no rule ever runs against its document.
     for spec in catalog.PHASES:
-        if spec.id not in rule_modules:
+        if spec.id not in rule_sets:
             findings.append(
                 MetaFinding(
                     "PHASE_RULE_SET_MISSING",
@@ -232,11 +202,8 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
     # drifted — P5 admitted no VOCAB where P7 did, so a design could name a family its own intent
     # phase had refused. The vocabulary is authored in the template and cannot be generated from
     # here, so it is asserted instead.
-    for phase_id, module in sorted(rule_modules.items()):
-        template = getattr(module, "TEMPLATE", None)
-        if template is None:
-            continue
-        for register in template.registers:
+    for phase_id, phase in sorted(rule_sets.items()):
+        for register in phase.shape.registers:
             declared = register.vocabularies.get("Family")
             if not declared:
                 continue
@@ -256,7 +223,7 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
                     f"could not name it even though construction can build one",
                 ))
 
-    for phase_id in sorted(set(rule_modules) - {spec.id for spec in catalog.PHASES}):
+    for phase_id in sorted(set(rule_sets) - {spec.id for spec in catalog.PHASES}):
         findings.append(
             MetaFinding(
                 "PHASE_UNDECLARED",
@@ -265,8 +232,8 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
             )
         )
 
-    for phase_id, module in sorted(rule_modules.items()):
-        rules: list[Rule] = module.rule_set()
+    for phase_id, phase in sorted(rule_sets.items()):
+        rules: list[Rule] = phase.rule_set()
         for rule in rules:
             where = f"{phase_id}/{rule.id}"
             referenced_kinds.add(rule.check)
@@ -276,7 +243,7 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
                     MetaFinding(
                         "CHECK_KIND_UNDECLARED",
                         where,
-                        f"names check kind {rule.check!r}, which no mechanism in checks.py "
+                        f"names check kind {rule.check!r}, which no mechanism in the evaluator "
                         f"implements — the rule cannot run",
                     )
                 )
@@ -326,23 +293,140 @@ def verify(rule_modules: dict[str, ModuleType]) -> list[MetaFinding]:
         findings.append(
             MetaFinding(
                 "CHECK_KIND_ORPHANED",
-                f"checks.py/{kind}",
+                f"evaluate/{kind}",
                 "is implemented but no declared rule invokes it — enforcement without a "
                 "declaration reads as governance that is not in force",
             )
         )
 
-    for name in sorted(_shared_factories()):
-        # A phase composes a factory by importing it into its own module namespace, which is the
-        # only way `rule_set()` can call it — so importing it is the whole of the evidence.
-        if not any(name in vars(module) for module in rule_modules.values()):
-            findings.append(
-                MetaFinding(
-                    "SHARED_FACTORY_ORPHANED",
-                    f"rules.py/{name}",
-                    "is published for phases to compose but no phase composes it — a shared "
-                    "rule factory nobody calls governs nothing",
-                )
-            )
+    return findings
 
+
+# Closure ----------------------------------------------------------------------------------------
+
+DESIGN_LANGUAGE = Path(__file__).resolve().parents[2] / "doc" / "DESIGN_LANGUAGE.md"
+# The constitution naming the invariants a phase's rules must realise. The construction invariants
+# are realised by construction, not by a register schema, and are not asked of it.
+DESIGN_CONSTITUTION = "lifecycle::CONSTITUTION_CHANGE_MGMT_V1"
+# The constitution naming the invariants construction realises, each specified by a section of the
+# construction mapping standard.
+CONSTRUCTION_CONSTITUTION = "lifecycle::CONSTITUTION_CONSTRUCTION_V1"
+CONSTRUCTION_MAPPING = DESIGN_LANGUAGE.parent / "CONSTRUCTION_MAPPING.md"
+TEMPLATES = Path(__file__).resolve().parents[1] / "templates"
+STATEMENT = "DESIGN_LANGUAGE.md#"
+
+
+def _machine(content: str) -> dict:
+    found = re.search(r"^```yaml\n(.*?)^```", content, re.M | re.S)
+    return yaml.safe_load(found.group(1)) if found else {}
+
+
+def _artifact(fqdn: str, snapshot_root: str) -> dict | None:
+    status, artifact = api.query("si.artifact.show", {"artifact": fqdn}, snapshot_root)
+    return artifact if status == "SUCCESS" else None
+
+
+def _statements() -> set[str]:
+    """The procedures DESIGN_LANGUAGE states, by the anchor of their heading."""
+    text = DESIGN_LANGUAGE.read_text(encoding="utf-8")
+    return {m.lower() for m in re.findall(r"^#### ([A-Z0-9_]+)$", text, re.M)}
+
+
+def _template(phase_id: str) -> str:
+    """A phase's template, as the dispatch names it."""
+    from transformation.design.catalog import phase
+
+    return (TEMPLATES / phase(phase_id).template).read_text(encoding="utf-8")
+
+
+def closure(rule_sets: dict[str, PhaseRules], snapshot_root: str) -> list[MetaFinding]:
+    """Assert that the rule sets close over the governance they realise.
+
+    - every `x-realises` resolves: to an invariant the composition carries and the design
+      constitution names, or to a statement in DESIGN_LANGUAGE;
+    - every invariant the design constitution names is realised by some rule;
+    - every template's Machine skeleton names exactly its schema's registers, with the same keys,
+      and a header the schema declares;
+    - every rule set is the last revision its schema records;
+    - every construction invariant has its section in the construction mapping standard.
+
+    That every check kind is used, and every rule's kind exists, `verify` asserts.
+    """
+    from transformation.design.expand import DERIVED_REALISES, derived_rules
+
+    findings: list[MetaFinding] = []
+    constitution = _artifact(DESIGN_CONSTITUTION, snapshot_root)
+    if constitution is None:
+        return [MetaFinding("CONSTITUTION_UNREADABLE", DESIGN_CONSTITUTION,
+                            f"is not in the composition at {snapshot_root}, so nothing can be closed over it")]
+    # The constitution's rules name its invariants and its gates; a gate is enforced by process.
+    in_force = {r["enforced_by"] for r in _machine(constitution["canonical"]["content"]).get("rules", [])
+                if str(r.get("enforced_by", "")).startswith("lifecycle::INVARIANT_")}
+    statements = _statements()
+    realised: set[str] = set()
+
+    for phase_id, phase in sorted(rule_sets.items()):
+        realised |= {DERIVED_REALISES[r.check] for r in derived_rules(phase.shape) if r.check in DERIVED_REALISES}
+        for index, entry in enumerate(phase.shape.entries):
+            target = entry.get("x-realises")
+            if target is None:
+                continue
+            where = f"{phase_id}/allOf/{index}"
+            if target.startswith(STATEMENT):
+                if target[len(STATEMENT):] not in statements:
+                    findings.append(MetaFinding("STATEMENT_UNRESOLVED", where,
+                                                f"realises {target}, which DESIGN_LANGUAGE does not state"))
+            elif target not in in_force:
+                findings.append(MetaFinding("INVARIANT_NOT_IN_FORCE", where,
+                                            f"realises {target}, which {DESIGN_CONSTITUTION} does not name"))
+            else:
+                realised.add(target)
+
+    for fqdn in sorted(in_force):
+        if _artifact(fqdn, snapshot_root) is None:
+            findings.append(MetaFinding("INVARIANT_UNRESOLVED", fqdn,
+                                        f"is named by {DESIGN_CONSTITUTION} but is not in the composition"))
+        elif fqdn not in realised:
+            findings.append(MetaFinding("INVARIANT_UNREALISED", fqdn,
+                                        "is in force, and no rule of any phase realises it"))
+
+    construction = _artifact(CONSTRUCTION_CONSTITUTION, snapshot_root)
+    if construction is None:
+        findings.append(MetaFinding("CONSTITUTION_UNREADABLE", CONSTRUCTION_CONSTITUTION,
+                                    f"is not in the composition at {snapshot_root}"))
+    else:
+        sections = set(re.findall(r"^#### ([A-Z0-9_]+)$", CONSTRUCTION_MAPPING.read_text(encoding="utf-8"), re.M))
+        for rule in _machine(construction["canonical"]["content"]).get("rules", []):
+            fqdn = str(rule.get("enforced_by", ""))
+            name = re.sub(r"^lifecycle::INVARIANT_|_V\d+$", "", fqdn)
+            if fqdn.startswith("lifecycle::INVARIANT_") and name not in sections:
+                findings.append(MetaFinding("CONSTRUCTION_INVARIANT_UNSPECIFIED", fqdn,
+                                            "is in force, and CONSTRUCTION_MAPPING.md specifies nothing that realises it"))
+
+    from transformation.design.effectivity import unrecorded
+
+    for phase_id, phase in sorted(rule_sets.items()):
+        reason = unrecorded(phase.shape, phase.rule_set())
+        if reason:
+            findings.append(MetaFinding("REVISION_UNRECORDED", phase_id, reason))
+
+    for phase_id, phase in sorted(rule_sets.items()):
+        skeleton = _machine(_template(phase_id))
+        template = {rid: tuple(value[0]) if isinstance(value, list) and value else ()
+                    for rid, value in (skeleton.get("registers") or {}).items()}
+        schema = {r.id: tuple(r.keys) for r in phase.shape.registers}
+        header = set(skeleton.get("document") or {})
+        if not set(phase.shape.document_required) <= header <= set(phase.shape.document):
+            findings.append(MetaFinding("TEMPLATE_SCHEMA_DISAGREE", f"{phase_id}/document",
+                                        f"the template's header {sorted(header)} is not the schema's "
+                                        f"{sorted(phase.shape.document)}"))
+        for register in sorted(set(template) ^ set(schema)):
+            side = "template" if register in template else "schema"
+            findings.append(MetaFinding("TEMPLATE_SCHEMA_DISAGREE", f"{phase_id}/{register}",
+                                        f"is declared only by the {side}"))
+        for register in sorted(set(template) & set(schema)):
+            if template[register] != schema[register]:
+                findings.append(MetaFinding("TEMPLATE_SCHEMA_DISAGREE", f"{phase_id}/{register}",
+                                            f"the template's columns {list(template[register])} are not the "
+                                            f"schema's {list(schema[register])}"))
     return findings

@@ -37,21 +37,13 @@ import yaml
 
 from inspector import api as inspector_api
 
+from transformation.design.catalog import PHASES
+
 REPO = Path(__file__).resolve().parents[2]
 WORKFLOWS = REPO / "registry" / "design" / "workflows"
 
-# phase id → the workflow artifact carrying its sealed rule set.
-SEALED_IN = {
-    "p0": "WF_P0_SEED_ADMISSIBILITY_V0.md",
-    "p1": "WF_P1_CHANGE_REQUEST_ADMISSIBILITY_V0.md",
-    "p2": "WF_P2_DOMAIN_MODEL_ADMISSIBILITY_V1.md",
-    "p3": "WF_P3_ANALYSIS_LOOP_ADMISSIBILITY_V1.md",
-    "p4": "WF_P4_BUSINESS_MODEL_ADMISSIBILITY_V1.md",
-    "p5": "WF_P5_BUSINESS_INTENT_ADMISSIBILITY_V1.md",
-    "p6": "WF_P6_GOVERNANCE_INTENT_ADMISSIBILITY_V1.md",
-    "p7": "WF_P7_DESIGN_INTENT_ADMISSIBILITY_V2.md",
-    "p8": "WF_P8_AUTHORING_MANDATE_ADMISSIBILITY_V1.md",
-}
+# The workflow each phase's rule set is sealed into, as the dispatch declares it.
+SEALED_IN = {spec.id: f"{spec.workflow.split('::')[-1]}.md" for spec in PHASES}
 
 # How a design names this generator, and how construction reaches it. One spelling, read by the
 # provenance the artifacts carry and by the register a design states — the same string in both, or
@@ -149,11 +141,11 @@ def observations() -> dict[str, str]:
     ignores it, which costs nothing; a phase that reads a key nobody passed is the defect this
     exists to prevent.
     """
-    from transformation.design.meta import RULE_MODULES
+    from transformation.design.rule_sets import RULE_SETS
 
     out: dict[str, str] = {}
-    for module in RULE_MODULES.values():
-        for key, field in (getattr(module, "OBSERVATIONS", {}) or {}).items():
+    for phase in RULE_SETS.values():
+        for key, field in phase.observations.items():
             out[key] = field
     return dict(sorted(out.items()))
 
@@ -398,28 +390,47 @@ class Emission:
     filename: str
     rules: int
     drifted: bool
+    # Why the phase's rules may not be sealed: they changed without a recorded revision.
+    unrecorded: str | None = None
 
 
 def sources(phase_id: str) -> list[str]:
     """Everything the emission reads for one phase, as repo-relative paths.
 
-    The template declares the registers and their columns; the rule module declares what remains.
-    Both, together, are the generator — so both are named, and a change to either is a change to it.
-    P0 has no vendored template, being new in this rehost, so its declaration is the whole of it.
+    The register schema declares the registers and their columns, the vocabulary declaration the
+    values its columns admit. Together they are the generator, so
+    all are named, and a change to any is a change to it.
     """
     from transformation.design.catalog import phase as phase_spec
-    from transformation.design.meta import RULE_MODULES
+    from transformation.design.schema import SCHEMAS, load
 
-    out = []
-    template = phase_spec(phase_id).template
-    if template:
-        out.append(f"templates/{template}")
-    module_file = Path(RULE_MODULES[phase_id].__file__).resolve()
-    out.append(str(module_file.relative_to(REPO)))
+    out = [str((SCHEMAS / phase_spec(phase_id).schema).relative_to(REPO))]
+    vocabularies = sorted({v["artifact"] for r in load(phase_id).registers for v in _vocab_refs(phase_id, r.id)})
+    for artifact in vocabularies:
+        out.append(str(_declaration_path(artifact).relative_to(REPO)))
     # The judging contract's declared outcomes are what the workflow's routing is generated from.
     contract = judge_contract((WORKFLOWS / SEALED_IN[phase_id]).read_text(encoding="utf-8"))
     out.append(str((CONTRACTS / f"{contract}.md").relative_to(REPO)))
     return out
+
+
+def _vocab_refs(phase_id: str, register_id: str) -> list[dict]:
+    """The vocabulary references one register's columns make, as its schema writes them."""
+    import json
+
+    from transformation.design.catalog import phase as phase_spec
+    from transformation.design.schema import SCHEMAS
+
+    declared = json.loads((SCHEMAS / phase_spec(phase_id).schema).read_text(encoding="utf-8"))
+    body = declared["properties"]["registers"]["properties"][register_id]
+    columns = (body.get("items") or {}).get("properties") or {}
+    return [c["x-vocab"] for c in columns.values() if "x-vocab" in c]
+
+
+def _declaration_path(artifact: str) -> Path:
+    from transformation.design.schema import REGISTRY
+
+    return sorted(REGISTRY.rglob(f"{artifact.split('::')[-1]}.md"))[0]
 
 
 def declared(phase_id: str) -> list[dict]:
@@ -429,11 +440,11 @@ def declared(phase_id: str) -> list[dict]:
     derived rule from the register it was derived for, and `register` alone loses the fallback P0
     depends on — the failure mode is a rule that resolves to nothing and passes silently.
     """
-    from transformation.design.meta import RULE_MODULES
+    from transformation.design.rule_sets import RULE_SETS
 
     out = []
-    for rule in RULE_MODULES[phase_id].rule_set():
-        entry: dict = {"id": rule.id, "check": rule.check}
+    for rule in RULE_SETS[phase_id].rule_set():
+        entry: dict = {"id": rule.id, "identity": rule.identity, "check": rule.check}
         if rule.register:
             entry["register"] = rule.register
         if rule.section_title and rule.section_title != rule.register:
@@ -582,8 +593,15 @@ def emit(snapshot_root: str | Path, check_only: bool = False,
         if texts is not None:
             texts[pathlib.Path(relative).stem] = text
         out.append(emission)
+    from transformation.design.effectivity import unrecorded
+    from transformation.design.rule_sets import RULE_SETS
+
     for phase_id, filename in SEALED_IN.items():
         path = WORKFLOWS / filename
+        phase = RULE_SETS[phase_id]
+        # A rule set changed without declaring its effectivity is not sealed: the workflow would
+        # carry rules no revision accounts for, and a verdict could not say what judged it.
+        refused = unrecorded(phase.shape, phase.rule_set())
         rules = declared(phase_id)
         current = path.read_text(encoding="utf-8")
         code = judge_contract(current)
@@ -592,11 +610,12 @@ def emit(snapshot_root: str | Path, check_only: bool = False,
         updated = splice_provenance(splice_routing(splice(current, render(rules)), allowed),
                                     provenance(phase_id))
         drifted = updated != current
-        if drifted and not check_only:
+        if drifted and not check_only and refused is None:
             path.write_text(updated, encoding="utf-8")
         if texts is not None:
             texts[filename[:-len(".md")]] = updated
-        out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted))
+        out.append(Emission(phase=phase_id, filename=filename, rules=len(rules), drifted=drifted,
+                            unrecorded=refused))
     return out
 
 

@@ -22,7 +22,7 @@ from transformation.baseline import (
     pending,
     verify,
 )
-from transformation.design.checks import kinds as check_kinds
+from transformation.design.evaluate import kinds as check_kinds
 from inspector import api as inspector_api
 
 from transformation.build import sameness
@@ -47,21 +47,22 @@ from transformation.build.generators import (
     resolve as resolve_generator,
 )
 from transformation.design.emit import emit as emit_phase_workflows
-from transformation.design.merit import PolicyUnavailable, load_policy, rate as rate_merit
-from transformation.design.meta import RULE_MODULES, verify as meta_verify
+from transformation.design.merit import PolicyAbsent, PolicyUnavailable, load_policy, rate as rate_merit
+from transformation.design.meta import closure as meta_closure, verify as meta_verify
+from transformation.design.rule_sets import RULE_SETS
+from transformation.design.rules import Rule
+from transformation.design import effectivity
 from transformation.design.emit import workflow_fqdn
-from transformation.design.evaluate import DeclaredRule
 from transformation.design.oracle import evaluate
 from transformation.design.sealed import sealed_rule_set
 from transformation.design.project import PROJECTIONS
 from transformation.design.read import read_seed
 from transformation.design import catalog
-from transformation.design.template_reader import load as load_template
+from transformation.design.schema import load as load_template
 
 # Rule sets are declared per phase and mapped once, in `design.meta` — the module that has to
 # verify the mapping is complete. Purpose, question, key rule and purity rung come from the
 # catalogue, which mirrors field manual §4.1 and §4.2.
-RULE_SETS = RULE_MODULES
 
 
 def _parse_prior(argument: str) -> tuple[str, Path]:
@@ -152,7 +153,7 @@ def phase_check(
     # operation → the key its result carries the rows under. A phase may ground against more than
     # one observation: P3 resolves identities against the artifact list and bounds its reuse search
     # by what each domain declares, and those are different questions asked of different surfaces.
-    observes = getattr(rules_mod, "OBSERVATIONS", {})
+    observes = rules_mod.observations
 
     doc = read_seed(doc_path)
     if observes and snapshot_root:
@@ -179,7 +180,7 @@ def phase_check(
     # Reading a prior is the driver's job, exactly as reading the document is. A check that opened
     # a file would make its verdict depend on a filesystem the compiled transform cannot reach, and
     # the genesis oracle and the composition would stop judging the same thing.
-    declared_priors = getattr(rules_mod, "PRIORS", ())
+    declared_priors = rules_mod.priors
     supplied = dict(_parse_prior(arg) for arg in prior_args)
     for unexpected in sorted(set(supplied) - set(declared_priors)):
         raise click.ClickException(
@@ -209,14 +210,20 @@ def phase_check(
     #
     # Which set ran is always printed. A verdict that does not say what judged it is a verdict whose
     # meaning depends on a flag the reader cannot see.
-    rules, judged_by = rules_mod.rule_set(), "the working tree's declaration"
+    rules, source = rules_mod.rule_set(), "the working tree's declaration"
     if rules_source == "sealed":
         if snapshot_root:
             sealed = sealed_rule_set(workflow_fqdn(phase_key), str(snapshot_root))
-            rules = [DeclaredRule.from_mapping(entry) for entry in sealed]
-            judged_by = f"the rule set sealed in {snapshot_root}"
+            rules = [Rule.from_mapping(entry) for entry in sealed]
+            source = f"the rule set sealed in {snapshot_root}"
         else:
-            judged_by = "the working tree's declaration — no --snapshot to read a sealed one from"
+            source = "the working tree's declaration — no --snapshot to read a sealed one from"
+    # The rule set by name: its schema `$id`, its digest, and the revision that records the digest.
+    # The document names the rule set it was authored under; when the two differ, the verdict says
+    # so, and an approval given under another `$id` stands unconfirmed.
+    judged_by = {**effectivity.judged_by(rules, rules_mod.shape), "source": source}
+    authored_under = doc.header.get("rule_set")
+    approval = effectivity.approval_standing(doc.header, judged_by["schema"])
 
     verdict = evaluate(doc, rules)
     # Admissibility and quality are separate axes: the rule set decides the verdict, the figure of
@@ -224,13 +231,20 @@ def phase_check(
     # inadmissible over one misspelling while otherwise strong.
     # The policy is declared in the composition, so a rating needs one to read. Without a snapshot
     # there is no policy and therefore no rating — reported as not computed, never defaulted.
+    # A composition without the policy is reported the same way: transformation's own founding change
+    # is grounded against a composition that does not yet hold transformation.
     merit = None
     if snapshot_root:
-        merit = rate_merit(verdict, doc, load_policy(str(snapshot_root)))
+        try:
+            merit = rate_merit(verdict, doc, load_policy(str(snapshot_root)))
+        except PolicyAbsent as absent:
+            click.echo(f"  note: figure of merit not computed — {absent}", err=True)
 
     if as_json:
         payload = verdict.as_dict()
         payload["judged_by"] = judged_by
+        payload["authored_under"] = authored_under
+        payload["approval"] = approval
         payload["merit"] = None if merit is None else {
             "rating": merit.rating,
             "maximum": merit.maximum,
@@ -247,11 +261,19 @@ def phase_check(
         click.echo(
             f"  {len(verdict.findings)} finding(s) over {verdict.rules_evaluated} rules"
         )
-        click.echo(f"  judged by {judged_by}")
+        revision = "unrecorded" if judged_by["revision"] is None else f"revision {judged_by['revision']}"
+        click.echo(f"  judged by {judged_by['schema']} {revision} ({judged_by['source']})")
+        if authored_under != judged_by["schema"]:
+            click.echo(f"  authored under {authored_under or 'no rule set'}")
+        if approval is not None:
+            click.echo(f"  approval {approval['gate']} {approval['state']} under {approval['given_under']}"
+                       f" — {approval['standing']} under {approval['current']}")
         click.echo()
         click.echo(f"  Status            {verdict.verdict}")
         if merit is None:
-            click.echo("  Figure of Merit   not computed — pass --snapshot to read the policy")
+            why = ("the composition holds no policy" if snapshot_root
+                   else "pass --snapshot to read the policy")
+            click.echo(f"  Figure of Merit   not computed — {why}")
         else:
             click.echo(f"  Figure of Merit   {merit.stars} {merit.rating}/{merit.maximum}")
             if merit.deductions:
@@ -359,9 +381,79 @@ def phase_rules(phase_key: str, as_json: bool) -> None:
     click.echo(f"\n  {len(declared)} rules over {len(check_kinds())} check kinds")
 
 
+@phase.command("revise")
+@click.argument("phase_key", type=click.Choice(sorted(RULE_SETS)))
+@click.option("--change", required=True, help="What changed in the rules, and why.")
+@click.option("--retroactive", is_flag=True,
+              help="The change can alter a prior document's admissibility.")
+@click.option("--amend", is_flag=True,
+              help="Replace the last revision instead of adding one. Only for a schema not yet published.")
+def phase_revise(phase_key: str, change: str, retroactive: bool, amend: bool) -> None:
+    """Record a change to a phase's rules as a revision of its schema.
+
+    A change declares its own effectivity. One that alters no prior document's admissibility is a
+    revision under the same `$id`, and this records it with the digest the rules now have. One that
+    can is retroactive: it takes a new `$id`, which is a new schema file named in the dispatch, and is
+    not recorded here. A schema nobody has yet judged a document by may amend its last revision.
+    """
+    phase = RULE_SETS[phase_key]
+    if retroactive:
+        raise click.ClickException(
+            f"a retroactive change takes a new $id: copy {phase.shape.path.name} to the next version, "
+            f"name it in transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0, and start its revisions at 1")
+    digest = effectivity.digest(phase.rule_set())
+    revisions = list(phase.shape.revisions)
+    if amend and revisions:
+        revisions.pop()
+    elif revisions and revisions[-1]["digest"] == digest:
+        raise click.ClickException(f"{phase.shape.schema_id} revision {revisions[-1]['revision']} "
+                                   f"already records {digest}; the rules have not changed")
+    declared = json.loads(phase.shape.path.read_text(encoding="utf-8"))
+    revisions.append({"revision": len(revisions) + 1, "retroactive": False, "change": change, "digest": digest})
+    ordered = {}
+    for key, value in declared.items():
+        if key == "x-revisions":
+            continue
+        ordered[key] = value
+        if key == "$comment":
+            ordered["x-revisions"] = revisions
+    ordered.setdefault("x-revisions", revisions)
+    phase.shape.path.write_text(json.dumps(ordered, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    click.echo(f"  {phase.shape.schema_id} revision {len(revisions)}  {digest}")
+
+
+@phase.command("diff")
+@click.argument("phase_key", type=click.Choice(sorted(RULE_SETS)))
+@click.option("--from", "before", required=True, type=click.Path(exists=True, file_okay=False, path_type=Path),
+              help="The composition whose sealed rule set is the earlier one, such as a dossier's pin.")
+@click.option("--to", "after", type=click.Path(exists=True, file_okay=False, path_type=Path), default=None,
+              help="The composition whose sealed rule set is the later one; the working tree when omitted.")
+def phase_diff(phase_key: str, before: Path, after: Path | None) -> None:
+    """Name the rules that differ between two rule sets of one phase, by rule identity."""
+    def sealed(root: Path) -> list[Rule]:
+        return [Rule.from_mapping(e) for e in sealed_rule_set(workflow_fqdn(phase_key), str(root))]
+
+    a = sealed(before)
+    b = sealed(after) if after else RULE_SETS[phase_key].rule_set()
+    shape = RULE_SETS[phase_key].shape
+    for label, rules in (("from", a), ("to", b)):
+        judged = effectivity.judged_by(rules, shape)
+        click.echo(f"  {label:<5} {judged['schema']}  revision {judged['revision']}  {judged['digest']}")
+    if any(not r.identity for r in a + b):
+        raise click.ClickException("a rule set sealed before rules carried an identity cannot be "
+                                   "compared rule by rule")
+    changes = effectivity.difference(a, b)
+    for kind in ("added", "removed", "changed"):
+        for identity in changes[kind]:
+            click.echo(f"  {kind:<8} {identity}")
+    click.echo(f"  {sum(len(v) for v in changes.values())} rule(s) differ")
+
+
 @phase.command("meta")
 @click.option("--json", "as_json", is_flag=True, help="Emit the findings as JSON.")
-def phase_meta(as_json: bool) -> None:
+@click.option("--snapshot", "snapshot_root", type=click.Path(exists=True, file_okay=False, path_type=Path),
+              default=None, help="Also check closure against this composition's invariants.")
+def phase_meta(as_json: bool, snapshot_root: Path | None) -> None:
     """Verify the rule sets themselves — declaration/enforcement parity, before any document.
 
     Meta-governance: this judges no dossier. It asserts that every declared rule can actually run
@@ -370,6 +462,8 @@ def phase_meta(as_json: bool) -> None:
     never evaluated.
     """
     findings = meta_verify(RULE_SETS)
+    if snapshot_root is not None:
+        findings += meta_closure(RULE_SETS, str(snapshot_root))
 
     if as_json:
         click.echo(
@@ -461,8 +555,17 @@ def phase_emit(check_only: bool, snapshot_root: Path) -> None:
     results = emit_phase_workflows(snapshot_root, check_only=check_only)
     for e in results:
         state = "OK      " if not e.drifted else ("STALE   " if check_only else "WROTE   ")
+        if e.unrecorded:
+            state = "REFUSED "
         click.echo(f"  {state} {e.phase}  {e.rules:>3} rules  {e.filename}")
+        if e.unrecorded:
+            click.echo(f"           {e.unrecorded}")
 
+    refused = [e for e in results if e.unrecorded]
+    if refused:
+        click.echo(f"\n  REFUSED — {len(refused)} rule set(s) changed without a recorded revision "
+                   f"(REVISION_UNRECORDED). Run `tc phase revise`.", err=True)
+        sys.exit(1)
     stale = [e for e in results if e.drifted]
     if check_only and stale:
         click.echo(f"\n  REFUSED — {len(stale)} workflow(s) do not agree with the generator that "
@@ -985,7 +1088,7 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
 
     # The id proves the composition is the one named. It proves nothing about whether anyone
     # re-read the registers that assert facts about it, which is the half a re-pin silently drops.
-    outstanding = {phase: pending(pin, phase) for phase in sorted(RULE_MODULES)}
+    outstanding = {phase: pending(pin, phase) for phase in sorted(RULE_SETS)}
     outstanding = {phase: regs for phase, regs in outstanding.items() if regs}
     approved = sum(len(r) for r in pin.approved_registers.values())
     if approved:
@@ -1004,7 +1107,7 @@ def baseline_verify(pin_path: Path, snapshot_root: Path) -> None:
 
 @baseline.command("approve")
 @click.argument("pin_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
-@click.option("--phase", "phase_key", type=click.Choice(sorted(RULE_MODULES)), required=True,
+@click.option("--phase", "phase_key", type=click.Choice(sorted(RULE_SETS)), required=True,
               help="Which phase's grounded registers were re-read.")
 @click.option("--by", "approver", required=True, help="Who re-grounded them.")
 @click.option("--register", "registers", multiple=True,

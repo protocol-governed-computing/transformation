@@ -1,19 +1,80 @@
 # Business Model: [domain] / [subdomain]
-**Domain:** [domain]  
-**Subdomain:** [subdomain]  
-**Version:** V0  
-**Status:** DRAFT  
-**Pipeline Stage:** Stage 4 — Business Model (canonical artifact)  
-**Produced by:** v0.5.0 SDLC authoring pipeline  
 
----
+## Machine
+
+```yaml
+document:
+  phase: p4
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P4_V0
+registers:
+  actors:
+  - actor: null
+    role: null
+    authority_class: null
+    source_finding: null
+  bm_entities:
+  - entity: null
+    description: null
+    store_model: null
+    source_finding: null
+  resources:
+  - resource: null
+    description: null
+    source_finding: null
+  events:
+  - event: null
+    trigger: null
+    lifecycle_meaning: null
+    source_finding: null
+  relationships:
+  - subject: null
+    verb: null
+    object: null
+    capability_need: null
+    source_finding: null
+  capability_graph:
+  - capability: null
+    source_finding: null
+    status: null
+    gap_register_entry: null
+    notes: null
+  dependency_graph:
+  - from: null
+    to: null
+    dependency_type: null
+    pps_status: null
+    source_finding: null
+  constraint_register:
+  - number: null
+    constraint: null
+    source_finding: null
+    source: null
+  gap_register:
+  - gap_code: null
+    source_finding: null
+    capability: null
+    owner_subdomain: null
+    resolution: null
+  design_decisions:
+  - number: null
+    decision: null
+    source_finding: null
+    rationale: null
+    constraints_imposed: null
+  authoring_scope:
+  - capability: null
+    gap_register_ref: null
+```
 
 ## Document Contract
 
 **This artifact is a structured register document — not a narrative.**
 
 VALID OUTPUT:
-- Populated register tables (every required register below)
+- Populated registers (every required register below)
 - Existing artifact references by exact FQDN — only where a column explicitly permits it
 - Business-language capability entries
 
@@ -23,9 +84,8 @@ INVALID OUTPUT:
 - Executive summaries
 - Free-form prose replacing required registers
 
-A required register with no rows MUST be rendered as a single row:
-
-| NONE IDENTIFIED |
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 Narrative text does NOT satisfy register population requirements. A prose-only or empty
 register is a structural defect, not brevity — the renderer rejects the document mechanically
@@ -84,15 +144,15 @@ found in a content cell.
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -106,22 +166,22 @@ that owns it.
 
 *Produced by Stages 1–3 (Input Elicitation → Domain Model Discovery → Analysis Loop). This section is the accumulated output of convergence — do not edit it to make it "cleaner." It is a record of what analysis discovered, not a polished narrative.*
 
-<!-- register:actors business_language -->
+Register `actors` in the Machine block.
 ### Actors (actors)
 | Actor | Role | Authority Class | Source Finding |
 |-------|------|-----------------|----------------|
 
-<!-- register:bm_entities business_language -->
+Register `bm_entities` in the Machine block.
 ### Entities (bm_entities)
 | Entity | Description | Store Model | Source Finding |
 |--------|-------------|-------------|----------------|
 
-<!-- register:resources optional business_language -->
+Register `resources` in the Machine block.
 ### Resources
 | Resource | Description | Source Finding |
 |----------|-------------|----------------|
 
-<!-- register:events business_language -->
+Register `events` in the Machine block.
 ### Events (events)
 | Event | Trigger | Lifecycle Meaning | Source Finding |
 |-------|---------|-------------------|----------------|
@@ -130,7 +190,7 @@ that owns it.
 Need (business language — no artifact names). If an existing or candidate artifact is relevant,
 cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 
-<!-- register:relationships optional business_language -->
+Register `relationships` in the Machine block.
 ### Relationships (Candidate Capabilities)
 | Subject | Verb | Object | Capability Need | Source Finding |
 |---------|------|--------|-----------------|----------------|
@@ -145,10 +205,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 > not list it here in any status, and never promote it to a CRITICAL gap. The oracle drops governed
 > coverage for a capability row that names a deferred item.
 
-<!-- register:capability_graph business_language -->
-| Capability | Source Finding | Status | Gap Register Entry | Notes |
-|-----------|----------------|--------|--------------------|-------|
-| [business-language capability] | [Stage 3 finding ref] | [CRITICAL \| ADVISORY \| SATISFIED] | [gap code if CRITICAL] | |
+Register `capability_graph` in the Machine block.
 
 ---
 
@@ -156,10 +213,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 
 *Cross-subdomain dependencies discovered. Declared dependencies constrain authoring order. Existing PPS artifacts MAY be cited by FQDN here.*
 
-<!-- register:dependency_graph -->
-| From | To | Dependency Type | PPS Status | Source Finding |
-|------|----|-----------------|------------|----------------|
-| [subdomain] | [subdomain] | [capability call \| data read \| event] | [SATISFIED \| GAP] | [finding ref] |
+Register `dependency_graph` in the Machine block.
 
 ---
 
@@ -167,10 +221,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 
 *Non-negotiable rules discovered during analysis. Each constraint has a business source.*
 
-<!-- register:constraint_register -->
-| # | Constraint | Source Finding | Source |
-|---|-----------|----------------|--------|
-| 1 | [rule] | [finding ref] | [domain knowledge \| invariant \| governance rule] |
+Register `constraint_register` in the Machine block.
 
 ---
 
@@ -178,10 +229,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 
 *All CRITICAL gaps. Each gap must be resolved before authoring begins. Capability is business language; Resolution is a disposition, not an artifact name.*
 
-<!-- register:gap_register business_language -->
-| Gap Code | Source Finding | Capability | Owner Subdomain | Resolution |
-|----------|----------------|-----------|-----------------|------------|
-| GAP-[n] | [finding ref] | [business-language capability] | [subdomain] | [NEW \| REUSE \| REPLACE \| EXTEND] |
+Register `gap_register` in the Machine block.
 
 ---
 
@@ -189,10 +237,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 
 *Decisions accumulated during Stages 1–3 that constrain Design Intent. Each decision locks in an architectural choice.*
 
-<!-- register:design_decisions -->
-| # | Decision | Source Finding | Rationale | Constraints Imposed |
-|---|----------|----------------|-----------|---------------------|
-| 1 | [decision] | [finding ref] | [why] | [what it rules out] |
+Register `design_decisions` in the Machine block.
 
 ---
 
@@ -200,7 +245,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 
 *What is IN this CR vs. FUTURE CR. This is the governance boundary decision that filters the Business Model into the Business Intent.*
 
-<!-- register:authoring_scope -->
+Register `authoring_scope` in the Machine block.
 ### In Scope — This CR
 | Capability | Gap Register Ref |
 |-----------|-----------------|
@@ -230,9 +275,7 @@ cite its FQDN in **Source Finding** only — never in the Capability Need cell.*
 *S4 is the hub — it consolidates Stages 1–3. The bounded inputs below mirror the engine's
 gov_projection schema exactly (`contracts/gov_projection.py`).*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← Stage 1 | cr_type · constraints · business_invariants · authority_boundaries · out_of_scope |
-| **Consumes** ← Stage 2 | entities · entity_attributes · business_processes · pps_baseline_fqdns |
-| **Consumes** ← Stage 3 | authoring_decisions · dependency_discoveries · placement_decision · saturation |
-| **Emits** → Stage 5 | actors · bm_entities · events · capability_graph · dependency_graph · constraint_register · gap_register · design_decisions · authoring_scope |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p3 | authoring_decisions · dependency_discoveries · placement_decision · saturation |
+| **Emits** | actors · bm_entities · events · capability_graph · dependency_graph · constraint_register · gap_register · design_decisions · authoring_scope |

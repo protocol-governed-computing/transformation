@@ -1,12 +1,63 @@
 # Business Intent: [domain] / [subdomain]
-**Domain:** [domain]  
-**Subdomain:** [subdomain]  
-**Version:** V0  
-**Status:** DRAFT  
-**Pipeline Stage:** Stage 5 — Business Intent (WHAT)  
-**Produced by:** v0.5.0 SDLC authoring pipeline  
 
----
+## Machine
+
+```yaml
+document:
+  phase: p5
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P5_V0
+registers:
+  subdomain_purpose: null
+  purpose_provenance:
+  - source: null
+    disposition: null
+    refinement: null
+  subdomain_purposes:
+  - subdomain: null
+    purpose: null
+    source_finding: null
+  scope_boundary:
+  - capability: null
+    status: null
+    notes: null
+    source_finding: null
+  business_objects:
+  - store_name: null
+    record_model: null
+    business_rationale: null
+    source_finding: null
+  identity_semantics:
+  - store_name: null
+    identity_field: null
+    source: null
+    uniqueness_rule: null
+    cross_subdomain_relationship: null
+    source_finding: null
+  invariants:
+  - invariant: null
+    business_reason: null
+    source_finding: null
+  actions:
+  - action: null
+    object: null
+    trigger: null
+    status: null
+    source_finding: null
+  provisional_codes:
+  - subdomain: null
+    provisional_code: null
+    family: null
+    summary: null
+    source_finding: null
+  cross_subdomain_refs:
+  - cc_code: null
+    defined_in: null
+    role: null
+    source_finding: null
+```
 
 ## Document Contract
 
@@ -22,14 +73,15 @@ the cell as decided.
 
 VALID OUTPUT:
 - The Purpose prose section (§1) filled for this subdomain
-- Populated register tables (every required register below), every cell stating a decided value
+- Populated registers (every required register below), every cell stating a decided value
 - Business-language descriptions in content columns
 
 INVALID OUTPUT:
 - Narrative essays replacing the registers
 - Implementation bindings, JSONPath, op codes, module paths, or content hashes (those are Stage 7)
 
-A required register with no rows renders as `| NONE IDENTIFIED |`.
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 ---
 
@@ -56,15 +108,15 @@ artifacts record facts, never trigger execution.
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -87,13 +139,11 @@ seed's, word for word; or **REFINED**, and the Refinement column states what thi
 the seed did not say. Human semantic content enters the dossier once. A later phase may preserve it
 or supersede it in the open — never quietly replace it.*
 
-<!-- register:subdomain_purpose business_language -->
+Register `subdomain_purpose` in the Machine block.
 
 [Purpose paragraph for [domain]/[subdomain].]
 
-<!-- register:purpose_provenance business_language=refinement -->
-| Source | Disposition (INHERITED, REFINED) | Refinement |
-|--------|----------------------------------|------------|
+Register `purpose_provenance` in the Machine block.
 
 ---
 
@@ -103,9 +153,7 @@ or supersede it in the open — never quietly replace it.*
 classifications say which — and a subdomain changed with nothing said about what it governs is
 changed blindly. One row per subdomain the change touches, including this document's own.*
 
-<!-- register:subdomain_purposes business_language=purpose -->
-| Subdomain | Purpose | Source Finding |
-|-----------|---------|----------------|
+Register `subdomain_purposes` in the Machine block.
 
 ---
 
@@ -113,9 +161,7 @@ changed blindly. One row per subdomain the change touches, including this docume
 
 *What V0 commits to vs. what is explicitly deferred. A vague scope boundary is a governance defect. Status ∈ IN_SCOPE | DEFERRED.*
 
-<!-- register:scope_boundary business_language=capability,notes -->
-| Capability | Status (IN_SCOPE, DEFERRED) | Notes | Source Finding |
-|------------|-----------------------------|-------|----------------|
+Register `scope_boundary` in the Machine block.
 
 ---
 
@@ -123,9 +169,7 @@ changed blindly. One row per subdomain the change touches, including this docume
 
 *The business records this subdomain maintains and WHY each takes its form. Record Model ∈ MUTABLE_STATE (current state, correctable) | APPEND_ONLY_JOURNAL (immutable history) | IDENTITY_REGISTRY (stable key→address) | HYBRID. Business language.*
 
-<!-- register:business_objects optional business_language=store_name,business_rationale -->
-| Store Name | Record Model (MUTABLE_STATE, APPEND_ONLY_JOURNAL, IDENTITY_REGISTRY, HYBRID) | Business Rationale | Source Finding |
-|------------|------------------------------------------------------------------------------|--------------------|----------------|
+Register `business_objects` in the Machine block.
 
 ---
 
@@ -137,9 +181,7 @@ names — this is irreducible business knowledge. A cell not derivable from the 
 seed's Clarification Requests should have asked and its author answered; return to that gate rather
 than guessing it here or hedging it as a hole.*
 
-<!-- register:identity_semantics business_language=identity_field,source,uniqueness_rule,cross_subdomain_relationship -->
-| Store Name | Identity Field | Source | Uniqueness Rule | Cross-Subdomain Relationship | Source Finding |
-|------------|----------------|--------|-----------------|------------------------------|----------------|
+Register `identity_semantics` in the Machine block.
 
 ---
 
@@ -147,9 +189,7 @@ than guessing it here or hedging it as a hole.*
 
 *Non-negotiable rules with a business reason. A rule without a business reason is a technical constraint and belongs elsewhere.*
 
-<!-- register:invariants business_language=invariant,business_reason -->
-| Invariant | Business Reason | Source Finding |
-|-----------|-----------------|----------------|
+Register `invariants` in the Machine block.
 
 ---
 
@@ -157,9 +197,7 @@ than guessing it here or hedging it as a hole.*
 
 *Every verb performable on this subdomain's objects, in plain business language. Each in-scope action maps to one Intent and one Workflow. Status ∈ IN_SCOPE | DEFERRED.*
 
-<!-- register:actions business_language=object,trigger -->
-| Action | Object | Trigger | Status (IN_SCOPE, DEFERRED) | Source Finding |
-|--------|--------|---------|-----------------------------|----------------|
+Register `actions` in the Machine block.
 
 ---
 
@@ -176,9 +214,7 @@ scheduled at Stage 7 with no provisional code is one no business intent ever nam
 `AUTHORED_ARTIFACT_WITHOUT_INTENT` is what now refuses it. `CS` is absent deliberately — a capability
 side effect is substrate, and a business change request reuses one rather than authoring it.*
 
-<!-- register:provisional_codes optional business_language=summary -->
-| Subdomain | Provisional Code | Family (AC, IN, WF, CC, CT, EV, RB, VOCAB, STRUCTURE, TI, TE) | Summary | Source Finding |
-|-----------|------------------|-------------------------|---------|----------------|
+Register `provisional_codes` in the Machine block.
 
 ---
 
@@ -186,9 +222,7 @@ side effect is substrate, and a business change request reuses one rather than a
 
 *Capability Contracts defined in another subdomain and referenced by this subdomain's workflows. `cc_code` is the existing FQDN; do not re-document it here.*
 
-<!-- register:cross_subdomain_refs optional business_language=role -->
-| CC Code | Defined In | Role | Source Finding |
-|---------|------------|------|----------------|
+Register `cross_subdomain_refs` in the Machine block.
 
 ---
 
@@ -209,8 +243,7 @@ side effect is substrate, and a business change request reuses one rather than a
 and emits the WHAT. Emit keys match the register ids above exactly (Purpose §1 / Identity Semantics
 §4 / Business Objects §3 are this stage's record, not forwarded fields).*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← Stage 1 | out_of_scope |
-| **Consumes** ← Stage 4 | actors · bm_entities · events · capability_graph · constraint_register |
-| **Emits** → Stage 6 | scope_boundary · invariants · actions · provisional_codes · cross_subdomain_refs |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p0 | actors · bm_entities · events · capability_graph · constraint_register |
+| **Emits** | scope_boundary · invariants · actions · provisional_codes · cross_subdomain_refs |

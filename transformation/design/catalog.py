@@ -6,8 +6,9 @@ commonest authoring failure is answering the next phase's question early, which 
 exists to prevent.
 
 Purpose, question and key rule are taken from field manual §4.1; the purity rung from §4.2. They
-live here rather than in prose so that `tc phase list` can state them at the moment of authoring,
-and so a rule set can key on the rung rather than restating it.
+are declared in `transformation::STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0`, with each phase's schema,
+workflow and template, so that `tc phase list` can state them at the moment of authoring, and so a
+rule set can key on the rung rather than restating it.
 
 **The purity ladder** (§4.2) — each phase admits exactly one more vocabulary class:
 
@@ -25,7 +26,11 @@ the identity against the baseline rather than by which column it sits in.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from pathlib import Path
+
+import yaml
 
 # Vocabulary classes a phase may introduce, in ladder order. A phase admits its own rung and every
 # rung below it.
@@ -37,12 +42,24 @@ class Phase:
     """One phase of the dossier pipeline."""
 
     id: str
+    schema_id: str
+    workflow: str
+    template: str
+    rung: str
     purpose: str
     question: str
     key_rule: str
-    rung: str
-    template: str | None = None
     gate: str | None = None
+
+    @property
+    def schema(self) -> str:
+        """The file of the register schema declaring this phase's document shape."""
+        return f"{self.schema_id.rsplit('.', 1)[-1]}.json"
+
+    @property
+    def lineage(self) -> str:
+        """The workflow's code without its version: what a design cites to mean its latest."""
+        return re.sub(r"_V\d+$", "", self.workflow.split("::")[-1])
 
     @property
     def admits(self) -> tuple[str, ...]:
@@ -55,86 +72,24 @@ class Phase:
         return self.rung in ("binding_fqdns", "build_order")
 
 
-PHASES: tuple[Phase, ...] = (
-    Phase(
-        id="p0",
-        purpose="change seed",
-        question="What does the business want, stated in its own words?",
-        key_rule="Faithful rewrite only — no content added, no clarification resolved, no design assigned",
-        rung="business_language",
-        # New in this rehost — RI-0 began at the change request and consumed a hand-built
-        # elicitation whose provenance nothing recorded. The template is authored here rather than
-        # salvaged, and carries the elicitation questions §4.3 requires of every phase.
-        template="p0_change_seed_template_v0.md",
-        gate="Gate 0 — the human confirms the seed says what they meant",
-    ),
-    Phase(
-        id="p1",
-        purpose="change request",
-        question="Classification · Problem · Outcome · Known Facts · Deferrals",
-        key_rule="Business language only; baseline claims verified against the snapshot, never memory",
-        rung="business_language",
-        template="p1_change_request_template_v0.md",
-    ),
-    Phase(
-        id="p2",
-        purpose="domain model",
-        question="Entities · Processes · Baseline fit · Gaps",
-        key_rule="Record what was searched, not only what was found",
-        rung="business_language",
-        template="p2_domain_model_template_v0.md",
-    ),
-    Phase(
-        id="p3",
-        purpose="analysis loop",
-        question="How is each gap resolved, iterated to Discovery Saturation?",
-        key_rule="Every answer carries evidence; overturned answers are marked, never erased",
-        rung="business_language",
-        template="p3_analysis_loop_template_v0.md",
-    ),
-    Phase(
-        id="p4",
-        purpose="business model",
-        question="What is the canonical consolidation every later phase projects from?",
-        key_rule="Consolidation, not re-litigation",
-        rung="business_language",
-        template="p4_business_model_template_v0.md",
-    ),
-    Phase(
-        id="p5",
-        purpose="business intent",
-        question="WHAT — behaviour, objects, identity, invariants, actions",
-        key_rule="Provisional capability names are admissible; no bindings, no paths",
-        rung="provisional_codes",
-        template="p5_business_intent_template_v0.md",
-    ),
-    Phase(
-        id="p6",
-        purpose="governance intent",
-        question="WHERE — domain and subdomain, ownership, dependencies",
-        key_rule="No new artifact codes; cross-subdomain writes forbidden",
-        rung="placement",
-        template="p6_governance_intent_template_v0.md",
-    ),
-    Phase(
-        id="p7",
-        purpose="design intent",
-        question="HOW — FQDNs, topology, schemas, stores, module paths, runtime bindings",
-        key_rule="The full dossier is reviewed as a body",
-        rung="binding_fqdns",
-        template="p7_design_intent_template_v0.md",
-        gate="Gate 1 — Design Approval",
-    ),
-    Phase(
-        id="p8",
-        purpose="authoring mandate",
-        question="IN WHAT ORDER — topologically sorted build waves",
-        key_rule="Mechanical derivation; must reconcile with p7 exactly",
-        rung="build_order",
-        template="p8_authoring_mandate_template_v0.md",
-        gate="Gate 2 — Mandate Approval; the dossier is locked",
-    ),
-)
+# The dispatch is declared in the registry, once. Read at import, because every phase lookup needs it
+# and the registry does not change during a run.
+DISPATCH = Path(__file__).resolve().parents[2] / "registry" / "structures" / "STRUCTURE_REGISTER_SCHEMA_DISPATCH_V0.md"
+
+
+def _declared() -> tuple[Phase, ...]:
+    text = DISPATCH.read_text(encoding="utf-8")
+    machine = re.search(r"^## Machine\n+```yaml\n(.*?)^```", text, re.M | re.S)
+    if machine is None:
+        raise ValueError(f"{DISPATCH.name} carries no Machine block")
+    rows = yaml.safe_load(machine.group(1))["core"]["phases"]
+    return tuple(Phase(id=row["phase"], schema_id=row["schema"], workflow=row["workflow"],
+                       template=row["template"], rung=row["rung"], purpose=row["purpose"],
+                       question=row["question"], key_rule=row["key_rule"], gate=row.get("gate"))
+                 for row in rows)
+
+
+PHASES: tuple[Phase, ...] = _declared()
 
 PHASES_BY_ID: dict[str, Phase] = {p.id: p for p in PHASES}
 
@@ -149,7 +104,7 @@ def phase(phase_id: str) -> Phase:
 def next_phase(phase_id: str) -> str | None:
     """The phase this one feeds, or None at the end of the pipeline.
 
-    Read from the declared order rather than a lookup table, so adding a phase to `PHASES` is the
+    Read from the declared order rather than a lookup table, so adding a phase to the dispatch is the
     whole of adding it to the pipeline.
     """
     ids = [p.id for p in PHASES]

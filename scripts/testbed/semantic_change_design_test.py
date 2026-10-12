@@ -18,12 +18,15 @@ from pathlib import Path
 
 from inspector import api as inspector_api
 
+import machine
 from transformation.build import sameness
 from transformation.build.generators import Context
 from transformation.cli import _meaning_refusals
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import rule_set
+from transformation.design.rule_sets import RULE_SETS
+
+rule_set = RULE_SETS["p7"].rule_set
 from transformation.design.read import parse_text
 
 SNAPSHOT = Path(__file__).resolve().parents[3] / "snapshot"
@@ -148,18 +151,15 @@ core:
 # --- the design phase --------------------------------------------------------------------------
 
 def _doc(action: str, withdrawal: bool) -> ParsedDocument:
-    text = (
-        "# Design Intent: probe / semantic change\n\n"
-        "<!-- register:existing_inventory -->\n"
-        "| FQDN | Action (REPLACE, REUSE, EXTEND, REPOINT, REVIEW) | Summary | Reason | Source Finding |\n"
-        "|---|---|---|---|---|\n"
-        f"| probe::CC_DECIDE_V0 | {action} | Decides | Amended | human decision |\n\n"
-        "<!-- register:withdrawn_facts optional -->\n"
-        "| Artifact | Fact | Reason | Source Finding |\n"
-        "|---|---|---|---|\n"
-        + ("| probe::CC_DECIDE_V0 | .core.inputs.allowed_set | Gone | human decision |\n"
-           if withdrawal else "")
-        + "\n"
+    text = machine.document(
+        "Design Intent: probe / semantic change",
+        machine.register("existing_inventory",
+                         ["FQDN", "Action", "Summary", "Reason",
+                          "Source Finding"],
+                         [("probe::CC_DECIDE_V0", action, "Decides", "Amended", "human decision")]),
+        machine.register("withdrawn_facts", ["Artifact", "Fact", "Reason", "Source Finding"],
+                         [("probe::CC_DECIDE_V0", ".core.inputs.allowed_set", "Gone", "human decision")]
+                         if withdrawal else [], declared_empty=False),
     )
     header, sections, registers = parse_text(text)
     return ParsedDocument(header=header, sections=sections, registers=registers, raw=text,
@@ -167,7 +167,7 @@ def _doc(action: str, withdrawal: bool) -> ParsedDocument:
 
 
 def _findings(doc: ParsedDocument, *ids: str) -> list[str]:
-    return [f.rule for f in evaluate(doc, [r for r in rule_set() if r.id in ids]).findings]
+    return [f.code for f in evaluate(doc, [r for r in rule_set() if r.id in ids]).findings]
 
 
 def test_a_design_may_re_point():
@@ -183,7 +183,7 @@ def test_a_withdrawal_is_refused():
 # --- construction ------------------------------------------------------------------------------
 
 def _p7(*rows: tuple[str, str]) -> dict:
-    return {"existing_inventory": [{"FQDN": f, "Action": a} for f, a in rows]}
+    return {"existing_inventory": [{"fqdn": f, "action": a} for f, a in rows]}
 
 
 def test_an_amendment_without_the_composition_is_refused():

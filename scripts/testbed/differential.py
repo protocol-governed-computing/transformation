@@ -3,7 +3,7 @@
 The rehost claim is that authoring P0 as governed artifacts preserved its behaviour. That is only
 evidence if both paths are actually exercised over the same seeds and compared:
 
-    genesis oracle    rules from transformation.design.p0_change_seed.rules  (Python declaration)
+    genesis oracle    rules expanded from the register schema   (working tree)
     compiled phase    rules from the sealed snapshot        (si.artifact.show)
 
 The rule sets must be identical and the verdicts must agree, seed by seed and finding by finding.
@@ -21,26 +21,17 @@ from pathlib import Path
 from inspector import api
 
 from transformation.implementation.capability_transforms.atoms import (
-    ct_pure_evaluate_rules_v0,
-    ct_pure_parse_prior_phases_v0,
-    ct_pure_parse_registers_v0,
+    ct_pure_evaluate_rules_v1,
+    ct_pure_parse_prior_phases_v1,
+    ct_pure_parse_registers_v1,
 )
 from transformation.design.oracle import evaluate
 from transformation.design.read import read_seed
 # One implementation, shared with `tc phase check`. Two readers of the sealed rule set
 # would be two answers to "what judged this document".
-from transformation.design.meta import RULE_MODULES
+from transformation.design.rule_sets import RULE_SETS
 from transformation.design.sealed import sealed_rule_set
 from transformation.design.emit import workflow_fqdn
-from transformation.design.p0_change_seed.rules import rule_set as p0_rule_set
-from transformation.design.p1_change_request.rules import rule_set as p1_rule_set
-from transformation.design.p2_domain_model.rules import rule_set as p2_rule_set
-from transformation.design.p3_analysis_loop.rules import rule_set as p3_rule_set
-from transformation.design.p4_business_model.rules import rule_set as p4_rule_set
-from transformation.design.p5_business_intent.rules import rule_set as p5_rule_set
-from transformation.design.p6_governance_intent.rules import rule_set as p6_rule_set
-from transformation.design.p7_design_intent.rules import rule_set as p7_rule_set
-from transformation.design.p8_authoring_mandate.rules import rule_set as p8_rule_set
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO.parent
@@ -67,39 +58,39 @@ from meta_test import assert_consistent
 PHASES = {
     "P0": {
         "wf": workflow_fqdn("p0"),
-        "rules": p0_rule_set,
+        "rules": RULE_SETS["p0"].rule_set,
         "corpus": [
-            REPO / "dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md",
+            REPO / "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p0_seed_transformation_phases_v0.md",
             CR_01 / "p0_seed_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus").glob("*.md")),
         ],
     },
     "P1": {
         "wf": workflow_fqdn("p1"),
-        "rules": p1_rule_set,
+        "rules": RULE_SETS["p1"].rule_set,
         "corpus": [
-            REPO / "dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
+            REPO / "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p1_change_request_transformation_phases_v0.md",
             CR_01 / "p1_change_request_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p1").glob("*.md")),
         ],
     },
     "P2": {
         "wf": workflow_fqdn("p2"),
-        "rules": p2_rule_set,
+        "rules": RULE_SETS["p2"].rule_set,
         # P2 grounds claims against the composition, so the differential must supply the same
         # observation the compiled workflow gathers. Comparing two ungrounded runs would agree
         # perfectly while exercising none of the grounding.
         "observes": {"si.artifact.list": "artifacts"},
         # Cross-phase rules read an upstream document, and which one is a property of the
         "corpus": [
-            REPO / "dossiers/founding_design_bootstrap/p2_domain_model_transformation_phases_v0.md",
+            REPO / "scripts/testbed/delivered_copies/transformation/dossiers/founding_design_bootstrap/p2_domain_model_transformation_phases_v0.md",
             CR_01 / "p2_domain_model_book_library_mgmt_catalog_v0.md",
             *sorted((REPO / "scripts/testbed/corpus_p2").glob("*.md")),
         ],
     },
     "P3": {
         "wf": workflow_fqdn("p3"),
-        "rules": p3_rule_set,
+        "rules": RULE_SETS["p3"].rule_set,
         # Two observations, answering different questions: does this identity exist, and may this
         # domain be drawn on at all. A differential that supplied only the first would agree with
         # itself perfectly while leaving the reuse ruling unexercised.
@@ -111,7 +102,7 @@ PHASES = {
     },
     "P4": {
         "wf": workflow_fqdn("p4"),
-        "rules": p4_rule_set,
+        "rules": RULE_SETS["p4"].rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
             CR_01 / "p4_business_model_book_library_mgmt_catalog_v0.md",
@@ -120,7 +111,7 @@ PHASES = {
     },
     "P5": {
         "wf": workflow_fqdn("p5"),
-        "rules": p5_rule_set,
+        "rules": RULE_SETS["p5"].rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
             CR_01 / "p5_business_intent_book_library_mgmt_catalog_v0.md",
@@ -129,7 +120,7 @@ PHASES = {
     },
     "P6": {
         "wf": workflow_fqdn("p6"),
-        "rules": p6_rule_set,
+        "rules": RULE_SETS["p6"].rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
             CR_01 / "p6_governance_intent_book_library_mgmt_catalog_v0.md",
@@ -138,7 +129,7 @@ PHASES = {
     },
     "P7": {
         "wf": workflow_fqdn("p7"),
-        "rules": p7_rule_set,
+        "rules": RULE_SETS["p7"].rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
             CR_01 / "p7_design_intent_book_library_mgmt_catalog_v0.md",
@@ -147,7 +138,7 @@ PHASES = {
     },
     "P8": {
         "wf": workflow_fqdn("p8"),
-        "rules": p8_rule_set,
+        "rules": RULE_SETS["p8"].rule_set,
         "observes": {"si.artifact.list": "artifacts"},
         "corpus": [
             CR_01 / "p8_authoring_mandate_book_library_mgmt_catalog_v0.md",
@@ -176,7 +167,7 @@ def observation(operations: dict | None, snapshot_root: str) -> dict:
 #
 # This was a literal table: every corpus document, every prior it reads, by hand. It was wrong twice
 # in one session. `scripts/testbed/priors.py` now derives it from the phase's declared `PRIORS` and
-# the document's own `CR:` header, and both this harness and the payload builder read it from there
+# the document's own `cr` header field, and both this harness and the payload builder read it from there
 # rather than each keeping a copy.
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -196,11 +187,11 @@ def compiled_verdict(
     rules: list[dict],
     observed: dict | None = None,
     priors: dict | None = None,
-) -> tuple[str, list[tuple[str, str]]]:
+) -> tuple[str, list[tuple[str, ...]]]:
     """Drive the compiled phase's atoms exactly as the workflow composes them."""
-    parsed = ct_pure_parse_registers_v0.execute({"document_text": seed_text})
-    parsed_priors = ct_pure_parse_prior_phases_v0.execute({"prior_texts": priors or {}})
-    result = ct_pure_evaluate_rules_v0.execute(
+    parsed = ct_pure_parse_registers_v1.execute({"document_text": seed_text})
+    parsed_priors = ct_pure_parse_prior_phases_v1.execute({"prior_texts": priors or {}})
+    result = ct_pure_evaluate_rules_v1.execute(
         {
             "header": parsed["header"],
             "sections": parsed["sections"],
@@ -211,7 +202,7 @@ def compiled_verdict(
             "priors": parsed_priors["priors"],
         }
     )
-    findings = [(f["rule"], f["where"]) for f in result["findings"]]
+    findings = [(f["code"], f["rule"], *map(str, f["locator"].values())) for f in result["findings"]]
     return result["verdict"], findings
 
 
@@ -220,14 +211,14 @@ def genesis_verdict(
     rules,
     observed: dict | None = None,
     priors: dict | None = None,
-) -> tuple[str, list[tuple[str, str]]]:
+) -> tuple[str, list[tuple[str, ...]]]:
     doc = read_seed(doc_path)
     doc.observed = observed or {}
     # The genesis path parses its priors with the same reader the transform uses, so a divergence
     # is a difference in rule evaluation rather than in how the two paths read a document.
-    doc.priors = ct_pure_parse_prior_phases_v0.execute({"prior_texts": priors or {}})["priors"]
+    doc.priors = ct_pure_parse_prior_phases_v1.execute({"prior_texts": priors or {}})["priors"]
     verdict = evaluate(doc, rules)
-    return verdict.verdict, [(f.rule, f.where) for f in verdict.findings]
+    return verdict.verdict, [(f.code, f.rule, *map(str, f.locator.values())) for f in verdict.findings]
 
 
 def main() -> int:
@@ -257,9 +248,9 @@ def main() -> int:
         print("  identical")
 
         observed = observation(spec.get("observes"), root)
-        # Which phases this one is judged against, read from the module that declares them rather
+        # Which phases this one is judged against, read from the schema that declares them rather
         # than from a flag beside the corpus. A phase reads priors exactly when it declares some.
-        declared_priors = tuple(getattr(RULE_MODULES[phase.lower()], "PRIORS", ()))
+        declared_priors = RULE_SETS[phase.lower()].priors
         corpus = [p for p in spec["corpus"] if p.is_file()]
         if not corpus:
             print(f"  NO DOCUMENTS — a differential over an empty corpus is not evidence")

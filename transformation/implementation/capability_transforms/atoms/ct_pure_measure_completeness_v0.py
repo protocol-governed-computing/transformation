@@ -26,7 +26,8 @@ from transformation.build.completeness import measure
 
 def _registers(parsed: list) -> Dict[str, list]:
     """Parsed register entries as the id → rows mapping construction reads."""
-    return {entry["id"]: entry.get("rows") or [] for entry in parsed or []}
+    return {entry["id"]: entry["value"] if isinstance(entry.get("value"), list) else []
+            for entry in parsed or []}
 
 
 def execute(inputs: Dict[str, Any], context: Any = None) -> Dict[str, Any]:

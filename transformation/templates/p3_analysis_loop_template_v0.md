@@ -1,8 +1,54 @@
 # Stage 3 — Analysis Loop: [domain] / [subdomain]
-**Stage:** 3 — Analysis Loop  
-**CR:** change_request_[subdomain]_v0.md  
-**Status:** DRAFT  
-**Feeds:** Stage 4 — Business Model  
+
+## Machine
+
+```yaml
+document:
+  phase: p3
+  domain: <domain>
+  subdomain: <subdomain>
+  cr: <change>
+  rule_set: transformation.schemas.REGISTER_SCHEMA_P3_V0
+registers:
+  analysis_findings:
+  - question_id: null
+    finding: null
+    impact: null
+    evidence_status: null
+    confidence: null
+    resolution_status: null
+    evidence: null
+  verification_results:
+  - item: null
+    origin: null
+    result: null
+    evidence: null
+  dependency_discoveries:
+  - dependency: null
+    type: null
+    disposition: null
+    evidence: null
+  impact_analysis:
+  - artifact: null
+    impact_scope: null
+    consumer_count: null
+    evidence: null
+  authoring_decisions:
+  - capability: null
+    decision: null
+    rationale: null
+    alternatives_checked: null
+    source_finding: null
+  placement_decision:
+  - decision: null
+    subdomain: null
+    rationale: null
+    source_finding: null
+  saturation:
+  - criterion: null
+    status: null
+    evidence: null
+```
 
 > **S3 decides.** S1 discovers, S2 models, **S3 decides** — given what exists, *what should be
 > authored?* Its signature output is the **Decision Classification** (REUSE / EXTEND /
@@ -17,7 +63,7 @@
 prose. Capture analysis, verification, and decisions as registers.
 
 VALID OUTPUT:
-- Populated register tables (every required register)
+- Populated registers (every required register)
 - Existing artifacts cited by exact FQDN in dependency / impact / evidence columns
 - Business-language capability and rationale descriptions in decision registers
 
@@ -25,8 +71,8 @@ INVALID OUTPUT:
 - Narrative summaries / reasoning essays replacing registers
 - A decision with no grounded evidence; an assertion the snapshot did not confirm
 
-A required register with no rows MUST render as a single `| NONE IDENTIFIED |` row. The renderer
-rejects a prose-only or empty register mechanically before any human reviews it.
+A register with nothing to state is `[]`, declared empty. A register left `null` states nothing,
+and a required register that states nothing is refused.
 
 ---
 
@@ -81,15 +127,15 @@ Each analysis finding carries an `evidence_status` and a `confidence`:
 
 ### Citing a prior row
 
-Every row carries a `Source Finding` naming where its content came from. A citation resolves when it
-names one of:
+Every row carries a `source_finding` naming where its content came from. A citation is a mapping:
 
-- **a register this phase may cite**, by id and ordinal — `known_facts #14`;
-- **the same, by section**, prefixed with the phase that declared it — `S1 §4 Known Facts #14`;
-- **a literal source** — `CR seed`, `human decision`, `projection`, `S1 seed`;
-- **an artifact already in the baseline**, by exact identity — `blockchain::WF_REGISTER_ACTOR_V0`.
+- **a row of a register**, by ordinal or by key, in the phase that declared it:
+  `{phase: p1, register: known_facts, row: 14}`. A citation that names no phase names this document;
+- **an artifact already in the baseline**, by exact identity: `{artifact: blockchain::WF_REGISTER_ACTOR_V0}`;
+- **a person**: `{source: human}`.
 
-Separate several citations with `;`. One resolvable citation grounds the row.
+Several citations are a list. A row that cites nothing is `null`, and is refused where the register
+requires provenance.
 
 **A carried claim is carried verbatim.** Where a register restates a row an earlier phase declared —
 a belief, an authoring decision, a capability — the text must match that row exactly. Tightening a
@@ -103,9 +149,7 @@ that owns it.
 
 *One row per analysed question (from S2 open questions / prior iterations). resolution_status ∈ CLOSED | OPEN.*
 
-<!-- register:analysis_findings -->
-| Question Id | Finding | Impact | Evidence Status (OBSERVED, INFERRED, OPEN) | Confidence (HIGH, MEDIUM, LOW) | Resolution Status (CLOSED, OPEN) | Evidence |
-|-------------|---------|--------|-----------------|------------|-------------------|----------|
+Register `analysis_findings` in the Machine block.
 
 ---
 
@@ -113,9 +157,7 @@ that owns it.
 
 *Re-verify every prior assumption/finding against the snapshot directly (grounding not inherited). Result ∈ CONFIRMED | OVERTURNED. An item that cannot be re-confirmed is an open gap, not a finding.*
 
-<!-- register:verification_results -->
-| Item | Origin | Result (CONFIRMED, OVERTURNED) | Evidence |
-|------|--------|--------|----------|
+Register `verification_results` in the Machine block.
 
 ---
 
@@ -123,9 +165,7 @@ that owns it.
 
 *Cross-artifact dependencies surfaced during analysis (feeds S4 dependency graph + authoring order). Disposition ∈ EXISTING | REUSE | AUTHOR_NEW | INVESTIGATE.*
 
-<!-- register:dependency_discoveries -->
-| Dependency | Type | Disposition (EXISTING, EXTEND, REUSE, AUTHOR_NEW, INVESTIGATE) | Evidence |
-|------------|------|-------------|----------|
+Register `dependency_discoveries` in the Machine block.
 
 ---
 
@@ -133,9 +173,7 @@ that owns it.
 
 *Mechanically captured consumer-closure / blast-radius for every artifact this CR touches. Evidence is the verbatim `pi topology impact` / `artifact_refs` output.*
 
-<!-- register:impact_analysis -->
-| Artifact | Impact Scope | Consumer Count | Evidence |
-|----------|--------------|----------------|----------|
+Register `impact_analysis` in the Machine block.
 
 ---
 
@@ -154,9 +192,7 @@ that owns it.
 > do not recommend a design that violates a `business_invariant`, `constraint`, or
 > `authority_boundary` carried from S1.
 
-<!-- register:authoring_decisions business_language=capability -->
-| Capability | Decision (REUSE, EXTEND, AUTHOR_NEW) | Rationale | Alternatives Checked | Source Finding |
-|------------|----------|-----------|----------------------|----------------|
+Register `authoring_decisions` in the Machine block.
 
 ---
 
@@ -164,9 +200,7 @@ that owns it.
 
 *The extend-vs-new resolution S2 deferred — a governance topology call. Decision ∈ NEW_SUBDOMAIN | EXTEND.*
 
-<!-- register:placement_decision business_language=subdomain -->
-| Decision (NEW_SUBDOMAIN, EXTEND) | Subdomain | Rationale | Source Finding |
-|----------|-----------|-----------|----------------|
+Register `placement_decision` in the Machine block.
 
 ---
 
@@ -174,9 +208,7 @@ that owns it.
 
 *Analysis is saturated only when every criterion is SATISFIED. Status ∈ SATISFIED | NOT_SATISFIED.*
 
-<!-- register:saturation business_language=criterion -->
-| Criterion | Status (SATISFIED, NOT_SATISFIED) | Evidence |
-|-----------|--------|----------|
+Register `saturation` in the Machine block.
 
 *Required criteria: (1) no unresolved CRITICAL gaps; (2) no open analyst questions; (3) no dependency expansion in the last pass; (4) verification pass complete, no OVERTURNED item unresolved; (5) every INFERRED finding promoted to OBSERVED, explicitly accepted, or carried forward with a reason.*
 
@@ -189,8 +221,7 @@ that owns it.
 *The bounded inputs and emit keys mirror the engine's gov_projection schema exactly
 (`contracts/gov_projection.py`): S3 consumes the S1 framing plus S2's discovery output.*
 
-| Direction | Fields |
-|-----------|--------|
-| **Consumes** ← Stage 1 | cr_type · assumptions · business_invariants · lifecycle_states · business_events · authority_boundaries · out_of_scope · constraints |
-| **Consumes** ← Stage 2 | belief_verification · pps_baseline_fqdns · gaps · architectural_observations · discovery_concerns · open_questions |
-| **Emits** → Stage 4 | authoring_decisions · dependency_discoveries · placement_decision · saturation |
+| Direction | Registers |
+|-----------|-----------|
+| **Consumes** ← p2 | belief_verification · pps_baseline_fqdns · gaps · architectural_observations · discovery_concerns · open_questions |
+| **Emits** | authoring_decisions · dependency_discoveries · placement_decision · saturation |

@@ -6,7 +6,8 @@ redeclare a contract that observes the composition. And a value a generator writ
 phase workflow hands its judge — had no statement at all. Shown here: every literal form passes
 every rule that judges a binding, in a step binding and in a molecule binding; `generated` passes
 where its owner is listed as generated and is refused where it is not; and what was refused before
-for being no form at all is refused still.
+for being no form at all is refused still. A literal is stated as `{literal: v}` and the generator's
+value as `{generated: true}`, so neither is ever read out of a path.
 
 Run:  python scripts/testbed/binding_literal_design_test.py
 """
@@ -15,9 +16,12 @@ from __future__ import annotations
 
 import sys
 
+import machine
 from transformation.design.evaluate import ParsedDocument
 from transformation.design.oracle import evaluate
-from transformation.design.p7_design_intent.rules import rule_set
+from transformation.design.rule_sets import RULE_SETS
+
+rule_set = RULE_SETS["p7"].rule_set
 from transformation.design.read import parse_text
 
 D = "probe"
@@ -26,29 +30,27 @@ HELD = {"BINDING_SOURCE_UNROOTED", "BINDING_SOURCE_MALFORMED", "MOLECULE_BINDING
         "GENERATED_SOURCE_WITHOUT_GENERATOR"}
 RULES = [r for r in rule_set() if r.id in HELD]
 
-LITERALS = ['"si.artifact.list"', "'si.store.list'", "3", "-1.5", "transformation::CC_JUDGE_V0",
-            "accepted", "{}", "[]", '""']
+LITERALS = [{"literal": v} for v in ("si.artifact.list", "si.store.list", 3, -1.5,
+                                      "transformation::CC_JUDGE_V0", "accepted", {}, [], "")]
+GENERATED = {"generated": True}
 
 
-def _table(register: str, header: list[str], rows: list[tuple]) -> str:
-    lines = [f"<!-- register:{register} optional -->", "| " + " | ".join(header) + " |",
-             "|" + "|".join("---" for _ in header) + "|"]
-    lines += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows] or ["| NONE IDENTIFIED |"]
-    return "\n".join(lines) + "\n\n"
+def _table(register: str, header: list[str], rows: list[tuple]) -> tuple[str, dict]:
+    return machine.register(register, header, rows)
 
 
 def design(step_sources=(), molecule_sources=(), generated_owner=None) -> str:
     provenance = [(generated_owner, "probe.emit:emit", "probe/rules.py", "human decision")] \
         if generated_owner else []
-    return (
-        "# Design Intent: probe / literals\n\n"
-        + _table("step_bindings", ["Owner", "Step", "Direction", "Field", "Bound To", "Source Finding"],
+    return machine.document(
+        "Design Intent: probe / literals",
+        _table("step_bindings", ["Owner", "Step", "Direction", "Field", "Bound To", "Source Finding"],
                  [(o, "observe", "INPUT", f"field_{i}", s, "human decision")
-                  for i, (o, s) in enumerate(step_sources)])
-        + _table("molecule_step_bindings", ["CT Code", "Step", "Role", "Field", "Bound To", "Source Finding"],
+                  for i, (o, s) in enumerate(step_sources)]),
+        _table("molecule_step_bindings", ["CT Code", "Step", "Role", "Field", "Bound To", "Source Finding"],
                  [(CT, "probe", "INPUT", f"field_{i}", s, "human decision")
-                  for i, s in enumerate(molecule_sources)])
-        + _table("generation_provenance", ["Artifact", "Generator", "Generator Sources", "Source Finding"],
+                  for i, s in enumerate(molecule_sources)]),
+        _table("generation_provenance", ["Artifact", "Generator", "Generator Sources", "Source Finding"],
                  provenance)
     )
 
@@ -56,7 +58,7 @@ def design(step_sources=(), molecule_sources=(), generated_owner=None) -> str:
 def fired(text: str) -> list[str]:
     header, sections, registers = parse_text(text)
     doc = ParsedDocument(header=header, sections=sections, registers=registers, raw=text, path="probe")
-    return sorted(f.rule for f in evaluate(doc, RULES).findings)
+    return sorted(f.code for f in evaluate(doc, RULES).findings)
 
 
 def test_every_literal_form_passes_in_a_step_binding():
@@ -73,17 +75,17 @@ def test_references_pass_as_before():
 
 
 def test_a_generated_value_passes_where_its_owner_is_generated():
-    assert fired(design(step_sources=[(WF, "generated")], generated_owner=WF)) == []
+    assert fired(design(step_sources=[(WF, GENERATED)], generated_owner=WF)) == []
 
 
 def test_a_generated_value_is_refused_where_its_owner_is_not_generated():
-    assert fired(design(step_sources=[(WF, "generated")])) == ["GENERATED_SOURCE_WITHOUT_GENERATOR"]
-    assert fired(design(step_sources=[(WF, "generated")], generated_owner=CC)) == \
+    assert fired(design(step_sources=[(WF, GENERATED)])) == ["GENERATED_SOURCE_WITHOUT_GENERATOR"]
+    assert fired(design(step_sources=[(WF, GENERATED)], generated_owner=CC)) == \
         ["GENERATED_SOURCE_WITHOUT_GENERATOR"]
 
 
-def test_the_word_itself_quoted_is_a_literal_and_not_generated():
-    assert fired(design(step_sources=[(WF, '"generated"')])) == []
+def test_the_word_itself_as_a_literal_is_not_generated():
+    assert fired(design(step_sources=[(WF, {"literal": "generated"})])) == []
 
 
 def test_what_is_no_form_at_all_is_refused_still():
@@ -96,17 +98,12 @@ def test_what_is_no_form_at_all_is_refused_still():
 
 
 def test_construction_renders_a_literal_as_the_value_it_states():
-    """A quoted literal renders as the text between its quotes, and a decimal as a number
-    (quoted_literals). Everything else renders as it did."""
+    """A literal renders as the value it states, and a path as the runtime's expression for it."""
     from transformation.build.render import _binding
-    assert _binding('"si.artifact.list"') == "si.artifact.list"
-    assert _binding("'si.store.list'") == "si.store.list"
-    assert _binding('""') == ""
-    assert _binding("-1.5") == -1.5
-    assert _binding("3") == 3
-    assert _binding("accepted") == "accepted"
+    for literal in LITERALS:
+        assert _binding(literal) == literal["literal"], literal
+    assert _binding(GENERATED) == "generated"
     assert _binding("payload.register_text") == "$.payload.register_text"
-    assert _binding("{}") == {}
 
 
 if __name__ == "__main__":

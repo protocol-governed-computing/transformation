@@ -39,7 +39,7 @@ for _root in (WORKSPACE / "software_governance", WORKSPACE / "conformance_worklo
 from runtime import api
 from meta_test import assert_consistent
 from transformation.design.emit import workflow_fqdn
-from transformation.design.meta import RULE_MODULES
+from transformation.design.rule_sets import RULE_SETS
 from transformation.design.merit import Merit, load_policy, rate
 PAYLOADS = REPO / "testbed" / "phases" / "test_payloads"
 
@@ -62,8 +62,8 @@ PAYLOADS = REPO / "testbed" / "phases" / "test_payloads"
 # than restated: a version or a count copied here goes stale the moment a rule is added or a
 # workflow replaced, and the suite then fails on the copy instead of on behaviour. The assertion
 # keeps its force — the runtime must evaluate every declared rule, never a subset.
-WF = {p.upper(): workflow_fqdn(p) for p in RULE_MODULES}
-RULES = {p.upper(): len(module.rule_set()) for p, module in RULE_MODULES.items()}
+WF = {p.upper(): workflow_fqdn(p) for p in RULE_SETS}
+RULES = {p.upper(): len(module.rule_set()) for p, module in RULE_SETS.items()}
 
 CASES = [
     ("P0", WF["P0"],
@@ -78,7 +78,7 @@ CASES = [
          "CELL_NOT_IN_VOCABULARY",
          "CELL_NOT_IN_VOCABULARY",
          "DESIGN_LEAKED_INTO_BUSINESS_LANGUAGE",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
      ], RULES["P0"], 4),
     ("P0", WF["P0"],
      "04_inadmissible_structural.json", "INADMISSIBLE", ["REGISTER_MISSING"] * 5, RULES["P0"], 4),
@@ -115,7 +115,8 @@ CASES = [
          # does not, which is the half of the contract confinement governs.
          "ROW_NOT_IN_SEED",
          "ROW_NOT_IN_SEED",
-         "SOURCE_FINDING_UNRESOLVED",
+         # `I remembered it` is no citation at all, so its type refuses it (rebuild M3.3b-1).
+         "CELL_NOT_OF_TYPE",
      ], RULES["P1"], 4),
     # P1's remaining ten. The clarification pair is the phase's own gate: a change request carrying
     # an unanswered blocking question is not a change request yet, and one only the business can
@@ -125,8 +126,8 @@ CASES = [
          "BLOCKING_CLARIFICATION_OUTSTANDING",
          "BUSINESS_CLARIFICATION_OUTSTANDING",
          "CITATION_ORDINAL_UNRESOLVED",
-         "CITATION_ROW_UNRESOLVED",
-         "CITATION_ROW_UNRESOLVED",
+         # One ordinal rule resolves every citation, the seed's included (rebuild M3.4a-2).
+         "CITATION_ORDINAL_UNRESOLVED",
          "BUSINESS_CLARIFICATION_OUTSTANDING",
      ], RULES["P1"], 3),
     # Six SEED_ROW_NOT_CARRIED and one ROW_NOT_IN_SEED are the cost of the shape defects, not extra
@@ -136,13 +137,12 @@ CASES = [
     ("P1", WF["P1"],
      "70_p1_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_CELL_UNRESOLVED",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
          "ROW_NOT_IN_SEED",
-     ] + ["SEED_ROW_NOT_CARRIED"] * 6, RULES["P1"], 3),
+     ] + ["SEED_ROW_NOT_CARRIED"] * 6 + ["REGISTER_COLUMN_MISSING"] * 12, RULES["P1"], 3),
     ("P2", WF["P2"],
      "08_p2_admissible_register.json", "ADMISSIBLE", [], RULES["P2"], 4),
     # Grounding: a misspelled identity and a right-code/wrong-namespace one are defects; an
@@ -191,12 +191,11 @@ CASES = [
          "BELIEF_WITHOUT_EVIDENCE",
          "CELL_NOT_IN_VOCABULARY",
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_CELL_UNRESOLVED",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
-     ], RULES["P2"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 2, RULES["P2"], 3),
     # P3 decides, so it observes twice: the artifact list resolves identities, the composition
     # summary carries what each domain declares about being reused. The inadmissible case offers a
     # business CR a pipeline capability and a conformance workload — a confusion that is invisible
@@ -238,12 +237,11 @@ CASES = [
          "BELIEF_RESULT_NOT_REVERIFIED",
          "BELIEF_RESULT_NOT_REVERIFIED",
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
          "SATURATION_CRITERIA_INCOMPLETE",
-     ], RULES["P3"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 9, RULES["P3"], 3),
     # P4 consolidates: its defects live between registers, where every register is individually
     # well formed and the document as a whole asserts something untrue. The admissible case is the
     # corpus's only 5/5 — a consolidation carries no open questions of its own, because P3
@@ -283,10 +281,9 @@ CASES = [
     ("P4", WF["P4"],
      "67_p4_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_MISSING",
-     ], RULES["P4"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 13, RULES["P4"], 3),
     # P5 is the first rung up the purity ladder, and its two rules pull opposite ways: a
     # provisional code must NOT be namespaced, while a borrowed capability MUST be — one names
     # what this change creates, the other what it leans on.
@@ -337,11 +334,10 @@ CASES = [
     ("P5", WF["P5"],
      "56_p5_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "PURPOSE_PROVENANCE_NOT_SINGULAR",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_MISSING",
-     ], RULES["P5"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 10, RULES["P5"], 3),
     ("P5", WF["P5"],
      "57_p5_inadmissible_untouched_subdomain.json", "INADMISSIBLE", [
          "EVENT_CODE_NOT_PAST_PARTICIPLE",
@@ -396,11 +392,10 @@ CASES = [
     ("P6", WF["P6"],
      "60_p6_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_MISSING",
          "STORAGE_CODE_IN_PLACEMENT",
-     ], RULES["P6"], 3),
+     ] + ["REGISTER_COLUMN_MISSING"] * 11, RULES["P6"], 3),
     ("P6", WF["P6"],
      "61_p6_inadmissible_unowned_subdomain.json", "INADMISSIBLE", [
          "TOUCHED_SUBDOMAIN_UNOWNED",
@@ -449,9 +444,8 @@ CASES = [
      "77_p7_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "CELL_NOT_IN_VOCABULARY",
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_CELL_UNRESOLVED",
-         "REGISTER_COLUMN_MISSING",
          "REGISTER_EMPTY",
          "REGISTER_MISSING",
      ], RULES["P7"], 3),
@@ -482,9 +476,7 @@ CASES = [
          "GENERATOR_UNNAMED",
          "GENERATOR_UNREACHABLE",
          "IMPLEMENTATION_CALLABLE_UNCONVENTIONAL",
-         "IMPLEMENTATION_MODULE_MISPLACED",
          "IMPLEMENTATION_REFUSAL_UNKNOWN",
-         "IMPLEMENTATION_WITHOUT_MODULE",
          "IMPLEMENTATION_WITHOUT_REFUSAL",
          "VOCABULARY_WITHOUT_EXTENDS",
      ], RULES["P7"], 4),
@@ -580,10 +572,9 @@ CASES = [
     ("P8", WF["P8"],
      "75_p8_inadmissible_malformed_document.json", "INADMISSIBLE", [
          "HEADER_FIELD_MISSING",
-         "LIFECYCLE_STATE_NOT_IN_VOCABULARY",
-         "REGISTER_COLUMN_MISSING",
+         "HEADER_FIELD_MISMATCH",
          "REGISTER_MISSING",
-     ], RULES["P8"], 3, "design"),
+     ] + ["REGISTER_COLUMN_MISSING"] * 4, RULES["P8"], 3, "design"),
     # Cut from cr_02 rather than cr_01, because cr_01's P7 declares no EXTEND row and the rule is
     # gated on one — the artifact this mandate forgets to place has to be an artifact the design
     # actually amends. It is also the only P8 case that is not book_library_mgmt cr_01.
@@ -772,8 +763,8 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
         seed="",
         rules_evaluated=surface.get("rules_evaluated") or 0,
         findings=[
-            Finding(rule=f["rule"], where=f.get("where", ""), detail=f.get("detail", ""),
-                    intent=f.get("intent", ""))
+            Finding(code=f["code"], rule=f["rule"], locator=f["locator"],
+                    detail=f.get("detail", ""), intent=f.get("intent", ""))
             for f in (surface.get("findings") or [])
         ],
     )
@@ -795,7 +786,9 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
 # added and compiled, and three cases were judged against a baseline still carrying the previous
 # sealed rule set, reporting "30 rules evaluated" against 32 declared. Reproduction is now
 # conditional on the sources being no newer than the cache.
-DESIGN_BASELINE = Path("/tmp/pgc_cr01_design_baseline")
+# Build output, beside the rest: `regression.sh --all` clears `traces/` before it rebuilds, so the
+# reproduction never outlives the compiled domains it was assembled from.
+DESIGN_BASELINE = WORKSPACE / "traces" / "design_baseline"
 
 DESIGN_BASELINE_ROOTS = [
     WORKSPACE / "software_governance",
@@ -841,8 +834,12 @@ def design_baseline() -> str:
                "PGC_SOURCE_ROOTS": roots,
                "PGC_SNAPSHOT_OUT": str(DESIGN_BASELINE),
                "PGC_SNAPSHOT_PROFILE": "GOVERNANCE_SURFACE_PROFILE_V0"}
-        subprocess.run([str(WORKSPACE / "snapshot_assembler" / "assemble.sh")],
-                       env=env, capture_output=True, check=True)
+        # The assembler's own words are the diagnosis: a bare exit status hid why it refused.
+        done = subprocess.run([str(WORKSPACE / "snapshot_assembler" / "assemble.sh")],
+                              env=env, capture_output=True, text=True)
+        if done.returncode:
+            raise SystemExit(f"design baseline: assembly refused (exit {done.returncode})\n"
+                             + "\n".join((done.stdout + done.stderr).splitlines()[-20:]))
     return str(DESIGN_BASELINE)
 
 
@@ -883,7 +880,7 @@ def main() -> int:
         )
 
         verdict = result.surface.get("verdict")
-        fired = sorted(f["rule"] for f in (result.surface.get("findings") or []))
+        fired = sorted(f["code"] for f in (result.surface.get("findings") or []))
         expected = sorted(want_rule_ids)
         rules = result.surface.get("rules_evaluated")
 
