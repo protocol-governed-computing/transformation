@@ -521,7 +521,7 @@ registers:
 ```
 
 The 46 artifacts Stage 7 designed, scheduled in dependency order over 4 waves. Every row was
-derived from the Stage 7 registers by `.github/process/notes/genesis-generators/p8_authoring_mandate.py`.
+derived from the Stage 7 registers by `scripts/genesis/p8_authoring_mandate.py`.
 Nothing is added here and nothing is dropped: the mandate orders the build, it does not decide it.
 
 ---

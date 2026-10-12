@@ -5753,7 +5753,7 @@ registers:
 
 HOW the change is built — identities, topology, compositions, bindings and interfaces. Every register
 that describes an artifact was read from the live registry by
-`.github/process/notes/genesis-generators/p7_design_intent.py`; the design decisions and the refusal
+`scripts/genesis/p7_design_intent.py`; the design decisions and the refusal
 deferrals are stated by hand.
 
 ---

@@ -8,7 +8,7 @@ transformation.
 
 - P0–P6 were written by hand. P1 is the seed's projection (`tc phase project`).
 - P5's `provisional_codes` and P7 were generated from the live registry, and P8 from P7, by the
-  scripts in `.github/process/notes/genesis-generators/`, kept as they ran. The design decisions and the
+  scripts in `scripts/genesis/`, kept as they ran. The design decisions and the
   refusal deferrals in P7 are stated by hand.
 - The problem statement was drafted for its author to confirm at Gate 0.
 
@@ -34,9 +34,10 @@ held by git.
 
 ## Where it stands
 
-- Pinned to `37968c3e…` (503 artifacts), the composition without transformation, side-assembled
-  after the swap. Each earlier pin was retaken deliberately: `01fd3cfe…` predates the vocabulary's
-  new version, and `b6e2a39c…` still held the three platform artifacts the swap deleted.
+- Pinned to `72ff39c8…` (497 artifacts), the composition without transformation, side-assembled
+  after blockchain's cr_07_own_values. Each earlier pin was retaken deliberately: `01fd3cfe…` predates
+  the vocabulary's new version, `b6e2a39c…` still held the three platform artifacts the swap deleted,
+  and `37968c3e…` still held the fourteen blockchain identities cr_07 retired.
 - P0–P8 are each admissible under the rebuilt module's declared rules, with no findings.
 - No gate is closed. Gate 0 (the seed), Gate 1 (P7) and Gate 2 (P8) are the business author's.
 - G-2, G-3, G-4 and G-8 stay open. Each goes through the lifecycle, judged by the rebuilt module.

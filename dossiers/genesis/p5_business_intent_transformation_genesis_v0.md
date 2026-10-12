@@ -489,7 +489,7 @@ registers:
 
 WHAT the change does — behaviour, objects, identity, invariants, actions — with provisional codes. The
 provisional codes are the artifacts as they stand; they were listed from the registry by
-`.github/process/notes/genesis-generators/p5_provisional_codes.py`.
+`scripts/genesis/p5_provisional_codes.py`.
 
 ---
 
