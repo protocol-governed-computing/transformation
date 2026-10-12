@@ -67,41 +67,40 @@ REGISTRY = WORKSPACE / "business_domains/book_library_mgmt/registry"
 # entirely — true where a domain was built by change requests from its first artifact, false where
 # the registry predates the lifecycle and most of it is determined by no design.
 COPIES = REPO / "scripts/testbed/delivered_copies"
+# Every identity deleted by record (`4e` SU-12). A delivered design may still render one.
+RETIRED = {e["identity"] for e in yaml.safe_load(
+    (WORKSPACE / ".github/process/retired_identities.yaml").read_text(encoding="utf-8"))["retired"]}
 
-# Delivered dossiers are read from their test copies, never where they were delivered. A delivered
-# dossier is never edited, and it stays in the form it was approved in, which this reader does not
-# read. Each copy holds a dossier's design and mandate, converted mechanically once by the oracle's
-# reader (`scripts/rebuild/convert.py`), because those two documents are all construction reads.
+# A business domain's dossiers are read where they were delivered: they were converted to the
+# Machine form in place, mechanically, by the oracle's own reader at the swap. The two base-code
+# roots, whose dossiers the swap deleted, are read from their test copies, which hold each dossier's
+# design and mandate, because those two documents are all construction reads.
 DOMAINS = (
     (CR_DOSSIERS, REGISTRY, True),
-    (COPIES / "business_domains/blockchain/cr_dossiers",
+    (WORKSPACE / "business_domains/blockchain/cr_dossiers",
      WORKSPACE / "business_domains/blockchain/registry", True),
-    (COPIES / "business_domains/causal_language_model/cr_dossiers",
+    (WORKSPACE / "business_domains/causal_language_model/cr_dossiers",
      WORKSPACE / "business_domains/causal_language_model/registry", True),
     # ai_governance's registry predates the lifecycle: its change requests determine a few of its
     # artifacts, and the rest were authored by hand.
-    (COPIES / "business_domains/ai_governance/cr_dossiers",
+    (WORKSPACE / "business_domains/ai_governance/cr_dossiers",
      WORKSPACE / "business_domains/ai_governance/registry", False),
     (COPIES / "software_governance/dossiers",
      WORKSPACE / "software_governance/registry", False),
     (COPIES / "transformation/dossiers",
      WORKSPACE / "transformation/registry", False),
     # The Collatz workload predates the lifecycle too; cr_01 is its first change through it.
-    (COPIES / "conformance_workloads/workloads/collatz/cr_dossiers",
+    (WORKSPACE / "conformance_workloads/workloads/collatz/cr_dossiers",
      WORKSPACE / "conformance_workloads/workloads/collatz/registry", False),
 )
 
-# Every delivered root is read through a substitute: the catalog's through maintained fixtures, the
-# rest through their test copies. Named here so the coverage check below can tell a deliberate
-# substitution from an omission.
+# A delivered root read through a substitute: the catalog's through maintained fixtures, and the
+# base-code roots through their test copies. Named here so the coverage check below can tell a
+# deliberate substitution from an omission.
 SUBSTITUTED = {
     WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers",
-    WORKSPACE / "business_domains/blockchain/cr_dossiers",
-    WORKSPACE / "business_domains/causal_language_model/cr_dossiers",
-    WORKSPACE / "business_domains/ai_governance/cr_dossiers",
     WORKSPACE / "software_governance/dossiers",
     WORKSPACE / "transformation/dossiers",
-    WORKSPACE / "conformance_workloads/workloads/collatz/cr_dossiers",
 }
 
 # The sequence used to be a literal list, and a delivered dossier that re-rendered an artifact an
@@ -316,6 +315,11 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
         # which is not a construction defect. Reported by name so it stays visible, never counted.
         if rendered[code]["machine"].get("artifact_kind") == "TEST_DATA":
             print(f"  NOT YET DELIVERED  {code:<33} {determined_by[code]}")
+            continue
+        # An artifact a delivered design rendered and a later change deleted by record. The design is
+        # history; the ledger says why the artifact is gone. Reported by name, never counted.
+        if rendered[code]["machine"].get("fqdn") in RETIRED:
+            print(f"  RETIRED BY RECORD  {code:<33} {determined_by[code]}")
             continue
         print(f"  EXTRA {code:<44} rendered, never built")
         failures += 1

@@ -786,7 +786,9 @@ def merit_of(surface: dict, payload: dict, phase: str, policy: dict) -> Merit:
 # added and compiled, and three cases were judged against a baseline still carrying the previous
 # sealed rule set, reporting "30 rules evaluated" against 32 declared. Reproduction is now
 # conditional on the sources being no newer than the cache.
-DESIGN_BASELINE = Path("/tmp/pgc_cr01_design_baseline")
+# Build output, beside the rest: `regression.sh --all` clears `traces/` before it rebuilds, so the
+# reproduction never outlives the compiled domains it was assembled from.
+DESIGN_BASELINE = WORKSPACE / "traces" / "design_baseline"
 
 DESIGN_BASELINE_ROOTS = [
     WORKSPACE / "software_governance",

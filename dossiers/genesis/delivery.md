@@ -14,7 +14,8 @@ transformation.
 
 ## What the dossier exposed
 
-Each is entered in `transformation/doc/REBUILD_CHARTER.md` §8 (Genesis) before any code changes.
+Each was entered in the rebuild charter's §8 (Genesis) before any code changed. The charter is
+held by git.
 
 | Finding | What it is | Disposition |
 |---|---|---|
@@ -28,12 +29,13 @@ Each is entered in `transformation/doc/REBUILD_CHARTER.md` §8 (Genesis) before 
 | G-8 | The completeness measure ignores the provenance it is handed | Open |
 | G-9 | A stood-down transform was required to be reached | Fixed in the compiler |
 | G-10 | The module's vocabularies and vectors were never compiled | Fixed: the build manifest names them |
-| G-11 | The compiler reads artifact names in test data as references | Fixed: `software_governance/dossiers/data_parts` declares a vector's cases data |
+| G-11 | The compiler reads artifact names in test data as references | Fixed: `artifact::VOCAB_DECLARATION_REPRESENTATION_V1` declares a vector's cases data (dossier `data_parts`, held on `archive/rebuild-transformation`) |
 
 ## Where it stands
 
-- Pinned to `b6e2a39c…`, the composition without transformation, side-assembled after G-11. The first
-  pin, `01fd3cfe…`, predates the vocabulary's new version and was retaken once, deliberately.
+- Pinned to `37968c3e…` (503 artifacts), the composition without transformation, side-assembled
+  after the swap. Each earlier pin was retaken deliberately: `01fd3cfe…` predates the vocabulary's
+  new version, and `b6e2a39c…` still held the three platform artifacts the swap deleted.
 - P0–P8 are each admissible under the rebuilt module's declared rules, with no findings.
 - No gate is closed. Gate 0 (the seed), Gate 1 (P7) and Gate 2 (P8) are the business author's.
-- G-2, G-3, G-4 and G-8 stay open. Each goes through the lifecycle after the swap.
+- G-2, G-3, G-4 and G-8 stay open. Each goes through the lifecycle, judged by the rebuilt module.

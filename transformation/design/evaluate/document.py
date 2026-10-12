@@ -101,9 +101,8 @@ class ParsedDocument:
     def register(self, register_id: str) -> Block | None:
         """The register with this identity, or None if the document does not carry it.
 
-        Registers are addressed by the `<!-- register:id -->` marker an authored document repeats
-        from its template. Identity is stable across retitling and unambiguous when one section
-        holds several registers.
+        Registers are addressed by their key in the document's Machine block. Identity is stable
+        across retitling and unambiguous when one section holds several registers.
         """
         return _register_block(self.registers, register_id)
 
