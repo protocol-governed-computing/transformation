@@ -88,7 +88,7 @@ DOMAINS = (
     (COPIES / "software_governance/dossiers",
      WORKSPACE / "software_governance/registry", False),
     (COPIES / "transformation/dossiers",
-     WORKSPACE / "transformation/registry", False),
+     WORKSPACE / "transformation_compilers/registry", False),
     # The Collatz workload predates the lifecycle too; cr_01 is its first change through it.
     (WORKSPACE / "conformance_workloads/workloads/collatz/cr_dossiers",
      WORKSPACE / "conformance_workloads/workloads/collatz/registry", False),
@@ -100,7 +100,7 @@ DOMAINS = (
 SUBSTITUTED = {
     WORKSPACE / "business_domains/book_library_mgmt/cr_dossiers",
     WORKSPACE / "software_governance/dossiers",
-    WORKSPACE / "transformation/dossiers",
+    WORKSPACE / "transformation_compilers/dossiers",
 }
 
 # The sequence used to be a literal list, and a delivered dossier that re-rendered an artifact an
@@ -110,7 +110,7 @@ SUBSTITUTED = {
 # cost 12 such differences before anyone thought to look at the list.
 #
 # A business-domain dossier is numbered, and the number *is* the sequence: `cr_NN_<subject>` is the
-# form, declared in `transformation/CLAUDE.md`. So the ordering is read from the name rather than
+# form, declared in `transformation_compilers/CLAUDE.md`. So the ordering is read from the name rather than
 # restated beside it. A directory that is not numbered that way is not part of a sequence and is
 # not silently swept in.
 SEQUENCED = re.compile(r"^cr_(\d+)_")
@@ -120,7 +120,7 @@ def sequence(root: Path) -> list[Path]:
     """The delivered dossiers of one domain, in the order they were delivered.
 
     A business domain numbers its dossiers and the number *is* the order. A base-code domain does
-    not — `transformation/CLAUDE.md` rules that `cr_NN_` "says nothing true about it and reads as a
+    not — `transformation_compilers/CLAUDE.md` rules that `cr_NN_` "says nothing true about it and reads as a
     sequence that does not exist", because git manages the change. So an unnumbered root has a set
     and no order, and this returns it sorted by name for a stable report rather than a meaningful one.
 
@@ -252,7 +252,7 @@ def acceptance(dossier_root: Path, registry: Path, dossiers: list[Path] | None =
             # Overriding is what promotion did, and it is only meaningful where the dossiers are
             # ordered. An unnumbered root carries no order, so two of its dossiers determining one
             # artifact is two designs of record and nothing says which is later. That is the hazard
-            # `transformation/CLAUDE.md` names and nothing enforces — enforced here, for the roots
+            # `transformation_compilers/CLAUDE.md` names and nothing enforces — enforced here, for the roots
             # where it can be.
             if not ordered and code in rendered:
                 print(f"  REFUSED  {code} is determined by both {determined_by[code]} and "

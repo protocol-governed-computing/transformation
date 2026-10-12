@@ -1,4 +1,4 @@
-# transformation
+# transformation_compilers
 
 **The governed Change Request → Protocol Artifact pipeline**, and it holds **two compilers**.
 
@@ -13,8 +13,9 @@ valid and did not uniquely determine an artifact — only the thing that renders
 the repair amends the design language rather than one register. Merging them would blur two failure
 classes that different layers repair.
 
-The repository is named for the lifecycle, not for either compiler. **`transformation` is not a
-third compiler.** It began as a functional rehost of RI-0's `pgs_change_mgmt`. For v6 it was rebuilt
+The repository is named for the two compilers it holds. The lifecycle keeps its name: the domain,
+the `transformation::` namespace and the import package are all `transformation`, and the PyPI
+package is `pgc-transformation`. **`transformation` is not a third compiler.** It began as a functional rehost of RI-0's `pgs_change_mgmt`. For v6 it was rebuilt
 against a frozen copy of itself, the tag `oracle/transformation`, and swapped in whole: every rule it
 enforces is now declared as data.
 
@@ -119,7 +120,7 @@ D=$W/business_domains/book_library_mgmt/cr_dossiers/cr_01_catalog
 tc construction check $D --snapshot $W/snapshot
 tc construction emit  $D --root $W/business_domains/book_library_mgmt
 
-python $W/transformation/scripts/testbed/construction_acceptance.py
+python $W/transformation_compilers/scripts/testbed/construction_acceptance.py
 $W/protocol_compiler/compile_domain.sh $W/business_domains/book_library_mgmt
 PGC_SNAPSHOT_PROFILE=GOVERNANCE_SURFACE_PROFILE_V0 $W/snapshot_assembler/assemble.sh
 ```
@@ -160,11 +161,11 @@ sets:
 
 ```bash
 tc phase emit --snapshot $W/snapshot --check           # names the drifted phase
-python $W/transformation/scripts/emit_rule_sets.py --snapshot $W/snapshot   # re-seal
-$W/protocol_compiler/compile_domain.sh $W/transformation
+python $W/transformation_compilers/scripts/emit_rule_sets.py --snapshot $W/snapshot   # re-seal
+$W/protocol_compiler/compile_domain.sh $W/transformation_compilers
 PGC_SNAPSHOT_PROFILE=GOVERNANCE_SURFACE_PROFILE_V0 $W/snapshot_assembler/assemble.sh
-python $W/transformation/scripts/testbed/build_fixtures.py
-python $W/transformation/scripts/testbed/build_payloads.py
+python $W/transformation_compilers/scripts/testbed/build_fixtures.py
+python $W/transformation_compilers/scripts/testbed/build_payloads.py
 ```
 
 Fixtures and payloads are **derived from the live dossier** — never hand-edit one; change the dossier
@@ -243,7 +244,7 @@ drops it: an approval is against one composition and survives no other.
 | `pgc-assembler` | `snapshot_assembler` | projections → sealed snapshot |
 | `pgc-runtime` | `protocol_runtime` | snapshot → governed execution |
 | `pgc-inspector` | `snapshot_inspector` | snapshot → read-only inspection |
-| `pgc-transformation` | `transformation` | change request → protocol artifacts |
+| `pgc-transformation` | `transformation_compilers` | change request → protocol artifacts |
 | `pgc-governance` | `software_governance` | the governance surface and its capability implementations |
 | `pgc-workloads` | `conformance_workloads` | the workloads that make conformance observable |
 | `pgc-domains` | `business_domains` | the business domain implementations the composed snapshot binds |

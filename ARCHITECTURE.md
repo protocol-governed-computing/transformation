@@ -1,4 +1,4 @@
-# Architecture — `transformation`
+# Architecture — `transformation_compilers`
 
 This document describes what this repository is, what it owns, and what it must never do. It is
 written to be read before any code, and assumes no prior familiarity with Protocol-Governed
@@ -177,7 +177,7 @@ re-confirms it.
 Two commands, no prior knowledge. First, see the pipeline itself:
 
 ```bash
-cd transformation
+cd transformation_compilers
 tc phase list
 ```
 
